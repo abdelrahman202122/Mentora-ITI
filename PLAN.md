@@ -4,20 +4,143 @@
 
 Mentora is a private education marketplace that connects learners with tutors through tutor discovery, AI-powered matching, booking management, real-time communication, payments, and reviews.
 
-### Team Composition
+---
 
-#### Frontend Team (3 Developers)
+# Team Composition
 
-- **FE1** — Authentication, Layouts, Localization
-- **FE2** — Learner Experience & AI Assistant
-- **FE3** — Tutor Dashboard & Admin Dashboard
+## Frontend Team (3 Developers)
 
-#### Backend Team (4 Developers)
+### FE1 — Authentication, Layouts & Admin Dashboard
 
-- **BE1** — Authentication, Users, Security
-- **BE2** — Tutor Profiles, Subjects, Discovery
-- **BE3** — Bookings, Payments, Reviews
-- **BE4** — Chat, Notifications, AI Services
+**Responsibilities**
+
+- Authentication system
+- Shared application layouts
+- Navigation components
+- Route protection
+- Admin dashboard
+- Notification center
+- Shared UI architecture
+
+**Pages**
+
+- `/auth/login`
+- `/auth/register`
+- `/auth/forgot-password`
+- `/auth/reset-password`
+- `/dashboard/admin`
+- `/dashboard/admin/users`
+- `/dashboard/admin/tutors`
+- `/dashboard/admin/bookings`
+- `/dashboard/admin/payments`
+
+---
+
+### FE2 — Learner Experience & AI Assistant
+
+**Responsibilities**
+
+- Tutor discovery
+- Search and filtering
+- Tutor profile viewing
+- Booking flow
+- Learner dashboard
+- Reviews
+- Real-time chat
+- AI-powered tutor matching assistant
+
+**Pages**
+
+- `/`
+- `/tutors`
+- `/tutors/[id]`
+- `/ai-assistant`
+- `/dashboard/learner`
+- `/dashboard/learner/bookings`
+- `/dashboard/learner/reviews`
+- `/chat`
+
+---
+
+### FE3 — Tutor Dashboard & Localization
+
+**Responsibilities**
+
+- Tutor profile management
+- Availability management
+- Pricing management
+- Tutor dashboard
+- Earnings dashboard
+- Tutor booking management
+- Localization (Arabic/English)
+- RTL/LTR support
+- Responsive QA
+
+**Pages**
+
+- `/dashboard/tutor`
+- `/dashboard/tutor/profile`
+- `/dashboard/tutor/bookings`
+- `/dashboard/tutor/sessions`
+- `/dashboard/tutor/earnings`
+- `/dashboard/tutor/reviews`
+
+---
+
+## Backend Team (4 Developers)
+
+### BE1 — Authentication, Users & Security
+
+**Responsibilities**
+
+- User management
+- Authentication
+- Authorization
+- JWT
+- Password management
+- Security middleware
+- Audit logging
+- Deployment infrastructure
+
+---
+
+### BE2 — Tutor Profiles, Subjects & Discovery
+
+**Responsibilities**
+
+- Tutor profiles
+- Subjects
+- Availability
+- Tutor search
+- Tutor filtering
+- Discovery APIs
+
+---
+
+### BE3 — Bookings, Payments & Reviews
+
+**Responsibilities**
+
+- Booking lifecycle
+- Session management
+- Payment processing
+- Platform commission
+- Earnings calculations
+- Reviews and ratings
+
+---
+
+### BE4 — Chat, Notifications & AI Services
+
+**Responsibilities**
+
+- Socket.IO
+- Messaging system
+- Notifications
+- AI matching assistant
+- LLM integration
+- AI monitoring and observability
+- Redis integration
 
 ---
 
@@ -27,9 +150,9 @@ Mentora is a private education marketplace that connects learners with tutors th
 
 Establish project foundations, coding standards, CI/CD, and application architecture.
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE1
+### FE1
 
 - Initialize Next.js application
 - Configure Tailwind CSS
@@ -38,21 +161,21 @@ Establish project foundations, coding standards, CI/CD, and application architec
 - Create application layout system
 - Configure route groups
 
-#### FE2
+### FE2
 
 - Create reusable UI component structure
 - Setup Axios API layer
 - Setup form architecture
 
-#### FE3
+### FE3
 
 - Design dashboard shell layouts
 - Design responsive navigation
 - Create design tokens
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE1
+### BE1
 
 - Initialize Express application
 - Configure environment management
@@ -61,23 +184,23 @@ Establish project foundations, coding standards, CI/CD, and application architec
 - Setup logging
 - Setup error handling
 
-#### BE2
+### BE2
 
 - Create project folder structure
 - Configure repositories/services pattern
 - Setup Swagger documentation
 
-#### BE3
+### BE3
 
 - Setup validation architecture
 - Configure response standardization
 
-#### BE4
+### BE4
 
 - Setup Socket.IO infrastructure
 - Setup Redis integration
 
-### Deliverables
+## Deliverables
 
 - Running frontend
 - Running backend
@@ -93,9 +216,9 @@ Establish project foundations, coding standards, CI/CD, and application architec
 
 Implement authentication and user accounts.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE1
+### BE1
 
 - User model
 - Register endpoint
@@ -106,26 +229,28 @@ Implement authentication and user accounts.
 - Role middleware
 - Refresh token strategy
 
-#### BE2
+### BE2
 
 - Profile update APIs
 - Avatar upload APIs
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE1
+### FE1
 
 - Register page
 - Login page
 - Forgot password page
 - Reset password page
 - Authentication guards
+- Session management
+- Auth context/provider
 
-#### FE2
+### FE2
 
 - User profile page
 
-### Deliverables
+## Deliverables
 
 - Learner registration
 - Tutor registration
@@ -140,9 +265,9 @@ Implement authentication and user accounts.
 
 Allow tutors to create professional profiles.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE2
+### BE2
 
 - Subject model
 - TutorProfile model
@@ -151,19 +276,21 @@ Allow tutors to create professional profiles.
 - Tutor subject management
 - Tutor availability management
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE3
+### FE3
 
 - Tutor profile creation form
+- Tutor profile editing form
 - Availability management UI
 - Pricing management UI
+- Subject selection UI
 
-#### FE2
+### FE2
 
 - Public tutor profile page
 
-### Deliverables
+## Deliverables
 
 - Tutor profiles
 - Subjects
@@ -177,9 +304,9 @@ Allow tutors to create professional profiles.
 
 Allow learners to discover tutors.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE2
+### BE2
 
 - Tutor listing API
 - Search API
@@ -187,9 +314,9 @@ Allow learners to discover tutors.
 - Pagination support
 - Sorting support
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE2
+### FE2
 
 - Tutor listing page
 - Search UI
@@ -197,7 +324,7 @@ Allow learners to discover tutors.
 - Tutor cards
 - Tutor details page
 
-### Deliverables
+## Deliverables
 
 - Tutor search
 - Tutor filtering
@@ -211,9 +338,9 @@ Allow learners to discover tutors.
 
 Enable booking and scheduling.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE3
+### BE3
 
 - Booking model
 - Booking request API
@@ -221,19 +348,22 @@ Enable booking and scheduling.
 - Reject booking API
 - Session status workflow
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE2
+### FE2
 
 - Booking request form
 - Learner bookings dashboard
+- Upcoming sessions
+- Session history
 
-#### FE3
+### FE3
 
 - Tutor booking requests page
 - Session management dashboard
+- Session approval workflow
 
-### Deliverables
+## Deliverables
 
 - Booking workflow
 - Session management
@@ -246,9 +376,9 @@ Enable booking and scheduling.
 
 Implement payment processing and tutor earnings.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE3
+### BE3
 
 - Payment model
 - Payment integration
@@ -256,20 +386,21 @@ Implement payment processing and tutor earnings.
 - Earnings model
 - Tutor earnings APIs
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE2
+### FE2
 
 - Checkout page
 - Payment success page
 - Payment failure page
 
-#### FE3
+### FE3
 
 - Earnings dashboard
 - Revenue statistics
+- Payout history
 
-### Deliverables
+## Deliverables
 
 - Online payments
 - Commission calculation
@@ -283,9 +414,9 @@ Implement payment processing and tutor earnings.
 
 Enable communication between learners and tutors.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE4
+### BE4
 
 - Chat model
 - Message model
@@ -293,22 +424,25 @@ Enable communication between learners and tutors.
 - Read receipts
 - Notification model
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE2
+### FE2
 
 - Chat list
 - Chat conversation page
+- Learner messaging experience
 
-#### FE3
+### FE3
 
 - Tutor messaging interface
 
-#### FE1
+### FE1
 
 - Notification center
+- Notification dropdown
+- Notification badges
 
-### Deliverables
+## Deliverables
 
 - Real-time messaging
 - Notifications
@@ -321,22 +455,23 @@ Enable communication between learners and tutors.
 
 Allow learners to review tutors.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE3
+### BE3
 
 - Review model
 - Rating calculation service
 - Review APIs
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE2
+### FE2
 
 - Review submission form
 - Ratings display
+- Reviews listing
 
-### Deliverables
+## Deliverables
 
 - Tutor ratings
 - Tutor reviews
@@ -349,9 +484,9 @@ Allow learners to review tutors.
 
 Provide AI-powered tutor recommendations.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE4
+### BE4
 
 - AI conversation service
 - Tutor recommendation engine
@@ -359,15 +494,16 @@ Provide AI-powered tutor recommendations.
 - LLM integration
 - AI logging & monitoring
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE2
+### FE2
 
 - AI chat interface
+- Guided questions UI
 - Recommendation UI
 - Match explanation UI
 
-### Deliverables
+## Deliverables
 
 - AI tutor assistant
 - Tutor recommendations
@@ -380,31 +516,33 @@ Provide AI-powered tutor recommendations.
 
 Provide platform administration tools.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE1
+### BE1
 
 - User management APIs
 
-#### BE2
+### BE2
 
 - Tutor management APIs
 
-#### BE3
+### BE3
 
-- Booking and payment reporting APIs
+- Booking reporting APIs
+- Payment reporting APIs
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE3
+### FE1
 
 - Admin dashboard
 - User management screens
 - Tutor management screens
 - Booking management screens
 - Payment reporting screens
+- Analytics overview
 
-### Deliverables
+## Deliverables
 
 - Admin panel
 
@@ -416,16 +554,24 @@ Provide platform administration tools.
 
 Support Arabic and English.
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### FE1
+### FE3
 
 - next-intl setup
 - RTL support
 - Language switching
-- Accessibility improvements
+- Arabic translations
+- Date localization
+- Currency localization
 
-### Deliverables
+### FE1
+
+- Accessibility improvements
+- Shared layout RTL fixes
+- Keyboard navigation support
+
+## Deliverables
 
 - Arabic UI
 - English UI
@@ -439,40 +585,41 @@ Support Arabic and English.
 
 Prepare production-ready release.
 
-### Backend Tasks
+## Backend Tasks
 
-#### BE1
+### BE1
 
 - Rate limiting
 - Security headers
 - Audit logging
 
-#### All Backend
+### All Backend
 
 - API testing
 - Documentation
+- Performance optimization
 
-### Frontend Tasks
+## Frontend Tasks
 
-#### All Frontend
+### All Frontend
 
 - Responsive testing
 - Accessibility testing
 - End-to-end testing
 
-### Deployment
+## Deployment
 
-#### FE1
+### FE1
 
 - Deploy Next.js application
 
-#### BE1
+### BE1
 
 - Deploy Express API
 - Configure MongoDB Atlas
 - Configure Redis
 
-### Deliverables
+## Deliverables
 
 - Production deployment
 - Documentation
@@ -482,16 +629,16 @@ Prepare production-ready release.
 
 # Suggested Timeline
 
-| Week   | Scope                             |
-| ------ | --------------------------------- |
-| Week 1 | Setup & Authentication            |
-| Week 2 | Tutor Profiles & Discovery        |
-| Week 3 | Booking System                    |
-| Week 4 | Chat & Notifications              |
-| Week 5 | Payments & Reviews                |
-| Week 6 | AI Matching Assistant             |
-| Week 7 | Admin Dashboard                   |
-| Week 8 | Localization, Testing, Deployment |
+| Week   | Scope                              |
+| ------ | ---------------------------------- |
+| Week 1 | Setup & Authentication             |
+| Week 2 | Tutor Profiles & Discovery         |
+| Week 3 | Booking System                     |
+| Week 4 | Chat & Notifications               |
+| Week 5 | Payments & Reviews                 |
+| Week 6 | AI Matching Assistant              |
+| Week 7 | Admin Dashboard                    |
+| Week 8 | Localization, Testing & Deployment |
 
 ---
 
