@@ -3,6 +3,8 @@ import { createServer, type Server } from 'node:http';
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { connectRedis, disconnectRedis } from './config/redis.js';
+import { closeSocketServer, initializeSocketServer } from './config/socket.js';
 
 function listen(server: Server, port: number) {
   return new Promise<void>((resolve, reject) => {
@@ -16,9 +18,11 @@ function listen(server: Server, port: number) {
 
 async function bootstrap() {
   await connectDatabase();
+  await connectRedis();
 
   const app = createApp();
   const server = createServer(app);
+  await initializeSocketServer(server);
 
   await listen(server, env.PORT);
   console.log(`API running on http://localhost:${env.PORT}`);
@@ -32,12 +36,14 @@ async function bootstrap() {
         process.exit(1);
       }
 
-      disconnectDatabase()
+      closeSocketServer()
+        .then(disconnectRedis)
+        .then(disconnectDatabase)
         .then(() => {
           process.exit(0);
         })
         .catch((disconnectError) => {
-          console.error('Failed to disconnect database', disconnectError);
+          console.error('Failed to shutdown resources', disconnectError);
           process.exit(1);
         });
     });
@@ -49,6 +55,8 @@ async function bootstrap() {
 
 bootstrap().catch(async (error) => {
   console.error('Failed to start server', error);
+  await closeSocketServer();
+  await disconnectRedis();
   await disconnectDatabase();
   process.exit(1);
 });
