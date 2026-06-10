@@ -17,9 +17,11 @@ function listen(server: Server, port: number) {
 
 async function bootstrap() {
   await connectDatabase();
+  await connectRedis();
 
   const app = createApp();
   const server = createServer(app);
+  await initializeSocketServer(server);
 
   await listen(server, env.PORT);
   // console.log(`API running on http://localhost:${env.PORT}`);
@@ -37,14 +39,25 @@ async function bootstrap() {
         process.exit(1);
       }
 
-      disconnectDatabase()
-        .then(() => {
-          process.exit(0);
-        })
-        .catch((disconnectError) => {
-          console.error('Failed to disconnect database', disconnectError);
+      void Promise.allSettled([
+        closeSocketServer(),
+        disconnectRedis(),
+        disconnectDatabase(),
+      ]).then((results) => {
+        const failures = results.filter(
+          (result): result is PromiseRejectedResult => result.status === 'rejected',
+        );
+
+        if (failures.length > 0) {
+          console.error(
+            'Failed to shutdown resources',
+            failures.map((failure) => failure.reason),
+          );
           process.exit(1);
-        });
+        }
+
+        process.exit(0);
+      });
     });
   };
 
@@ -54,6 +67,8 @@ async function bootstrap() {
 
 bootstrap().catch(async (error) => {
   console.error('Failed to start server', error);
+  await closeSocketServer();
+  await disconnectRedis();
   await disconnectDatabase();
   process.exit(1);
 });
