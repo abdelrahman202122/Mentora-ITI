@@ -18,7 +18,6 @@ const messageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Chat',
       required: true,
-      index: true,
     },
     senderId: {
       type: Schema.Types.ObjectId,
@@ -30,7 +29,6 @@ const messageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      index: true,
     },
     type: {
       type: String,
@@ -68,8 +66,8 @@ const messageSchema = new Schema(
   },
 );
 
-messageSchema.index({ chatId: 1, createdAt: -1 });
-messageSchema.index({ recipientId: 1, status: 1 });
+messageSchema.index({ chatId: 1, deletedAt: 1, createdAt: -1 });
+messageSchema.index({ recipientId: 1, deletedAt: 1, status: 1 });
 
 export type MessageDocument = InferSchemaType<typeof messageSchema>;
 
