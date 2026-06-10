@@ -8,7 +8,7 @@ import { env } from './env.js';
 import { getRedisClient } from './redis.js';
 
 let io: SocketServer | null = null;
-let socketRedisSubscriber: RedisClientType | null = null;
+let socketRedisSubscriber: RedisClientType | undefined;
 
 export async function initializeSocketServer(server: HttpServer) {
   io = new SocketServer(server, {
@@ -20,8 +20,23 @@ export async function initializeSocketServer(server: HttpServer) {
 
   const redisPublisher = getRedisClient();
   socketRedisSubscriber = redisPublisher.duplicate();
-  await socketRedisSubscriber.connect();
-  io.adapter(createAdapter(redisPublisher, socketRedisSubscriber));
+
+  try {
+    await socketRedisSubscriber.connect();
+    io.adapter(createAdapter(redisPublisher, socketRedisSubscriber));
+  } catch (error) {
+    try {
+      if (socketRedisSubscriber.isOpen) {
+        await socketRedisSubscriber.quit();
+      }
+    } catch (disconnectError) {
+      console.error('Failed to close Socket.IO Redis subscriber', disconnectError);
+    } finally {
+      socketRedisSubscriber = undefined;
+    }
+
+    throw error;
+  }
 
   io.on('connection', (socket) => {
     socket.emit('connected', {
@@ -47,17 +62,25 @@ export function getSocketServer() {
 }
 
 export async function closeSocketServer() {
-  if (!io) {
-    return;
+  if (io) {
+    try {
+      await io.close();
+    } catch (error) {
+      console.error('Failed to close Socket.IO server', error);
+    } finally {
+      io = null;
+    }
   }
 
-  await io.close();
-  io = null;
-
-  if (socketRedisSubscriber?.isOpen) {
-    await socketRedisSubscriber.quit();
+  try {
+    if (socketRedisSubscriber?.isOpen) {
+      await socketRedisSubscriber.quit();
+    }
+  } catch (error) {
+    console.error('Failed to close Socket.IO Redis subscriber', error);
+  } finally {
+    socketRedisSubscriber = undefined;
   }
 
-  socketRedisSubscriber = null;
   console.log('Socket.IO closed');
 }

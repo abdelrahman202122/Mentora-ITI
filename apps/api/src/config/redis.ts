@@ -36,7 +36,12 @@ export async function disconnectRedis() {
     return;
   }
 
-  await redisClient.quit();
-  redisClient = null;
-  console.log('Redis disconnected');
+  try {
+    await redisClient.quit();
+    console.log('Redis disconnected');
+  } catch (error) {
+    console.error('Failed to disconnect Redis', error);
+  } finally {
+    redisClient = null;
+  }
 }

@@ -36,16 +36,25 @@ async function bootstrap() {
         process.exit(1);
       }
 
-      closeSocketServer()
-        .then(disconnectRedis)
-        .then(disconnectDatabase)
-        .then(() => {
-          process.exit(0);
-        })
-        .catch((disconnectError) => {
-          console.error('Failed to shutdown resources', disconnectError);
+      void Promise.allSettled([
+        closeSocketServer(),
+        disconnectRedis(),
+        disconnectDatabase(),
+      ]).then((results) => {
+        const failures = results.filter(
+          (result): result is PromiseRejectedResult => result.status === 'rejected',
+        );
+
+        if (failures.length > 0) {
+          console.error(
+            'Failed to shutdown resources',
+            failures.map((failure) => failure.reason),
+          );
           process.exit(1);
-        });
+        }
+
+        process.exit(0);
+      });
     });
   };
 
