@@ -10,8 +10,7 @@ import { z } from 'zod';
  */
 export const objectIdSchema = z
   .string()
-  .min(24, 'Invalid ID format')
-  .max(24, 'Invalid ID format');
+  .regex(/^[a-fA-F0-9]{24}$/, 'Invalid ID format');
 
 /**
  * Common pagination query parameters
