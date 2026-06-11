@@ -6,24 +6,26 @@ import { Server as SocketServer } from 'socket.io';
 
 import { env } from './env.js';
 import { getRedisClient } from './redis.js';
+import { registerChatSocketHandlers } from '../modules/chats/chat.socket.js';
 
 let io: SocketServer | null = null;
 let socketRedisSubscriber: RedisClientType | undefined;
 
 export async function initializeSocketServer(server: HttpServer) {
-  io = new SocketServer(server, {
+  const socketServer = new SocketServer(server, {
     cors: {
       origin: env.CLIENT_ORIGIN,
       credentials: true,
     },
   });
+  io = socketServer;
 
   const redisPublisher = getRedisClient();
   socketRedisSubscriber = redisPublisher.duplicate();
 
   try {
     await socketRedisSubscriber.connect();
-    io.adapter(createAdapter(redisPublisher, socketRedisSubscriber));
+    socketServer.adapter(createAdapter(redisPublisher, socketRedisSubscriber));
   } catch (error) {
     try {
       if (socketRedisSubscriber.isOpen) {
@@ -38,7 +40,9 @@ export async function initializeSocketServer(server: HttpServer) {
     throw error;
   }
 
-  io.on('connection', (socket) => {
+  socketServer.on('connection', (socket) => {
+    registerChatSocketHandlers(socketServer, socket);
+
     socket.emit('connected', {
       socketId: socket.id,
     });
@@ -50,7 +54,7 @@ export async function initializeSocketServer(server: HttpServer) {
 
   console.log('Socket.IO initialized');
 
-  return io;
+  return socketServer;
 }
 
 export function getSocketServer() {
