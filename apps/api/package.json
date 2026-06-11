@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@socket.io/redis-adapter": "^8.3.0",
+    "bcrypt": "^6.0.0",
     "compression": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
