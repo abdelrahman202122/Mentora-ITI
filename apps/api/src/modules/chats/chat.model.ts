@@ -1,10 +1,6 @@
-import {
-  model,
-  models,
-  Schema,
-  type InferSchemaType,
-  type Model,
-} from 'mongoose';
+import mongoose, { type InferSchemaType, type Model } from 'mongoose';
+
+const { model, models, Schema } = mongoose;
 
 export const chatStatuses = ['active', 'archived'] as const;
 export type ChatStatus = (typeof chatStatuses)[number];
