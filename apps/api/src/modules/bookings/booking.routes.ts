@@ -6,6 +6,9 @@ import {
   bookingIdSchema,
   listBookingsSchema,
   acceptBookingSchema,
+  rejectBookingSchema,
+  cancelBookingSchema,
+  confirmBookingCodeSchema,
 } from '../../validators/booking.js';
 
 const router = Router();
@@ -21,11 +24,11 @@ router.post('/', validate({ body: createBookingSchema }), (req, res) => {
 });
 
 /**
- * GET /api/bookings
- * List bookings with optional filters and pagination
- * Query: listBookingsSchema (status, page, limit)
+ * GET /api/bookings/me
+ * List the authenticated user's bookings with optional filters and pagination
+ * Query: listBookingsSchema
  */
-router.get('/', validate({ query: listBookingsSchema }), (req, res) => {
+router.get('/me', validate({ query: listBookingsSchema }), (req, res) => {
   // Controller method will be implemented
   res.status(200).json({ message: 'Bookings list' });
 });
@@ -41,17 +44,62 @@ router.get('/:bookingId', validate({ params: bookingIdSchema }), (req, res) => {
 });
 
 /**
- * PATCH /api/bookings/:bookingId
- * Update booking status (e.g., accept, reject, cancel)
+ * PATCH /api/bookings/:bookingId/accept
+ * Accept a pending booking request
  * Params: bookingIdSchema
  * Body: acceptBookingSchema
  */
 router.patch(
-  '/:bookingId',
+  '/:bookingId/accept',
   validate({ params: bookingIdSchema, body: acceptBookingSchema }),
   (req, res) => {
     // Controller method will be implemented
-    res.status(200).json({ message: 'Booking updated' });
+    res.status(200).json({ message: 'Booking accepted' });
+  },
+);
+
+/**
+ * PATCH /api/bookings/:bookingId/reject
+ * Reject a pending booking request
+ * Params: bookingIdSchema
+ * Body: rejectBookingSchema
+ */
+router.patch(
+  '/:bookingId/reject',
+  validate({ params: bookingIdSchema, body: rejectBookingSchema }),
+  (req, res) => {
+    // Controller method will be implemented
+    res.status(200).json({ message: 'Booking rejected' });
+  },
+);
+
+/**
+ * PATCH /api/bookings/:bookingId/cancel
+ * Cancel a booking before completion
+ * Params: bookingIdSchema
+ * Body: cancelBookingSchema
+ */
+router.patch(
+  '/:bookingId/cancel',
+  validate({ params: bookingIdSchema, body: cancelBookingSchema }),
+  (req, res) => {
+    // Controller method will be implemented
+    res.status(200).json({ message: 'Booking canceled' });
+  },
+);
+
+/**
+ * POST /api/bookings/:bookingId/confirm-code
+ * Confirm session completion with the learner-provided code
+ * Params: bookingIdSchema
+ * Body: confirmBookingCodeSchema
+ */
+router.post(
+  '/:bookingId/confirm-code',
+  validate({ params: bookingIdSchema, body: confirmBookingCodeSchema }),
+  (req, res) => {
+    // Controller method will be implemented
+    res.status(200).json({ message: 'Booking code confirmed' });
   },
 );
 
