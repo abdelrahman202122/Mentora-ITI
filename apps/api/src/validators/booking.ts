@@ -82,14 +82,11 @@ export type CancelBookingInput = z.infer<typeof cancelBookingSchema>;
 export const updateBookingStatusSchema = z.object({
   status: z.enum([
     'pending',
-    'accepted',
+    'confirmed',
     'rejected',
-    'payment_pending',
-    'scheduled',
-    'in_progress',
     'completed',
     'canceled',
-    'no_show',
+    'expired',
   ]),
 });
 
