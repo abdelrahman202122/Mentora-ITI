@@ -3,11 +3,26 @@ import mongoose from 'mongoose';
 const experienceSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    startDate: { type: String, required: true }, // "MM/YYYY"
-    endDate: { type: String, default: null }, // null = present
+    startYear: { type: Number, required: true, min: 1900, max: 2100 },
+    startMonth: { type: Number, required: true, min: 1, max: 12 },
+    endYear: { type: Number, min: 1900, max: 2100 },
+    endMonth: { type: Number, min: 1, max: 12 },
+    isCurrent: { type: Boolean, default: false },
   },
   { _id: false },
 );
+
+experienceSchema.pre('validate', function (next) {
+  if (this.endYear && this.endMonth && !this.isCurrent) {
+    const start = new Date(this.startYear, this.startMonth - 1);
+    const end = new Date(this.endYear, this.endMonth - 1);
+    if (end < start) {
+      next(new Error('End date must be after start date'));
+      return;
+    }
+  }
+  next();
+});
 
 const educationSchema = new mongoose.Schema(
   {
