@@ -5,14 +5,22 @@ const timeSlotSchema = new mongoose.Schema(
     startTime: {
       type: String,
       required: true, // "HH:MM" 24h
+      match: /^([01]\d|2[0-3]):([0-5]\d)$/,
     },
     endTime: {
       type: String,
       required: true, // "HH:MM" 24h
+      match: /^([01]\d|2[0-3]):([0-5]\d)$/,
     },
   },
   { _id: false },
 );
+
+timeSlotSchema.pre('validate', function() {
+  if (this.startTime >= this.endTime) {
+    throw new Error('endTime must be after startTime');
+  }
+});
 
 const slotsSchema = new mongoose.Schema(
   {
