@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
+import bookingRoutes from './modules/bookings/booking.routes.js';
 import healthRoutes from './modules/health/health.routes.js';
 
 export function createApp() {
@@ -26,6 +27,7 @@ export function createApp() {
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
   app.use('/api/health', healthRoutes);
+  app.use('/api/bookings', bookingRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
