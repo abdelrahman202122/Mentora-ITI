@@ -12,6 +12,10 @@ const chatEvents = {
   left: 'chat:left',
   sendMessage: 'message:send',
   newMessage: 'message:new',
+  deliveredMessage: 'message:delivered',
+  messageDelivered: 'message:delivered:update',
+  readMessage: 'message:read',
+  messageRead: 'message:read:update',
   error: 'chat:error',
 } as const;
 
@@ -30,8 +34,15 @@ const sendMessagePayloadSchema = z.object({
   content: z.string().trim().min(1).max(5000),
 });
 
+const messageReceiptPayloadSchema = z.object({
+  chatId: objectIdSchema,
+  messageId: objectIdSchema,
+  userId: objectIdSchema,
+});
+
 type JoinChatPayload = z.infer<typeof joinChatPayloadSchema>;
 type SendMessagePayload = z.infer<typeof sendMessagePayloadSchema>;
+type MessageReceiptPayload = z.infer<typeof messageReceiptPayloadSchema>;
 
 type SocketAck<T> = (response: { ok: true; data: T } | { ok: false; error: string }) => void;
 type SocketErrorAck = (response: { ok: false; error: string }) => void;
@@ -217,6 +228,75 @@ async function handleSendMessage(
   }
 }
 
+async function updateMessageReceipt(
+  io: SocketServer,
+  socket: Socket,
+  payload: unknown,
+  receiptType: 'delivered' | 'read',
+  ack?: SocketAck<{
+    id: string;
+    chatId: string;
+    status: string;
+    deliveredAt: Date | null;
+    readAt: Date | null;
+  }>,
+) {
+  const data = parsePayload(socket, messageReceiptPayloadSchema, payload, ack);
+
+  if (!data) {
+    return;
+  }
+
+  try {
+    await findParticipantChat(data.chatId, data.userId);
+
+    const message = await MessageModel.findOne({
+      _id: data.messageId,
+      chatId: data.chatId,
+      recipientId: data.userId,
+      deletedAt: null,
+    });
+
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    const now = new Date();
+
+    if (receiptType === 'delivered' && message.status === 'sent') {
+      message.status = 'delivered';
+      message.deliveredAt = message.deliveredAt ?? now;
+    }
+
+    if (receiptType === 'read') {
+      message.status = 'read';
+      message.deliveredAt = message.deliveredAt ?? now;
+      message.readAt = message.readAt ?? now;
+    }
+
+    await message.save();
+
+    const response = {
+      id: message._id.toString(),
+      chatId: data.chatId,
+      status: message.status,
+      deliveredAt: message.deliveredAt ?? null,
+      readAt: message.readAt ?? null,
+    };
+
+    io.to(getChatRoomName(data.chatId)).emit(
+      receiptType === 'delivered' ? chatEvents.messageDelivered : chatEvents.messageRead,
+      response,
+    );
+    ack?.({ ok: true, data: response });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : `Failed to mark message as ${receiptType}`;
+    emitError(socket, message);
+    ack?.({ ok: false, error: message });
+  }
+}
+
 export function registerChatSocketHandlers(io: SocketServer, socket: Socket) {
   socket.on(chatEvents.join, (payload: JoinChatPayload, ack?: SocketAck<{ chatId: string; room: string }>) => {
     void handleJoinChat(socket, payload, ack);
@@ -241,6 +321,38 @@ export function registerChatSocketHandlers(io: SocketServer, socket: Socket) {
       }>,
     ) => {
       void handleSendMessage(io, socket, payload, ack);
+    },
+  );
+
+  socket.on(
+    chatEvents.deliveredMessage,
+    (
+      payload: MessageReceiptPayload,
+      ack?: SocketAck<{
+        id: string;
+        chatId: string;
+        status: string;
+        deliveredAt: Date | null;
+        readAt: Date | null;
+      }>,
+    ) => {
+      void updateMessageReceipt(io, socket, payload, 'delivered', ack);
+    },
+  );
+
+  socket.on(
+    chatEvents.readMessage,
+    (
+      payload: MessageReceiptPayload,
+      ack?: SocketAck<{
+        id: string;
+        chatId: string;
+        status: string;
+        deliveredAt: Date | null;
+        readAt: Date | null;
+      }>,
+    ) => {
+      void updateMessageReceipt(io, socket, payload, 'read', ack);
     },
   );
 }
