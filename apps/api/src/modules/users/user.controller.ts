@@ -119,15 +119,21 @@ static async logout(
         return;
       }
 
-      const newAccessToken =
+      const tokens =
         await UserService.refreshToken(
           refreshToken
         );
 
       res.cookie(
         'accessToken',
-        newAccessToken,
+        tokens.accessToken,
         cookieOptions.accessToken
+      );
+
+      res.cookie(
+        'refreshToken',
+        tokens.refreshToken,
+        cookieOptions.refreshToken
       );
 
       logger.info(

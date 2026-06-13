@@ -140,3 +140,39 @@
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:44:05.181Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:45:36.530Z"}
 {"level":"info","message":"::1 - - [13/Jun/2026:15:45:48 +0000] \"POST /api/users/login HTTP/1.1\" 400 87 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:45:48.347Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:48:14 +0000] \"POST /api/users/login HTTP/1.1\" 400 93 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:48:14.128Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-13T15:48:44.713Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:48:44 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:48:44.715Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:48:50.085Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:48:50.086Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:48:50 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:48:50.088Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:49:36.554Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:49:36 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:49:36.555Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:49:54.828Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:49:54 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:49:54.829Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:50:02.189Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:50:02 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:50:02.191Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:50:26.391Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:50:26.392Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:50:26 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:50:26.393Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:50:32.636Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:50:32 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:50:32.637Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:52:42.911Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:42 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:42.912Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:52:46.679Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:52:46.679Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:46 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:46.680Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:52:49.673Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:49 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:49.674Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:52:54.724Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:54 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:54.725Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:54:15.260Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:54:43.243Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:54:43 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:43.247Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:54:46.677Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:54:46.677Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:54:46 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:46.679Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:54:50.020Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:54:50 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:50.021Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:55:00.858Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:55:00 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:55:00.859Z"}
