@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { objectIdSchema } from './common.js';
 
 export const createTutorProfileSchema = z.object({
-  headline: z.string().trim().max(200),
-  bio: z.string().trim().max(500),
-  languages: z.array(z.string().trim().min(1)),
+  headline: z.string().trim().min(1).max(200),
+  bio: z.string().trim().min(1).max(500),
+  languages: z.array(z.string().trim().min(1)).min(1),
   isAvailable: z.boolean().optional(),
   experience: z
     .array(
@@ -38,9 +39,9 @@ export const createTutorProfileSchema = z.object({
 export type CreateTutorProfileInput = z.infer<typeof createTutorProfileSchema>;
 
 export const updateTutorProfileSchema = z.object({
-  headline: z.string().trim().max(200).nullable().optional(),
-  bio: z.string().trim().max(500).nullable().optional(),
-  languages: z.array(z.string().trim().min(1)).optional(),
+  headline: z.string().trim().min(1).max(200).optional(),
+  bio: z.string().trim().min(1).max(500).optional(),
+  languages: z.array(z.string().trim().min(1)).min(1).optional(),
   isAvailable: z.boolean().optional(),
   experience: z
     .array(
@@ -73,3 +74,9 @@ export const updateTutorProfileSchema = z.object({
 });
 
 export type UpdateTutorProfileInput = z.infer<typeof updateTutorProfileSchema>;
+
+export const getProfileParamsSchema = z.object({
+  tutorId: objectIdSchema,
+});
+
+export type GetProfileParams = z.infer<typeof getProfileParamsSchema>;

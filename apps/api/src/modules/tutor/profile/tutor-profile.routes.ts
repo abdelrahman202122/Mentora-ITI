@@ -9,6 +9,7 @@ import {
 } from './tutor-profile.controller.js';
 import {
   createTutorProfileSchema,
+  getProfileParamsSchema,
   updateTutorProfileSchema,
 } from '../../../validators/tutor-profile.js';
 
@@ -28,6 +29,8 @@ router
     updateOwnProfileController,
   );
 
-router.route('/:tutorId').get(getProfileController);
+router
+  .route('/:tutorId')
+  .get(validate({ params: getProfileParamsSchema }), getProfileController);
 
 export default router;
