@@ -1,6 +1,10 @@
 import { Types } from 'mongoose';
 
-import { AppError } from '../../utils/app-error.js';
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from '../../common/errors/AppError.js';
 import {
   AIConversationModel,
   type AIConversationMessageRole,
@@ -50,7 +54,7 @@ function toObjectId(value: string | Types.ObjectId, fieldName: string) {
   }
 
   if (!Types.ObjectId.isValid(value)) {
-    throw new AppError(`${fieldName} must be a valid ObjectId`, 400);
+    throw new ValidationError(`${fieldName} must be a valid ObjectId`);
   }
 
   return new Types.ObjectId(value);
@@ -60,7 +64,7 @@ function normalizeText(value: string, fieldName: string) {
   const text = value.trim();
 
   if (!text) {
-    throw new AppError(`${fieldName} is required`, 400);
+    throw new ValidationError(`${fieldName} is required`);
   }
 
   return text;
@@ -84,7 +88,7 @@ async function findConversation(
   const conversation = await AIConversationModel.findOne(query);
 
   if (!conversation) {
-    throw new AppError('AI conversation not found', 404);
+    throw new NotFoundError('AI conversation not found');
   }
 
   return conversation;
@@ -99,7 +103,7 @@ async function createConversationMessage(
   );
 
   if (conversation.status !== 'active') {
-    throw new AppError('AI conversation is not active', 409);
+    throw new ConflictError('AI conversation is not active');
   }
 
   const content = normalizeText(input.content, 'content');

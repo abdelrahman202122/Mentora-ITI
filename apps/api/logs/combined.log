@@ -101,3 +101,13 @@
 {"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:44:26.072Z"}
 {"level":"warn","message":{"emailHash":"ce50db388b14","event":"Email already exists:"},"timestamp":"2026-06-13T14:44:26.593Z"}
 {"level":"info","message":"::1 - - [13/Jun/2026:14:44:26 +0000] \"POST /api/users/register HTTP/1.1\" 409 54 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:44:26.606Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:46:32.352Z"}
+{"level":"error","message":"Unhandled error occurred User validation failed: name: Path `name` is required.","stack":"ValidationError: User validation failed: name: Path `name` is required.\n    at Document.invalidate (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\document.js:3381:32)\n    at C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\document.js:3142:17\n    at C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\schemaType.js:1443:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)","timestamp":"2026-06-13T14:46:32.363Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:46:32 +0000] \"POST /api/users/register HTTP/1.1\" 500 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:46:32.366Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:47:05.768Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:48:12.664Z"}
+{"level":"info","message":{"emailHash":"89a9f0a58a39","event":"registration.attempt"},"timestamp":"2026-06-13T14:48:16.290Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:48:16 +0000] \"POST /api/users/register HTTP/1.1\" 400 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:48:16.331Z"}
+{"level":"info","message":{"emailHash":"89a9f0a58a39","event":"registration.attempt"},"timestamp":"2026-06-13T14:48:24.389Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:48:24 +0000] \"POST /api/users/register HTTP/1.1\" 400 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:48:24.395Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:50:40.888Z"}
