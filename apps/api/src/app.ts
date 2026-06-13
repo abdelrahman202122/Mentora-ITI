@@ -9,9 +9,9 @@ import { errorHandler } from './middleware/error.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
 import healthRoutes from './modules/health/health.routes.js';
 import { httpLogger } from './middleware/logger.middleware.js';
-import userRoutes from "./modules/users/user.route.js"
+import userRoutes from './modules/users/user.route.js';
 import cookieParser from 'cookie-parser';
-
+import tutorRoutes from './modules/tutor/tutor.routes.js';
 
 export function createApp() {
   const app = express();
@@ -28,11 +28,12 @@ export function createApp() {
     }),
   );
   app.use(express.json({ limit: '1mb' }));
-  app.use(cookieParser()); 
+  app.use(cookieParser());
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
   app.use('/api/users', userRoutes);
+  app.use('/api/tutors', tutorRoutes);
   app.use('/api/health', healthRoutes);
 
   app.use(notFoundHandler);
