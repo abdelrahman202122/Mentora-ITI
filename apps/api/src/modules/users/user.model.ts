@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-import { Schema, model} from 'mongoose';
+import mongoose from 'mongoose';
 import { IUser, UserRole } from './user.interface.js';
 import { hashPassword } from '../../utils/hashPassword.js';
+
+const { Schema, model } = mongoose;
 
 /**
  * User schema

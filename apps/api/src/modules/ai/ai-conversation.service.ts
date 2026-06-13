@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import mongoose, { type Types as MongooseTypes } from 'mongoose';
 
 import {
   ConflictError,
@@ -12,43 +12,46 @@ import {
 } from './ai-conversation.model.js';
 import { AIConversationMessageModel } from './ai-conversation-message.model.js';
 
+const { Types } = mongoose;
+type ObjectId = MongooseTypes.ObjectId;
+
 type Metadata = Record<string, unknown>;
 
 type StartAIConversationInput = {
-  learnerId: string | Types.ObjectId;
+  learnerId: string | ObjectId;
   locale?: string;
   goal?: string;
   extractedPreferences?: Metadata;
 };
 
 type AddAIMessageInput = {
-  conversationId: string | Types.ObjectId;
-  learnerId?: string | Types.ObjectId;
+  conversationId: string | ObjectId;
+  learnerId?: string | ObjectId;
   content: string;
   metadata?: Metadata;
 };
 
 type GetAIConversationMessagesInput = {
-  conversationId: string | Types.ObjectId;
-  learnerId?: string | Types.ObjectId;
+  conversationId: string | ObjectId;
+  learnerId?: string | ObjectId;
   limit?: number;
   before?: Date;
 };
 
 type UpdateAIConversationPreferencesInput = {
-  conversationId: string | Types.ObjectId;
-  learnerId?: string | Types.ObjectId;
+  conversationId: string | ObjectId;
+  learnerId?: string | ObjectId;
   extractedPreferences: Metadata;
-  recommendedTutorIds?: Array<string | Types.ObjectId>;
+  recommendedTutorIds?: Array<string | ObjectId>;
 };
 
 type CloseAIConversationInput = {
-  conversationId: string | Types.ObjectId;
-  learnerId?: string | Types.ObjectId;
+  conversationId: string | ObjectId;
+  learnerId?: string | ObjectId;
   status?: Extract<AIConversationStatus, 'completed' | 'abandoned'>;
 };
 
-function toObjectId(value: string | Types.ObjectId, fieldName: string) {
+function toObjectId(value: string | ObjectId, fieldName: string) {
   if (value instanceof Types.ObjectId) {
     return value;
   }
@@ -71,12 +74,12 @@ function normalizeText(value: string, fieldName: string) {
 }
 
 async function findConversation(
-  conversationId: string | Types.ObjectId,
-  learnerId?: string | Types.ObjectId,
+  conversationId: string | ObjectId,
+  learnerId?: string | ObjectId,
 ) {
   const query: {
-    _id: Types.ObjectId;
-    learnerId?: Types.ObjectId;
+    _id: ObjectId;
+    learnerId?: ObjectId;
   } = {
     _id: toObjectId(conversationId, 'conversationId'),
   };
@@ -158,7 +161,7 @@ export async function getAIConversationMessages(
 
   const limit = Math.min(Math.max(input.limit ?? 50, 1), 100);
   const query: {
-    conversationId: Types.ObjectId;
+    conversationId: ObjectId;
     createdAt?: { $lt: Date };
   } = {
     conversationId: toObjectId(input.conversationId, 'conversationId'),

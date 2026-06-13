@@ -1,5 +1,5 @@
 import type { Types } from 'mongoose';
-import { AppError } from '../../utils/app-error.js';
+import { AppError } from '../../common/errors/AppError.js';
 import type { CreateBookingInput, IBooking } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 
@@ -19,12 +19,16 @@ interface UserContext {
   role: string;
 }
 
+function createBookingError(message: string, statusCode: number) {
+  return new AppError(message, statusCode, 'BOOKING_ERROR');
+}
+
 /**
  * Validate that the user is a learner
  */
 export function validateLearnerRole(user: UserContext): void {
   if (user.role !== 'learner') {
-    throw new AppError('Only learners can create bookings', 403);
+    throw createBookingError('Only learners can create bookings', 403);
   }
 }
 
@@ -38,7 +42,7 @@ export function validateLearnerIsNotSelf(
   tutorId: Types.ObjectId,
 ): void {
   if (learnerId.equals(tutorId)) {
-    throw new AppError('You cannot book yourself as a tutor', 400);
+    throw createBookingError('You cannot book yourself as a tutor', 400);
   }
 }
 
@@ -60,7 +64,7 @@ export async function checkDuplicateBooking(
   );
 
   if (existingBookings.length > 0) {
-    throw new AppError(
+    throw createBookingError(
       'A booking already exists for this tutor at this time slot',
       409,
     );
@@ -117,11 +121,11 @@ export async function getSubjectPricing(
   const pricing = await bookingRepository.findSubjectPricing(subjectId);
 
   if (!pricing) {
-    throw new AppError('Subject pricing is not available', 404);
+    throw createBookingError('Subject pricing is not available', 404);
   }
 
   if (pricing.price <= 0) {
-    throw new AppError('Subject price must be greater than 0', 500);
+    throw createBookingError('Subject price must be greater than 0', 500);
   }
 
   return pricing;

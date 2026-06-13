@@ -4,21 +4,21 @@ import { Router } from 'express';
 import { UserController } from './user.controller.js';
 import { authMiddleware } from '../../middleware/auth.middleware.js';
 import { authRateLimit } from '../../middleware/rateLimit.middleware.js';
-// import { validate } from '../../middlewares/validate.middleware';
-// import { createUserSchema } from './user.validation';
+import { validate } from '../../middleware/validation.middleware.js';
+import { loginSchema, registerSchema } from './user.validation.js';
 
 const router = Router();
 
 router.post(
   '/register',
-//   validate(createUserSchema),
+  validate(registerSchema),
   authRateLimit,
   UserController.register
 );
 
 router.post(
   '/login',
-  // validate(loginSchema),
+  validate(loginSchema),
   authRateLimit,
   UserController.login
 );

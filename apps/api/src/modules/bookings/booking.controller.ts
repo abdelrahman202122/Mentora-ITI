@@ -1,23 +1,18 @@
 import type { Request, Response, NextFunction } from 'express';
-import { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { sendSuccess } from '../../utils/api-response.js';
-import { AppError } from '../../utils/app-error.js';
+import { AppError, UnauthorizedError } from '../../common/errors/AppError.js';
 import type { CreateBookingInput } from '../../validators/booking.js';
 import * as bookingService from './booking.service.js';
+
+const { Types } = mongoose;
 
 /**
  * Booking controller handles HTTP requests for booking operations
  */
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string | Types.ObjectId;
-    role: string;
-  };
-}
-
 function throwNotImplemented(message: string): never {
-  throw new AppError(message, 501);
+  throw new AppError(message, 501, 'NOT_IMPLEMENTED');
 }
 
 /**
@@ -25,18 +20,21 @@ function throwNotImplemented(message: string): never {
  * Create a new booking request
  */
 export async function createBooking(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
     // Validate user is authenticated
-    if (!req.user?.id) {
-      throw new AppError('User not authenticated', 401);
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
     }
 
     // Validate learner role
-    bookingService.validateLearnerRole(req.user);
+    bookingService.validateLearnerRole({
+      id: req.user.userId,
+      role: req.user.role,
+    });
 
     // Get request body
     const {
@@ -49,7 +47,7 @@ export async function createBooking(
     } = req.body as CreateBookingInput;
 
     // Convert string IDs to ObjectIds
-    const learnerId = new Types.ObjectId(req.user.id);
+    const learnerId = new Types.ObjectId(req.user.userId);
     const tutorProfileObjectId = new Types.ObjectId(tutorProfileId);
     const subjectObjectId = new Types.ObjectId(subjectId);
 
@@ -75,14 +73,14 @@ export async function createBooking(
  * List the authenticated user's bookings
  */
 export async function listMyBookings(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
     // Validate user is authenticated
-    if (!req.user?.id) {
-      throw new AppError('User not authenticated', 401);
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
     }
 
     throwNotImplemented('Listing bookings is not implemented yet');
@@ -96,7 +94,7 @@ export async function listMyBookings(
  * Get a specific booking by ID
  */
 export async function getBookingById(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
@@ -112,7 +110,7 @@ export async function getBookingById(
  * Accept a pending booking request
  */
 export async function acceptBooking(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
@@ -128,7 +126,7 @@ export async function acceptBooking(
  * Reject a pending booking request
  */
 export async function rejectBooking(
-  _req: AuthenticatedRequest,
+  _req: Request,
   _res: Response,
   next: NextFunction,
 ): Promise<void> {
@@ -144,7 +142,7 @@ export async function rejectBooking(
  * Cancel a booking before completion
  */
 export async function cancelBooking(
-  _req: AuthenticatedRequest,
+  _req: Request,
   _res: Response,
   next: NextFunction,
 ): Promise<void> {
@@ -160,7 +158,7 @@ export async function cancelBooking(
  * Confirm session completion with the learner-provided code
  */
 export async function confirmBookingCode(
-  _req: AuthenticatedRequest,
+  _req: Request,
   _res: Response,
   next: NextFunction,
 ): Promise<void> {

@@ -1,11 +1,12 @@
-import { connection } from 'mongoose';
-import type { Types } from 'mongoose';
+import mongoose, { type Types } from 'mongoose';
 import Booking from './booking.model.js';
 import type {
   IBooking,
   CreateBookingInput,
   UpdateBookingInput,
 } from './booking.types.js';
+
+const { connection } = mongoose;
 
 /**
  * Booking repository handles all database operations for bookings

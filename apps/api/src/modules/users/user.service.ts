@@ -55,6 +55,27 @@ function validateRegisterInput(data: RegisterUserInput) {
   };
 }
 
+function validateLoginInput(email: string, password: string) {
+  const normalizedEmail = email?.trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    throw new ValidationError('Email is required');
+  }
+
+  if (!emailPattern.test(normalizedEmail)) {
+    throw new ValidationError('Email must be a valid email address');
+  }
+
+  if (!password) {
+    throw new ValidationError('Password is required');
+  }
+
+  return {
+    email: normalizedEmail,
+    password,
+  };
+}
+
 export class UserService {
   static async register(data: RegisterUserInput): Promise<AuthResult> {
     const registerData = validateRegisterInput(data);
@@ -114,8 +135,12 @@ export class UserService {
   }
 
   static async login(email: string, password: string): Promise<AuthResult> {
-    const user = await UserModel.findOne({ email }).select('+password').lean();
-    if (!user || !(await comparePassword(password, user.password))) {
+    const loginData = validateLoginInput(email, password);
+
+    const user = await UserModel.findOne({ email: loginData.email })
+      .select('+password')
+      .lean();
+    if (!user || !(await comparePassword(loginData.password, user.password))) {
       logger.warn({
         event: 'login.failed',
         reason: 'invalid_credentials',
