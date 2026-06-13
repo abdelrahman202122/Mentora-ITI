@@ -4,6 +4,8 @@ import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { logger } from './config/logger.js';
+import { connectRedis, disconnectRedis } from './config/redis.js';
+import { closeSocketServer, initializeSocketServer } from './config/socket.js';
 
 function listen(server: Server, port: number) {
   return new Promise<void>((resolve, reject) => {
