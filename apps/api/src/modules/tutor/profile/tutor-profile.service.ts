@@ -1,4 +1,7 @@
-import { AppError } from '../../../utils/app-error.js';
+import {
+  ConflictError,
+  NotFoundError,
+} from '../../../common/errors/AppError.js';
 import { UserModel } from '../../users/user.model.js';
 import {
   findByUserId,
@@ -12,7 +15,7 @@ export const getProfile = async (tutorId: string) => {
   const tutor = await findByUserId(tutorId);
 
   if (!tutor) {
-    throw new AppError('Tutor profile not found', 404);
+    throw new NotFoundError('Tutor profile not found');
   }
 
   return tutor;
@@ -26,13 +29,13 @@ export const createProfile = async (
   const user = await UserModel.findById(userId);
 
   if (!user) {
-    throw new AppError('User not found', 404);
+    throw new NotFoundError('User not found');
   }
 
   const existingProfile = await findByUserId(userId);
 
   if (existingProfile) {
-    throw new AppError('Tutor profile already exists', 409);
+    throw new ConflictError('Tutor profile already exists');
   }
 
   const profile = await create({
@@ -59,13 +62,13 @@ export const updateOwnProfile = async (
   const tutor = await findByUserId(userId);
 
   if (!tutor) {
-    throw new AppError('Tutor profile not found', 404);
+    throw new NotFoundError('Tutor profile not found');
   }
 
   const updated = await updateByUserId(userId, data);
 
   if (!updated) {
-    throw new AppError('Tutor profile not found', 404);
+    throw new NotFoundError('Tutor profile not found');
   }
 
   return updated;
