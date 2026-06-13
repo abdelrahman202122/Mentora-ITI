@@ -15,6 +15,14 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     return sendError(res, error.statusCode, error.message);
   }
 
+  if (
+    error instanceof Error &&
+    'statusCode' in error &&
+    typeof error.statusCode === 'number'
+  ) {
+    return sendError(res, error.statusCode, error.message);
+  }
+
   // console.error(error);
   logger.error('Unhandled error occurred', {
     message: error instanceof Error ? error.message : 'Unknown error',
