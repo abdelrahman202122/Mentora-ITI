@@ -5,6 +5,8 @@ import {
   updateOwnProfile,
 } from './tutor-profile.service.js';
 import { sendError, sendSuccess } from '../../../utils/api-response.js';
+import { generateAccessToken } from '../../../utils/JWT.js';
+import { cookieOptions } from '../../../config/cookie.config.js';
 
 // get tutor profile
 export const getProfileController = async (req: Request, res: Response) => {
@@ -29,6 +31,10 @@ export const createProfileController = async (req: Request, res: Response) => {
 
   const profile = await createProfile(userId, req.body);
 
+  // regenerate new access token with updated user role
+  const newAccessToken = generateAccessToken(userId, 'tutor');
+  res.cookie('accessToken', newAccessToken, cookieOptions.accessToken);
+
   return sendSuccess(res, 201, 'Tutor profile created successfully', profile);
 };
 
@@ -38,9 +44,6 @@ export const updateOwnProfileController = async (
   res: Response,
 ) => {
   const userId = req.user?.userId;
-
-  console.log('in controller');
-  console.log(userId);
 
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
