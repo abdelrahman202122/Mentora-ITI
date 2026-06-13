@@ -9,6 +9,8 @@ const currentDir = dirname(fileURLToPath(import.meta.url));
 config({
   path: resolve(currentDir, '../../.env'),
 });
+console.log('ENV PATH:', resolve(currentDir, '../../.env'));
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 const envSchema = z.object({
   NODE_ENV: z

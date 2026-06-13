@@ -8,9 +8,15 @@ import { env } from './config/env.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
 import healthRoutes from './modules/health/health.routes.js';
+import { httpLogger } from './middleware/logger.middleware.js';
+import userRoutes from "./modules/users/user.route.js"
+import cookieParser from 'cookie-parser';
+
 
 export function createApp() {
   const app = express();
+
+  app.use(httpLogger);
 
   app.disable('x-powered-by');
   app.use(helmet());
@@ -22,9 +28,11 @@ export function createApp() {
     }),
   );
   app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser()); 
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+  app.use('/api/users', userRoutes);
   app.use('/api/health', healthRoutes);
 
   app.use(notFoundHandler);

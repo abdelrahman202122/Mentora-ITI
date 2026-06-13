@@ -1,0 +1,2 @@
+{"level":"error","message":"Login failed: Illegal arguments: undefined, string","timestamp":"2026-06-11T04:40:38.785Z"}
+{"level":"error","message":"Registration failed: Email already exists","timestamp":"2026-06-11T21:16:49.338Z"}
