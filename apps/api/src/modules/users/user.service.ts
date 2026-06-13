@@ -3,6 +3,7 @@
 import {
   ConflictError,
   UnauthorizedError,
+  ValidationError,
 } from '../../common/errors/AppError.js';
 import { logger } from '../../config/logger.js';
 import { emailHash } from '../../utils/emailHash.js';
@@ -16,17 +17,57 @@ import { RefreshTokenModel } from './refreshToken.model.js';
 import { AuthResult, RegisterUserInput, UserRole } from './user.interface.js';
 import { UserModel } from './user.model.js';
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateRegisterInput(data: RegisterUserInput) {
+  const name = data.name?.trim();
+  const email = data.email?.trim().toLowerCase();
+  const password = data.password;
+
+  if (!name) {
+    throw new ValidationError('Name is required');
+  }
+
+  if (name.length < 2) {
+    throw new ValidationError('Name must be at least 2 characters');
+  }
+
+  if (!email) {
+    throw new ValidationError('Email is required');
+  }
+
+  if (!emailPattern.test(email)) {
+    throw new ValidationError('Email must be a valid email address');
+  }
+
+  if (!password) {
+    throw new ValidationError('Password is required');
+  }
+
+  if (password.length < 6) {
+    throw new ValidationError('Password must be at least 6 characters');
+  }
+
+  return {
+    name,
+    email,
+    password,
+  };
+}
+
 export class UserService {
   static async register(data: RegisterUserInput): Promise<AuthResult> {
+    const registerData = validateRegisterInput(data);
+
     try {
       logger.info({
         event: 'registration.attempt',
-        emailHash: emailHash(data.email),
+        emailHash: emailHash(registerData.email),
       });
       const user = await UserModel.create({
-        name: data.name,
-        email: data.email,
-        password: data.password,
+        name: registerData.name,
+        email: registerData.email,
+        password: registerData.password,
         role: UserRole.LEARNER,
       });
 
@@ -64,7 +105,7 @@ export class UserService {
       ) {
         logger.warn({
           event: 'Email already exists:',
-          emailHash: emailHash(data.email),
+          emailHash: emailHash(registerData.email),
         });
         throw new ConflictError('Email already registered');
       }
