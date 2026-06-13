@@ -77,7 +77,7 @@ async function findConversation(
     _id: toObjectId(conversationId, 'conversationId'),
   };
 
-  if (learnerId) {
+  if (learnerId !== undefined) {
     query.learnerId = toObjectId(learnerId, 'learnerId');
   }
 
@@ -93,7 +93,10 @@ async function findConversation(
 async function createConversationMessage(
   input: AddAIMessageInput & { role: AIConversationMessageRole },
 ) {
-  const conversation = await findConversation(input.conversationId, input.learnerId);
+  const conversation = await findConversation(
+    input.conversationId,
+    input.learnerId,
+  );
 
   if (conversation.status !== 'active') {
     throw new AppError('AI conversation is not active', 409);
@@ -111,7 +114,7 @@ async function createConversationMessage(
   conversation.lastMessage = {
     messageId: message._id,
     role: input.role,
-    preview: content,
+    preview: content.slice(0, 500),
     sentAt: message.createdAt,
   };
   await conversation.save();
@@ -173,7 +176,10 @@ export async function getAIConversationMessages(
 export async function updateAIConversationPreferences(
   input: UpdateAIConversationPreferencesInput,
 ) {
-  const conversation = await findConversation(input.conversationId, input.learnerId);
+  const conversation = await findConversation(
+    input.conversationId,
+    input.learnerId,
+  );
 
   conversation.extractedPreferences = {
     ...(conversation.extractedPreferences as Metadata),
@@ -191,7 +197,10 @@ export async function updateAIConversationPreferences(
 }
 
 export async function closeAIConversation(input: CloseAIConversationInput) {
-  const conversation = await findConversation(input.conversationId, input.learnerId);
+  const conversation = await findConversation(
+    input.conversationId,
+    input.learnerId,
+  );
 
   conversation.status = input.status ?? 'completed';
   await conversation.save();
