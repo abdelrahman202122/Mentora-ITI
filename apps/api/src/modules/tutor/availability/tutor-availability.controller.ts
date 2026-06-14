@@ -16,7 +16,12 @@ export const createAvailabilityController = async (
     return sendError(res, 401, 'Unauthorized');
   }
 
-  const availability = await createAvailability(userId, req.body);
+  const slots = req.body.slots;
+  if (!slots || typeof slots !== 'object') {
+    return sendError(res, 400, "Invalid payload: missing 'slots' data");
+  }
+
+  const availability = await createAvailability(userId, { slots });
 
   return sendSuccess(
     res,
@@ -36,7 +41,12 @@ export const replaceAvailabilityController = async (
     return sendError(res, 401, 'Unauthorized');
   }
 
-  const availability = await replaceAvailability(userId, req.body);
+  const slots = req.body.slots;
+  if (!slots || typeof slots !== 'object') {
+    return sendError(res, 400, "Invalid payload: missing 'slots' data");
+  }
+
+  const availability = await replaceAvailability(userId, { slots });
 
   return sendSuccess(
     res,
