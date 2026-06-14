@@ -1,5 +1,6 @@
 import mongoose, { type Types } from 'mongoose';
 import Booking from './booking.model.js';
+import { TutorAvailabilityModel } from '../tutor/availability/tutor-availability.model.js';
 import type {
   IBooking,
   CreateBookingInput,
@@ -88,6 +89,13 @@ export async function findBookingsByLearner(
     .limit(limit)
     .sort({ startAt: -1 })
     .exec();
+}
+
+/**
+ * Find tutor availability by tutor ID
+ */
+export async function findTutorAvailability(tutorId: Types.ObjectId) {
+  return TutorAvailabilityModel.findOne({ tutorId }).lean();
 }
 
 /**
