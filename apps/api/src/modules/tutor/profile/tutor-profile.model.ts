@@ -46,19 +46,25 @@ const tutorProfileSchema = new mongoose.Schema(
 
     headline: {
       type: String,
-      maxlength: 500,
-      default: null,
+      maxlength: 200,
+      required: true,
     },
 
     bio: {
       type: String,
       maxlength: 500,
-      default: null,
+      required: true,
+    },
+
+    hourlyRate: {
+      type: Number,
+      required: true,
+      min: 1,
     },
 
     languages: {
       type: [String],
-      default: [],
+      required: true,
     },
 
     experience: {
