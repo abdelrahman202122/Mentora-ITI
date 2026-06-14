@@ -1,6 +1,8 @@
 import mongoose, { type Types } from 'mongoose';
 import Booking from './booking.model.js';
 import { TutorAvailabilityModel } from '../tutor/availability/tutor-availability.model.js';
+import { TutorProfileModel } from '../tutor/profile/tutor-profile.model.js';
+import { NotFoundError } from '../../common/errors/AppError.js';
 import type {
   IBooking,
   CreateBookingInput,
@@ -139,4 +141,44 @@ export async function countTutorBookings(
   tutorId: Types.ObjectId,
 ): Promise<number> {
   return Booking.countDocuments({ tutorId });
+}
+
+/**
+ * Get the tutor's user ID from a tutor profile ID
+ * @param tutorProfileId - The tutor profile ID
+ * @returns The tutor's user ID
+ * @throws NotFoundError if the tutor profile doesn't exist
+ */
+export async function getTutorIdFromProfile(
+  tutorProfileId: Types.ObjectId,
+): Promise<Types.ObjectId> {
+  const tutorProfile = await TutorProfileModel.findById(tutorProfileId)
+    .select('userId')
+    .lean();
+
+  if (!tutorProfile) {
+    throw new NotFoundError('Tutor profile not found');
+  }
+
+  return tutorProfile.userId as Types.ObjectId;
+}
+
+/**
+ * Get the tutor's hourly rate from a tutor profile ID
+ * @param tutorProfileId - The tutor profile ID
+ * @returns The tutor's hourly rate
+ * @throws NotFoundError if the tutor profile doesn't exist
+ */
+export async function getTutorHourlyRate(
+  tutorProfileId: Types.ObjectId,
+): Promise<number> {
+  const tutorProfile = await TutorProfileModel.findById(tutorProfileId)
+    .select('hourlyRate')
+    .lean();
+
+  if (!tutorProfile) {
+    throw new NotFoundError('Tutor profile not found');
+  }
+
+  return tutorProfile.hourlyRate as number;
 }
