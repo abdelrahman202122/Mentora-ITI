@@ -176,3 +176,55 @@
 {"level":"info","message":"::1 - - [13/Jun/2026:15:54:50 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:50.021Z"}
 {"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:55:00.858Z"}
 {"level":"info","message":"::1 - - [13/Jun/2026:15:55:00 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:55:00.859Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:07:13.918Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:07:27.516Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-14T15:07:42.315Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-14T15:07:42.316Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:07:42 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:07:42.329Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-14T15:07:49.936Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:07:49 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:07:49.941Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-14T15:07:59.495Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:07:59 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:07:59.497Z"}
+{"level":"info","message":"Refresh tokens revoked for user: 6a2d7360248551f387df5a8b","timestamp":"2026-06-14T15:08:31.109Z"}
+{"level":"info","message":"Logout completed","timestamp":"2026-06-14T15:08:31.111Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:08:31 +0000] \"POST /api/users/logout HTTP/1.1\" 200 52 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:08:31.113Z"}
+{"level":"warn","message":"Refresh token missing","timestamp":"2026-06-14T15:08:43.659Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:08:43 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:08:43.662Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-14T15:09:53.063Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-14T15:09:53.063Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:09:53 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:09:53.065Z"}
+{"level":"info","message":"Refresh tokens revoked for user: 6a2d7360248551f387df5a8b","timestamp":"2026-06-14T15:10:09.841Z"}
+{"level":"info","message":"Logout completed","timestamp":"2026-06-14T15:10:09.842Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:10:09 +0000] \"POST /api/users/logout HTTP/1.1\" 200 52 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:10:09.845Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-14T15:10:14.135Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-14T15:10:14.135Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:10:14 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:10:14.138Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:10:28 +0000] \"POST /api/users/logout HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:10:28.819Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-14T15:10:55.309Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-14T15:10:55.310Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:10:55 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:10:55.312Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:11:58.261Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:11:58 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:11:58.264Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:00.234Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:00 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:00.237Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:02.064Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:02 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:02.066Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:03.797Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:03 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:03.799Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:05.529Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:05 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:05.532Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:07.137Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:07 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:07.139Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:08.760Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:08 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:08.762Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:10.612Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:10 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:10.615Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-14T15:12:12.310Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:12 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:12.316Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:13 +0000] \"POST /api/users/login HTTP/1.1\" 429 72 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:13.597Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:12:15 +0000] \"POST /api/users/login HTTP/1.1\" 429 72 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:12:15.697Z"}
+{"level":"error","message":"Unhandled error occurred Cannot set property query of #<IncomingMessage> which has only a getter","stack":"TypeError: Cannot set property query of #<IncomingMessage> which has only a getter\n    at <anonymous> (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\middleware\\validation.middleware.ts:62:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2026-06-14T15:13:23.046Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:13:23 +0000] \"GET /api/bookings/me HTTP/1.1\" 500 101 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:13:23.048Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:14:31.981Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:16:23.153Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:15:16:28 +0000] \"GET /api/bookings/me HTTP/1.1\" 401 52 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-14T15:16:28.673Z"}

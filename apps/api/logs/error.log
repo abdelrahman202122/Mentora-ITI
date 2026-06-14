@@ -12,3 +12,4 @@
 {"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:52:42.911Z"}
 {"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:52:54.724Z"}
 {"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:54:43.242Z"}
+{"level":"error","message":"Unhandled error occurred Cannot set property query of #<IncomingMessage> which has only a getter","stack":"TypeError: Cannot set property query of #<IncomingMessage> which has only a getter\n    at <anonymous> (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\middleware\\validation.middleware.ts:62:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2026-06-14T15:13:23.045Z"}
