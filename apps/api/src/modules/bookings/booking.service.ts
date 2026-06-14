@@ -1,5 +1,5 @@
 import type { Types } from 'mongoose';
-import { AppError } from '../../common/errors/AppError.js';
+import { AppError, NotFoundError } from '../../common/errors/AppError.js';
 import type { CreateBookingInput, IBooking } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 
@@ -72,26 +72,81 @@ export async function checkDuplicateBooking(
 }
 
 /**
+ * Helper: Convert Date to HH:MM string
+ */
+function dateToTimeString(date: Date): string {
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+/**
+ * Helper: Compare time strings (HH:MM format)
+ * Returns true if time1 <= time2
+ */
+function isTimeLeOrEqual(time1: string, time2: string): boolean {
+  return time1.localeCompare(time2) <= 0;
+}
+
+/**
+ * Helper: Get day name from Date
+ */
+function getDayName(date: Date): string {
+  const days = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ];
+  return days[date.getDay()];
+}
+
+/**
  * Check if tutor is available at the requested time
- * PLACEHOLDER: This method will be implemented when tutorAvailability collection is ready
  * @param tutorId - The tutor's user ID
  * @param startAt - Booking start time
  * @param endAt - Booking end time
  */
 export async function checkTutorAvailability(
-  _tutorId: Types.ObjectId,
-  _startAt: Date,
-  _endAt: Date,
+  tutorId: Types.ObjectId,
+  startAt: Date,
+  endAt: Date,
 ): Promise<void> {
-  // TODO: Implement tutor availability check when BE2 provides the tutorAvailability collection
-  // Expected logic:
-  // 1. Fetch tutor availability from tutorAvailability collection
-  // 2. Get day of week from startAt and endAt
-  // 3. Check if the requested slot fits within the tutor's weekly slots
-  // 4. Throw AppError if not available
+  const availability = await bookingRepository.findTutorAvailability(tutorId);
 
-  // Placeholder: assume available for now
-  return;
+  if (!availability) {
+    throw new NotFoundError('Tutor availability not found');
+  }
+
+  const dayName = getDayName(startAt);
+  const bookingStartTime = dateToTimeString(startAt);
+  const bookingEndTime = dateToTimeString(endAt);
+
+  // Get slots for the day (e.g., availability.slots.monday)
+  const daySlots =
+    availability.slots[dayName as keyof typeof availability.slots] || [];
+
+  if (daySlots.length === 0) {
+    throw createBookingError('Tutor is not available on this day', 409);
+  }
+
+  // Check if booking time fits within any of the available slots
+  const isAvailable = daySlots.some((slot: any) => {
+    return (
+      isTimeLeOrEqual(slot.startTime, bookingStartTime) &&
+      isTimeLeOrEqual(bookingEndTime, slot.endTime)
+    );
+  });
+
+  if (!isAvailable) {
+    throw createBookingError(
+      'Requested time slot is not within tutor availability',
+      409,
+    );
+  }
 }
 
 /**
