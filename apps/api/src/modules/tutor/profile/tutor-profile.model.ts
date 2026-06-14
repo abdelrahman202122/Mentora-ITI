@@ -56,6 +56,12 @@ const tutorProfileSchema = new mongoose.Schema(
       required: true,
     },
 
+    hourlyRate: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
     languages: {
       type: [String],
       required: true,

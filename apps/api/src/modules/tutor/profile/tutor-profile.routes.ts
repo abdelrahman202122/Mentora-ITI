@@ -16,7 +16,7 @@ import {
 const router = Router();
 
 router
-  .route('/profile')
+  .route('/me/profile')
   .post(
     authMiddleware,
     validate(createTutorProfileSchema),
@@ -30,7 +30,7 @@ router
   );
 
 router
-  .route('/:tutorId')
+  .route('/:tutorId/profile')
   .get(validate({ params: getProfileParamsSchema }), getProfileController);
 
 export default router;
