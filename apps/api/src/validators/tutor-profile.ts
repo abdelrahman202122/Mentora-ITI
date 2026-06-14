@@ -4,6 +4,7 @@ import { objectIdSchema } from './common.js';
 export const createTutorProfileSchema = z.object({
   headline: z.string().trim().min(1).max(200),
   bio: z.string().trim().min(1).max(500),
+  hourlyRate: z.number().positive(),
   languages: z.array(z.string().trim().min(1)).min(1),
   isAvailable: z.boolean().optional(),
   experience: z
@@ -41,6 +42,7 @@ export type CreateTutorProfileInput = z.infer<typeof createTutorProfileSchema>;
 export const updateTutorProfileSchema = z.object({
   headline: z.string().trim().min(1).max(200).optional(),
   bio: z.string().trim().min(1).max(500).optional(),
+  hourlyRate: z.number().positive().optional(),
   languages: z.array(z.string().trim().min(1)).min(1).optional(),
   isAvailable: z.boolean().optional(),
   experience: z
