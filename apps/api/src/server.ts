@@ -26,17 +26,13 @@ async function bootstrap() {
   await initializeSocketServer(server);
 
   await listen(server, env.PORT);
-  // console.log(`API running on http://localhost:${env.PORT}`);
   logger.info(`Server started on http://localhost:${env.PORT}`);
-  
 
   const shutdown = async (signal: NodeJS.Signals) => {
-    // console.log(`${signal} received. Closing server.`);
     logger.warn(`Shutdown signal received: ${signal}. Closing server.`);
 
     server.close((error) => {
       if (error) {
-        // console.error('Failed to close server', error);
         logger.error('Failed to start server', { error });
         process.exit(1);
       }
@@ -47,7 +43,8 @@ async function bootstrap() {
         disconnectDatabase(),
       ]).then((results) => {
         const failures = results.filter(
-          (result): result is PromiseRejectedResult => result.status === 'rejected',
+          (result): result is PromiseRejectedResult =>
+            result.status === 'rejected',
         );
 
         if (failures.length > 0) {

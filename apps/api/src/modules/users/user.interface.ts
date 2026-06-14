@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-
-import { Document, Types } from 'mongoose';
+import type { Document, Types } from 'mongoose';
 
 /**
  * User roles in the system
