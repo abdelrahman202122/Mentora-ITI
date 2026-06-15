@@ -17,6 +17,5 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={locale}>
       {children}
     </NextIntlClientProvider>
-    
   );
 }
