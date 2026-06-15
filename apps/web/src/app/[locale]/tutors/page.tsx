@@ -16,36 +16,46 @@ type Tutor = {
   };
 };
 
+
+
 export default function TutorsList() {
+   const [error, setError] = useState<string | null>(null);
+
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
   const [tutors, setTutors] = useState<Tutor[]>([]);
-
+  const validLocale = (locale === "en" || locale === "ar") ? locale : "en";
   useEffect(() => {
     const getTutors = async () => {
-      const response = await fetch("/data/tutors.json");
-      const data = await response.json();
-      setTutors(data);
+      try {
+        const response = await fetch("/data/tutors.json");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setTutors(data);
+      } catch (err) {
+        console.error("Failed to load tutors:", err);
+        setError(err instanceof Error ? err.message : "Failed to load tutors");
+      }
     };
 
     getTutors();
   }, []);
 
-  // 👇 تغيير اللغة
   function changeLang(lang: "en" | "ar") {
     const segments = pathname.split("/");
 
-    // الجزء الأول بعد /
     segments[1] = lang;
 
     router.push(segments.join("/"));
   }
 
   return (
-    <>
-      {/* زرار اللغة */}
+    <> 
+      {error && <div style={{ color: "red" }}>{error}</div>}
       <div style={{ marginBottom: "20px" }}>
         <button onClick={() => changeLang("en")}>
           English
@@ -62,9 +72,8 @@ export default function TutorsList() {
       {/* الداتا */}
       {tutors.map((tutor) => (
         <div key={tutor.id}>
-          <h2>{tutor.title[locale as "en" | "ar"]}</h2>
-
-          <p>{tutor.description[locale as "en" | "ar"]}</p>
+          <h2>{tutor.title[validLocale]}</h2>
+          <p>{tutor.description[validLocale]}</p>
         </div>
       ))}
     </>

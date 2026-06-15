@@ -1,4 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
+import { routing } from "../../i18n/routing";
 
 export default async function LocaleLayout({
   children,
@@ -7,15 +8,15 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+   const { locale: rawLocale } = await params;
+   const locale = routing.locales.includes(rawLocale as any) 
+     ? rawLocale 
+     : routing.defaultLocale;
 
   return (
-    <html lang={locale}>
-      <body>
-        <NextIntlClientProvider locale={locale}>
-          {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider locale={locale}>
+      {children}
+    </NextIntlClientProvider>
+    
   );
 }
