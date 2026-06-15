@@ -98,16 +98,26 @@ export async function listMyBookings(
       subjectId: req.query.subjectId as string | undefined,
     };
 
-    // Convert learnerId to ObjectId
-    const learnerId = new Types.ObjectId(req.user.userId);
+    const userRole = req.user.role;
+    const userId = new Types.ObjectId(req.user.userId);
 
-    // Get bookings with pagination and filters
-    const result = await bookingService.listLearnerBookings(
-      learnerId,
-      page,
-      limit,
-      filters,
-    );
+    let result;
+    if (userRole === 'tutor') {
+      result = await bookingService.listTutorBookings(userId, page, limit, {
+        bookingStatus: filters.bookingStatus,
+        paymentStatus: filters.paymentStatus,
+        subjectId: filters.subjectId,
+      });
+    } else if (userRole === 'admin') {
+      result = await bookingService.listAdminBookings(page, limit, filters);
+    } else {
+      result = await bookingService.listLearnerBookings(
+        userId,
+        page,
+        limit,
+        filters,
+      );
+    }
 
     sendSuccess(res, 200, 'Bookings retrieved successfully', {
       bookings: result.bookings,
