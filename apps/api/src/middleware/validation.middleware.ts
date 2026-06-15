@@ -59,6 +59,15 @@ export function validate(input: ValidationInput): RequestHandler {
           throw result.error;
         }
 
+        if (target === 'query') {
+          for (const key of Object.keys(req.query)) {
+            delete req.query[key];
+          }
+
+          Object.assign(req.query, result.data);
+          continue;
+        }
+
         req[target] = result.data;
       }
 

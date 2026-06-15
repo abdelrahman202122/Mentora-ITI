@@ -1,5 +1,5 @@
 import type { Types } from 'mongoose';
-import { AppError } from '../../common/errors/AppError.js';
+import { AppError, NotFoundError } from '../../common/errors/AppError.js';
 import type { CreateBookingInput, IBooking } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 
@@ -72,63 +72,124 @@ export async function checkDuplicateBooking(
 }
 
 /**
+ * Helper: Convert Date to HH:MM string
+ */
+function dateToTimeString(date: Date): string {
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+/**
+ * Helper: Compare time strings (HH:MM format)
+ * Returns true if time1 <= time2
+ */
+function isTimeLeOrEqual(time1: string, time2: string): boolean {
+  return time1.localeCompare(time2) <= 0;
+}
+
+/**
+ * Helper: Get day name from Date
+ */
+function getDayName(date: Date): string {
+  const days = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ];
+  return days[date.getDay()];
+}
+
+/**
  * Check if tutor is available at the requested time
- * PLACEHOLDER: This method will be implemented when tutorAvailability collection is ready
  * @param tutorId - The tutor's user ID
  * @param startAt - Booking start time
  * @param endAt - Booking end time
  */
 export async function checkTutorAvailability(
-  _tutorId: Types.ObjectId,
-  _startAt: Date,
-  _endAt: Date,
+  tutorId: Types.ObjectId,
+  startAt: Date,
+  endAt: Date,
 ): Promise<void> {
-  // TODO: Implement tutor availability check when BE2 provides the tutorAvailability collection
-  // Expected logic:
-  // 1. Fetch tutor availability from tutorAvailability collection
-  // 2. Get day of week from startAt and endAt
-  // 3. Check if the requested slot fits within the tutor's weekly slots
-  // 4. Throw AppError if not available
+  const availability = await bookingRepository.findTutorAvailability(tutorId);
 
-  // Placeholder: assume available for now
-  return;
+  if (!availability) {
+    throw new NotFoundError('Tutor availability not found');
+  }
+
+  const dayName = getDayName(startAt);
+  const bookingStartTime = dateToTimeString(startAt);
+  const bookingEndTime = dateToTimeString(endAt);
+
+  // Get slots for the day (e.g., availability.slots.monday)
+  const daySlots =
+    availability.slots[dayName as keyof typeof availability.slots] || [];
+
+  if (daySlots.length === 0) {
+    throw createBookingError('Tutor is not available on this day', 409);
+  }
+
+  // Check if booking time fits within any of the available slots
+  const isAvailable = daySlots.some((slot: any) => {
+    return (
+      isTimeLeOrEqual(slot.startTime, bookingStartTime) &&
+      isTimeLeOrEqual(bookingEndTime, slot.endTime)
+    );
+  });
+
+  if (!isAvailable) {
+    throw createBookingError(
+      'Requested time slot is not within tutor availability',
+      409,
+    );
+  }
 }
 
 /**
  * Get tutor ID from tutor profile
- * PLACEHOLDER: This method will be called when BE2 provides the TutorProfile model
  * @param tutorProfileId - The tutor profile ID
+ * @returns The tutor's user ID
+ * @throws NotFoundError if the tutor profile doesn't exist
  */
 export async function getTutorIdFromProfile(
   tutorProfileId: Types.ObjectId,
 ): Promise<Types.ObjectId> {
-  // TODO: Implement this when BE2 provides TutorProfile model
-  // Expected logic:
-  // 1. Fetch TutorProfile by ID
-  // 2. Return the tutorId/userId field
-
-  // Placeholder: return the tutorProfileId as tutorId for now
-  // This will need to be updated when TutorProfile model is available
-  return tutorProfileId;
+  return bookingRepository.getTutorIdFromProfile(tutorProfileId);
 }
 
 /**
- * Get server-side subject pricing.
+ * Get tutor pricing based on hourly rate and booking duration
+ * @param tutorProfileId - The tutor profile ID
+ * @param durationMinutes - The booking duration in minutes
+ * @returns The calculated booking price and currency
+ * @throws AppError if price calculation fails
+ * @throws NotFoundError if the tutor profile doesn't exist
  */
-export async function getSubjectPricing(
-  subjectId: Types.ObjectId,
-): Promise<{ price: number; currency?: string }> {
-  const pricing = await bookingRepository.findSubjectPricing(subjectId);
+export async function getTutorPricing(
+  tutorProfileId: Types.ObjectId,
+  durationMinutes: number,
+): Promise<{ price: number; currency: string }> {
+  const hourlyRate = await bookingRepository.getTutorHourlyRate(tutorProfileId);
 
-  if (!pricing) {
-    throw createBookingError('Subject pricing is not available', 404);
+  if (hourlyRate <= 0) {
+    throw createBookingError('Tutor hourly rate must be greater than 0', 500);
   }
 
-  if (pricing.price <= 0) {
-    throw createBookingError('Subject price must be greater than 0', 500);
+  if (durationMinutes <= 0) {
+    throw createBookingError('Booking duration must be greater than 0', 400);
   }
 
-  return pricing;
+  // Calculate price: hourlyRate * (durationMinutes / 60)
+  const price = (hourlyRate * durationMinutes) / 60;
+
+  // Use default currency EGP
+  const currency = 'EGP';
+
+  return { price, currency };
 }
 
 /**
@@ -150,8 +211,11 @@ export async function createBooking(
   // Get tutor ID from profile
   const tutorId = await getTutorIdFromProfile(tutorProfileId);
 
-  // Get price from trusted subject data
-  const { price, currency } = await getSubjectPricing(subjectId);
+  // Get price from tutor hourly rate
+  const { price, currency } = await getTutorPricing(
+    tutorProfileId,
+    durationMinutes,
+  );
 
   // Validate learner is not booking themselves
   validateLearnerIsNotSelf(learnerId, tutorId);
