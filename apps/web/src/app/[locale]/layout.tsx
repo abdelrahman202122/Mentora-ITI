@@ -10,12 +10,8 @@ export default async function LocaleLayout({
   const { locale } = await params;
 
   return (
-    <html lang={locale}>
-      <body>
-        <NextIntlClientProvider locale={locale}>
-          {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider locale={locale}>
+      {children}
+    </NextIntlClientProvider>
   );
 }
