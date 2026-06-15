@@ -14,6 +14,7 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof AppError) {
     return sendError(res, error.statusCode, error.message);
   }
+  
 
   if (error instanceof Error && error.name === 'ValidationError') {
     return sendError(res, 400, error.message);

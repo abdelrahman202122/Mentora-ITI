@@ -1,25 +1,27 @@
 
 
 import { Router } from 'express';
-import { UserController } from './user.controller.js';
+import * as UserController  from './user.controller.js';
 import { authMiddleware } from '../../middleware/auth.middleware.js';
 import { authRateLimit } from '../../middleware/rateLimit.middleware.js';
 import { validate } from '../../middleware/validation.middleware.js';
-import { loginSchema, registerSchema } from './user.validation.js';
+import { changePasswordSchema, loginSchema, registerSchema, updateProfileSchema, updateUserByAdminSchema } from './user.validation.js';
+import { roleMiddleware } from '../../middleware/role.moddleware.js';
+import { UserRole } from './user.interface.js';
 
 const router = Router();
 
 router.post(
   '/register',
-  validate(registerSchema),
   authRateLimit,
+  validate(registerSchema),
   UserController.register
 );
 
 router.post(
   '/login',
-  validate(loginSchema),
   authRateLimit,
+  validate(loginSchema),
   UserController.login
 );
 
@@ -36,4 +38,60 @@ router.post(
   authRateLimit,
   UserController.refreshToken
 );
+
+
+router.get(
+  '/me',
+  authMiddleware,
+  UserController.getMe
+);
+
+
+router.get(
+  '/:id',
+  authMiddleware,
+  roleMiddleware(UserRole.ADMIN),
+  UserController.getUserById
+);
+
+router.get(
+  '/',
+  authMiddleware,
+  roleMiddleware(UserRole.ADMIN),
+  UserController.getUsers
+);
+
+
+router.patch(
+  '/change-password',
+  authMiddleware,
+  validate(changePasswordSchema), // ← added
+  UserController.changePassword
+);
+
+router.patch(
+  '/profile',
+  authMiddleware,
+  validate(updateProfileSchema), // ← added
+  UserController.updateProfile
+);
+
+router.patch(
+  '/:id',
+  authMiddleware,
+  roleMiddleware(UserRole.ADMIN),
+  validate(updateUserByAdminSchema),
+  UserController.updateUserById
+);
+
+
+router.delete(
+  '/:id',
+  authMiddleware,
+  roleMiddleware(UserRole.ADMIN),
+  UserController.deleteUserById
+);
+
+
+
 export default router;
