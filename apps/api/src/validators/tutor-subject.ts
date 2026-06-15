@@ -14,10 +14,6 @@ export const tutorSubjectBaseSchema = z.object({
   gradeNote: z.string().trim().max(100).optional().nullable().default(null),
 });
 
-// export const createTutorSubjectSchema = tutorSubjectBaseSchema;
-
-// export const updateTutorSubjectSchema = tutorSubjectBaseSchema.partial();
-
 export const getTutorSubjectsParamsSchema = z.object({
   tutorId: objectIdSchema,
 });
@@ -31,8 +27,6 @@ export const editTutorSubjectSchema = z.object({
   subjectId: objectIdSchema,
 });
 
-// export type CreateTutorSubjectInput = z.infer<typeof createTutorSubjectSchema>;
-// export type UpdateTutorSubjectInput = z.infer<typeof updateTutorSubjectSchema>;
 export type tutorSubjectInput = z.infer<typeof tutorSubjectBaseSchema>;
 export type GetTutorSubjectsParams = z.infer<
   typeof getTutorSubjectsParamsSchema

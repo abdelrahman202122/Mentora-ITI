@@ -1,5 +1,3 @@
-// src/controllers/meta.controller.ts
-
 import type { Request, Response } from 'express';
 import { CATEGORIES } from '../../constants/categories.js';
 import { EDUCATION_LEVELS } from '../../constants/educationLevels.js';

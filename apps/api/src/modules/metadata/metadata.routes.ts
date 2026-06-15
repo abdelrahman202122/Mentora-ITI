@@ -1,5 +1,3 @@
-// src/routes/meta.routes.ts
-
 import { Router } from 'express';
 import {
   getCategories,
