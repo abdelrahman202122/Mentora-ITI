@@ -310,9 +310,113 @@ export async function listLearnerBookings(
 }
 
 /**
+ * List tutor bookings with optional filters and pagination
+ */
+export async function listTutorBookings(
+  tutorId: Types.ObjectId,
+  page: number,
+  limit: number,
+  filters?: {
+    bookingStatus?: string;
+    paymentStatus?: string;
+    subjectId?: string;
+  },
+): Promise<{
+  bookings: IBooking[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> {
+  const mongoFilters: Record<string, unknown> = {};
+
+  if (filters?.bookingStatus) {
+    mongoFilters.bookingStatus = filters.bookingStatus;
+  }
+
+  if (filters?.paymentStatus) {
+    mongoFilters.paymentStatus = filters.paymentStatus;
+  }
+
+  if (filters?.subjectId) {
+    mongoFilters.subjectId = new mongoose.Types.ObjectId(filters.subjectId);
+  }
+
+  const skip = (page - 1) * limit;
+
+  const bookings = await bookingRepository.findBookingsByTutor(
+    tutorId,
+    skip,
+    limit,
+    mongoFilters,
+  );
+
+  const total = await bookingRepository.countTutorBookingsWithFilters(
+    tutorId,
+    mongoFilters,
+  );
+
+  const totalPages = Math.ceil(total / limit);
+
+  return { bookings, total, page, totalPages };
+}
+
+/**
+ * List all bookings with optional filters and pagination (admin)
+ */
+export async function listAdminBookings(
+  page: number,
+  limit: number,
+  filters?: {
+    bookingStatus?: string;
+    paymentStatus?: string;
+    tutorProfileId?: string;
+    subjectId?: string;
+  },
+): Promise<{
+  bookings: IBooking[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> {
+  const mongoFilters: Record<string, unknown> = {};
+
+  if (filters?.bookingStatus) {
+    mongoFilters.bookingStatus = filters.bookingStatus;
+  }
+
+  if (filters?.paymentStatus) {
+    mongoFilters.paymentStatus = filters.paymentStatus;
+  }
+
+  if (filters?.tutorProfileId) {
+    mongoFilters.tutorProfileId = new mongoose.Types.ObjectId(
+      filters.tutorProfileId,
+    );
+  }
+
+  if (filters?.subjectId) {
+    mongoFilters.subjectId = new mongoose.Types.ObjectId(filters.subjectId);
+  }
+
+  const skip = (page - 1) * limit;
+
+  const bookings = await bookingRepository.findAllBookings(
+    skip,
+    limit,
+    mongoFilters,
+  );
+
+  const total = await bookingRepository.countAllBookings(mongoFilters);
+
+  const totalPages = Math.ceil(total / limit);
+
+  return { bookings, total, page, totalPages };
+}
+
+/**
  * Get a booking by ID with authorization check
  * @param bookingId - The booking ID
- * @param userId - The authenticated user's ID
+
  * @param userRole - The authenticated user's role
  * @returns The booking if the user is authorized
  * @throws NotFoundError if booking does not exist

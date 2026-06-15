@@ -114,18 +114,57 @@ export async function findTutorAvailability(tutorId: Types.ObjectId) {
 }
 
 /**
- * Find bookings by tutor ID with pagination
+ * Find bookings by tutor ID with pagination and optional filters
  */
 export async function findBookingsByTutor(
   tutorId: Types.ObjectId,
   skip: number,
   limit: number,
+  filters?: Record<string, unknown>,
 ): Promise<IBooking[]> {
-  return Booking.find({ tutorId })
+  const query = { tutorId, ...filters };
+  return Booking.find(query)
     .skip(skip)
     .limit(limit)
     .sort({ startAt: -1 })
     .exec();
+}
+
+/**
+ * Count bookings by tutor ID with optional filters
+ */
+export async function countTutorBookingsWithFilters(
+  tutorId: Types.ObjectId,
+  filters?: Record<string, unknown>,
+): Promise<number> {
+  const query = { tutorId, ...filters };
+  return Booking.countDocuments(query);
+}
+
+/**
+ * Find all bookings with pagination and optional filters (admin)
+ */
+export async function findAllBookings(
+  skip: number,
+  limit: number,
+  filters?: Record<string, unknown>,
+): Promise<IBooking[]> {
+  const query = { ...filters };
+  return Booking.find(query)
+    .skip(skip)
+    .limit(limit)
+    .sort({ startAt: -1 })
+    .exec();
+}
+
+/**
+ * Count all bookings with optional filters (admin)
+ */
+export async function countAllBookings(
+  filters?: Record<string, unknown>,
+): Promise<number> {
+  const query = { ...filters };
+  return Booking.countDocuments(query);
 }
 
 /**
