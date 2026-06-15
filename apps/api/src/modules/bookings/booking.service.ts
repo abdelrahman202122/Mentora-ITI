@@ -1,4 +1,4 @@
-import type { Types } from 'mongoose';
+import mongoose, { type Types } from 'mongoose';
 import { AppError, NotFoundError } from '../../common/errors/AppError.js';
 import type { CreateBookingInput, IBooking } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
@@ -241,4 +241,112 @@ export async function createBooking(
   };
 
   return bookingRepository.createBooking(bookingData);
+}
+
+/**
+ * List learner bookings with optional filters and pagination
+ */
+export async function listLearnerBookings(
+  learnerId: Types.ObjectId,
+  page: number,
+  limit: number,
+  filters?: {
+    bookingStatus?: string;
+    paymentStatus?: string;
+    tutorProfileId?: string;
+    subjectId?: string;
+  },
+): Promise<{
+  bookings: IBooking[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> {
+  // Build MongoDB filter query from provided filters
+  const mongoFilters: Record<string, unknown> = {};
+
+  if (filters?.bookingStatus) {
+    mongoFilters.bookingStatus = filters.bookingStatus;
+  }
+
+  if (filters?.paymentStatus) {
+    mongoFilters.paymentStatus = filters.paymentStatus;
+  }
+
+  if (filters?.tutorProfileId) {
+    mongoFilters.tutorProfileId = new mongoose.Types.ObjectId(
+      filters.tutorProfileId,
+    );
+  }
+
+  if (filters?.subjectId) {
+    mongoFilters.subjectId = new mongoose.Types.ObjectId(filters.subjectId);
+  }
+
+  const skip = (page - 1) * limit;
+
+  // Fetch paginated bookings
+  const bookings = await bookingRepository.findBookingsByLearner(
+    learnerId,
+    skip,
+    limit,
+    mongoFilters,
+  );
+
+  // Get total count for pagination metadata
+  const total = await bookingRepository.countLearnerBookingsWithFilters(
+    learnerId,
+    mongoFilters,
+  );
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    bookings,
+    total,
+    page,
+    totalPages,
+  };
+}
+
+/**
+ * Get a booking by ID with authorization check
+ * @param bookingId - The booking ID
+ * @param userId - The authenticated user's ID
+ * @param userRole - The authenticated user's role
+ * @returns The booking if the user is authorized
+ * @throws NotFoundError if booking does not exist
+ * @throws UnauthorizedError if user is not authorized to view the booking
+ */
+export async function getBookingByIdWithAuth(
+  bookingId: Types.ObjectId,
+  userId: Types.ObjectId | string,
+  userRole: string,
+): Promise<IBooking> {
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  // Convert userId to ObjectId for comparison
+  const userObjectId =
+    userId instanceof mongoose.Types.ObjectId
+      ? userId
+      : new mongoose.Types.ObjectId(userId as string);
+
+  // Check authorization: user must be learner, tutor, or admin for this booking
+  const isLearner = booking.learnerId.equals(userObjectId);
+  const isTutor = booking.tutorId.equals(userObjectId);
+  const isAdmin = userRole === 'admin';
+
+  if (!isLearner && !isTutor && !isAdmin) {
+    throw new AppError(
+      'You do not have permission to view this booking',
+      403,
+      'FORBIDDEN',
+    );
+  }
+
+  return booking;
 }
