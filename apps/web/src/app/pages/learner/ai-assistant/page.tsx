@@ -1,48 +1,42 @@
- 
 "use client"
-import { useRouter } from "next/navigation"
+
 import { useState, useEffect, useRef } from "react"
-import { Send} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Send, Mic } from "lucide-react"
 import { Message } from "@/types/ai"
 import { sendMessageToAI } from "@/lib/api/ai"
 
 export default function AIAssistantPage() {
-    const router = useRouter()
+  const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
-  //&used to make automatic scroll down in chat
 
-  
   useEffect(() => {
     async function getFirstMessage() {
       setLoading(true)
-      const response = await sendMessageToAI("", [])
- //& takes 2 parameters the second param is array and its empty array  ( length is zero)so the welcomed message appeared when i openned the chat
-      setMessages([
-        {
-          id: 1,
-          role: "assistant",
-    //& maked for UI if assistant put on the left side if user put on the right side
-          text: response.message,
-          options: response.options,
-        },
-      ])
-      setLoading(false)//& stop writing typing
+      try {
+        const response = await sendMessageToAI("", [])
+        setMessages([
+          {
+            id: 1,
+            role: "assistant",
+            text: response.message,
+            options: response.options,
+          },
+        ])
+      } finally {
+        setLoading(false)
+      }
     }
-
     getFirstMessage()
   }, [])
-  //& use empty braces mean that this function excuted only one time when the chat openned
 
-  //& scroll down automatic
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
-  //&
 
-  //& when user choose the options
   async function handleOption(option: string) {
     const userMessage: Message = {
       id: messages.length + 1,
@@ -59,26 +53,28 @@ export default function AIAssistantPage() {
       text: m.text,
     }))
 
-    const response = await sendMessageToAI(option, history)
+    try {
+      const response = await sendMessageToAI(option, history)
 
-    if (response.redirectTo) {
-     router.push(response.redirectTo)
-      return
+      if (response.redirectTo) {
+        router.push(response.redirectTo)
+        return
+      }
+
+      setMessages([
+        ...updatedMessages,
+        {
+          id: updatedMessages.length + 1,
+          role: "assistant",
+          text: response.message,
+          options: response.options,
+        },
+      ])
+    } finally {
+      setLoading(false)
     }
-
-    setMessages([
-      ...updatedMessages,
-      {
-        id: updatedMessages.length + 1,
-        role: "assistant",
-        text: response.message,
-        options: response.options,
-      },
-    ])
-    setLoading(false)
   }
 
-  //& if the user write the messages
   async function handleSend() {
     if (!input.trim()) return
     await handleOption(input)
@@ -105,8 +101,6 @@ export default function AIAssistantPage() {
       <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-4">
         {messages.map((message) => (
           <div key={message.id}>
-
-            {/* Message Bubble */}
             <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
               {message.role === "assistant" && (
                 <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs flex-shrink-0">
@@ -122,7 +116,6 @@ export default function AIAssistantPage() {
               </div>
             </div>
 
-            {/* Options */}
             {message.options && (
               <div className="flex flex-wrap gap-2 mt-2 ml-10">
                 {message.options.map((option) => (
@@ -136,11 +129,9 @@ export default function AIAssistantPage() {
                 ))}
               </div>
             )}
-
           </div>
         ))}
 
-        {/* Loading */}
         {loading && (
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs">
@@ -157,7 +148,7 @@ export default function AIAssistantPage() {
 
       {/* Input */}
       <div className="border rounded-2xl flex items-center gap-2 px-4 py-3 bg-white">
-        
+        <Mic size={18} className="text-gray-400" />
         <input
           type="text"
           value={input}
@@ -174,7 +165,6 @@ export default function AIAssistantPage() {
         </button>
       </div>
 
-      {/* Disclaimer */}
       <p className="text-xs text-center text-gray-400 mt-2">
         EduMarket AI may provide inaccurate info about teachers. Verify details before booking.
       </p>

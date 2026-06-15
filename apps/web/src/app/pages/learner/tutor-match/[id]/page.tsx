@@ -1,14 +1,15 @@
 "use client"
-import { useParams, useRouter } from "next/navigation"
+
 import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar } from "lucide-react"
 import { getTutorById } from "@/lib/api/tutors"
 import { startConversation } from "@/lib/api/messages"
 
 export default function TutorProfilePage() {
-  const router = useRouter()
   const params = useParams()
+  const router = useRouter()
   const [tutor, setTutor] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -52,13 +53,8 @@ export default function TutorProfilePage() {
       {/* Header Card */}
       <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm mb-4">
 
-        {/* Top Row — Avatar + Info */}
         <div className="flex items-start gap-3 mb-4">
-
-          {/* Avatar */}
           <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-200 flex-shrink-0" />
-
-          {/* Info */}
           <div className="flex-1 min-w-0">
             <h1 className="text-base md:text-xl font-bold text-gray-800 leading-tight">
               {tutor.name}
@@ -66,8 +62,6 @@ export default function TutorProfilePage() {
             <p className="text-xs md:text-sm text-gray-500 mb-2">
               {tutor.title}
             </p>
-
-            {/* Rating */}
             <div className="flex items-center gap-1 flex-wrap">
               <Star size={13} className="text-yellow-400 fill-yellow-400" />
               <span className="text-sm font-medium text-gray-700">
@@ -77,8 +71,6 @@ export default function TutorProfilePage() {
                 ({tutor.totalReviews} reviews)
               </span>
             </div>
-
-            {/* Stats */}
             <div className="flex flex-wrap gap-3 mt-2">
               <div className="flex items-center gap-1 text-gray-500">
                 <Users size={12} />
@@ -94,15 +86,17 @@ export default function TutorProfilePage() {
 
         {/* Chat Button */}
         <button
-  onClick={async () => {
-    const chatId = await startConversation(tutor.id, tutor.name)
-    router.push("/pages/learner/messages/" + chatId + "?tutorName=" + tutor.name)
-  }}
-  className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer"
->
-  <MessageSquare size={15} />
-  Chat with {tutor.name}
-</button>
+          onClick={async () => {
+            const chatId = await startConversation(tutor.id, tutor.name)
+            const qs = new URLSearchParams({ tutorName: tutor.name }).toString()
+            router.push("/pages/learner/messages/" + chatId + "?" + qs)
+          }}
+          className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+        >
+          <MessageSquare size={15} />
+          Chat with {tutor.name}
+        </button>
+
         {/* About Me */}
         <div className="mt-4 pt-4 border-t border-gray-100">
           <h2 className="text-sm font-bold text-gray-800 mb-2">About Me</h2>
@@ -169,7 +163,7 @@ export default function TutorProfilePage() {
 
       {/* Book Now */}
       <Link
-        href={"pages/learner/bookings/new?tutorId=" + tutor.id}
+        href={"/pages/learner/bookings/new?tutorId=" + tutor.id}
         className="block w-full bg-indigo-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-indigo-700 mb-6"
       >
         Book a Session — {tutor.hourlyRate} {tutor.currency}/hr

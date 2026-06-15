@@ -1,10 +1,10 @@
 "use client"
-import {  saveMessage } from "@/lib/api/messages"
+
 import { useEffect, useState, useRef } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
-import { getMessages, getConversations } from "@/lib/api/messages"
+import { getMessages, saveMessage } from "@/lib/api/messages"
 
 export default function ChatPage() {
   const params = useParams()
@@ -17,7 +17,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     async function fetch() {
-      const data = await getMessages(Number(params.id))
+      const data = await getMessages(params.id as string)
       setMessages(data)
       setLoading(false)
     }
@@ -29,21 +29,21 @@ export default function ChatPage() {
   }, [messages])
 
   async function handleSend() {
-  if (!input.trim()) return
+    if (!input.trim()) return
 
-  const newMessage = {
-    role: "learner",
-    text: input,
-    time: new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    const newMessage = {
+      role: "learner",
+      text: input,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    }
+
+    await saveMessage(params.id as string, newMessage)
+    setMessages((prev) => [...prev, { id: Date.now(), ...newMessage }])
+    setInput("")
   }
-
-  await saveMessage(Number(params.id), newMessage)
-  setMessages((prev) => [...prev, { id: Date.now(), ...newMessage }])
-  setInput("")
-}
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col h-full">
