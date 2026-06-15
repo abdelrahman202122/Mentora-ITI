@@ -79,18 +79,31 @@ export async function findBookingById(
 }
 
 /**
- * Find bookings by learner ID with pagination
+ * Find bookings by learner ID with pagination and optional filters
  */
 export async function findBookingsByLearner(
   learnerId: Types.ObjectId,
   skip: number,
   limit: number,
+  filters?: Record<string, unknown>,
 ): Promise<IBooking[]> {
-  return Booking.find({ learnerId })
+  const query = { learnerId, ...filters };
+  return Booking.find(query)
     .skip(skip)
     .limit(limit)
     .sort({ startAt: -1 })
     .exec();
+}
+
+/**
+ * Count bookings by learner ID with optional filters
+ */
+export async function countLearnerBookingsWithFilters(
+  learnerId: Types.ObjectId,
+  filters?: Record<string, unknown>,
+): Promise<number> {
+  const query = { learnerId, ...filters };
+  return Booking.countDocuments(query);
 }
 
 /**

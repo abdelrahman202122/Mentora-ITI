@@ -83,7 +83,41 @@ export async function listMyBookings(
       throw new UnauthorizedError('User not authenticated');
     }
 
-    throwNotImplemented('Listing bookings is not implemented yet');
+    // Get pagination parameters from query
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(
+      1,
+      Math.min(100, parseInt(req.query.limit as string) || 10),
+    );
+
+    // Get filter parameters from query
+    const filters = {
+      bookingStatus: req.query.bookingStatus as string | undefined,
+      paymentStatus: req.query.paymentStatus as string | undefined,
+      tutorProfileId: req.query.tutorProfileId as string | undefined,
+      subjectId: req.query.subjectId as string | undefined,
+    };
+
+    // Convert learnerId to ObjectId
+    const learnerId = new Types.ObjectId(req.user.userId);
+
+    // Get bookings with pagination and filters
+    const result = await bookingService.listLearnerBookings(
+      learnerId,
+      page,
+      limit,
+      filters,
+    );
+
+    sendSuccess(res, 200, 'Bookings retrieved successfully', {
+      bookings: result.bookings,
+      pagination: {
+        page: result.page,
+        limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -99,7 +133,23 @@ export async function getBookingById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Getting a booking is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    // Get booking with authorization check
+    const booking = await bookingService.getBookingByIdWithAuth(
+      bookingObjectId,
+      req.user.userId,
+      req.user.role,
+    );
+
+    sendSuccess(res, 200, 'Booking retrieved successfully', booking);
   } catch (error) {
     next(error);
   }
