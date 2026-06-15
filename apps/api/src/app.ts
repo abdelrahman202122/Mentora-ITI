@@ -14,6 +14,7 @@ import userRoutes from './modules/users/user.route.js';
 import cookieParser from 'cookie-parser';
 import tutorRoutes from './modules/tutor/tutor.routes.js';
 import metadataRoutes from './modules/metadata/metadata.routes.js';
+import auditRouter from './modules/audit/audit.route.js';
 
 export function createApp() {
   const app = express();
@@ -21,7 +22,11 @@ export function createApp() {
   app.use(httpLogger);
 
   app.disable('x-powered-by');
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
   app.use(compression());
   app.use(
     cors({
@@ -39,6 +44,7 @@ export function createApp() {
   app.use('/api/health', healthRoutes);
   app.use('/api/bookings', bookingRoutes);
   app.use('/api/metadata', metadataRoutes);
+  app.use('/api/audits', auditRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
