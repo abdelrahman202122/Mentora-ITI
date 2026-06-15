@@ -17,9 +17,12 @@ export default function TutorMatchPage() {
   useEffect(() => {
     async function fetchTutors() {
       setLoading(true)
-      const data = await getTutors()
-      setTutors(data)
-      setLoading(false)
+      try {
+        const data = await getTutors()
+        setTutors(data)
+      } finally {
+        setLoading(false)
+      }
     }
     fetchTutors()
   }, [])

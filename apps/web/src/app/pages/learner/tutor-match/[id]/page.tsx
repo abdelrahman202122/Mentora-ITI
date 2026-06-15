@@ -15,9 +15,12 @@ export default function TutorProfilePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const tutorData = await getTutorById(params.id as string)
-      setTutor(tutorData)
-      setLoading(false)
+      try {
+        const tutorData = await getTutorById(params.id as string)
+        setTutor(tutorData)
+      } finally {
+        setLoading(false)
+      }
     }
     fetchData()
   }, [params.id])
