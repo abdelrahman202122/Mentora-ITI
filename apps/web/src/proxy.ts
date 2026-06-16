@@ -1,7 +1,11 @@
 import { auth } from "@/auth";
+import createMiddleware from "next-intl/middleware";
 import { MOCK_SESSION_COOKIE, verifySession } from "@/lib/auth-session";
 import { isUserIdValidSync } from "@/lib/mock-auth-store";
+import { routing } from "./i18n/routing";
 import { NextResponse } from "next/server";
+
+const handleI18nRouting = createMiddleware(routing);
 
 export default auth((req) => {
   const hasNextAuth = !!req.auth;
@@ -34,7 +38,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return handleI18nRouting(req);
 });
 
 export const config = {

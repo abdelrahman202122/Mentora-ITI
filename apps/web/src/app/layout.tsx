@@ -18,16 +18,12 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
-  children,
-  params
+  children
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-
   return (
-    <html lang={locale ?? "en"} className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>{children}</body>
     </html>
   );
