@@ -1,5 +1,6 @@
 import { NextIntlClientProvider } from "next-intl";
 import { routing } from "../../i18n/routing";
+import { HtmlLang } from "./html-lang";
 
 function isSupportedLocale(locale: string): locale is (typeof routing.locales)[number] {
   return routing.locales.includes(locale as (typeof routing.locales)[number]);
@@ -19,6 +20,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale}>
+      <HtmlLang locale={locale} />
       {children}
     </NextIntlClientProvider>
   );
