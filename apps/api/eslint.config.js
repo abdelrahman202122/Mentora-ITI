@@ -1,3 +1,4 @@
+/* eslint-disable no-dupe-keys */
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
@@ -20,6 +21,7 @@ export default tseslint.config(
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'warn',
     },
   },
 );

@@ -1,0 +1,411 @@
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T07:44:12.682Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T07:44:55.923Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T07:45:12.332Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T07:45:56.103Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T08:08:21.151Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T08:25:53.526Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T08:31:00.769Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T11:56:03.795Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T13:45:11.495Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T15:39:13.852Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-10T18:02:27.981Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:40:47.667Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:44:20.690Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:48:28.293Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:48:52.117Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:49:22.831Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:50:30.173Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:50:58.989Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:51:18.596Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:51:57.918Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T22:53:31.835Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T23:06:43.133Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T23:07:52.330Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T23:08:28.526Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-10T23:09:13.292Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T03:59:24.862Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-11T04:09:05.155Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:09:34.490Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:16:24.841Z"}
+{"level":"info","message":"Registration attempt: ahmed@gmail.com","timestamp":"2026-06-11T04:25:03.197Z"}
+{"level":"info","message":"User registered successfully: 6a2a389ffdfba36c7e3cf104","timestamp":"2026-06-11T04:25:03.717Z"}
+{"level":"info","message":"Registration completed: 6a2a389ffdfba36c7e3cf104","timestamp":"2026-06-11T04:25:03.745Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:04:25:03 +0000] \"POST /api/users/register HTTP/1.1\" 201 162 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T04:25:03.795Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:38:22.262Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:38:48.548Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:39:20.435Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:39:46.459Z"}
+{"level":"info","message":"Login attempt: ahmed@gmail.com","timestamp":"2026-06-11T04:40:38.420Z"}
+{"level":"error","message":"Login failed: Illegal arguments: undefined, string","timestamp":"2026-06-11T04:40:38.786Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:04:40:38 +0000] \"POST /api/users/login HTTP/1.1\" 500 51 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T04:40:38.801Z"}
+{"level":"info","message":"Login attempt: ahmed@gmail.com","timestamp":"2026-06-11T04:43:18.676Z"}
+{"level":"info","message":"Login successful: 6a2a389ffdfba36c7e3cf104","timestamp":"2026-06-11T04:43:19.054Z"}
+{"level":"info","message":"Login completed: 6a2a389ffdfba36c7e3cf104","timestamp":"2026-06-11T04:43:19.069Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:04:43:19 +0000] \"POST /api/users/login HTTP/1.1\" 200 150 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T04:43:19.074Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:55:45.624Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T04:56:28.835Z"}
+{"level":"info","message":"Logout attempt","timestamp":"2026-06-11T04:57:54.186Z"}
+{"level":"info","message":"Logout successful","timestamp":"2026-06-11T04:57:54.188Z"}
+{"level":"info","message":"Logout completed","timestamp":"2026-06-11T04:57:54.197Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:04:57:54 +0000] \"POST /api/users/logout HTTP/1.1\" 200 52 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T04:57:54.223Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T15:25:29.413Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T15:28:26.437Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T15:29:41.143Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T15:35:54.571Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T15:36:10.136Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T15:47:43.501Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T16:13:30.244Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T16:13:50.925Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-11T16:14:39.543Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-11T21:16:40.384Z"}
+{"level":"info","message":"Registration attempt: ahmed@gmail.com","timestamp":"2026-06-11T21:16:49.236Z"}
+{"level":"warn","message":"Email already exists: ahmed@gmail.com","timestamp":"2026-06-11T21:16:49.335Z"}
+{"level":"error","message":"Registration failed: Email already exists","timestamp":"2026-06-11T21:16:49.340Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:21:16:49 +0000] \"POST /api/users/register HTTP/1.1\" 409 50 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T21:16:49.358Z"}
+{"level":"info","message":"Registration attempt: hany@gmail.com","timestamp":"2026-06-11T21:17:15.786Z"}
+{"level":"info","message":"User registered successfully: 6a2b25db55669e69a5f70d0e","timestamp":"2026-06-11T21:17:16.101Z"}
+{"level":"info","message":"Registration completed: 6a2b25db55669e69a5f70d0e","timestamp":"2026-06-11T21:17:16.121Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:21:17:16 +0000] \"POST /api/users/register HTTP/1.1\" 201 160 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T21:17:16.124Z"}
+{"level":"info","message":"Login attempt: hany@gmail.com","timestamp":"2026-06-11T21:17:41.073Z"}
+{"level":"info","message":"Login successful: 6a2b25db55669e69a5f70d0e","timestamp":"2026-06-11T21:17:41.392Z"}
+{"level":"info","message":"Login completed: 6a2b25db55669e69a5f70d0e","timestamp":"2026-06-11T21:17:41.396Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:21:17:41 +0000] \"POST /api/users/login HTTP/1.1\" 200 148 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T21:17:41.399Z"}
+{"level":"info","message":"Refresh token request received","timestamp":"2026-06-11T21:18:08.224Z"}
+{"level":"info","message":"Access token refreshed: 6a2b25db55669e69a5f70d0e","timestamp":"2026-06-11T21:18:08.244Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-11T21:18:08.246Z"}
+{"level":"info","message":"::1 - - [11/Jun/2026:21:18:08 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-11T21:18:08.250Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:25:26.839Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:26:36.382Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:26:45 +0000] \"GET /api/health HTTP/1.1\" 200 125 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:26:45.458Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:27:11 +0000] \"GET /api/unknown HTTP/1.1\" 404 63 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:27:11.913Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:27:24 +0000] \"GET /api/health HTTP/1.1\" 200 125 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:27:24.392Z"}
+{"level":"info","message":{"emailHash":"373c0786e35b","event":"registration.attempt"},"timestamp":"2026-06-13T14:28:49.069Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2d6921bce408a18a801f0c"},"timestamp":"2026-06-13T14:28:49.907Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:28:49 +0000] \"POST /api/users/register HTTP/1.1\" 201 177 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:28:49.912Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:34:11.758Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2d6a63bce408a18a801f10"},"timestamp":"2026-06-13T14:34:12.504Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:34:12 +0000] \"POST /api/users/register HTTP/1.1\" 201 167 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:34:12.509Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:34:15.840Z"}
+{"level":"error","message":"Unhandled error occurred E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"teamlead@test.com\" }","stack":"MongoServerError: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"teamlead@test.com\" }\n    at InsertOneOperation.handleOk (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n    at tryOperation (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:290:26)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async executeOperation (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:119:12)\n    at async Collection.insertOne (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\collection.ts:294:12)","timestamp":"2026-06-13T14:34:16.443Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:34:16 +0000] \"POST /api/users/register HTTP/1.1\" 500 136 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:34:16.446Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:34:48.961Z"}
+{"level":"error","message":"Unhandled error occurred User validation failed: name: Path `name` is required.","stack":"ValidationError: User validation failed: name: Path `name` is required.\n    at Document.invalidate (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\document.js:3381:32)\n    at C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\document.js:3142:17\n    at C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\schemaType.js:1443:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)","timestamp":"2026-06-13T14:34:48.967Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:34:48 +0000] \"POST /api/users/register HTTP/1.1\" 500 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:34:48.970Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:35:34.961Z"}
+{"level":"error","message":"Unhandled error occurred E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"teamlead@test.com\" }","stack":"MongoServerError: E11000 duplicate key error collection: test.users index: email_1 dup key: { email: \"teamlead@test.com\" }\n    at InsertOneOperation.handleOk (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\operations\\insert.ts:79:13)\n    at tryOperation (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:290:26)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async executeOperation (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:119:12)\n    at async Collection.insertOne (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongodb\\src\\collection.ts:294:12)","timestamp":"2026-06-13T14:35:35.470Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:35:35 +0000] \"POST /api/users/register HTTP/1.1\" 500 136 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:35:35.472Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:40:43.997Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:41:00.214Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:42:17.635Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:44:20.832Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:44:26.072Z"}
+{"level":"warn","message":{"emailHash":"ce50db388b14","event":"Email already exists:"},"timestamp":"2026-06-13T14:44:26.593Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:44:26 +0000] \"POST /api/users/register HTTP/1.1\" 409 54 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:44:26.606Z"}
+{"level":"info","message":{"emailHash":"ce50db388b14","event":"registration.attempt"},"timestamp":"2026-06-13T14:46:32.352Z"}
+{"level":"error","message":"Unhandled error occurred User validation failed: name: Path `name` is required.","stack":"ValidationError: User validation failed: name: Path `name` is required.\n    at Document.invalidate (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\document.js:3381:32)\n    at C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\document.js:3142:17\n    at C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\mongoose\\lib\\schemaType.js:1443:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)","timestamp":"2026-06-13T14:46:32.363Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:46:32 +0000] \"POST /api/users/register HTTP/1.1\" 500 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:46:32.366Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:47:05.768Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:48:12.664Z"}
+{"level":"info","message":{"emailHash":"89a9f0a58a39","event":"registration.attempt"},"timestamp":"2026-06-13T14:48:16.290Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:48:16 +0000] \"POST /api/users/register HTTP/1.1\" 400 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:48:16.331Z"}
+{"level":"info","message":{"emailHash":"89a9f0a58a39","event":"registration.attempt"},"timestamp":"2026-06-13T14:48:24.389Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:48:24 +0000] \"POST /api/users/register HTTP/1.1\" 400 84 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:48:24.395Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:50:40.888Z"}
+{"level":"info","message":{"emailHash":"b51b4907d041","event":"registration.attempt"},"timestamp":"2026-06-13T14:55:12.005Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:55:12 +0000] \"POST /api/users/register HTTP/1.1\" 400 135 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:55:12.043Z"}
+{"level":"error","message":"Unhandled error occurred Cannot read properties of undefined (reading 'toLowerCase')","stack":"TypeError: Cannot read properties of undefined (reading 'toLowerCase')\n    at emailHash (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\utils\\emailHash.ts:7:19)\n    at Function.register (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\modules\\users\\user.service.ts:24:20)\n    at register (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\modules\\users\\user.controller.ts:18:27)\n    at Layer.handleRequest (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\router\\lib\\route.js:157:13)\n    at file:///C:/Users/Blu-Ray/Projects/MERN/mentora-iti/apps/api/node_modules/express-rate-limit/dist/index.mjs:970:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async file:///C:/Users/Blu-Ray/Projects/MERN/mentora-iti/apps/api/node_modules/express-rate-limit/dist/index.mjs:825:5","timestamp":"2026-06-13T14:55:22.145Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:55:22 +0000] \"POST /api/users/register HTTP/1.1\" 500 89 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:55:22.149Z"}
+{"level":"error","message":"Unhandled error occurred Cannot read properties of undefined (reading 'toLowerCase')","stack":"TypeError: Cannot read properties of undefined (reading 'toLowerCase')\n    at emailHash (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\utils\\emailHash.ts:7:19)\n    at Function.register (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\modules\\users\\user.service.ts:24:20)\n    at register (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\modules\\users\\user.controller.ts:18:27)\n    at Layer.handleRequest (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\router\\lib\\route.js:157:13)\n    at file:///C:/Users/Blu-Ray/Projects/MERN/mentora-iti/apps/api/node_modules/express-rate-limit/dist/index.mjs:970:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async file:///C:/Users/Blu-Ray/Projects/MERN/mentora-iti/apps/api/node_modules/express-rate-limit/dist/index.mjs:825:5","timestamp":"2026-06-13T14:55:32.875Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:55:32 +0000] \"POST /api/users/register HTTP/1.1\" 500 89 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:55:32.877Z"}
+{"level":"error","message":"Unhandled error occurred Cannot read properties of undefined (reading 'toLowerCase')","stack":"TypeError: Cannot read properties of undefined (reading 'toLowerCase')\n    at emailHash (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\utils\\emailHash.ts:7:19)\n    at Function.register (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\modules\\users\\user.service.ts:24:20)\n    at register (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\src\\modules\\users\\user.controller.ts:18:27)\n    at Layer.handleRequest (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\Blu-Ray\\Projects\\MERN\\mentora-iti\\apps\\api\\node_modules\\router\\lib\\route.js:157:13)\n    at file:///C:/Users/Blu-Ray/Projects/MERN/mentora-iti/apps/api/node_modules/express-rate-limit/dist/index.mjs:970:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async file:///C:/Users/Blu-Ray/Projects/MERN/mentora-iti/apps/api/node_modules/express-rate-limit/dist/index.mjs:825:5","timestamp":"2026-06-13T14:55:44.748Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:14:55:44 +0000] \"POST /api/users/register HTTP/1.1\" 500 89 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T14:55:44.751Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T14:56:44.533Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:02:05 +0000] \"POST /api/users/register HTTP/1.1\" 400 47 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:02:05.922Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:12:02 +0000] \"POST /api/users/register HTTP/1.1\" 400 65 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:12:02.629Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:12:14 +0000] \"POST /api/users/register HTTP/1.1\" 400 68 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:12:14.599Z"}
+{"level":"info","message":{"emailHash":"ad35674f9a95","event":"registration.attempt"},"timestamp":"2026-06-13T15:12:32.344Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:12:33.339Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:12:33 +0000] \"POST /api/users/register HTTP/1.1\" 201 172 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:12:33.345Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:26:15.446Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:26:15.446Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:26:15 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:26:15.447Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-13T15:26:39.444Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:26:39 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:26:39.446Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-13T15:27:46.473Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:27:46 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:27:46.474Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-13T15:27:59.315Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:27:59 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:27:59.316Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:28:27.598Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:29:28.547Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:44:05.181Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:45:36.530Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:45:48 +0000] \"POST /api/users/login HTTP/1.1\" 400 87 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:45:48.347Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:48:14 +0000] \"POST /api/users/login HTTP/1.1\" 400 93 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:48:14.128Z"}
+{"level":"warn","message":{"event":"login.failed","reason":"invalid_credentials"},"timestamp":"2026-06-13T15:48:44.713Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:48:44 +0000] \"POST /api/users/login HTTP/1.1\" 401 49 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:48:44.715Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:48:50.085Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:48:50.086Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:48:50 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:48:50.088Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:49:36.554Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:49:36 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:49:36.555Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:49:54.828Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:49:54 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:49:54.829Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:50:02.189Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:50:02 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:50:02.191Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:50:26.391Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:50:26.392Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:50:26 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:50:26.393Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:50:32.636Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:50:32 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:50:32.637Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:52:42.911Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:42 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:42.912Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:52:46.679Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:52:46.679Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:46 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:46.680Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:52:49.673Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:49 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:49.674Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:52:54.724Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:52:54 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:52:54.725Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-13T15:54:15.260Z"}
+{"level":"error","message":"Refresh token failed: Refresh token reuse detected. All sessions revoked.","timestamp":"2026-06-13T15:54:43.243Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:54:43 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:43.247Z"}
+{"level":"info","message":"Login successful: 6a2d7360248551f387df5a8b","timestamp":"2026-06-13T15:54:46.677Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2d7360248551f387df5a8b"},"timestamp":"2026-06-13T15:54:46.677Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:54:46 +0000] \"POST /api/users/login HTTP/1.1\" 200 131 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:46.679Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:54:50.020Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:54:50 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:54:50.021Z"}
+{"level":"info","message":"Refresh token completed successfully","timestamp":"2026-06-13T15:55:00.858Z"}
+{"level":"info","message":"::1 - - [13/Jun/2026:15:55:00 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-13T15:55:00.859Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:13:51.793Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:27:06.645Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:28:47.337Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:34:02.454Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:34:58.878Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:35:27.951Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:35:56.594Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:57:37.142Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-14T06:57:56.368Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T06:58:28.533Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T07:48:22.689Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T07:49:41.088Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T07:57:54.351Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T07:59:02.850Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:00:04 +0000] \"POST /api/users/me HTTP/1.1\" 404 65 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:00:04.582Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-14T08:00:10.776Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:00:33.636Z"}
+{"level":"info","message":{"emailHash":"0620121c72e2","event":"registration.attempt"},"timestamp":"2026-06-14T08:00:37.791Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e5fa544e03564ce4d0eeb"},"timestamp":"2026-06-14T08:00:38.246Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:00:38 +0000] \"POST /api/users/register HTTP/1.1\" 201 161 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:00:38.264Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e5fa544e03564ce4d0eeb"},"timestamp":"2026-06-14T08:00:46.188Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:00:46 +0000] \"POST /api/users/login HTTP/1.1\" 200 120 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:00:46.194Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:00:57 +0000] \"POST /api/users/me HTTP/1.1\" 404 65 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:00:57.167Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:03:42 +0000] \"POST /api/users/me HTTP/1.1\" 404 65 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:03:42.833Z"}
+{"level":"info","message":{"emailHash":"dede242e1a8e","event":"registration.attempt"},"timestamp":"2026-06-14T08:03:51.098Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e606744e03564ce4d0ef2"},"timestamp":"2026-06-14T08:03:51.362Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:03:51 +0000] \"POST /api/users/register HTTP/1.1\" 201 162 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:03:51.365Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e606744e03564ce4d0ef2"},"timestamp":"2026-06-14T08:04:02.646Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:04:02 +0000] \"POST /api/users/login HTTP/1.1\" 200 121 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:04:02.649Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:04:12 +0000] \"GET /api/users/me HTTP/1.1\" 200 165 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:04:12.787Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:16:22.744Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:16:39.555Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:16:57.402Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:18:16.098Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:23:11.195Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:23:53.770Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:24:50 +0000] \"GET /api/users/6a2e606744e03564ce4d0ef2 HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:24:50.120Z"}
+{"level":"info","message":{"emailHash":"dede242e1a8e","event":"registration.attempt"},"timestamp":"2026-06-14T08:28:10.726Z"}
+{"level":"warn","message":{"emailHash":"dede242e1a8e","event":"email.exists"},"timestamp":"2026-06-14T08:28:11.048Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:28:11 +0000] \"POST /api/users/register HTTP/1.1\" 409 54 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:28:11.054Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-14T08:28:22.919Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:28:41.648Z"}
+{"level":"info","message":{"emailHash":"d708ff1648c2","event":"registration.attempt"},"timestamp":"2026-06-14T08:28:51.154Z"}
+{"level":"warn","message":{"emailHash":"d708ff1648c2","event":"email.exists"},"timestamp":"2026-06-14T08:28:51.487Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:28:51 +0000] \"POST /api/users/register HTTP/1.1\" 409 54 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:28:51.503Z"}
+{"level":"info","message":{"emailHash":"59f01584c595","event":"registration.attempt"},"timestamp":"2026-06-14T08:29:07.301Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e6653dd7049bd4a1eaec2"},"timestamp":"2026-06-14T08:29:07.532Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:29:07 +0000] \"POST /api/users/register HTTP/1.1\" 201 163 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:29:07.538Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e6653dd7049bd4a1eaec2"},"timestamp":"2026-06-14T08:29:24.684Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:29:24 +0000] \"POST /api/users/login HTTP/1.1\" 200 122 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:29:24.688Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:29:54 +0000] \"GET /api/users/6a2e6653dd7049bd4a1eaec2 HTTP/1.1\" 200 166 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:29:54.209Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:40:31.693Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:40:51.230Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:45:43.453Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:45:51 +0000] \"GET /api/users HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:45:51.940Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:46:19.748Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:46:24 +0000] \"GET /api/users HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:46:24.381Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:46:57.851Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:46:59 +0000] \"GET /api/users HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:46:59.779Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:47:43.109Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:47:49 +0000] \"GET /api/users HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:47:49.708Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:50:15 +0000] \"GET /api/users/login HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:50:15.669Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e6653dd7049bd4a1eaec2"},"timestamp":"2026-06-14T08:50:27.118Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:50:27 +0000] \"POST /api/users/login HTTP/1.1\" 200 122 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:50:27.123Z"}
+{"level":"info","message":{"event":"users.fetch.attempt"},"timestamp":"2026-06-14T08:50:43.817Z"}
+{"level":"info","message":{"count":7,"event":"users.fetch.success"},"timestamp":"2026-06-14T08:50:43.918Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:08:50:43 +0000] \"GET /api/users HTTP/1.1\" 200 988 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T08:50:43.930Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T08:51:17.680Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:12:08.360Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:29:45 +0000] \"PATCH /api/users/6a2e6653dd7049bd4a1eaec2 HTTP/1.1\" 404 88 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:29:45.904Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-14T09:29:59.248Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:30:14.720Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:30:23 +0000] \"PATCH /api/users/6a2e6653dd7049bd4a1eaec2 HTTP/1.1\" 404 88 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:30:23.490Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:31:29 +0000] \"GET /api/users HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:31:29.419Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:31:48 +0000] \"GET /api/users/register HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:31:48.447Z"}
+{"level":"info","message":{"emailHash":"224f545cf28e","event":"registration.attempt"},"timestamp":"2026-06-14T09:32:08.729Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e751831cafd3f27212443"},"timestamp":"2026-06-14T09:32:09.244Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:32:09 +0000] \"POST /api/users/register HTTP/1.1\" 201 164 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:32:09.250Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e751831cafd3f27212443"},"timestamp":"2026-06-14T09:32:17.517Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:32:17 +0000] \"POST /api/users/login HTTP/1.1\" 200 123 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:32:17.522Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:32:46 +0000] \"PATCH /api/users/6a2e751831cafd3f27212443 HTTP/1.1\" 404 88 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:32:46.375Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:35:52 +0000] \"PATCH /api/users/6a2e751831cafd3f27212443 HTTP/1.1\" 404 88 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:35:52.122Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:38:25 +0000] \"PATCH /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 404 88 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:38:25.976Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-14T09:39:57.231Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:40:20.808Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:40:28 +0000] \"PATCH /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:40:28.709Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:41:42.807Z"}
+{"level":"info","message":{"event":"user.update.attempt","updateData":{"email":"maruina@gmail.com","name":"ahmed Saaed","password":"500600AA"},"userId":"6a2d7c81f0ba721d52c00dd2"},"timestamp":"2026-06-14T09:41:48.771Z"}
+{"level":"error","message":"Unhandled error occurred Plan executor error during update :: caused by :: E11000 duplicate key error collection: mentora-ITI.users index: email_1 dup key: { email: \"maruina@gmail.com\" }","stack":"MongoServerError: Plan executor error during update :: caused by :: E11000 duplicate key error collection: mentora-ITI.users index: email_1 dup key: { email: \"maruina@gmail.com\" }\n    at UpdateOneOperation.handleOk (C:\\Users\\elmoul\\Music\\Graduation_Project\\Mentora-ITI\\apps\\api\\node_modules\\mongodb\\src\\operations\\update.ts:152:32)\n    at tryOperation (C:\\Users\\elmoul\\Music\\Graduation_Project\\Mentora-ITI\\apps\\api\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:290:26)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async executeOperation (C:\\Users\\elmoul\\Music\\Graduation_Project\\Mentora-ITI\\apps\\api\\node_modules\\mongodb\\src\\operations\\execute_operation.ts:119:12)\n    at async Collection.updateOne (C:\\Users\\elmoul\\Music\\Graduation_Project\\Mentora-ITI\\apps\\api\\node_modules\\mongodb\\src\\collection.ts:410:12)","timestamp":"2026-06-14T09:41:49.222Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:41:49 +0000] \"PATCH /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 500 193 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:41:49.244Z"}
+{"level":"info","message":{"event":"user.update.attempt","updateData":{"email":"marina@gmail.com","name":"ahmed Saaed","password":"500600AA"},"userId":"6a2d7c81f0ba721d52c00dd2"},"timestamp":"2026-06-14T09:42:43.548Z"}
+{"level":"info","message":{"event":"user.update.success","userId":"6a2d7c81f0ba721d52c00dd2"},"timestamp":"2026-06-14T09:42:43.786Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:42:43 +0000] \"PATCH /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 200 162 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:42:43.789Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:43:36.144Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:49:21.106Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:50:04.937Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:50:35.251Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:50:39 +0000] \"DELETE /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:50:39.152Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:51:04.706Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:51:07 +0000] \"DELETE /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:51:07.856Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:51:31.271Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:51:35 +0000] \"DELETE /api/users/6a2d7c81f0ba721d52c00dd2 HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:51:35.472Z"}
+{"level":"info","message":{"emailHash":"7cf36a84dd09","event":"registration.attempt"},"timestamp":"2026-06-14T09:52:24.524Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e79d8cbd7042c3e0a2ba3"},"timestamp":"2026-06-14T09:52:25.046Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:52:25 +0000] \"POST /api/users/register HTTP/1.1\" 201 163 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:52:25.053Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e79d8cbd7042c3e0a2ba3"},"timestamp":"2026-06-14T09:52:34.658Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:52:34 +0000] \"POST /api/users/login HTTP/1.1\" 200 122 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:52:34.663Z"}
+{"level":"info","message":{"event":"user.delete.attempt","userId":"6a2e79d8cbd7042c3e0a2ba3"},"timestamp":"2026-06-14T09:52:56.896Z"}
+{"level":"info","message":{"event":"user.delete.success","userId":"6a2e79d8cbd7042c3e0a2ba3"},"timestamp":"2026-06-14T09:52:56.955Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:09:52:56 +0000] \"DELETE /api/users/6a2e79d8cbd7042c3e0a2ba3 HTTP/1.1\" 200 54 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T09:52:56.969Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T09:53:28.703Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T10:02:31.820Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T10:04:59.887Z"}
+{"level":"info","message":{"emailHash":"7cf36a84dd09","event":"registration.attempt"},"timestamp":"2026-06-14T10:46:10.002Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e86722f32616b1027e8ea"},"timestamp":"2026-06-14T10:46:10.444Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:46:10 +0000] \"POST /api/users/register HTTP/1.1\" 201 163 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:46:10.468Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e86722f32616b1027e8ea"},"timestamp":"2026-06-14T10:46:20.559Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:46:20 +0000] \"POST /api/users/login HTTP/1.1\" 200 122 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:46:20.568Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:52:43 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:52:43.731Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-14T10:53:23.560Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T10:53:49.974Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:54:18 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:54:18.825Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:55:58 +0000] \"POST /api/users/register HTTP/1.1\" 400 93 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:55:58.939Z"}
+{"level":"info","message":{"emailHash":"c5c6cae57827","event":"registration.attempt"},"timestamp":"2026-06-14T10:56:16.036Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e88d01e209f964ab99fd2"},"timestamp":"2026-06-14T10:56:16.330Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:56:16 +0000] \"POST /api/users/register HTTP/1.1\" 201 156 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:56:16.335Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e88d01e209f964ab99fd2"},"timestamp":"2026-06-14T10:56:23.673Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:56:23 +0000] \"POST /api/users/login HTTP/1.1\" 200 115 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:56:23.678Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:10:57:31 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T10:57:31.042Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T11:10:54.401Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:11:05 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:11:05.896Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:12:38 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:12:38.223Z"}
+{"level":"info","message":{"emailHash":"8934518fc98f","event":"registration.attempt"},"timestamp":"2026-06-14T11:14:01.889Z"}
+{"level":"warn","message":{"emailHash":"8934518fc98f","event":"email.exists"},"timestamp":"2026-06-14T11:14:02.289Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:14:02 +0000] \"POST /api/users/register HTTP/1.1\" 409 54 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:14:02.295Z"}
+{"level":"info","message":{"emailHash":"6b08a28c786a","event":"registration.attempt"},"timestamp":"2026-06-14T11:14:14.479Z"}
+{"level":"info","message":{"event":"registration.success","userId":"6a2e8d064f260d3b3c96ae37"},"timestamp":"2026-06-14T11:14:15.053Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:14:15 +0000] \"POST /api/users/register HTTP/1.1\" 201 162 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:14:15.060Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2e8d064f260d3b3c96ae37"},"timestamp":"2026-06-14T11:14:22.064Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:14:22 +0000] \"POST /api/users/login HTTP/1.1\" 200 121 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:14:22.068Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:15:28 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:15:28.271Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T11:21:46.258Z"}
+{"level":"info","message":{"event":"password.change.attempt","userId":"6a2e8d064f260d3b3c96ae37"},"timestamp":"2026-06-14T11:22:21.493Z"}
+{"level":"info","message":{"event":"password.change.success","userId":"6a2e8d064f260d3b3c96ae37"},"timestamp":"2026-06-14T11:22:22.165Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:22:22 +0000] \"PATCH /api/users/change-password HTTP/1.1\" 200 58 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:22:22.180Z"}
+{"level":"info","message":{"event":"profile.update.attempt","updateData":{"email":"gamal@gmail.com","name":"hanin"},"userId":"6a2e8d064f260d3b3c96ae37"},"timestamp":"2026-06-14T11:25:27.336Z"}
+{"level":"info","message":{"event":"profile.update.success","userId":"6a2e8d064f260d3b3c96ae37"},"timestamp":"2026-06-14T11:25:27.394Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:25:27 +0000] \"PATCH /api/users/profile HTTP/1.1\" 200 139 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-06-14T11:25:27.397Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T11:34:56.771Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T11:35:40.493Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T11:36:31.316Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T11:38:51.269Z"}
+{"level":"info","message":"::1 - - [14/Jun/2026:11:39:42 +0000] \"HEAD /api/health HTTP/1.1\" 200 125 \"-\" \"curl/8.13.0\"","timestamp":"2026-06-14T11:39:42.449Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T12:28:52.512Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T12:35:31.789Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T12:53:18.183Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T12:55:48.582Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T12:57:16.554Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:00:41.657Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:01:35.581Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:22:06.724Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:23:36.087Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:24:05.229Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:24:50.948Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:29:18.384Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:30:04.276Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:31:26.827Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:31:54.619Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:33:07.287Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:33:30.047Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:34:03.745Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:36:11.782Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:37:13.439Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:38:14.296Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:40:56.111Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:41:27.353Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:42:29.677Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:43:32.668Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T13:43:48.471Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:16:36.588Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:20:21.899Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:23:05.977Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:47:38.440Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T15:59:41.537Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:00:58.088Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:11:11.943Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:11:39.902Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:12:43.367Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:29:35.024Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:30:26.808Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:33:58.647Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:34:47.599Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:37:45.796Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:55:08.328Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T16:55:27.092Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T18:25:09.831Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T18:35:46.603Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T18:39:29.173Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T18:39:59.543Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T18:40:22.033Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T18:41:10.669Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:20:30.916Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:21:57.872Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:22:42.156Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:23:21.446Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:24:31.918Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:25:26.627Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:26:16.166Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:26:28.656Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:27:39.398Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:28:37.064Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:29:02.584Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:29:23.306Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:29:55.014Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-14T21:30:57.664Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T06:52:37.549Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:04:14.319Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:06:03.599Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:06:27.132Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:13:55.460Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:14:35.929Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:15:19.884Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:19:18.095Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:34:47.237Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:35:02.587Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:35:56.304Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:36:15.484Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:37:16.123Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:37:54.561Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:38:52.966Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:39:32.327Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:39:56.345Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:41:39.275Z"}

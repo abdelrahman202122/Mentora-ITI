@@ -1,0 +1,98 @@
+import { Router } from 'express';
+
+import { validate } from '../../middleware/validation.middleware.js';
+import {
+  createBookingSchema,
+  bookingIdSchema,
+  listBookingsSchema,
+  acceptBookingSchema,
+  rejectBookingSchema,
+  cancelBookingSchema,
+  confirmBookingCodeSchema,
+} from '../../validators/booking.js';
+import * as bookingController from './booking.controller.js';
+
+const router = Router();
+
+/**
+ * POST /api/bookings
+ * Create a new booking request
+ * Body: createBookingSchema (tutorProfileId, subjectId, startAt, endAt, durationMinutes, learnerNote)
+ */
+router.post(
+  '/',
+  validate({ body: createBookingSchema }),
+  bookingController.createBooking,
+);
+
+/**
+ * GET /api/bookings/me
+ * List the authenticated user's bookings with optional filters and pagination
+ * Query: listBookingsSchema
+ */
+router.get(
+  '/me',
+  validate({ query: listBookingsSchema }),
+  bookingController.listMyBookings,
+);
+
+/**
+ * GET /api/bookings/:bookingId
+ * Get a specific booking by ID
+ * Params: bookingIdSchema
+ */
+router.get(
+  '/:bookingId',
+  validate({ params: bookingIdSchema }),
+  bookingController.getBookingById,
+);
+
+/**
+ * PATCH /api/bookings/:bookingId/accept
+ * Accept a pending booking request
+ * Params: bookingIdSchema
+ * Body: acceptBookingSchema
+ */
+router.patch(
+  '/:bookingId/accept',
+  validate({ params: bookingIdSchema, body: acceptBookingSchema }),
+  bookingController.acceptBooking,
+);
+
+/**
+ * PATCH /api/bookings/:bookingId/reject
+ * Reject a pending booking request
+ * Params: bookingIdSchema
+ * Body: rejectBookingSchema
+ */
+router.patch(
+  '/:bookingId/reject',
+  validate({ params: bookingIdSchema, body: rejectBookingSchema }),
+  bookingController.rejectBooking,
+);
+
+/**
+ * PATCH /api/bookings/:bookingId/cancel
+ * Cancel a booking before completion
+ * Params: bookingIdSchema
+ * Body: cancelBookingSchema
+ */
+router.patch(
+  '/:bookingId/cancel',
+  validate({ params: bookingIdSchema, body: cancelBookingSchema }),
+  bookingController.cancelBooking,
+);
+
+/**
+ * POST /api/bookings/:bookingId/confirm-code
+ * Confirm session completion with the learner-provided code
+ * Params: bookingIdSchema
+ * Body: confirmBookingCodeSchema
+ */
+router.post(
+  '/:bookingId/confirm-code',
+  validate({ params: bookingIdSchema, body: confirmBookingCodeSchema }),
+  bookingController.confirmBookingCode,
+);
+
+export default router;
