@@ -1,6 +1,13 @@
 import type { Types } from 'mongoose';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import { customAlphabet } from 'nanoid';
 import { AppError, NotFoundError } from '../../common/errors/AppError.js';
-import type { CreateBookingInput, IBooking } from './booking.types.js';
+import type {
+  CreateBookingInput,
+  IBooking,
+  BookingStatus,
+} from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 
 /**
@@ -241,4 +248,215 @@ export async function createBooking(
   };
 
   return bookingRepository.createBooking(bookingData);
+}
+
+/**
+ * Validate that the user is a tutor
+ */
+export function validateTutorRole(user: UserContext): void {
+  if (user.role !== 'tutor') {
+    throw createBookingError('Only tutors can accept or reject bookings', 403);
+  }
+}
+
+/**
+ * Validate that the booking belongs to the tutor
+ * @param bookingTutorId - The tutor ID from the booking document
+ * @param requestingUserId - The ID of the user making the request
+ */
+export function validateBookingBelongsToTutor(
+  bookingTutorId: Types.ObjectId,
+  requestingUserId: string | Types.ObjectId,
+): void {
+  const requestingId =
+    typeof requestingUserId === 'string'
+      ? new mongoose.Types.ObjectId(requestingUserId)
+      : requestingUserId;
+
+  if (!bookingTutorId.equals(requestingId)) {
+    throw createBookingError('This booking does not belong to you', 403);
+  }
+}
+
+/**
+ * Generate a random confirmation code
+ * @returns A random 8-character code with uppercase, lowercase, numbers, and special characters
+ */
+function generateConfirmationCode(): string {
+  const alphabet =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@&*$';
+  const nanoid = customAlphabet(alphabet, 8);
+  return nanoid();
+}
+
+/**
+ * Hash a confirmation code
+ * @param code - The plain confirmation code
+ * @returns The hashed code
+ */
+async function hashConfirmationCode(code: string): Promise<string> {
+  const SALT_ROUNDS = 10;
+  return bcrypt.hash(code, SALT_ROUNDS);
+}
+
+/**
+ * Compare a plain confirmation code with a hashed one
+ * @param plainCode - The plain code provided by user
+ * @param hashedCode - The hashed code stored in the database
+ * @returns True if they match
+ */
+async function compareConfirmationCode(
+  plainCode: string,
+  hashedCode: string,
+): Promise<boolean> {
+  return bcrypt.compare(plainCode, hashedCode);
+}
+
+/**
+ * Accept a pending booking request (tutor action)
+ * @param bookingId - The booking ID
+ * @param tutorId - The tutor's user ID
+ * @throws AppError if booking not found or doesn't belong to tutor
+ * @returns The updated booking with confirmation code generated
+ */
+export async function acceptBooking(
+  bookingId: Types.ObjectId,
+  tutorId: string | Types.ObjectId,
+): Promise<IBooking> {
+  // Find booking
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  // Verify booking belongs to tutor
+  validateBookingBelongsToTutor(booking.tutorId, tutorId);
+
+  // Check if booking is in PENDING status
+  if (booking.bookingStatus !== 'pending') {
+    throw createBookingError(
+      `Cannot accept booking with status: ${booking.bookingStatus}`,
+      409,
+    );
+  }
+
+  // Generate and hash confirmation code
+  const plainCode = generateConfirmationCode();
+  const hashedCode = await hashConfirmationCode(plainCode);
+
+  // Update booking to CONFIRMED status with hashed code
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
+    bookingStatus: 'confirmed' as BookingStatus,
+    confirmationCode: hashedCode,
+  });
+
+  if (!updatedBooking) {
+    throw createBookingError('Failed to update booking', 500);
+  }
+
+  return updatedBooking;
+}
+
+/**
+ * Reject a pending booking request (tutor action)
+ * @param bookingId - The booking ID
+ * @param tutorId - The tutor's user ID
+ * @throws AppError if booking not found or doesn't belong to tutor
+ * @returns The updated booking
+ */
+export async function rejectBooking(
+  bookingId: Types.ObjectId,
+  tutorId: string | Types.ObjectId,
+): Promise<IBooking> {
+  // Find booking
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  // Verify booking belongs to tutor
+  validateBookingBelongsToTutor(booking.tutorId, tutorId);
+
+  // Check if booking is in PENDING status
+  if (booking.bookingStatus !== 'pending') {
+    throw createBookingError(
+      `Cannot reject booking with status: ${booking.bookingStatus}`,
+      409,
+    );
+  }
+
+  // Update booking to REJECTED status
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
+    bookingStatus: 'rejected' as BookingStatus,
+  });
+
+  if (!updatedBooking) {
+    throw createBookingError('Failed to update booking', 500);
+  }
+
+  return updatedBooking;
+}
+
+/**
+ * Confirm a booking with the learner-provided code (tutor action)
+ * @param bookingId - The booking ID
+ * @param tutorId - The tutor's user ID
+ * @param plainCode - The confirmation code provided by the learner
+ * @throws AppError if booking not found, doesn't belong to tutor, or code doesn't match
+ * @returns The updated booking with COMPLETED status
+ */
+export async function confirmBookingCode(
+  bookingId: Types.ObjectId,
+  tutorId: string | Types.ObjectId,
+  plainCode: string,
+): Promise<IBooking> {
+  // Find booking
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  // Verify booking belongs to tutor
+  validateBookingBelongsToTutor(booking.tutorId, tutorId);
+
+  // Check if booking is in CONFIRMED status
+  if (booking.bookingStatus !== 'confirmed') {
+    throw createBookingError(
+      `Booking must be in confirmed status to verify code. Current status: ${booking.bookingStatus}`,
+      409,
+    );
+  }
+
+  // Check if confirmation code exists
+  if (!booking.confirmationCode) {
+    throw createBookingError(
+      'No confirmation code found for this booking',
+      400,
+    );
+  }
+
+  // Compare provided code with stored hashed code
+  const isCodeValid = await compareConfirmationCode(
+    plainCode,
+    booking.confirmationCode,
+  );
+
+  if (!isCodeValid) {
+    throw createBookingError('Invalid confirmation code', 401);
+  }
+
+  // Update booking to COMPLETED status with confirmationCodeUsedAt timestamp
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
+    bookingStatus: 'completed' as BookingStatus,
+    confirmationCodeUsedAt: new Date(),
+  });
+
+  if (!updatedBooking) {
+    throw createBookingError('Failed to update booking', 500);
+  }
+
+  return updatedBooking;
 }
