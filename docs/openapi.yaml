@@ -568,7 +568,8 @@ paths:
         in: path
         required: true
         deprecated: false
-        schema: {}
+        schema:
+          type: string
         example: 6a3118f309d47a8f9199ee35
   /api/tutors/{tutorId}/availability:
     get:
