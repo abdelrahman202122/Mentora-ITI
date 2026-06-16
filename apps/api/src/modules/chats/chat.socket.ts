@@ -1,9 +1,12 @@
-import { Types } from 'mongoose';
+import mongoose, { type Types as MongooseTypes } from 'mongoose';
 import { type Server as SocketServer, type Socket } from 'socket.io';
 import { z } from 'zod';
 
 import { MessageModel } from '../messages/message.model.js';
 import { ChatModel, type ChatDocument } from './chat.model.js';
+
+const { Types } = mongoose;
+type ObjectId = MongooseTypes.ObjectId;
 
 const chatEvents = {
   join: 'chat:join',
@@ -51,7 +54,7 @@ function getChatRoomName(chatId: string) {
   return `chat:${chatId}`;
 }
 
-function toIdString(value: Types.ObjectId) {
+function toIdString(value: ObjectId) {
   return value.toString();
 }
 

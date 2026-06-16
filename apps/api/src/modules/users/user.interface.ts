@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-
-import { Document, Types } from 'mongoose';
+import type { Document, Types } from 'mongoose';
 
 /**
  * User roles in the system
@@ -29,21 +27,16 @@ export interface IUser extends Document {
   avatar?: string;
 
   // Relation to Tutor profile (only if role = tutor)
-  tutorProfile?: Types.ObjectId;
+  tutorProfile?: Types.ObjectId ;
 
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface RegisterUserInput {
-  name: string;
-  email: string;
-  password: string;
-}
 
 export interface AuthPayload {
   userId: string;
-  role: string;
+  role: UserRole;
 }
 
 export interface IRefreshToken extends Document {
@@ -64,4 +57,14 @@ export interface AuthResult {
     email: string;
     role: UserRole;
   };
+}
+
+export interface UserProfileDTO {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar?: string;
+  isEmailVerified: boolean;
+  tutorProfile?: unknown; // see Issue #8 for proper typing
 }

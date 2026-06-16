@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 // refreshToken.model.ts
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 import { IRefreshToken } from './user.interface.js';
+
+const { Schema, model } = mongoose;
 
 
 

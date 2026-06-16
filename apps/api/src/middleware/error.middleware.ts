@@ -2,7 +2,7 @@ import type { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
 
 import { env } from '../config/env.js';
-import { AppError } from '../utils/app-error.js';
+import { AppError } from '../common/errors/AppError.js';
 import { sendError } from '../utils/api-response.js';
 import { logger } from '../config/logger.js';
 
@@ -13,6 +13,11 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
 
   if (error instanceof AppError) {
     return sendError(res, error.statusCode, error.message);
+  }
+  
+
+  if (error instanceof Error && error.name === 'ValidationError') {
+    return sendError(res, 400, error.message);
   }
 
   // console.error(error);

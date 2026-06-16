@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-import { Schema, model} from 'mongoose';
+import mongoose from 'mongoose';
 import { IUser, UserRole } from './user.interface.js';
 import { hashPassword } from '../../utils/hashPassword.js';
+
+const { Schema, model } = mongoose;
 
 /**
  * User schema
@@ -76,10 +78,24 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre('findOneAndUpdate', async function (next) {
-  const update = this.getUpdate() as Record<string, unknown>;
-  if (update?.password) {
+  const update = this.getUpdate() as Record<string, any> | null;
+  if (!update) return next();
+
+  // Flat form: findOneAndUpdate(filter, { password: '...' })
+  if (update.password) {
     update.password = await hashPassword(update.password as string);
   }
+
+  // Operator form: findOneAndUpdate(filter, { $set: { password: '...' } })
+  if (update.$set?.password) {
+    update.$set.password = await hashPassword(update.$set.password as string);
+  }
+
+  // Upsert form: findOneAndUpdate(filter, { $setOnInsert: { password: '...' } }, { upsert: true })
+  if (update.$setOnInsert?.password) {
+    update.$setOnInsert.password = await hashPassword(update.$setOnInsert.password as string);
+  }
+
   next();
 });
 

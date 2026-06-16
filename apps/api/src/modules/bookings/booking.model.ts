@@ -1,20 +1,16 @@
-import { createRequire } from 'node:module';
-import { Schema, model, models } from 'mongoose';
-import type { Model } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import mongoose, { type Model } from 'mongoose';
 import type { IBooking } from './booking.types.js';
 import {
   BookingStatus,
   PaymentStatus,
 } from './booking.types.js';
 
+const { Schema, model, models } = mongoose;
+
 export const DEFAULT_CURRENCY = 'EGP';
 export const DEFAULT_COMMISSION_RATE = 0.2; // 20%
 const SALT_ROUNDS = 10;
-
-const require = createRequire(import.meta.url);
-const bcrypt = require('bcrypt') as {
-  hash(data: string | Buffer, saltOrRounds: number): Promise<string>;
-};
 
 const isValidDuration = (startAt: Date, endAt: Date, durationMinutes: number) =>
   endAt.getTime() - startAt.getTime() === durationMinutes * 60 * 1000;
@@ -113,7 +109,6 @@ const bookingSchema = new Schema<IBooking>(
     confirmationCode: {
       type: String,
       default: null,
-      sparse: true,
       validate: {
         validator: function (value: string | null) {
           if (value === null) return true;
