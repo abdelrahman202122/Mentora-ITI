@@ -13,6 +13,7 @@ import { httpLogger } from './middleware/logger.middleware.js';
 import userRoutes from './modules/users/user.route.js';
 import cookieParser from 'cookie-parser';
 import tutorRoutes from './modules/tutor/tutor.routes.js';
+import metadataRoutes from './modules/metadata/metadata.routes.js';
 import auditRouter from './modules/audit/audit.route.js';
 
 export function createApp() {
@@ -24,7 +25,7 @@ export function createApp() {
   app.use(
     helmet({
       crossOriginResourcePolicy: false,
-    })
+    }),
   );
   app.use(compression());
   app.use(
@@ -42,6 +43,7 @@ export function createApp() {
   app.use('/api/tutors', tutorRoutes);
   app.use('/api/health', healthRoutes);
   app.use('/api/bookings', bookingRoutes);
+  app.use('/api/metadata', metadataRoutes);
   app.use('/api/audits', auditRouter);
 
   app.use(notFoundHandler);
