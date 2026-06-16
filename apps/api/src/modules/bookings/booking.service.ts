@@ -406,6 +406,7 @@ export async function listMyBookings(
 
 /**
  * Get a booking by ID with authorization check
+ * For tutors, the confirmationCode field is excluded from the response
  * @param bookingId - The booking ID
  * @param userId - The authenticated user's ID
  * @param userRole - The authenticated user's role
@@ -441,6 +442,14 @@ export async function getBookingByIdWithAuth(
       403,
       'FORBIDDEN',
     );
+  }
+
+  // For tutors, exclude confirmationCode from response
+  if (isTutor && !isAdmin) {
+    const bookingObj =
+      booking instanceof mongoose.Model ? booking.toObject() : booking;
+    const { confirmationCode: _, ...bookingWithoutCode } = bookingObj as any;
+    return bookingWithoutCode as IBooking;
   }
 
   return booking;
