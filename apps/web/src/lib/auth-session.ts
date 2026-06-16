@@ -1,1 +1,1 @@
-export const MOCK_SESSION_COOKIE = "mentora_session";
+export { signSession, verifySession, MOCK_SESSION_COOKIE } from "./mock-auth-store";

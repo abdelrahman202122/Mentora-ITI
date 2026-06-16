@@ -1,9 +1,14 @@
 import { auth } from "@/auth";
-import { MOCK_SESSION_COOKIE } from "@/lib/auth-session";
+import { MOCK_SESSION_COOKIE, verifySession } from "@/lib/auth-session";
+import { isUserIdValidSync } from "@/lib/mock-auth-store";
 import { NextResponse } from "next/server";
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth || !!req.cookies.get(MOCK_SESSION_COOKIE)?.value;
+  const hasNextAuth = !!req.auth;
+  const mockSessionCookie = req.cookies.get(MOCK_SESSION_COOKIE)?.value;
+  const verifiedUserId = mockSessionCookie ? verifySession(mockSessionCookie) : null;
+  const isMockLoggedIn = verifiedUserId ? isUserIdValidSync(verifiedUserId) : false;
+  const isLoggedIn = hasNextAuth || isMockLoggedIn;
   const { nextUrl } = req;
 
   const isAuthRoute =

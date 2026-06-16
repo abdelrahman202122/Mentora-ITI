@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { MOCK_SESSION_COOKIE } from "@/lib/auth-session";
+import { MOCK_SESSION_COOKIE, signSession } from "@/lib/mock-auth-store";
 import { verifyMockUser } from "@/lib/mock-auth-store";
 import { loginSchema } from "@/lib/schemas";
 
@@ -35,7 +35,7 @@ export async function loginAction(_prevState: unknown, formData: FormData) {
 
   const cookieStore = await cookies();
 
-  cookieStore.set(MOCK_SESSION_COOKIE, verifiedUser.user.id, {
+  cookieStore.set(MOCK_SESSION_COOKIE, signSession(verifiedUser.user.id), {
     httpOnly: true,
     maxAge: 60 * 60 * 24,
     path: "/",

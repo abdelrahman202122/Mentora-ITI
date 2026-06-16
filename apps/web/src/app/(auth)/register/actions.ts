@@ -20,7 +20,7 @@ export async function registerAction(_prevState: unknown, formData: FormData) {
     };
   }
 
-  console.log("Mock user ready for backend:", createdUser.user);
+  console.log("Mock user registered successfully");
 
   return { success: true, user: createdUser.user };
 }
