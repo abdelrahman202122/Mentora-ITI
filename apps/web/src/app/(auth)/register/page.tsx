@@ -71,23 +71,6 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              <Button
-                className="h-10 w-full border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
-                type="button"
-                variant="outline"
-              >
-                <span className="mr-1 text-base font-semibold text-blue-600">G</span>
-                Continue with Google
-              </Button>
-
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-200" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Or email
-                </span>
-                <div className="h-px flex-1 bg-slate-200" />
-              </div>
-
               <div className="space-y-4">
                 <FieldError message={state?.errors?.name?.[0]}>
                   <label className="text-xs font-semibold text-slate-700" htmlFor="name">
