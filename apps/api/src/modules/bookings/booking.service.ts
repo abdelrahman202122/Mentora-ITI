@@ -338,6 +338,9 @@ export async function listTutorBookings(
   }
 
   if (filters?.subjectId) {
+    if (!mongoose.Types.ObjectId.isValid(filters.subjectId)) {
+      throw new AppError('Invalid subjectId', 400, 'VALIDATION_ERROR');
+    }
     mongoFilters.subjectId = new mongoose.Types.ObjectId(filters.subjectId);
   }
 

@@ -102,7 +102,7 @@ export async function countLearnerBookingsWithFilters(
   learnerId: Types.ObjectId,
   filters?: Record<string, unknown>,
 ): Promise<number> {
-  const query = { learnerId, ...filters };
+  const query = { ...filters, learnerId };
   return Booking.countDocuments(query);
 }
 
@@ -122,7 +122,7 @@ export async function findBookingsByTutor(
   limit: number,
   filters?: Record<string, unknown>,
 ): Promise<IBooking[]> {
-  const query = { tutorId, ...filters };
+  const query = { ...filters, tutorId };
   return Booking.find(query)
     .skip(skip)
     .limit(limit)
