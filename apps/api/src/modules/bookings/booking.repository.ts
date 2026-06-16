@@ -137,7 +137,7 @@ export async function countTutorBookingsWithFilters(
   tutorId: Types.ObjectId,
   filters?: Record<string, unknown>,
 ): Promise<number> {
-  const query = { tutorId, ...filters };
+  const query = { ...filters, tutorId };
   return Booking.countDocuments(query);
 }
 
