@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { BookOpen, GraduationCap, Loader2, Sparkles, UserRound } from "lucide-react";
 
 import { registerAction } from "./actions";
@@ -154,9 +155,9 @@ export default function RegisterPage() {
 
               <p className="text-center text-sm text-slate-600">
                 Already have an account?{" "}
-                <a className="font-semibold text-indigo-600 hover:text-indigo-700" href="/Login">
+                <Link className="font-semibold text-indigo-600 hover:text-indigo-700" href="/Login">
                   Log In
-                </a>
+                </Link>
               </p>
             </form>
           </CardContent>

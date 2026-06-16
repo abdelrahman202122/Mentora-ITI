@@ -4,13 +4,13 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar } from "lucide-react"
-import { getTutorById } from "@/lib/api/tutors"
+import { getTutorById, type TutorSummary } from "@/lib/api/tutors"
 import { startConversation } from "@/lib/api/messages"
 
 export default function TutorProfilePage() {
   const params = useParams()
   const router = useRouter()
-  const [tutor, setTutor] = useState<any>(null)
+  const [tutor, setTutor] = useState<TutorSummary | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

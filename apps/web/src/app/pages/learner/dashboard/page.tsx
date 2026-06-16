@@ -58,7 +58,7 @@ export default function LearnerDashboardPage() {
           Welcome back, {mockUser.firstName}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          You're making great progress. Ready for your next challenge?
+          You&apos;re making great progress. Ready for your next challenge?
         </p>
       </div>
 

@@ -98,10 +98,24 @@
 // }
 
 
-import api from "@/lib/axios"
 import { mockTutor } from "@/lib/mockData"
 
-export async function getTutors() {
+export type TutorSummary = {
+  id: string
+  name: string
+  title: string
+  subjects: string[]
+  rating: number
+  bio: string
+  hourlyRate: number
+  currency: string
+  availability: string[]
+  totalReviews: number
+  totalStudents: number
+  isAvailable: boolean
+}
+
+export async function getTutors(): Promise<TutorSummary[]> {
   // ✅ لما الـ backend يخلص
   // const res = await api.get("/tutors")
   // return res.data
@@ -124,7 +138,7 @@ export async function getTutors() {
   ]
 }
 
-export async function getTutorById(id: string) {
+export async function getTutorById(id: string): Promise<TutorSummary | null> {
   // ✅ لما الـ backend يخلص
   // const res = await api.get(`/tutors/${id}`)
   // return res.data
@@ -133,7 +147,9 @@ export async function getTutorById(id: string) {
   return tutors.find((t) => t.id === id) || null
 }
 
-export async function getTutorReviews(id: string) {
+export async function getTutorReviews(_id: string) {
+  void _id
+
   // ✅ لما الـ backend يخلص
   // const res = await api.get(`/tutors/${id}/reviews`)
   // return res.data

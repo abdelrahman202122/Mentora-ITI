@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { GraduationCap, Loader2 } from "lucide-react";
 
 import { loginAction } from "./actions";
@@ -112,19 +113,19 @@ export default function LoginPage() {
 
               <p className="text-center text-sm text-slate-600">
                 Don&apos;t have an account?{" "}
-                <a
+                <Link
                   className="font-semibold text-indigo-600 hover:text-indigo-700"
                   href="/register"
                 >
                   Sign Up
-                </a>
+                </Link>
               </p>
 
               <div className="border-t border-slate-200 pt-7">
                 <div className="flex items-center justify-center gap-5 text-xs font-medium text-slate-700">
-                  <a href="/privacy">Privacy Policy</a>
-                  <a href="/terms">Terms of Service</a>
-                  <a href="/help">Help Center</a>
+                  <Link href="/privacy">Privacy Policy</Link>
+                  <Link href="/terms">Terms of Service</Link>
+                  <Link href="/help">Help Center</Link>
                 </div>
               </div>
             </form>

@@ -29,7 +29,6 @@
 //     },
 //   ];
 // }
-import api from "@/lib/axios"
 import { mockBooking } from "@/lib/mockData"
 
 export async function getMyBookings() {
@@ -75,7 +74,9 @@ export async function createBooking(data: {
   }
 }
 
-export async function cancelBooking(id: string) {
+export async function cancelBooking(_id: string) {
+  void _id
+
   // ✅ لما الـ backend يخلص
   // const res = await api.patch(`/bookings/${id}/cancel`)
   // return res.data

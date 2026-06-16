@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { MessageSquare } from "lucide-react"
-import { getConversations } from "@/lib/api/messages"
+import { getConversations, type Conversation } from "@/lib/api/messages"
 
 export default function MessagesPage() {
-  const [conversations, setConversations] = useState<any[]>([])
+  const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

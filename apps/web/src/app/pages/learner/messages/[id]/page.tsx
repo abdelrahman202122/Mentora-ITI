@@ -4,13 +4,13 @@ import { useEffect, useState, useRef } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
-import { getMessages, saveMessage } from "@/lib/api/messages"
+import { getMessages, saveMessage, type ChatMessage } from "@/lib/api/messages"
 
 export default function ChatPage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const tutorName = searchParams.get("tutorName") || "Tutor"
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -32,7 +32,7 @@ export default function ChatPage() {
     if (!input.trim()) return
 
     const newMessage = {
-      role: "learner",
+      role: "learner" as const,
       text: input,
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
