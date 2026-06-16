@@ -2,15 +2,15 @@ openapi: 3.0.0
 info:
   title: Mentora
   version: 1.0.0
-  description: ""
+  description: ''
 servers:
-  - url: "http://localhost:4200/"
+  - url: 'http://localhost:4200/'
 paths:
   /api/users/register:
     post:
       summary: Register
       responses:
-        "201":
+        '201':
           description: Register
           headers:
             Content-Security-Policy:
@@ -29,7 +29,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -45,7 +45,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -93,10 +93,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-              example: >-
-                refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTMxMThmMzA5ZDQ3YThmOTE5OWVlMzUiLCJpYXQiOjE3ODE2MDI1NDcsImV4cCI6MTc4MjIwNzM0N30.pIra1A51zzf8kotCRv_pszulZc9uCV4-yA6JY3M9ZQg;
-                Max-Age=604800; Path=/; Expires=Tue, 23 Jun 2026 09:35:48 GMT;
-                HttpOnly; SameSite=Lax
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
             Content-Length:
               schema:
                 type: integer
@@ -136,12 +133,12 @@ paths:
             example:
               name: verina
               email: verina@test.com
-              password: "123456"
+              password: '123456'
   /api/users/login:
     post:
       summary: Login
       responses:
-        "200":
+        '200':
           description: Login
           headers:
             Content-Security-Policy:
@@ -160,7 +157,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -176,7 +173,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -224,10 +221,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-              example: >-
-                refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTMxMThmMzA5ZDQ3YThmOTE5OWVlMzUiLCJpYXQiOjE3ODE2MDI1ODEsImV4cCI6MTc4MjIwNzM4MX0.Oe9ux1PwZhgwKNbZY53Zdxx34HmD8OhTaAZx7OD93bw;
-                Max-Age=604800; Path=/; Expires=Tue, 23 Jun 2026 09:36:21 GMT;
-                HttpOnly; SameSite=Lax
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
             Content-Length:
               schema:
                 type: integer
@@ -264,12 +258,12 @@ paths:
                   format: color
             example:
               email: verina@test.com
-              password: "123456"
+              password: '123456'
   /api/users/refresh-token:
     post:
       summary: Refresh Token
       responses:
-        "200":
+        '200':
           description: Refresh Token
           headers:
             Content-Security-Policy:
@@ -288,7 +282,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -304,7 +298,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -352,10 +346,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-              example: >-
-                refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTMxMThmMzA5ZDQ3YThmOTE5OWVlMzUiLCJpYXQiOjE3ODE2MDQ0MTcsImV4cCI6MTc4MjIwOTIxN30.sZ9IkhgnIiyh2m2eeLDpsFR-D7lvOPRdZ_7Qx_lJbm4;
-                Max-Age=604800; Path=/; Expires=Tue, 23 Jun 2026 10:06:57 GMT;
-                HttpOnly; SameSite=Lax
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
             Content-Length:
               schema:
                 type: integer
@@ -387,7 +378,7 @@ paths:
     post:
       summary: Logout
       responses:
-        "200":
+        '200':
           description: Logout
           headers:
             Content-Security-Policy:
@@ -406,7 +397,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -422,7 +413,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -486,7 +477,7 @@ paths:
     get:
       summary: Get Tutor Profile
       responses:
-        "200":
+        '200':
           description: Get Tutor Profile
           headers:
             Content-Security-Policy:
@@ -505,7 +496,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -521,7 +512,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -583,7 +574,7 @@ paths:
     get:
       summary: Get Tutor Availability
       responses:
-        "200":
+        '200':
           description: Get Tutor Availability
           headers:
             Content-Security-Policy:
@@ -602,7 +593,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -618,7 +609,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -680,7 +671,7 @@ paths:
     get:
       summary: Get All Tutor Subjects
       responses:
-        "200":
+        '200':
           description: Get All Tutor Subjects
           headers:
             Content-Security-Policy:
@@ -699,7 +690,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -715,7 +706,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -773,11 +764,11 @@ paths:
         deprecated: false
         schema: {}
         example: 6a3118f309d47a8f9199ee35
-  /api/tutors/{tutorId}/subjects/{subejctId}:
+  /api/tutors/{tutorId}/subjects/{subjectId}:
     get:
       summary: Get Tutor Subjects by Id
       responses:
-        "200":
+        '200':
           description: Get Tutor Subjects by Id
           headers:
             Content-Security-Policy:
@@ -796,7 +787,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -812,7 +803,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -870,7 +861,7 @@ paths:
         deprecated: false
         schema: {}
         example: 6a3118f309d47a8f9199ee35
-      - name: subejctId
+      - name: subjectId
         in: path
         required: true
         deprecated: false
@@ -880,7 +871,7 @@ paths:
     post:
       summary: Create Tutor Profile
       responses:
-        "201":
+        '201':
           description: Create Tutor Profile
           headers:
             Content-Security-Policy:
@@ -899,7 +890,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -915,7 +906,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -947,10 +938,7 @@ paths:
             Set-Cookie:
               schema:
                 type: string
-              example: >-
-                accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTMxMThmMzA5ZDQ3YThmOTE5OWVlMzUiLCJyb2xlIjoidHV0b3IiLCJpYXQiOjE3ODE2MDQ4ODIsImV4cCI6MTc4MTYwNTc4Mn0.dpPU0o52Td0bNFASga9Df1MArtJTvOJwGvenlaYINGM;
-                Max-Age=900; Path=/; Expires=Tue, 16 Jun 2026 10:29:42 GMT;
-                HttpOnly; SameSite=Lax
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
             Content-Length:
               schema:
                 type: integer
@@ -1043,7 +1031,7 @@ paths:
     patch:
       summary: Update Tutor Profile
       responses:
-        "200":
+        '200':
           description: Update Tutor Profile
           headers:
             Content-Security-Policy:
@@ -1062,7 +1050,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1078,7 +1066,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1181,7 +1169,7 @@ paths:
     post:
       summary: Create Tutor Availability
       responses:
-        "201":
+        '201':
           description: Create Tutor Availability
           headers:
             Content-Security-Policy:
@@ -1200,7 +1188,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1216,7 +1204,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1299,17 +1287,17 @@ paths:
             example:
               slots:
                 monday:
-                  - startTime: "10:00"
-                    endTime: "12:00"
-                  - startTime: "14:30"
-                    endTime: "19:00"
+                  - startTime: '10:00'
+                    endTime: '12:00'
+                  - startTime: '14:30'
+                    endTime: '19:00'
                 wednesday:
-                  - startTime: "16:00"
-                    endTime: "20:00"
+                  - startTime: '16:00'
+                    endTime: '20:00'
     put:
       summary: Update Tutor Availability
       responses:
-        "200":
+        '200':
           description: Update Tutor Availability
           headers:
             Content-Security-Policy:
@@ -1328,7 +1316,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1344,7 +1332,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1437,21 +1425,21 @@ paths:
             example:
               slots:
                 monday:
-                  - startTime: "10:00"
-                    endTime: "12:00"
-                  - startTime: "14:30"
-                    endTime: "19:00"
+                  - startTime: '10:00'
+                    endTime: '12:00'
+                  - startTime: '14:30'
+                    endTime: '19:00'
                 wednesday:
-                  - startTime: "16:00"
-                    endTime: "20:00"
+                  - startTime: '16:00'
+                    endTime: '20:00'
                 friday:
-                  - startTime: "10:00"
-                    endTime: "12:00"
+                  - startTime: '10:00'
+                    endTime: '12:00'
   /api/tutors/me/subjects:
     post:
       summary: Create Tutor Subject
       responses:
-        "201":
+        '201':
           description: Create Tutor Subject
           headers:
             Content-Security-Policy:
@@ -1470,7 +1458,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1486,7 +1474,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1568,7 +1556,7 @@ paths:
     put:
       summary: Update Tutor Subject
       responses:
-        "200":
+        '200':
           description: Update Tutor Subject
           headers:
             Content-Security-Policy:
@@ -1587,7 +1575,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1603,7 +1591,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1691,7 +1679,7 @@ paths:
     delete:
       summary: Delete Tutor Subject
       responses:
-        "200":
+        '200':
           description: Delete Tutor Subject
           headers:
             Content-Security-Policy:
@@ -1710,7 +1698,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1726,7 +1714,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1781,7 +1769,7 @@ paths:
     get:
       summary: Get Subject Categories
       responses:
-        "200":
+        '200':
           description: Get Subject Categories
           headers:
             Content-Security-Policy:
@@ -1800,7 +1788,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1816,7 +1804,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1871,7 +1859,7 @@ paths:
     get:
       summary: Get Subject Education Levels
       responses:
-        "200":
+        '200':
           description: Get Subject Education Levels
           headers:
             Content-Security-Policy:
@@ -1890,7 +1878,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1906,7 +1894,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -1961,7 +1949,7 @@ paths:
     get:
       summary: Get Subject Curricula
       responses:
-        "200":
+        '200':
           description: Get Subject Curricula
           headers:
             Content-Security-Policy:
@@ -1980,7 +1968,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -1996,7 +1984,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
@@ -2055,7 +2043,7 @@ paths:
     get:
       summary: Health
       responses:
-        "200":
+        '200':
           description: Health
           headers:
             Content-Security-Policy:
@@ -2074,7 +2062,7 @@ paths:
             Origin-Agent-Cluster:
               schema:
                 type: string
-              example: "?1"
+              example: '?1'
             Referrer-Policy:
               schema:
                 type: string
@@ -2090,7 +2078,7 @@ paths:
             X-DNS-Prefetch-Control:
               schema:
                 type: string
-              example: "off"
+              example: 'off'
             X-Download-Options:
               schema:
                 type: string
