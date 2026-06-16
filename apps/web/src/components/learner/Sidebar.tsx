@@ -99,7 +99,6 @@ export default function Sidebar() {
       <div className="mt-auto">
         <button
           onClick={() => {
-            localStorage.removeItem("token")
             window.location.href = "/login"
           }}
           className={`flex items-center gap-3 px-2 py-2 rounded-lg text-gray-500 hover:text-red-500 text-sm w-full ${

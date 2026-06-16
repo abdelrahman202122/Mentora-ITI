@@ -16,7 +16,6 @@ export default auth((req) => {
   const { nextUrl } = req;
 
   const isAuthRoute =
-    nextUrl.pathname === "/Login" ||
     nextUrl.pathname === "/login" ||
     nextUrl.pathname === "/register";
   const isProtected =
@@ -32,7 +31,7 @@ export default auth((req) => {
   }
 
   if (!isLoggedIn && isProtected) {
-    const loginUrl = new URL("/Login", nextUrl);
+    const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set("next", nextUrl.pathname);
 
     return NextResponse.redirect(loginUrl);
