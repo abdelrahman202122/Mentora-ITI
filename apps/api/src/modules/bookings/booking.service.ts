@@ -310,6 +310,101 @@ export async function listLearnerBookings(
 }
 
 /**
+ * List bookings for the authenticated user (learner or tutor)
+ * For tutors, the confirmationCode field is excluded from the response
+ */
+export async function listMyBookings(
+  userId: Types.ObjectId,
+  userRole: string,
+  page: number,
+  limit: number,
+  filters?: {
+    bookingStatus?: string;
+    paymentStatus?: string;
+    tutorProfileId?: string;
+    subjectId?: string;
+  },
+): Promise<{
+  bookings: IBooking[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> {
+  // Build MongoDB filter query from provided filters
+  const mongoFilters: Record<string, unknown> = {};
+
+  if (filters?.bookingStatus) {
+    mongoFilters.bookingStatus = filters.bookingStatus;
+  }
+
+  if (filters?.paymentStatus) {
+    mongoFilters.paymentStatus = filters.paymentStatus;
+  }
+
+  if (filters?.tutorProfileId) {
+    mongoFilters.tutorProfileId = new mongoose.Types.ObjectId(
+      filters.tutorProfileId,
+    );
+  }
+
+  if (filters?.subjectId) {
+    mongoFilters.subjectId = new mongoose.Types.ObjectId(filters.subjectId);
+  }
+
+  const skip = (page - 1) * limit;
+  let bookings: IBooking[];
+  let total: number;
+
+  // Determine query based on user role
+  if (userRole === 'learner') {
+    // Fetch bookings as a learner
+    bookings = await bookingRepository.findBookingsByLearner(
+      userId,
+      skip,
+      limit,
+      mongoFilters,
+    );
+
+    total = await bookingRepository.countLearnerBookingsWithFilters(
+      userId,
+      mongoFilters,
+    );
+  } else if (userRole === 'tutor') {
+    // Fetch bookings as a tutor
+    bookings = await bookingRepository.findBookingsByTutor(
+      userId,
+      skip,
+      limit,
+      mongoFilters,
+    );
+
+    total = await bookingRepository.countTutorBookingsWithFilters(
+      userId,
+      mongoFilters,
+    );
+
+    // Remove confirmationCode from each booking for tutor
+    bookings = bookings.map((booking) => {
+      const bookingObj =
+        booking instanceof mongoose.Model ? booking.toObject() : booking;
+      const { confirmationCode: _, ...bookingWithoutCode } = bookingObj as any;
+      return bookingWithoutCode as IBooking;
+    });
+  } else {
+    throw createBookingError('Invalid user role for listing bookings', 400);
+  }
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    bookings,
+    total,
+    page,
+    totalPages,
+  };
+}
+
+/**
  * Get a booking by ID with authorization check
  * @param bookingId - The booking ID
  * @param userId - The authenticated user's ID

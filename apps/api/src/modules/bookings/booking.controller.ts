@@ -70,7 +70,7 @@ export async function createBooking(
 
 /**
  * GET /api/bookings/me
- * List the authenticated user's bookings
+ * List the authenticated user's bookings (learner or tutor)
  */
 export async function listMyBookings(
   req: Request,
@@ -98,12 +98,13 @@ export async function listMyBookings(
       subjectId: req.query.subjectId as string | undefined,
     };
 
-    // Convert learnerId to ObjectId
-    const learnerId = new Types.ObjectId(req.user.userId);
+    // Convert userId to ObjectId
+    const userId = new Types.ObjectId(req.user.userId);
 
-    // Get bookings with pagination and filters
-    const result = await bookingService.listLearnerBookings(
-      learnerId,
+    // Get bookings with pagination and filters (handles both learner and tutor roles)
+    const result = await bookingService.listMyBookings(
+      userId,
+      req.user.role,
       page,
       limit,
       filters,
