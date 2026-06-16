@@ -310,12 +310,60 @@ export async function listLearnerBookings(
 }
 
 /**
- * List bookings for the authenticated user (learner or tutor)
- * For tutors, the confirmationCode field is excluded from the response
+ * List tutor bookings with optional filters and pagination
  */
-export async function listMyBookings(
-  userId: Types.ObjectId,
-  userRole: string,
+export async function listTutorBookings(
+  tutorId: Types.ObjectId,
+  page: number,
+  limit: number,
+  filters?: {
+    bookingStatus?: string;
+    paymentStatus?: string;
+    subjectId?: string;
+  },
+): Promise<{
+  bookings: IBooking[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> {
+  const mongoFilters: Record<string, unknown> = {};
+
+  if (filters?.bookingStatus) {
+    mongoFilters.bookingStatus = filters.bookingStatus;
+  }
+
+  if (filters?.paymentStatus) {
+    mongoFilters.paymentStatus = filters.paymentStatus;
+  }
+
+  if (filters?.subjectId) {
+    mongoFilters.subjectId = new mongoose.Types.ObjectId(filters.subjectId);
+  }
+
+  const skip = (page - 1) * limit;
+
+  const bookings = await bookingRepository.findBookingsByTutor(
+    tutorId,
+    skip,
+    limit,
+    mongoFilters,
+  );
+
+  const total = await bookingRepository.countTutorBookingsWithFilters(
+    tutorId,
+    mongoFilters,
+  );
+
+  const totalPages = Math.ceil(total / limit);
+
+  return { bookings, total, page, totalPages };
+}
+
+/**
+ * List all bookings with optional filters and pagination (admin)
+ */
+export async function listAdminBookings(
   page: number,
   limit: number,
   filters?: {
@@ -330,7 +378,6 @@ export async function listMyBookings(
   page: number;
   totalPages: number;
 }> {
-  // Build MongoDB filter query from provided filters
   const mongoFilters: Record<string, unknown> = {};
 
   if (filters?.bookingStatus) {
@@ -352,63 +399,25 @@ export async function listMyBookings(
   }
 
   const skip = (page - 1) * limit;
-  let bookings: IBooking[];
-  let total: number;
 
-  // Determine query based on user role
-  if (userRole === 'learner') {
-    // Fetch bookings as a learner
-    bookings = await bookingRepository.findBookingsByLearner(
-      userId,
-      skip,
-      limit,
-      mongoFilters,
-    );
+  const bookings = await bookingRepository.findAllBookings(
+    skip,
+    limit,
+    mongoFilters,
+  );
 
-    total = await bookingRepository.countLearnerBookingsWithFilters(
-      userId,
-      mongoFilters,
-    );
-  } else if (userRole === 'tutor') {
-    // Fetch bookings as a tutor
-    bookings = await bookingRepository.findBookingsByTutor(
-      userId,
-      skip,
-      limit,
-      mongoFilters,
-    );
-
-    total = await bookingRepository.countTutorBookingsWithFilters(
-      userId,
-      mongoFilters,
-    );
-
-    // Remove confirmationCode from each booking for tutor
-    bookings = bookings.map((booking) => {
-      const bookingObj =
-        booking instanceof mongoose.Model ? booking.toObject() : booking;
-      const { confirmationCode: _, ...bookingWithoutCode } = bookingObj as any;
-      return bookingWithoutCode as IBooking;
-    });
-  } else {
-    throw createBookingError('Invalid user role for listing bookings', 400);
-  }
+  const total = await bookingRepository.countAllBookings(mongoFilters);
 
   const totalPages = Math.ceil(total / limit);
 
-  return {
-    bookings,
-    total,
-    page,
-    totalPages,
-  };
+  return { bookings, total, page, totalPages };
 }
 
 /**
  * Get a booking by ID with authorization check
  * For tutors, the confirmationCode field is excluded from the response
  * @param bookingId - The booking ID
- * @param userId - The authenticated user's ID
+
  * @param userRole - The authenticated user's role
  * @returns The booking if the user is authorized
  * @throws NotFoundError if booking does not exist

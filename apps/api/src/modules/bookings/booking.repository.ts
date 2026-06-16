@@ -142,6 +142,32 @@ export async function countTutorBookingsWithFilters(
 }
 
 /**
+ * Find all bookings with pagination and optional filters (admin)
+ */
+export async function findAllBookings(
+  skip: number,
+  limit: number,
+  filters?: Record<string, unknown>,
+): Promise<IBooking[]> {
+  const query = { ...filters };
+  return Booking.find(query)
+    .skip(skip)
+    .limit(limit)
+    .sort({ startAt: -1 })
+    .exec();
+}
+
+/**
+ * Count all bookings with optional filters (admin)
+ */
+export async function countAllBookings(
+  filters?: Record<string, unknown>,
+): Promise<number> {
+  const query = { ...filters };
+  return Booking.countDocuments(query);
+}
+
+/**
  * Update a booking
  */
 export async function updateBooking(
