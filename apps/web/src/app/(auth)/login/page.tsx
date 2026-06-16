@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useActionState } from "react";
-import Link from "next/link";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { useActionState } from 'react';
+import Link from 'next/link';
+import { GraduationCap, Loader2 } from 'lucide-react';
 
-import { loginAction } from "./actions";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { loginAction } from './actions';
 
 export default function LoginPage() {
   const [state, action, isPending] = useActionState(loginAction, undefined);
@@ -50,7 +50,10 @@ export default function LoginPage() {
 
               <div className="space-y-4">
                 <FieldError message={state?.errors?.email?.[0]}>
-                  <label className="text-xs font-semibold text-slate-700" htmlFor="email">
+                  <label
+                    className="text-xs font-semibold text-slate-700"
+                    htmlFor="email"
+                  >
                     Email address
                   </label>
                   <Input
@@ -73,7 +76,7 @@ export default function LoginPage() {
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="password"
                     name="password"
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     type="password"
                   />
                 </FieldError>
@@ -90,12 +93,12 @@ export default function LoginPage() {
                     Checking account
                   </>
                 ) : (
-                  "Log In"
+                  'Log In'
                 )}
               </Button>
 
               <p className="text-center text-sm text-slate-600">
-                Don&apos;t have an account?{" "}
+                Don&apos;t have an account?{' '}
                 <Link
                   className="font-semibold text-indigo-600 hover:text-indigo-700"
                   href="/register"
@@ -129,7 +132,9 @@ function FieldError({
   return (
     <div>
       {children}
-      {message && <p className="mt-2 text-xs font-medium text-red-600">{message}</p>}
+      {message && (
+        <p className="mt-2 text-xs font-medium text-red-600">{message}</p>
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 const handleI18nRouting = createMiddleware(routing);
 
 export default auth((req) => {
-  const hasNextAuth = !!req.auth;
+  const hasNextAuth = !!req.auth?.user;
   const mockSessionCookie = req.cookies.get(MOCK_SESSION_COOKIE)?.value;
   const verifiedUserId = mockSessionCookie ? verifySession(mockSessionCookie) : null;
   const isMockLoggedIn = verifiedUserId ? isUserIdValidSync(verifiedUserId) : false;
@@ -35,6 +35,10 @@ export default auth((req) => {
     loginUrl.searchParams.set("next", nextUrl.pathname);
 
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (isLoggedIn && isProtected) {
+    return NextResponse.next();
   }
 
   return handleI18nRouting(req);

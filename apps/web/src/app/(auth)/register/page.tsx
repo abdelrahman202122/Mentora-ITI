@@ -108,7 +108,7 @@ export default function RegisterPage() {
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="password"
                     name="password"
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     type="password"
                   />
                 </FieldError>
