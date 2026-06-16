@@ -67,7 +67,7 @@ export async function createBooking(data: {
   // return res.data
 
   return {
-    id: "b_new",
+    id: "b_" + Date.now(),
     ...data,
     status: "PENDING",
     price: mockBooking.price,
