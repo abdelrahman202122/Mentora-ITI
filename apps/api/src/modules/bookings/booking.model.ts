@@ -127,6 +127,15 @@ const bookingSchema = new Schema<IBooking>(
       type: Date,
       default: undefined,
     },
+    canceledAt: {
+      type: Date,
+      default: undefined,
+    },
+    canceledBy: {
+      type: String,
+      enum: ['tutor', 'learner'],
+      default: undefined,
+    },
     learnerNote: {
       type: String,
       maxlength: [500, 'Learner note cannot exceed 500 characters'],
