@@ -461,7 +461,17 @@ export async function cancelBooking(
     validateBookingBelongsToTutor(booking.tutorId, userId);
   }
 
-  if (booking.bookingStatus !== 'confirmed') {
+  const updatedBooking = await bookingRepository.cancelBookingIfConfirmed(
+    bookingId,
+    {
+      bookingStatus: 'canceled' as BookingStatus,
+      canceledAt: new Date(),
+      canceledBy: userRole as 'learner' | 'tutor',
+      cancelReason,
+    },
+  );
+
+  if (!updatedBooking) {
     throw createBookingError(
       `Only confirmed bookings can be canceled. Current status: ${booking.bookingStatus}`,
       409,
@@ -487,7 +497,7 @@ export async function cancelBooking(
   return formatBookingForResponse(updatedBooking, userRole);
 }
 
-/**
+
  * Confirm a booking with the learner-provided code (tutor action)
  * @param bookingId - The booking ID
  * @param tutorId - The tutor's user ID
