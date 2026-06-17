@@ -8,3 +8,7 @@ npm-debug.log*
 # AI stuff
 docs/
 AGENTS.md
+
+# multer uploads
+uploads/*
+!uploads/.gitkeep
