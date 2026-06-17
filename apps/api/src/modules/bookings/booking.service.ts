@@ -32,7 +32,10 @@ function formatBookingForResponse(
 ): BookingResponse {
   const bookingObj = toBookingResponse(booking);
 
-  if (viewerRole === 'tutor' || (viewerRole === 'learner' && bookingObj.paymentStatus !== 'paid')) {
+  if (
+    viewerRole === 'tutor' ||
+    (viewerRole === 'learner' && bookingObj.paymentStatus !== 'paid')
+  ) {
     const bookingWithoutCode = { ...bookingObj };
     delete bookingWithoutCode.confirmationCode;
     return bookingWithoutCode;
@@ -371,6 +374,14 @@ export async function acceptBooking(
     );
   }
 
+  // Check if booking is expired
+  if (booking.startAt <= new Date()) {
+    throw createBookingError(
+      'Cannot accept a booking that has already passed',
+      400,
+    );
+  }
+
   const plainCode = generateConfirmationCode();
 
   const updatedBooking = await bookingRepository.acceptPendingBooking(
@@ -417,7 +428,8 @@ export async function rejectBooking(
     );
   }
 
-  const updatedBooking = await bookingRepository.rejectPendingBooking(bookingId);
+  const updatedBooking =
+    await bookingRepository.rejectPendingBooking(bookingId);
 
   if (!updatedBooking) {
     throw createBookingError(
@@ -467,6 +479,12 @@ export async function cancelBooking(
     throw createBookingError(
       `Only confirmed bookings can be canceled. Current status: ${booking.bookingStatus}`,
       409,
+    );
+  }
+  if (new Date() >= booking.startAt) {
+    throw createBookingError(
+      'Cannot cancel a booking that has already started',
+      400,
     );
   }
 
