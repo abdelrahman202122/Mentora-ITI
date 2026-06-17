@@ -33,7 +33,7 @@ function formatBookingForResponse(
 ): BookingResponse {
   const bookingObj = toBookingResponse(booking);
 
-  if (viewerRole === 'tutor') {
+  if (viewerRole === 'tutor' || (viewerRole === 'learner' && bookingObj.paymentStatus !== 'paid')) {
     const bookingWithoutCode = { ...bookingObj };
     delete bookingWithoutCode.confirmationCode;
     return bookingWithoutCode;

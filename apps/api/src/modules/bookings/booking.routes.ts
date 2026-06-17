@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { validate } from '../../middleware/validation.middleware.js';
+import { authMiddleware } from '../../middleware/auth.middleware.js';
 import {
   createBookingSchema,
   bookingIdSchema,
@@ -13,7 +14,7 @@ import {
 import * as bookingController from './booking.controller.js';
 
 const router = Router();
-
+router.use(authMiddleware);
 /**
  * POST /api/bookings
  * Create a new booking request
