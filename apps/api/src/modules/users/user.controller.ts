@@ -291,6 +291,26 @@ export const updateProfile = async (
   }
 };
 
+//  get public user profile (name, avata, role only)
+export const getUserProfileById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const rawId = req.params.id;
+    const userId = Array.isArray(rawId) ? rawId[0] : rawId;
+    const user = await userService.getUserProfileById(userId);
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const uploadAvatar = async (
   req: Request,
   res: Response,

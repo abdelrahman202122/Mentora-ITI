@@ -516,6 +516,20 @@ export const updateProfile = async (
   };
 };
 
+// GET /users/:id/public - get public user profile
+export const getUserProfileById = async (userId: string) => {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    avatar: user.avatar,
+    role: user.role,
+  };
+};
+
 // delete file from uploads directory
 const deleteAvatarFile = async (avatarValue?: string) => {
   if (!avatarValue) return;

@@ -45,6 +45,9 @@ router.post(
 
 router.delete('/me/avatar', authMiddleware, UserController.deleteAvatar);
 
+// for public user data (name + avatar)
+router.get('/:id/public', authMiddleware, UserController.getUserProfileById);
+
 router.get(
   '/:id',
   authMiddleware,
