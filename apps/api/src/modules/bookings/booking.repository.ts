@@ -185,6 +185,42 @@ export async function updateBooking(
 }
 
 /**
+ * Atomically accept a booking only if it is still pending.
+ */
+export async function acceptPendingBooking(
+  bookingId: Types.ObjectId,
+  confirmationCode: string,
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, bookingStatus: 'pending' },
+    {
+      $set: {
+        bookingStatus: 'confirmed',
+        confirmationCode,
+      },
+    },
+    { new: true },
+  ).exec();
+}
+
+/**
+ * Atomically reject a booking only if it is still pending.
+ */
+export async function rejectPendingBooking(
+  bookingId: Types.ObjectId,
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, bookingStatus: 'pending' },
+    {
+      $set: {
+        bookingStatus: 'rejected',
+      },
+    },
+    { new: true },
+  ).exec();
+}
+
+/**
  * Atomically cancel a booking only if it is still confirmed.
  */
 export async function cancelConfirmedBooking(
@@ -201,6 +237,25 @@ export async function cancelConfirmedBooking(
       $set: {
         bookingStatus: 'canceled',
         ...updates,
+      },
+    },
+    { new: true },
+  ).exec();
+}
+
+/**
+ * Atomically complete a booking only if it is still confirmed.
+ */
+export async function completeConfirmedBooking(
+  bookingId: Types.ObjectId,
+  confirmationCodeUsedAt: Date,
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, bookingStatus: 'confirmed' },
+    {
+      $set: {
+        bookingStatus: 'completed',
+        confirmationCodeUsedAt,
       },
     },
     { new: true },

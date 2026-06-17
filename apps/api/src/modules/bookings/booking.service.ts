@@ -4,7 +4,6 @@ import type {
   BookingResponse,
   CreateBookingInput,
   IBooking,
-  BookingStatus,
 } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 import {
@@ -374,13 +373,16 @@ export async function acceptBooking(
 
   const plainCode = generateConfirmationCode();
 
-  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
-    bookingStatus: 'confirmed' as BookingStatus,
-    confirmationCode: plainCode,
-  });
+  const updatedBooking = await bookingRepository.acceptPendingBooking(
+    bookingId,
+    plainCode,
+  );
 
   if (!updatedBooking) {
-    throw createBookingError('Failed to update booking', 500);
+    throw createBookingError(
+      'Cannot accept booking. The booking status may have changed.',
+      409,
+    );
   }
 
   return formatBookingForResponse(updatedBooking, 'tutor');
@@ -415,13 +417,13 @@ export async function rejectBooking(
     );
   }
 
-  // Update booking to REJECTED status
-  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
-    bookingStatus: 'rejected' as BookingStatus,
-  });
+  const updatedBooking = await bookingRepository.rejectPendingBooking(bookingId);
 
   if (!updatedBooking) {
-    throw createBookingError('Failed to update booking', 500);
+    throw createBookingError(
+      'Cannot reject booking. The booking status may have changed.',
+      409,
+    );
   }
 
   return formatBookingForResponse(updatedBooking, 'tutor');
@@ -535,14 +537,16 @@ export async function confirmBookingCode(
     throw createBookingError('Invalid confirmation code', 401);
   }
 
-  // Update booking to COMPLETED status with confirmationCodeUsedAt timestamp
-  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
-    bookingStatus: 'completed' as BookingStatus,
-    confirmationCodeUsedAt: new Date(),
-  });
+  const updatedBooking = await bookingRepository.completeConfirmedBooking(
+    bookingId,
+    new Date(),
+  );
 
   if (!updatedBooking) {
-    throw createBookingError('Failed to update booking', 500);
+    throw createBookingError(
+      'Booking must be in confirmed status to verify code. The booking status may have changed.',
+      409,
+    );
   }
 
   return formatBookingForResponse(updatedBooking, 'tutor');
