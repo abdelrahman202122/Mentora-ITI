@@ -212,13 +212,21 @@ async function seedTutor(seed: (typeof tutorSeeds)[number]) {
     tutorProfile: profile._id,
   });
 
-  await TutorSubjectModel.deleteMany({ tutorId: tutor._id });
-  await TutorSubjectModel.insertMany(
-    seed.subjects.map((subject) => ({
-      tutorId: tutor._id,
-      ...subject,
-    })),
-  );
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      await TutorSubjectModel.deleteMany({ tutorId: tutor._id }, { session });
+      await TutorSubjectModel.insertMany(
+        seed.subjects.map((subject) => ({
+          tutorId: tutor._id,
+          ...subject,
+        })),
+        { session },
+      );
+    });
+  } finally {
+    await session.endSession();
+  }
 
   await TutorAvailabilityModel.findOneAndUpdate(
     { tutorId: tutor._id },
