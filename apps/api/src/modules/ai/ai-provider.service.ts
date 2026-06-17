@@ -68,12 +68,17 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
   }
 
   try {
+const OPENAI_TIMEOUT_MS = 10_000;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
       body: JSON.stringify({
         model: env.OPENAI_MODEL,
         input: [
@@ -85,6 +90,7 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
         ],
       }),
     });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const details = await response.text();
