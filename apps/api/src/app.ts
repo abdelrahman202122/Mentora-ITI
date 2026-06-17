@@ -13,7 +13,9 @@ import healthRoutes from './modules/health/health.routes.js';
 import { httpLogger } from './middleware/logger.middleware.js';
 import userRoutes from './modules/users/user.route.js';
 import tutorRoutes from './modules/tutor/tutor.routes.js';
+import metadataRoutes from './modules/metadata/metadata.routes.js';
 import auditRouter from './modules/audit/audit.route.js';
+import aiRoutes from './modules/ai/ai.routes.js';
 import filesRouter from './modules/files/file.routes.js';
 
 export function createApp() {
@@ -43,7 +45,9 @@ export function createApp() {
   app.use('/api/tutors', tutorRoutes);
   app.use('/api/health', healthRoutes);
   app.use('/api/bookings', bookingRoutes);
+  app.use('/api/metadata', metadataRoutes);
   app.use('/api/audits', auditRouter);
+  app.use('/api/ai', aiRoutes);
   app.use('/api/files', filesRouter);
 
   app.use(notFoundHandler);

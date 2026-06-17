@@ -1,14 +1,62 @@
 import { Router } from 'express';
+import { authMiddleware } from '../../../middleware/auth.middleware.js';
+import { roleMiddleware } from '../../../middleware/role.moddleware.js';
+import { validate } from '../../../middleware/validation.middleware.js';
+import {
+  createTutorSubjectController,
+  deleteTutorSubjectController,
+  getTutorSubjectController,
+  getTutorSubjectsController,
+  updateTutorSubjectController,
+} from './tutor-subject.controller.js';
+import {
+  editTutorSubjectSchema,
+  getTutorSubjectParamsSchema,
+  getTutorSubjectsParamsSchema,
+  tutorSubjectBaseSchema,
+} from '../../../validators/tutor-subject.js';
 
 const router = Router();
 
-// TODO: POST  tutors/api/tutors/me/subjects
-router.route('/me/subjects');
+router
+  .route('/me/subjects')
+  .post(
+    authMiddleware,
+    roleMiddleware('tutor'),
+    validate(tutorSubjectBaseSchema),
+    createTutorSubjectController,
+  );
 
-// TODO: PUT, DELETE  tutors/me/subjects/:subjectId
-router.route('/me/subjects/:subjectId');
+router
+  .route('/me/subjects/:subjectId')
+  .put(
+    authMiddleware,
+    roleMiddleware('tutor'),
+    validate({
+      body: tutorSubjectBaseSchema,
+      params: editTutorSubjectSchema,
+    }),
+    updateTutorSubjectController,
+  )
+  .delete(
+    authMiddleware,
+    roleMiddleware('tutor'),
+    validate({ params: editTutorSubjectSchema }),
+    deleteTutorSubjectController,
+  );
 
-// TODO: GET tutors/:tutorId/subjects
-router.route('/:tutorId/subjects');
+router
+  .route('/:tutorId/subjects')
+  .get(
+    validate({ params: getTutorSubjectsParamsSchema }),
+    getTutorSubjectsController,
+  );
+
+router
+  .route('/:tutorId/subjects/:subjectId')
+  .get(
+    validate({ params: getTutorSubjectParamsSchema }),
+    getTutorSubjectController,
+  );
 
 export default router;
