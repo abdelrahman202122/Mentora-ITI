@@ -8,6 +8,7 @@ import type {
 import * as bookingRepository from './booking.repository.js';
 import {
   decryptConfirmationCode,
+  encryptConfirmationCode,
   generateConfirmationCode,
   isConfirmationCodeMatch,
 } from './confirmation-code.util.js';
@@ -386,7 +387,7 @@ export async function acceptBooking(
 
   const updatedBooking = await bookingRepository.acceptPendingBooking(
     bookingId,
-    plainCode,
+    encryptConfirmationCode(plainCode),
   );
 
   if (!updatedBooking) {
