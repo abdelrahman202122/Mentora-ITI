@@ -690,11 +690,14 @@ export async function getBookingByIdWithAuth(
     );
   }
 
-  const viewerRole: ViewerRole = isAdmin
-    ? 'admin'
-    : isTutor
-      ? 'tutor'
-      : 'learner';
+  // For tutors, exclude confirmationCode from response
+  if (isTutor && !isAdmin) {
+    const bookingObj =
+      booking instanceof mongoose.Model ? booking.toObject() : booking;
+    const bookingWithoutCode = { ...(bookingObj as Record<string, unknown>) };
+    delete bookingWithoutCode.confirmationCode;
+    return bookingWithoutCode as unknown as IBooking;
+  }
 
   return formatBookingForResponse(booking, viewerRole);
 }
