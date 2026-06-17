@@ -33,6 +33,16 @@ type TutorRecommendation = {
   tutorProfileId: string;
   tutorId: string;
   score: number;
+  matchStrength: 'strong' | 'good' | 'partial' | 'weak';
+  scoreBreakdown: {
+    subject: number;
+    category: number;
+    educationLevel: number;
+    curriculum: number;
+    language: number;
+    price: number;
+    quality: number;
+  };
   reasons: string[];
   profile: {
     headline: string;
@@ -50,6 +60,16 @@ type TutorRecommendation = {
     curriculum: string;
   }>;
 };
+
+const SCORE_WEIGHTS = {
+  subject: 20,
+  category: 20,
+  educationLevel: 15,
+  curriculum: 15,
+  language: 10,
+  price: 10,
+  quality: 10,
+} as const;
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -99,27 +119,90 @@ function getMatchedLanguages(profile: TutorProfileResult, languages?: string[]) 
   );
 }
 
+function subjectMatchesQuery(subject: TutorSubjectResult, query?: string) {
+  if (!query) {
+    return false;
+  }
+
+  const normalizedQuery = normalize(query);
+  return (
+    normalize(subject.title).includes(normalizedQuery) ||
+    normalize(subject.description ?? '').includes(normalizedQuery)
+  );
+}
+
+function getQualityScore(profile: TutorProfileResult) {
+  const ratingScore = Math.round((profile.rating / 5) * 8);
+  const reviewScore = profile.totalReviews > 0 ? 2 : 0;
+
+  return Math.min(SCORE_WEIGHTS.quality, ratingScore + reviewScore);
+}
+
+function getMatchStrength(score: number): TutorRecommendation['matchStrength'] {
+  if (score >= 75) {
+    return 'strong';
+  }
+
+  if (score >= 50) {
+    return 'good';
+  }
+
+  if (score >= 25) {
+    return 'partial';
+  }
+
+  return 'weak';
+}
+
 function scoreTutor(
   profile: TutorProfileResult,
   subjects: TutorSubjectResult[],
   input: TutorRecommendationInput,
 ) {
   const reasons: string[] = [];
-  let score = 0;
+  const scoreBreakdown = {
+    subject: 0,
+    category: 0,
+    educationLevel: 0,
+    curriculum: 0,
+    language: 0,
+    price: 0,
+    quality: 0,
+  };
 
   if (profile.isAvailable) {
-    score += 10;
     reasons.push('Tutor is currently available');
   }
 
-  if (subjects.length > 0) {
-    score += 35;
-    reasons.push('Tutor teaches a matching subject');
+  if (input.query && subjects.some((subject) => subjectMatchesQuery(subject, input.query))) {
+    scoreBreakdown.subject = SCORE_WEIGHTS.subject;
+    reasons.push(`Teaches a subject matching "${input.query}"`);
+  }
+
+  if (input.category && subjects.some((subject) => subject.category === input.category)) {
+    scoreBreakdown.category = SCORE_WEIGHTS.category;
+    reasons.push(`Teaches ${input.category.replaceAll('_', ' ')}`);
+  }
+
+  if (
+    input.educationLevel &&
+    subjects.some((subject) => subject.educationLevel === input.educationLevel)
+  ) {
+    scoreBreakdown.educationLevel = SCORE_WEIGHTS.educationLevel;
+    reasons.push(`Supports ${input.educationLevel.replaceAll('_', ' ')} level`);
+  }
+
+  if (
+    input.curriculum &&
+    subjects.some((subject) => subject.curriculum === input.curriculum)
+  ) {
+    scoreBreakdown.curriculum = SCORE_WEIGHTS.curriculum;
+    reasons.push(`Supports ${input.curriculum.replaceAll('_', ' ')} curriculum`);
   }
 
   const matchedLanguages = getMatchedLanguages(profile, input.languages);
   if (matchedLanguages.length > 0) {
-    score += 15;
+    scoreBreakdown.language = SCORE_WEIGHTS.language;
     reasons.push(`Matches language: ${matchedLanguages.join(', ')}`);
   }
 
@@ -127,22 +210,30 @@ function scoreTutor(
     input.maxHourlyRate !== undefined &&
     profile.hourlyRate <= input.maxHourlyRate
   ) {
-    score += 10;
+    scoreBreakdown.price = SCORE_WEIGHTS.price;
     reasons.push('Within requested hourly rate');
   }
 
-  score += Math.round(profile.rating * 8);
+  scoreBreakdown.quality = getQualityScore(profile);
   if (profile.rating > 0) {
     reasons.push(`Rated ${profile.rating.toFixed(1)} out of 5`);
   }
 
-  score += Math.min(profile.totalReviews, 20);
+  const score = Object.values(scoreBreakdown).reduce(
+    (total, value) => total + value,
+    0,
+  );
 
   if (reasons.length === 0) {
     reasons.push('Available tutor profile');
   }
 
-  return { score, reasons };
+  return {
+    score,
+    matchStrength: getMatchStrength(score),
+    scoreBreakdown,
+    reasons,
+  };
 }
 
 export async function recommendTutors(
@@ -194,12 +285,18 @@ export async function recommendTutors(
     .map((profile) => {
       const tutorId = profile.userId.toString();
       const matchedSubjects = subjectsByTutorId.get(tutorId) ?? [];
-      const { score, reasons } = scoreTutor(profile, matchedSubjects, input);
+      const { score, matchStrength, scoreBreakdown, reasons } = scoreTutor(
+        profile,
+        matchedSubjects,
+        input,
+      );
 
       return {
         tutorProfileId: profile._id.toString(),
         tutorId,
         score,
+        matchStrength,
+        scoreBreakdown,
         reasons,
         profile: {
           headline: profile.headline,
