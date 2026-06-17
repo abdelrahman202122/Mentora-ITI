@@ -174,7 +174,14 @@ export async function updateBooking(
   bookingId: Types.ObjectId,
   updates: UpdateBookingInput,
 ): Promise<IBooking | null> {
-  return Booking.findByIdAndUpdate(bookingId, updates, { new: true }).exec();
+  const booking = await Booking.findById(bookingId).exec();
+
+  if (!booking) {
+    return null;
+  }
+
+  Object.assign(booking, updates);
+  return booking.save();
 }
 
 /**
