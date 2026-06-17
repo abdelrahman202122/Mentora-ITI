@@ -4,8 +4,6 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import path from 'node:path';
-import fs from 'node:fs';
 
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error.middleware.js';
@@ -16,6 +14,7 @@ import { httpLogger } from './middleware/logger.middleware.js';
 import userRoutes from './modules/users/user.route.js';
 import tutorRoutes from './modules/tutor/tutor.routes.js';
 import auditRouter from './modules/audit/audit.route.js';
+import filesRouter from './modules/files/file.routes.js';
 
 export function createApp() {
   const app = express();
@@ -40,18 +39,12 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-  // servce static files from uploads directory
-  const uploadsDir = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-  }
-  app.use('/static/uploads', express.static(uploadsDir));
-
   app.use('/api/users', userRoutes);
   app.use('/api/tutors', tutorRoutes);
   app.use('/api/health', healthRoutes);
   app.use('/api/bookings', bookingRoutes);
   app.use('/api/audits', auditRouter);
+  app.use('/api/files', filesRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
