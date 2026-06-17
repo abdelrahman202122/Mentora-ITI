@@ -1,0 +1,45 @@
+
+  {
+    "data": {
+      "_id": "1",
+      "userId": "u1",
+      "headline": "Software Engineer",
+      "bio": "Experienced software engineer specializing in web applications.",
+      "languages": ["en", "ar"],
+      "education": [
+        {
+          "degree": "Bachelor of Science",
+          "field": "Computer Science",
+          "institution": "Cairo University",
+          "graduationYear": 2020
+        },
+        {
+          "degree": "Master of Science",
+          "field": "Software Engineering",
+          "institution": "Ain Shams University",
+          "graduationYear": null
+        }
+      ],
+      "isAvailable": true,
+      "rating": 4.8,
+      "totalReviews": 25,
+      "experience": [
+        {
+          "title": "Software Engineer",
+          "startYear": 2022,
+          "startMonth": 6,
+          "endYear": null,
+          "endMonth": null,
+          "isCurrent": true
+        },
+        {
+          "title": "Frontend Developer",
+          "startYear": 2020,
+          "startMonth": 1,
+          "endYear": 2022,
+          "endMonth": 5,
+          "isCurrent": false
+        }
+      ]
+    }
+  }
