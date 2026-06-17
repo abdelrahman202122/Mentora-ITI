@@ -1,0 +1,123 @@
+import { env } from '../../config/env.js';
+import { logger } from '../../config/logger.js';
+
+export type AIProviderMessage = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
+
+type GenerateAIReplyInput = {
+  messages: AIProviderMessage[];
+  locale?: string;
+  goal?: string | null;
+};
+
+type OpenAIResponse = {
+  output_text?: string;
+  output?: Array<{
+    content?: Array<{
+      text?: string;
+      type?: string;
+    }>;
+  }>;
+};
+
+const fallbackReply =
+  'I can help you describe your learning goals and find suitable tutors. Tell me the subject, level, preferred language, and budget you have in mind.';
+
+function buildSystemPrompt(input: GenerateAIReplyInput) {
+  const localeInstruction =
+    input.locale && input.locale !== 'en'
+      ? `Reply in the learner locale: ${input.locale}.`
+      : 'Reply in clear English.';
+  const goalInstruction = input.goal
+    ? `The learner goal is: ${input.goal}.`
+    : 'Help the learner clarify their tutoring needs.';
+
+  return [
+    'You are Mentora AI, a helpful education marketplace assistant.',
+    goalInstruction,
+    localeInstruction,
+    'Ask concise follow-up questions when needed.',
+    'Do not invent tutor names or availability. The backend matching engine handles tutor ranking separately.',
+  ].join(' ');
+}
+
+function extractText(response: OpenAIResponse) {
+  if (response.output_text?.trim()) {
+    return response.output_text.trim();
+  }
+
+  const text = response.output
+    ?.flatMap((item) => item.content ?? [])
+    .map((content) => content.text)
+    .filter((content): content is string => Boolean(content?.trim()))
+    .join('\n')
+    .trim();
+
+  return text || fallbackReply;
+}
+
+export async function generateAIReply(input: GenerateAIReplyInput) {
+  if (!env.OPENAI_API_KEY) {
+    return {
+      content: fallbackReply,
+      provider: 'fallback',
+      model: null,
+    };
+  }
+
+  try {
+const OPENAI_TIMEOUT_MS = 10_000;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+    const response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: env.OPENAI_MODEL,
+        input: [
+          {
+            role: 'system',
+            content: buildSystemPrompt(input),
+          },
+          ...input.messages,
+        ],
+      }),
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const details = await response.text();
+      logger.error('OpenAI request failed', {
+        status: response.status,
+        details,
+      });
+
+      throw new Error('OpenAI request failed');
+    }
+
+    const data = (await response.json()) as OpenAIResponse;
+
+    return {
+      content: extractText(data),
+      provider: 'openai',
+      model: env.OPENAI_MODEL,
+    };
+  } catch (error) {
+    logger.error('Failed to generate AI reply', {
+      error: error instanceof Error ? error.message : error,
+    });
+
+    return {
+      content: fallbackReply,
+      provider: 'fallback',
+      model: null,
+    };
+  }
+}
