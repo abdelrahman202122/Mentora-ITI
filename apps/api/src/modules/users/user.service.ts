@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 
+import { unlink } from 'node:fs/promises';
+import path from 'node:path';
 import {
   ConflictError,
   NotFoundError,
@@ -22,6 +24,11 @@ import { AuthResult, UserProfileDTO, UserRole } from './user.interface.js';
 import { UserModel } from './user.model.js';
 import { ListUsersQuery, UpdateUserByAdminInput } from './user.validation.js';
 import { RegisterInput, LoginInput } from './user.validation.js';
+import {
+  clearUserAvatar,
+  findUserById,
+  updateUserAvatar,
+} from './user.repository.js';
 
 export const register = async (data: RegisterInput): Promise<AuthResult> => {
   try {
@@ -506,5 +513,94 @@ export const updateProfile = async (
     role: user.role,
     avatar: user.avatar,
     isEmailVerified: user.isEmailVerified,
+  };
+};
+
+// delete file from uploads directory
+const deleteAvatarFile = async (avatarValue?: string) => {
+  if (!avatarValue) return;
+
+  const filePath = path.resolve(process.cwd(), avatarValue.replace(/^\//, ''));
+  if (!filePath) return;
+
+  try {
+    await unlink(filePath);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code?: string }).code !== 'ENOENT'
+    ) {
+      throw error;
+    }
+  }
+};
+
+// POST /users/me/avatar
+export const uploadAvatar = async (
+  userId: string,
+  file: { filename: string },
+) => {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  if (user.avatar) {
+    await deleteAvatarFile(user.avatar);
+  }
+
+  const avatarUrl = `/uploads/avatars/${file.filename}`;
+  const updatedUser = await updateUserAvatar(userId, avatarUrl);
+
+  if (!updatedUser) {
+    throw new NotFoundError('User not found');
+  }
+
+  await createAuditLog(userId, AuditAction.PROFILE_UPDATE, 'User', {
+    action: 'avatar.uploaded',
+  });
+
+  return {
+    id: updatedUser._id.toString(),
+    name: updatedUser.name,
+    email: updatedUser.email,
+    role: updatedUser.role,
+    avatar: updatedUser.avatar,
+    isEmailVerified: updatedUser.isEmailVerified,
+  };
+};
+
+// DELETE /users/me/avatar
+export const deleteAvatar = async (userId: string) => {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  if (user.avatar) {
+    console.log(user.avatar);
+    await deleteAvatarFile(user.avatar);
+  }
+
+  const updatedUser = await clearUserAvatar(userId);
+
+  if (!updatedUser) {
+    throw new NotFoundError('User not found');
+  }
+
+  await createAuditLog(userId, AuditAction.PROFILE_UPDATE, 'User', {
+    action: 'avatar.removed',
+  });
+
+  return {
+    id: updatedUser._id.toString(),
+    name: updatedUser.name,
+    email: updatedUser.email,
+    role: updatedUser.role,
+    avatar: updatedUser.avatar,
+    isEmailVerified: updatedUser.isEmailVerified,
   };
 };
