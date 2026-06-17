@@ -1,4 +1,6 @@
-export default function TutorProfile({ tutor }: { tutor: any | null }) {
+import type { TutorSummary } from "@/lib/api/tutors"
+
+export default function TutorProfile({ tutor }: { tutor: TutorSummary | null }) {
   if (!tutor) return <div className="p-6 text-gray-500">Tutor not found.</div>
 
   return (

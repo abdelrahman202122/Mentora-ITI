@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react"
 import { Search, ChevronDown } from "lucide-react"
 import TutorCard from "@/components/learner/TutorCard"
-import { getTutors } from "@/lib/api/tutors"
+import { getTutors, type TutorSummary } from "@/lib/api/tutors"
 
 const filters = ["Category", "Age Group", "School System", "Rating", "Level"]
 const ITEMS_PER_PAGE = 4
 
 export default function TutorMatchPage() {
-  const [tutors, setTutors] = useState<any[]>([])
+  const [tutors, setTutors] = useState<TutorSummary[]>([])
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -26,10 +26,6 @@ export default function TutorMatchPage() {
     }
     fetchTutors()
   }, [])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [search])
 
   const filtered = tutors.filter((t) =>
     t.name.toLowerCase().includes(search.toLowerCase())
@@ -52,7 +48,10 @@ export default function TutorMatchPage() {
             type="text"
             placeholder="Search by teacher..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setCurrentPage(1)
+            }}
             className="text-sm outline-none flex-1 bg-transparent text-gray-700 placeholder:text-gray-400"
           />
         </div>

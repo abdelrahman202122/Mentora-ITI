@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import { useActionState } from "react";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { useActionState } from 'react';
+import Link from 'next/link';
+import { GraduationCap, Loader2 } from 'lucide-react';
 
-import { loginAction } from "./actions";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { loginAction } from './actions';
 
 export default function LoginPage() {
   const [state, action, isPending] = useActionState(loginAction, undefined);
@@ -41,23 +42,6 @@ export default function LoginPage() {
 
           <CardContent className="px-7 pb-7">
             <form action={action} className="space-y-6">
-              <Button
-                className="h-10 w-full border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
-                type="button"
-                variant="outline"
-              >
-                <span className="mr-1 text-base font-semibold text-blue-600">G</span>
-                Continue with Google
-              </Button>
-
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-200" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Or email
-                </span>
-                <div className="h-px flex-1 bg-slate-200" />
-              </div>
-
               {state?.formError && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
                   {state.formError}
@@ -66,7 +50,10 @@ export default function LoginPage() {
 
               <div className="space-y-4">
                 <FieldError message={state?.errors?.email?.[0]}>
-                  <label className="text-xs font-semibold text-slate-700" htmlFor="email">
+                  <label
+                    className="text-xs font-semibold text-slate-700"
+                    htmlFor="email"
+                  >
                     Email address
                   </label>
                   <Input
@@ -89,7 +76,7 @@ export default function LoginPage() {
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="password"
                     name="password"
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     type="password"
                   />
                 </FieldError>
@@ -106,25 +93,25 @@ export default function LoginPage() {
                     Checking account
                   </>
                 ) : (
-                  "Log In"
+                  'Log In'
                 )}
               </Button>
 
               <p className="text-center text-sm text-slate-600">
-                Don&apos;t have an account?{" "}
-                <a
+                Don&apos;t have an account?{' '}
+                <Link
                   className="font-semibold text-indigo-600 hover:text-indigo-700"
                   href="/register"
                 >
                   Sign Up
-                </a>
+                </Link>
               </p>
 
               <div className="border-t border-slate-200 pt-7">
                 <div className="flex items-center justify-center gap-5 text-xs font-medium text-slate-700">
-                  <a href="/privacy">Privacy Policy</a>
-                  <a href="/terms">Terms of Service</a>
-                  <a href="/help">Help Center</a>
+                  <Link href="/privacy">Privacy Policy</Link>
+                  <Link href="/terms">Terms of Service</Link>
+                  <Link href="/help">Help Center</Link>
                 </div>
               </div>
             </form>
@@ -145,7 +132,9 @@ function FieldError({
   return (
     <div>
       {children}
-      {message && <p className="mt-2 text-xs font-medium text-red-600">{message}</p>}
+      {message && (
+        <p className="mt-2 text-xs font-medium text-red-600">{message}</p>
+      )}
     </div>
   );
 }

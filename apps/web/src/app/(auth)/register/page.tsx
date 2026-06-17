@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { BookOpen, GraduationCap, Loader2, Sparkles, UserRound } from "lucide-react";
 
 import { registerAction } from "./actions";
@@ -70,23 +71,6 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              <Button
-                className="h-10 w-full border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
-                type="button"
-                variant="outline"
-              >
-                <span className="mr-1 text-base font-semibold text-blue-600">G</span>
-                Continue with Google
-              </Button>
-
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-200" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Or email
-                </span>
-                <div className="h-px flex-1 bg-slate-200" />
-              </div>
-
               <div className="space-y-4">
                 <FieldError message={state?.errors?.name?.[0]}>
                   <label className="text-xs font-semibold text-slate-700" htmlFor="name">
@@ -124,7 +108,7 @@ export default function RegisterPage() {
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="password"
                     name="password"
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     type="password"
                   />
                 </FieldError>
@@ -154,9 +138,9 @@ export default function RegisterPage() {
 
               <p className="text-center text-sm text-slate-600">
                 Already have an account?{" "}
-                <a className="font-semibold text-indigo-600 hover:text-indigo-700" href="/Login">
+                <Link className="font-semibold text-indigo-600 hover:text-indigo-700" href="/login">
                   Log In
-                </a>
+                </Link>
               </p>
             </form>
           </CardContent>

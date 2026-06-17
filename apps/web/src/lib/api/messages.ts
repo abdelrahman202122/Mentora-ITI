@@ -67,8 +67,7 @@
 //   localStorage.setItem("conversations", JSON.stringify(updatedConvs))
 // }
 
-import api from "@/lib/axios"
-import { mockChat, mockMessage, mockUser } from "@/lib/mockData"
+import { mockChat, mockMessage } from "@/lib/mockData"
 
 export interface Conversation {
   id: string
@@ -77,6 +76,13 @@ export interface Conversation {
   lastMessage: string
   time: string
   unread: number
+}
+
+export interface ChatMessage {
+  id: string | number
+  role: "learner" | "tutor"
+  text: string
+  time: string
 }
 
 //^------------------------------ start of getConversation function -------------------------
@@ -143,7 +149,7 @@ export async function startConversation(
   return newConv.id
 }
 //^------------------------------ end  StartCaonversation function -------------------------
-export async function getMessages(chatId: string) {
+export async function getMessages(chatId: string): Promise<ChatMessage[]> {
   // ✅ لما الـ backend يخلص
   // const res = await api.get(`/chats/${chatId}/messages`)
   // return res.data
@@ -152,7 +158,7 @@ export async function getMessages(chatId: string) {
   const data = localStorage.getItem("messages_" + chatId)
   if (data) return JSON.parse(data)
 
-  const defaultMessages = [
+  const defaultMessages: ChatMessage[] = [
     {
       id: mockMessage._id,
       role: "tutor",
@@ -173,7 +179,7 @@ export async function getMessages(chatId: string) {
 
 export async function saveMessage(
   chatId: string,
-  message: { role: string; text: string; time: string }
+  message: Omit<ChatMessage, "id">
 ) {
   // ✅ لما الـ backend يخلص
   // const res = await api.post(`/chats/${chatId}/messages`, { message: message.text })
