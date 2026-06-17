@@ -1,6 +1,7 @@
 import mongoose, { type Types } from 'mongoose';
 import { AppError, NotFoundError } from '../../common/errors/AppError.js';
 import type {
+  BookingResponse,
   CreateBookingInput,
   IBooking,
   BookingStatus,
@@ -18,17 +19,19 @@ import {
 
 type ViewerRole = 'learner' | 'tutor' | 'admin';
 
-function toBookingObject(booking: IBooking): Record<string, unknown> {
-  return booking instanceof mongoose.Document
-    ? (booking.toObject() as Record<string, unknown>)
-    : { ...(booking as unknown as Record<string, unknown>) };
+function toBookingResponse(booking: IBooking): BookingResponse {
+  if (booking instanceof mongoose.Document) {
+    return booking.toObject() as BookingResponse;
+  }
+
+  return booking as unknown as BookingResponse;
 }
 
 function formatBookingForResponse(
   booking: IBooking,
   viewerRole: ViewerRole,
-): Record<string, unknown> {
-  const bookingObj = toBookingObject(booking);
+): BookingResponse {
+  const bookingObj = toBookingResponse(booking);
 
   if (viewerRole === 'tutor') {
     const bookingWithoutCode = { ...bookingObj };
@@ -51,7 +54,7 @@ function formatBookingForResponse(
 function formatBookingsForResponse(
   bookings: IBooking[],
   viewerRole: ViewerRole,
-): Record<string, unknown>[] {
+): BookingResponse[] {
   return bookings.map((booking) => formatBookingForResponse(booking, viewerRole));
 }
 
@@ -329,7 +332,7 @@ export function validateBookingBelongsToTutor(
 export async function acceptBooking(
   bookingId: Types.ObjectId,
   tutorId: string | Types.ObjectId,
-): Promise<IBooking> {
+): Promise<BookingResponse> {
   // Find booking
   const booking = await bookingRepository.findBookingById(bookingId);
 
@@ -359,7 +362,7 @@ export async function acceptBooking(
     throw createBookingError('Failed to update booking', 500);
   }
 
-  return formatBookingForResponse(updatedBooking, 'tutor') as IBooking;
+  return formatBookingForResponse(updatedBooking, 'tutor');
 }
 
 /**
@@ -372,7 +375,7 @@ export async function acceptBooking(
 export async function rejectBooking(
   bookingId: Types.ObjectId,
   tutorId: string | Types.ObjectId,
-): Promise<IBooking> {
+): Promise<BookingResponse> {
   // Find booking
   const booking = await bookingRepository.findBookingById(bookingId);
 
@@ -400,7 +403,7 @@ export async function rejectBooking(
     throw createBookingError('Failed to update booking', 500);
   }
 
-  return formatBookingForResponse(updatedBooking, 'tutor') as IBooking;
+  return formatBookingForResponse(updatedBooking, 'tutor');
 }
 
 /**
@@ -415,7 +418,7 @@ export async function confirmBookingCode(
   bookingId: Types.ObjectId,
   tutorId: string | Types.ObjectId,
   plainCode: string,
-): Promise<IBooking> {
+): Promise<BookingResponse> {
   const booking = await bookingRepository.findBookingById(bookingId);
 
   if (!booking) {
@@ -461,9 +464,10 @@ export async function confirmBookingCode(
     throw createBookingError('Failed to update booking', 500);
   }
 
-  return formatBookingForResponse(updatedBooking, 'tutor') as IBooking;
+  return formatBookingForResponse(updatedBooking, 'tutor');
 }
-/**  Find booking
+
+/**
  * List learner bookings with optional filters and pagination
  */
 export async function listLearnerBookings(
@@ -477,7 +481,7 @@ export async function listLearnerBookings(
     subjectId?: string;
   },
 ): Promise<{
-  bookings: IBooking[];
+  bookings: BookingResponse[];
   total: number;
   page: number;
   totalPages: number;
@@ -522,7 +526,7 @@ export async function listLearnerBookings(
   const totalPages = Math.ceil(total / limit);
 
   return {
-    bookings: formatBookingsForResponse(bookings, 'learner') as IBooking[],
+    bookings: formatBookingsForResponse(bookings, 'learner'),
     total,
     page,
     totalPages,
@@ -542,7 +546,7 @@ export async function listTutorBookings(
     subjectId?: string;
   },
 ): Promise<{
-  bookings: IBooking[];
+  bookings: BookingResponse[];
   total: number;
   page: number;
   totalPages: number;
@@ -581,7 +585,7 @@ export async function listTutorBookings(
   const totalPages = Math.ceil(total / limit);
 
   return {
-    bookings: formatBookingsForResponse(bookings, 'tutor') as IBooking[],
+    bookings: formatBookingsForResponse(bookings, 'tutor'),
     total,
     page,
     totalPages,
@@ -601,7 +605,7 @@ export async function listAdminBookings(
     subjectId?: string;
   },
 ): Promise<{
-  bookings: IBooking[];
+  bookings: BookingResponse[];
   total: number;
   page: number;
   totalPages: number;
@@ -639,7 +643,7 @@ export async function listAdminBookings(
   const totalPages = Math.ceil(total / limit);
 
   return {
-    bookings: formatBookingsForResponse(bookings, 'admin') as IBooking[],
+    bookings: formatBookingsForResponse(bookings, 'admin'),
     total,
     page,
     totalPages,
@@ -660,7 +664,7 @@ export async function getBookingByIdWithAuth(
   bookingId: Types.ObjectId,
   userId: Types.ObjectId | string,
   userRole: string,
-): Promise<IBooking> {
+): Promise<BookingResponse> {
   const booking = await bookingRepository.findBookingById(bookingId);
 
   if (!booking) {
@@ -692,5 +696,5 @@ export async function getBookingByIdWithAuth(
       ? 'tutor'
       : 'learner';
 
-  return formatBookingForResponse(booking, viewerRole) as IBooking;
+  return formatBookingForResponse(booking, viewerRole);
 }
