@@ -244,6 +244,9 @@ async function seedTutor(seed: (typeof tutorSeeds)[number]) {
 }
 
 async function run() {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PROD_SEED !== 'true') {
+    throw new Error('Refusing to seed production without ALLOW_PROD_SEED=true');
+  }
   await mongoose.connect(env.MONGO_URI);
 
   const learner = await seedLearner();
