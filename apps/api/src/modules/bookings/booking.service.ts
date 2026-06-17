@@ -31,7 +31,8 @@ function formatBookingForResponse(
   const bookingObj = toBookingObject(booking);
 
   if (viewerRole === 'tutor') {
-    const { confirmationCode: _removed, ...bookingWithoutCode } = bookingObj;
+    const bookingWithoutCode = { ...bookingObj };
+    delete bookingWithoutCode.confirmationCode;
     return bookingWithoutCode;
   }
 
@@ -54,6 +55,7 @@ function formatBookingsForResponse(
   return bookings.map((booking) => formatBookingForResponse(booking, viewerRole));
 }
 
+type CreateBookingPayload = Omit<
   CreateBookingInput,
   'tutorId' | 'price' | 'currency'
 > & {
