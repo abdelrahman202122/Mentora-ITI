@@ -93,6 +93,8 @@ export async function sendAIConversationMessageController(
     limit: 20,
   });
   const reply = await generateAIReply({
+    conversationId,
+    learnerId,
     messages: toProviderMessages(messages),
   });
   const assistantMessage = await addAssistantMessage({

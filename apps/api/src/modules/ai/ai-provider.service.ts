@@ -1,5 +1,6 @@
 import { env } from '../../config/env.js';
 import { logger } from '../../config/logger.js';
+import { createAILog } from './ai-log.service.js';
 
 export type AIProviderMessage = {
   role: 'user' | 'assistant' | 'system';
@@ -7,6 +8,8 @@ export type AIProviderMessage = {
 };
 
 type GenerateAIReplyInput = {
+  conversationId?: string;
+  learnerId?: string;
   messages: AIProviderMessage[];
   locale?: string;
   goal?: string | null;
@@ -20,6 +23,14 @@ type OpenAIResponse = {
       type?: string;
     }>;
   }>;
+};
+
+type OpenAIErrorResponse = {
+  error?: {
+    code?: string | null;
+    type?: string | null;
+    message?: string;
+  };
 };
 
 const fallbackReply =
@@ -59,7 +70,21 @@ function extractText(response: OpenAIResponse) {
 }
 
 export async function generateAIReply(input: GenerateAIReplyInput) {
+  const startedAt = Date.now();
+
   if (!env.OPENAI_API_KEY) {
+    await createAILog({
+      conversationId: input.conversationId,
+      learnerId: input.learnerId,
+      provider: 'fallback',
+      model: null,
+      status: 'fallback',
+      latencyMs: Date.now() - startedAt,
+      promptMessagesCount: input.messages.length,
+      errorCode: 'missing_api_key',
+      errorType: 'configuration',
+    });
+
     return {
       content: fallbackReply,
       provider: 'fallback',
@@ -94,15 +119,48 @@ const OPENAI_TIMEOUT_MS = 10_000;
 
     if (!response.ok) {
       const details = await response.text();
+      let errorCode: string | null = null;
+      let errorType: string | null = null;
+
+      try {
+        const parsed = JSON.parse(details) as OpenAIErrorResponse;
+        errorCode = parsed.error?.code ?? null;
+        errorType = parsed.error?.type ?? null;
+      } catch {
+        errorType = 'unknown';
+      }
+
       logger.error('OpenAI request failed', {
         status: response.status,
         details,
+      });
+      await createAILog({
+        conversationId: input.conversationId,
+        learnerId: input.learnerId,
+        provider: 'openai',
+        model: env.OPENAI_MODEL,
+        status: 'failed',
+        latencyMs: Date.now() - startedAt,
+        promptMessagesCount: input.messages.length,
+        errorStatus: response.status,
+        errorCode,
+        errorType,
       });
 
       throw new Error('OpenAI request failed');
     }
 
     const data = (await response.json()) as OpenAIResponse;
+
+    await createAILog({
+      conversationId: input.conversationId,
+      learnerId: input.learnerId,
+      provider: 'openai',
+      model: env.OPENAI_MODEL,
+      status: 'success',
+      latencyMs: Date.now() - startedAt,
+      promptMessagesCount: input.messages.length,
+    });
 
     return {
       content: extractText(data),
@@ -112,6 +170,18 @@ const OPENAI_TIMEOUT_MS = 10_000;
   } catch (error) {
     logger.error('Failed to generate AI reply', {
       error: error instanceof Error ? error.message : error,
+    });
+
+    await createAILog({
+      conversationId: input.conversationId,
+      learnerId: input.learnerId,
+      provider: 'fallback',
+      model: null,
+      status: 'fallback',
+      latencyMs: Date.now() - startedAt,
+      promptMessagesCount: input.messages.length,
+      errorCode: 'provider_failed',
+      errorType: error instanceof Error ? error.message : 'unknown',
     });
 
     return {
