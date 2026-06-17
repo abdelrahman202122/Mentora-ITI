@@ -209,11 +209,10 @@ async function seedTutor(seed: (typeof tutorSeeds)[number]) {
 
   await UserModel.findByIdAndUpdate(tutor._id, {
     role: UserRole.TUTOR,
-    tutorProfile: profile._id,
   });
 
   const session = await mongoose.startSession();
-  try {
+
     await session.withTransaction(async () => {
       await TutorSubjectModel.deleteMany({ tutorId: tutor._id }, { session });
       await TutorSubjectModel.insertMany(

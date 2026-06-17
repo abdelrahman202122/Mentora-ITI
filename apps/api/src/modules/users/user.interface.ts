@@ -26,9 +26,6 @@ export interface IUser extends Document {
 
   avatar?: string;
 
-  // Relation to Tutor profile (only if role = tutor)
-  tutorProfile?: Types.ObjectId ;
-
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,5 +63,4 @@ export interface UserProfileDTO {
   role: UserRole;
   avatar?: string;
   isEmailVerified: boolean;
-  tutorProfile?: unknown; // see Issue #8 for proper typing
 }
