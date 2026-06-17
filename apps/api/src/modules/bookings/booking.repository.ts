@@ -185,18 +185,25 @@ export async function updateBooking(
 }
 
 /**
- * Atomically cancel a booking only if its current status is 'confirmed'.
- * Returns the updated document, or null if no document matched
- * (meaning the booking was not found or its status was not 'confirmed').
+ * Atomically cancel a booking only if it is still confirmed.
  */
-export async function cancelBookingIfConfirmed(
+export async function cancelConfirmedBooking(
   bookingId: Types.ObjectId,
-  updates: UpdateBookingInput,
+  updates: {
+    canceledAt: Date;
+    canceledBy: 'learner' | 'tutor';
+    cancelReason?: string;
+  },
 ): Promise<IBooking | null> {
   return Booking.findOneAndUpdate(
     { _id: bookingId, bookingStatus: 'confirmed' },
-    { $set: updates },
-    { new: true, runValidators: true },
+    {
+      $set: {
+        bookingStatus: 'canceled',
+        ...updates,
+      },
+    },
+    { new: true },
   ).exec();
 }
 

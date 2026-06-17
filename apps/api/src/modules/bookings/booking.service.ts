@@ -478,6 +478,22 @@ export async function cancelBooking(
     );
   }
 
+  const updatedBooking = await bookingRepository.cancelConfirmedBooking(
+    bookingId,
+    {
+      canceledAt: new Date(),
+      canceledBy: userRole as 'learner' | 'tutor',
+      cancelReason,
+    },
+  );
+
+  if (!updatedBooking) {
+    throw createBookingError(
+      'Only confirmed bookings can be canceled. The booking status may have changed.',
+      409,
+    );
+  }
+
   return formatBookingForResponse(updatedBooking, userRole);
 }
 
