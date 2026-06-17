@@ -11,10 +11,6 @@ const { Types } = mongoose;
  * Booking controller handles HTTP requests for booking operations
  */
 
-function throwNotImplemented(message: string): never {
-  throw new AppError(message, 501, 'NOT_IMPLEMENTED');
-}
-
 /**
  * POST /api/bookings
  * Create a new booking request
@@ -244,12 +240,30 @@ export async function rejectBooking(
  * Cancel a booking before completion
  */
 export async function cancelBooking(
-  _req: Request,
-  _res: Response,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Canceling a booking is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    const { cancelReason } = req.body as { cancelReason?: string };
+
+    const booking = await bookingService.cancelBooking(
+      bookingObjectId,
+      req.user.userId,
+      req.user.role,
+      cancelReason,
+    );
+
+    sendSuccess(res, 200, 'Booking canceled successfully', booking);
   } catch (error) {
     next(error);
   }
