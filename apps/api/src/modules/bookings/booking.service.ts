@@ -6,9 +6,10 @@ import type {
   BookingStatus,
 } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
-import bcrypt from 'bcryptjs';
-import { customAlphabet } from 'nanoid';
-import { optional } from 'zod';
+import {
+  generateConfirmationCode,
+  isConfirmationCodeMatch,
+} from './confirmation-code.util.js';
 
 /**
  * Booking service handles business logic for booking operations
@@ -279,40 +280,6 @@ export function validateBookingBelongsToTutor(
 }
 
 /**
- * Generate a random confirmation code
- * @returns A random 8-character code with uppercase, lowercase, numbers, and special characters
- */
-function generateConfirmationCode(): string {
-  const alphabet =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@&*$';
-  const nanoid = customAlphabet(alphabet, 8);
-  return nanoid();
-}
-
-/**
- * Hash a confirmation code
- * @param code - The plain confirmation code
- * @returns The hashed code
- */
-async function hashConfirmationCode(code: string): Promise<string> {
-  const SALT_ROUNDS = 10;
-  return bcrypt.hash(code, SALT_ROUNDS);
-}
-
-/**
- * Compare a plain confirmation code with a hashed one
- * @param plainCode - The plain code provided by user
- * @param hashedCode - The hashed code stored in the database
- * @returns True if they match
- */
-async function compareConfirmationCode(
-  plainCode: string,
-  hashedCode: string,
-): Promise<boolean> {
-  return bcrypt.compare(plainCode, hashedCode);
-}
-
-/**
  * Accept a pending booking request (tutor action)
  * @param bookingId - The booking ID
  * @param tutorId - The tutor's user ID
@@ -341,14 +308,11 @@ export async function acceptBooking(
     );
   }
 
-  // Generate and hash confirmation code
   const plainCode = generateConfirmationCode();
-  const hashedCode = await hashConfirmationCode(plainCode);
 
-  // Update booking to CONFIRMED status with hashed code
   const updatedBooking = await bookingRepository.updateBooking(bookingId, {
     bookingStatus: 'confirmed' as BookingStatus,
-    confirmationCode: hashedCode,
+    confirmationCode: plainCode,
   });
 
   if (!updatedBooking) {
@@ -437,8 +401,8 @@ export async function confirmBookingCode(
     );
   }
 
-  // Compare provided code with stored hashed code
-  const isCodeValid = await compareConfirmationCode(
+  // Compare provided code with stored encrypted code
+  const isCodeValid = isConfirmationCodeMatch(
     plainCode,
     booking.confirmationCode,
   );
