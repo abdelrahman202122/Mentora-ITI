@@ -55,7 +55,9 @@ function formatBookingsForResponse(
   bookings: IBooking[],
   viewerRole: ViewerRole,
 ): BookingResponse[] {
-  return bookings.map((booking) => formatBookingForResponse(booking, viewerRole));
+  return bookings.map((booking) =>
+    formatBookingForResponse(booking, viewerRole),
+  );
 }
 
 type CreateBookingPayload = Omit<
@@ -681,6 +683,8 @@ export async function getBookingByIdWithAuth(
   const isLearner = booking.learnerId.equals(userObjectId);
   const isTutor = booking.tutorId.equals(userObjectId);
   const isAdmin = userRole === 'admin';
+
+  const viewerRole: ViewerRole = userRole as ViewerRole;
 
   if (!isLearner && !isTutor && !isAdmin) {
     throw new AppError(
