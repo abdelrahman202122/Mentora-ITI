@@ -7,6 +7,7 @@ import type {
 } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 import {
+  decryptConfirmationCode,
   generateConfirmationCode,
   isConfirmationCodeMatch,
 } from './confirmation-code.util.js';
@@ -15,7 +16,44 @@ import {
  * Booking service handles business logic for booking operations
  */
 
-type CreateBookingPayload = Omit<
+type ViewerRole = 'learner' | 'tutor' | 'admin';
+
+function toBookingObject(booking: IBooking): Record<string, unknown> {
+  return booking instanceof mongoose.Document
+    ? (booking.toObject() as Record<string, unknown>)
+    : { ...(booking as unknown as Record<string, unknown>) };
+}
+
+function formatBookingForResponse(
+  booking: IBooking,
+  viewerRole: ViewerRole,
+): Record<string, unknown> {
+  const bookingObj = toBookingObject(booking);
+
+  if (viewerRole === 'tutor') {
+    const { confirmationCode: _removed, ...bookingWithoutCode } = bookingObj;
+    return bookingWithoutCode;
+  }
+
+  const { confirmationCode } = bookingObj;
+
+  if (typeof confirmationCode === 'string' && confirmationCode.length > 0) {
+    return {
+      ...bookingObj,
+      confirmationCode: decryptConfirmationCode(confirmationCode),
+    };
+  }
+
+  return bookingObj;
+}
+
+function formatBookingsForResponse(
+  bookings: IBooking[],
+  viewerRole: ViewerRole,
+): Record<string, unknown>[] {
+  return bookings.map((booking) => formatBookingForResponse(booking, viewerRole));
+}
+
   CreateBookingInput,
   'tutorId' | 'price' | 'currency'
 > & {
@@ -319,7 +357,7 @@ export async function acceptBooking(
     throw createBookingError('Failed to update booking', 500);
   }
 
-  return updatedBooking;
+  return formatBookingForResponse(updatedBooking, 'tutor') as IBooking;
 }
 
 /**
@@ -360,7 +398,7 @@ export async function rejectBooking(
     throw createBookingError('Failed to update booking', 500);
   }
 
-  return updatedBooking;
+  return formatBookingForResponse(updatedBooking, 'tutor') as IBooking;
 }
 
 /**
@@ -421,7 +459,7 @@ export async function confirmBookingCode(
     throw createBookingError('Failed to update booking', 500);
   }
 
-  return updatedBooking;
+  return formatBookingForResponse(updatedBooking, 'tutor') as IBooking;
 }
 /**  Find booking
  * List learner bookings with optional filters and pagination
@@ -482,7 +520,7 @@ export async function listLearnerBookings(
   const totalPages = Math.ceil(total / limit);
 
   return {
-    bookings,
+    bookings: formatBookingsForResponse(bookings, 'learner') as IBooking[],
     total,
     page,
     totalPages,
@@ -540,7 +578,12 @@ export async function listTutorBookings(
 
   const totalPages = Math.ceil(total / limit);
 
-  return { bookings, total, page, totalPages };
+  return {
+    bookings: formatBookingsForResponse(bookings, 'tutor') as IBooking[],
+    total,
+    page,
+    totalPages,
+  };
 }
 
 /**
@@ -593,7 +636,12 @@ export async function listAdminBookings(
 
   const totalPages = Math.ceil(total / limit);
 
-  return { bookings, total, page, totalPages };
+  return {
+    bookings: formatBookingsForResponse(bookings, 'admin') as IBooking[],
+    total,
+    page,
+    totalPages,
+  };
 }
 
 /**
@@ -636,13 +684,11 @@ export async function getBookingByIdWithAuth(
     );
   }
 
-  // For tutors, exclude confirmationCode from response
-  if (isTutor && !isAdmin) {
-    const bookingObj =
-      booking instanceof mongoose.Model ? booking.toObject() : booking;
-    const { confirmationCode: _, ...bookingWithoutCode } = bookingObj as any;
-    return bookingWithoutCode as IBooking;
-  }
+  const viewerRole: ViewerRole = isAdmin
+    ? 'admin'
+    : isTutor
+      ? 'tutor'
+      : 'learner';
 
-  return booking;
+  return formatBookingForResponse(booking, viewerRole) as IBooking;
 }
