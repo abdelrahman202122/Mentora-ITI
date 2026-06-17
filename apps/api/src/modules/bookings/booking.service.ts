@@ -6,6 +6,9 @@ import type {
   BookingStatus,
 } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
+import bcrypt from 'bcryptjs';
+import { customAlphabet } from 'nanoid';
+import { optional } from 'zod';
 
 /**
  * Booking service handles business logic for booking operations
@@ -409,7 +412,54 @@ export async function confirmBookingCode(
   tutorId: string | Types.ObjectId,
   plainCode: string,
 ): Promise<IBooking> {
-  // Find booking
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  // Verify booking belongs to tutor
+  validateBookingBelongsToTutor(booking.tutorId, tutorId);
+
+  // Check if booking is in CONFIRMED status
+  if (booking.bookingStatus !== 'confirmed') {
+    throw createBookingError(
+      `Booking must be in confirmed status to verify code. Current status: ${booking.bookingStatus}`,
+      409,
+    );
+  }
+
+  // Check if confirmation code exists
+  if (!booking.confirmationCode) {
+    throw createBookingError(
+      'No confirmation code found for this booking',
+      400,
+    );
+  }
+
+  // Compare provided code with stored hashed code
+  const isCodeValid = await compareConfirmationCode(
+    plainCode,
+    booking.confirmationCode,
+  );
+
+  if (!isCodeValid) {
+    throw createBookingError('Invalid confirmation code', 401);
+  }
+
+  // Update booking to COMPLETED status with confirmationCodeUsedAt timestamp
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
+    bookingStatus: 'completed' as BookingStatus,
+    confirmationCodeUsedAt: new Date(),
+  });
+
+  if (!updatedBooking) {
+    throw createBookingError('Failed to update booking', 500);
+  }
+
+  return updatedBooking;
+}
+/**  Find booking
  * List learner bookings with optional filters and pagination
  */
 export async function listLearnerBookings(
@@ -603,46 +653,6 @@ export async function getBookingByIdWithAuth(
     throw new NotFoundError('Booking not found');
   }
 
-  // Verify booking belongs to tutor
-  validateBookingBelongsToTutor(booking.tutorId, tutorId);
-
-  // Check if booking is in CONFIRMED status
-  if (booking.bookingStatus !== 'confirmed') {
-    throw createBookingError(
-      `Booking must be in confirmed status to verify code. Current status: ${booking.bookingStatus}`,
-      409,
-    );
-  }
-
-  // Check if confirmation code exists
-  if (!booking.confirmationCode) {
-    throw createBookingError(
-      'No confirmation code found for this booking',
-      400,
-    );
-  }
-
-  // Compare provided code with stored hashed code
-  const isCodeValid = await compareConfirmationCode(
-    plainCode,
-    booking.confirmationCode,
-  );
-
-  if (!isCodeValid) {
-    throw createBookingError('Invalid confirmation code', 401);
-  }
-
-  // Update booking to COMPLETED status with confirmationCodeUsedAt timestamp
-  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
-    bookingStatus: 'completed' as BookingStatus,
-    confirmationCodeUsedAt: new Date(),
-  });
-
-  if (!updatedBooking) {
-    throw createBookingError('Failed to update booking', 500);
-  }
-
-  return updatedBooking;
   // Convert userId to ObjectId for comparison
   const userObjectId =
     userId instanceof mongoose.Types.ObjectId
