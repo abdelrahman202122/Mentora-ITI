@@ -15,6 +15,7 @@ import cookieParser from 'cookie-parser';
 import tutorRoutes from './modules/tutor/tutor.routes.js';
 import metadataRoutes from './modules/metadata/metadata.routes.js';
 import auditRouter from './modules/audit/audit.route.js';
+import aiRoutes from './modules/ai/ai.routes.js';
 
 export function createApp() {
   const app = express();
@@ -45,6 +46,7 @@ export function createApp() {
   app.use('/api/bookings', bookingRoutes);
   app.use('/api/metadata', metadataRoutes);
   app.use('/api/audits', auditRouter);
+  app.use('/api/ai', aiRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

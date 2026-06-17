@@ -460,8 +460,9 @@ export async function getBookingByIdWithAuth(
   if (isTutor && !isAdmin) {
     const bookingObj =
       booking instanceof mongoose.Model ? booking.toObject() : booking;
-    const { confirmationCode: _, ...bookingWithoutCode } = bookingObj as any;
-    return bookingWithoutCode as IBooking;
+    const bookingWithoutCode = { ...(bookingObj as Record<string, unknown>) };
+    delete bookingWithoutCode.confirmationCode;
+    return bookingWithoutCode as unknown as IBooking;
   }
 
   return booking;
