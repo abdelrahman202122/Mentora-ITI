@@ -32,6 +32,8 @@ export interface IBooking extends Document {
   confirmationCode: string | null;
   confirmationCodeUsedAt?: Date;
   completedAt?: Date;
+  canceledAt?: Date;
+  canceledBy?: 'tutor' | 'learner';
   learnerNote?: string;
   cancelReason?: string;
   paymentId?: Types.ObjectId;
@@ -59,6 +61,8 @@ export interface UpdateBookingInput {
   confirmationCode?: string | null;
   confirmationCodeUsedAt?: Date;
   completedAt?: Date;
+  canceledAt?: Date;
+  canceledBy?: 'tutor' | 'learner';
   cancelReason?: string;
   paymentId?: Types.ObjectId;
   reviewId?: Types.ObjectId;
@@ -81,6 +85,8 @@ export type BookingResponse = {
   confirmationCode?: string | null;
   confirmationCodeUsedAt?: Date;
   completedAt?: Date;
+  canceledAt?: Date;
+  canceledBy?: 'tutor' | 'learner';
   learnerNote?: string;
   cancelReason?: string;
   paymentId?: Types.ObjectId;

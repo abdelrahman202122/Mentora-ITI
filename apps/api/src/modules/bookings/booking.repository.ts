@@ -185,6 +185,29 @@ export async function updateBooking(
 }
 
 /**
+ * Atomically cancel a booking only if it is still confirmed.
+ */
+export async function cancelConfirmedBooking(
+  bookingId: Types.ObjectId,
+  updates: {
+    canceledAt: Date;
+    canceledBy: 'learner' | 'tutor';
+    cancelReason?: string;
+  },
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, bookingStatus: 'confirmed' },
+    {
+      $set: {
+        bookingStatus: 'canceled',
+        ...updates,
+      },
+    },
+    { new: true },
+  ).exec();
+}
+
+/**
  * Count total bookings by learner
  */
 export async function countLearnerBookings(

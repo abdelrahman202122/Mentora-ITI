@@ -55,7 +55,9 @@ function formatBookingsForResponse(
   bookings: IBooking[],
   viewerRole: ViewerRole,
 ): BookingResponse[] {
-  return bookings.map((booking) => formatBookingForResponse(booking, viewerRole));
+  return bookings.map((booking) =>
+    formatBookingForResponse(booking, viewerRole),
+  );
 }
 
 type CreateBookingPayload = Omit<
@@ -323,6 +325,25 @@ export function validateBookingBelongsToTutor(
 }
 
 /**
+ * Validate that the booking belongs to the learner
+ * @param bookingLearnerId - The learner ID from the booking document
+ * @param requestingUserId - The ID of the user making the request
+ */
+export function validateBookingBelongsToLearner(
+  bookingLearnerId: Types.ObjectId,
+  requestingUserId: string | Types.ObjectId,
+): void {
+  const requestingId =
+    typeof requestingUserId === 'string'
+      ? new mongoose.Types.ObjectId(requestingUserId)
+      : requestingUserId;
+
+  if (!bookingLearnerId.equals(requestingId)) {
+    throw createBookingError('This booking does not belong to you', 403);
+  }
+}
+
+/**
  * Accept a pending booking request (tutor action)
  * @param bookingId - The booking ID
  * @param tutorId - The tutor's user ID
@@ -404,6 +425,66 @@ export async function rejectBooking(
   }
 
   return formatBookingForResponse(updatedBooking, 'tutor');
+}
+
+/**
+ * Cancel a confirmed booking (learner or tutor action)
+ * @param bookingId - The booking ID
+ * @param userId - The authenticated user ID
+ * @param userRole - The authenticated user role
+ * @param cancelReason - Optional cancellation reason
+ * @throws AppError if booking not found, user unauthorized, or invalid status
+ * @returns The updated booking
+ */
+export async function cancelBooking(
+  bookingId: Types.ObjectId,
+  userId: string | Types.ObjectId,
+  userRole: string,
+  cancelReason?: string,
+): Promise<BookingResponse> {
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  if (userRole !== 'learner' && userRole !== 'tutor') {
+    throw createBookingError(
+      'Only learners and tutors can cancel bookings',
+      403,
+    );
+  }
+
+  if (userRole === 'learner') {
+    validateBookingBelongsToLearner(booking.learnerId, userId);
+  } else {
+    validateBookingBelongsToTutor(booking.tutorId, userId);
+  }
+
+  if (booking.bookingStatus !== 'confirmed') {
+    throw createBookingError(
+      `Only confirmed bookings can be canceled. Current status: ${booking.bookingStatus}`,
+      409,
+    );
+  }
+
+  const updatedBooking = await bookingRepository.cancelConfirmedBooking(
+    bookingId,
+    {
+      canceledAt: new Date(),
+      canceledBy: userRole as 'learner' | 'tutor',
+      cancelReason,
+    },
+  );
+
+  if (!updatedBooking) {
+    throw createBookingError(
+      'Only confirmed bookings can be canceled. The booking status may have changed.',
+      409,
+    );
+  }
+
+  return formatBookingForResponse(updatedBooking, userRole);
 }
 
 /**
@@ -681,6 +762,8 @@ export async function getBookingByIdWithAuth(
   const isLearner = booking.learnerId.equals(userObjectId);
   const isTutor = booking.tutorId.equals(userObjectId);
   const isAdmin = userRole === 'admin';
+
+  const viewerRole: ViewerRole = userRole as ViewerRole;
 
   if (!isLearner && !isTutor && !isAdmin) {
     throw new AppError(
