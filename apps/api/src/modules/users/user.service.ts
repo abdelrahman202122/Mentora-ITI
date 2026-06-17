@@ -23,12 +23,12 @@ import { UserModel } from './user.model.js';
 import { ListUsersQuery, UpdateUserByAdminInput } from './user.validation.js';
 import { RegisterInput, LoginInput } from './user.validation.js';
 
-export const register = async (
-  data: RegisterInput
-): Promise<AuthResult> => {
-
+export const register = async (data: RegisterInput): Promise<AuthResult> => {
   try {
-    logger.info({ event: 'registration.attempt', emailHash: emailHash(data.email) });
+    logger.info({
+      event: 'registration.attempt',
+      emailHash: emailHash(data.email),
+    });
 
     const user = await UserModel.create({
       name: data.name,
@@ -37,24 +37,14 @@ export const register = async (
       role: UserRole.LEARNER,
     });
 
-    const accessToken =
-      generateAccessToken(
-        user._id.toString(),
-        user.role
-      );
+    const accessToken = generateAccessToken(user._id.toString(), user.role);
 
-    const refreshToken =
-      generateRefreshToken(
-        user._id.toString()
-      );
+    const refreshToken = generateRefreshToken(user._id.toString());
 
     await RefreshTokenModel.create({
       token: refreshToken,
       userId: user._id,
-      expiresAt: new Date(
-        Date.now() +
-          7 * 24 * 60 * 60 * 1000
-      ),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
     logger.info({
@@ -69,7 +59,7 @@ export const register = async (
       {
         email: user.email,
         role: user.role,
-      }
+      },
     );
     return {
       accessToken,
@@ -85,67 +75,45 @@ export const register = async (
     if (
       error instanceof Error &&
       'code' in error &&
-      (error as { code?: number })
-        .code === 11000
+      (error as { code?: number }).code === 11000
     ) {
       logger.warn({
         event: 'email.exists',
-        emailHash: emailHash(
-          data.email
-        ),
+        emailHash: emailHash(data.email),
       });
 
-      throw new ConflictError(
-        'Email already registered'
-      );
+      throw new ConflictError('Email already registered');
     }
 
     throw error;
   }
 };
 
-
 export const login = async (
   data: LoginInput,
-  ip?: string
+  ip?: string,
 ): Promise<AuthResult> => {
-  const user = await UserModel.findOne({ email: data.email }).select('+password').lean();
+  const user = await UserModel.findOne({ email: data.email })
+    .select('+password')
+    .lean();
 
-  if (
-    !user ||
-    !(await comparePassword(
-      data.password,
-      user.password
-    ))
-  ) {
+  if (!user || !(await comparePassword(data.password, user.password))) {
     logger.warn({
       event: 'login.failed',
       reason: 'invalid_credentials',
     });
 
-    throw new UnauthorizedError(
-      'Invalid credentials'
-    );
+    throw new UnauthorizedError('Invalid credentials');
   }
 
-  const accessToken =
-    generateAccessToken(
-      user._id.toString(),
-      user.role
-    );
+  const accessToken = generateAccessToken(user._id.toString(), user.role);
 
-  const refreshToken =
-    generateRefreshToken(
-      user._id.toString()
-    );
+  const refreshToken = generateRefreshToken(user._id.toString());
 
   await RefreshTokenModel.create({
     token: refreshToken,
     userId: user._id,
-    expiresAt: new Date(
-      Date.now() +
-        7 * 24 * 60 * 60 * 1000
-    ),
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   logger.info({
@@ -153,15 +121,9 @@ export const login = async (
     userId: user._id.toString(),
   });
 
-
-  void createAuditLog(
-    user._id.toString(),
-    AuditAction.USER_LOGIN,
-    'User',
-    {
-      ip
-    }
-  );
+  void createAuditLog(user._id.toString(), AuditAction.USER_LOGIN, 'User', {
+    ip,
+  });
 
   return {
     accessToken,
@@ -175,25 +137,18 @@ export const login = async (
   };
 };
 
-export const logout = async (
-  userId: string
-): Promise<void> => {
+export const logout = async (userId: string): Promise<void> => {
   await RefreshTokenModel.deleteMany({
     userId,
   });
 
-  await createAuditLog(
-  userId,
-  AuditAction.USER_LOGOUT,
-  'User'
-);
+  await createAuditLog(userId, AuditAction.USER_LOGOUT, 'User');
 
   logger.info({
     event: 'logout.success',
     userId,
   });
 };
-
 
 export const refreshToken = async (
   oldRefreshToken: string,
@@ -209,11 +164,10 @@ export const refreshToken = async (
     throw new UnauthorizedError('Invalid or expired refresh token');
   }
   // 2. Check token exists in DB
-  const storedToken =
-    await RefreshTokenModel.findOne({
-      token: oldRefreshToken,
-      userId: decoded.userId,
-    });
+  const storedToken = await RefreshTokenModel.findOne({
+    token: oldRefreshToken,
+    userId: decoded.userId,
+  });
 
   if (!storedToken) {
     logger.warn({
@@ -227,7 +181,7 @@ export const refreshToken = async (
     });
 
     throw new UnauthorizedError(
-      'Refresh token reuse detected. All sessions revoked.'
+      'Refresh token reuse detected. All sessions revoked.',
     );
   }
 
@@ -235,10 +189,7 @@ export const refreshToken = async (
   await storedToken.deleteOne();
 
   // 4. Verify user
-  const user =
-    await UserModel.findById(
-      decoded.userId
-    ).lean();
+  const user = await UserModel.findById(decoded.userId).lean();
 
   if (!user || !user.isActive) {
     logger.warn({
@@ -246,30 +197,18 @@ export const refreshToken = async (
       userId: decoded.userId,
     });
 
-    throw new UnauthorizedError(
-      'User not found or deactivated'
-    );
+    throw new UnauthorizedError('User not found or deactivated');
   }
 
   // 5. Generate new tokens
-  const accessToken =
-    generateAccessToken(
-      user._id.toString(),
-      user.role
-    );
+  const accessToken = generateAccessToken(user._id.toString(), user.role);
 
-  const refreshToken =
-    generateRefreshToken(
-      user._id.toString()
-    );
+  const refreshToken = generateRefreshToken(user._id.toString());
 
   await RefreshTokenModel.create({
     token: refreshToken,
     userId: user._id,
-    expiresAt: new Date(
-      Date.now() +
-        7 * 24 * 60 * 60 * 1000
-    ),
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   logger.info({
@@ -283,10 +222,11 @@ export const refreshToken = async (
   };
 };
 
-
-
-const findUserProfile = async (userId: string): Promise<UserProfileDTO | null> => {
-  const user = await UserModel.findById(userId).populate('tutorProfile').lean();
+const findUserProfile = async (
+  userId: string,
+): Promise<UserProfileDTO | null> => {
+  // const user = await UserModel.findById(userId).populate('tutorProfile').lean();
+  const user = await UserModel.findById(userId).lean();
   if (!user) return null;
 
   return {
@@ -296,12 +236,13 @@ const findUserProfile = async (userId: string): Promise<UserProfileDTO | null> =
     role: user.role,
     avatar: user.avatar,
     isEmailVerified: user.isEmailVerified,
-    tutorProfile: user.tutorProfile,
+    // tutorProfile: user.tutorProfile,
   };
 };
 
-
-export const getCurrentUser = async (userId: string): Promise<UserProfileDTO> => {
+export const getCurrentUser = async (
+  userId: string,
+): Promise<UserProfileDTO> => {
   const profile = await findUserProfile(userId);
   if (!profile) {
     throw new UnauthorizedError('User not found');
@@ -318,14 +259,12 @@ export const getUserById = async (userId: string): Promise<UserProfileDTO> => {
   return profile;
 };
 
-
 // GET /users
 
 export const getUsers = async (adminId: string, query: ListUsersQuery) => {
   const { page, limit } = query;
   const skip = (page - 1) * limit;
 
- 
   const [users, total] = await Promise.all([
     UserModel.find()
       .select('name email role avatar isEmailVerified isActive')
@@ -336,7 +275,10 @@ export const getUsers = async (adminId: string, query: ListUsersQuery) => {
   ]);
 
   logger.info({ event: 'users.fetch.success', count: users.length });
-createAuditLog(adminId, AuditAction.ADMIN_VIEW_USERS, 'User', { count: users.length, page });
+  createAuditLog(adminId, AuditAction.ADMIN_VIEW_USERS, 'User', {
+    count: users.length,
+    page,
+  });
 
   return {
     items: users.map((user) => ({
@@ -352,13 +294,12 @@ createAuditLog(adminId, AuditAction.ADMIN_VIEW_USERS, 'User', { count: users.len
   };
 };
 
-
 // PATCH /users/:id
 
 export const updateUserById = async (
   userId: string,
   updateData: UpdateUserByAdminInput,
-  adminId:string
+  adminId: string,
 ) => {
   logger.info({
     event: 'user.update.attempt',
@@ -377,15 +318,19 @@ export const updateUserById = async (
     throw new NotFoundError('User not found');
   }
 
-    if (updateData.name !== undefined) user.name = updateData.name;
+  if (updateData.name !== undefined) user.name = updateData.name;
   if (updateData.email !== undefined) user.email = updateData.email;
   if (updateData.avatar !== undefined) user.avatar = updateData.avatar;
   if (updateData.role !== undefined) user.role = updateData.role;
   if (updateData.isActive !== undefined) user.isActive = updateData.isActive;
-  if (updateData.isEmailVerified !== undefined) user.isEmailVerified = updateData.isEmailVerified;
+  if (updateData.isEmailVerified !== undefined)
+    user.isEmailVerified = updateData.isEmailVerified;
 
   // If email changed, the new address is unverified until proven otherwise
-  if (updateData.email !== undefined && updateData.isEmailVerified === undefined) {
+  if (
+    updateData.email !== undefined &&
+    updateData.isEmailVerified === undefined
+  ) {
     user.isEmailVerified = false;
   }
 
@@ -393,8 +338,10 @@ export const updateUserById = async (
     await user.save();
   } catch (error: unknown) {
     if (
-      typeof error === 'object' && error !== null &&
-      'code' in error && (error as { code?: number }).code === 11000
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code?: number }).code === 11000
     ) {
       throw new ConflictError('Email already in use');
     }
@@ -421,7 +368,7 @@ export const updateUserById = async (
 
 //  DELETE /users/:id
 
-export const deleteUserById = async (userId: string,adminId:string) => {
+export const deleteUserById = async (userId: string, adminId: string) => {
   logger.info({
     event: 'user.delete.attempt',
     userId,
@@ -448,28 +395,21 @@ export const deleteUserById = async (userId: string,adminId:string) => {
     userId,
   });
 
-  await createAuditLog(
-    adminId,
-    AuditAction.USER_DELETE,
-    'User',
-    {
-      deletedUserId: userId,
-    }
-  );
+  await createAuditLog(adminId, AuditAction.USER_DELETE, 'User', {
+    deletedUserId: userId,
+  });
 
   return {
     id: userId,
   };
 };
 
-
-
 // PATCH /users/change-password
 
 export const changePassword = async (
   userId: string,
   currentPassword: string,
-  newPassword: string
+  newPassword: string,
 ) => {
   logger.info({
     event: 'password.change.attempt',
@@ -487,10 +427,7 @@ export const changePassword = async (
     throw new UnauthorizedError('User not found');
   }
 
-  const isMatch = await comparePassword(
-    currentPassword,
-    user.password
-  );
+  const isMatch = await comparePassword(currentPassword, user.password);
 
   if (!isMatch) {
     logger.warn({
@@ -513,16 +450,10 @@ export const changePassword = async (
     userId,
   });
 
-  await createAuditLog(
-    userId,
-    AuditAction.PASSWORD_CHANGE,
-    'User'
-  );
+  await createAuditLog(userId, AuditAction.PASSWORD_CHANGE, 'User');
 
   return true;
 };
-
-
 
 // PATCH /users/profile
 
@@ -531,7 +462,7 @@ export const updateProfile = async (
   updateData: {
     name?: string;
     avatar?: string;
-  }
+  },
 ) => {
   logger.info({
     event: 'profile.update.attempt',
@@ -564,15 +495,10 @@ export const updateProfile = async (
     event: 'profile.update.success',
     userId,
   });
-  
-  await createAuditLog(
-  userId,
-  AuditAction.PROFILE_UPDATE,
-  'User',
-  {
+
+  await createAuditLog(userId, AuditAction.PROFILE_UPDATE, 'User', {
     updatedFields: Object.keys(updateData),
-  }
-);
+  });
   return {
     id: user._id.toString(),
     name: user.name,
