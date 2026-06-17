@@ -185,6 +185,22 @@ export async function updateBooking(
 }
 
 /**
+ * Atomically cancel a booking only if its current status is 'confirmed'.
+ * Returns the updated document, or null if no document matched
+ * (meaning the booking was not found or its status was not 'confirmed').
+ */
+export async function cancelBookingIfConfirmed(
+  bookingId: Types.ObjectId,
+  updates: UpdateBookingInput,
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, bookingStatus: 'confirmed' },
+    { $set: updates },
+    { new: true, runValidators: true },
+  ).exec();
+}
+
+/**
  * Count total bookings by learner
  */
 export async function countLearnerBookings(
