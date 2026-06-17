@@ -468,15 +468,20 @@ export async function cancelBooking(
     );
   }
 
-  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
-    bookingStatus: 'canceled' as BookingStatus,
-    canceledAt: new Date(),
-    canceledBy: userRole as 'learner' | 'tutor',
-    cancelReason,
-  });
+  const updatedBooking = await bookingRepository.cancelConfirmedBooking(
+    bookingId,
+    {
+      canceledAt: new Date(),
+      canceledBy: userRole as 'learner' | 'tutor',
+      cancelReason,
+    },
+  );
 
   if (!updatedBooking) {
-    throw createBookingError('Failed to update booking', 500);
+    throw createBookingError(
+      'Only confirmed bookings can be canceled. The booking status may have changed.',
+      409,
+    );
   }
 
   return formatBookingForResponse(updatedBooking, userRole);
