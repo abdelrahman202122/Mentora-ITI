@@ -327,7 +327,7 @@ export const uploadAvatar = async (
       throw new ValidationError('Avatar file is required');
     }
 
-    console.log(req.file);
+    // console.log(req.file);
 
     const user = await userService.uploadAvatar(userId, req.file);
 

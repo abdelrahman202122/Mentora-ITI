@@ -534,7 +534,11 @@ export const getUserProfileById = async (userId: string) => {
 const deleteAvatarFile = async (avatarValue?: string) => {
   if (!avatarValue) return;
 
-  const filePath = path.resolve(process.cwd(), avatarValue.replace(/^\//, ''));
+  const filePath = path.resolve(
+    process.cwd(),
+    'uploads/avatars',
+    avatarValue.replace(/^\//, ''),
+  );
   if (!filePath) return;
 
   try {
@@ -565,8 +569,9 @@ export const uploadAvatar = async (
     await deleteAvatarFile(user.avatar);
   }
 
-  const avatarUrl = `/uploads/avatars/${file.filename}`;
-  const updatedUser = await updateUserAvatar(userId, avatarUrl);
+  // console.log(file);
+  // console.log(file.filename);
+  const updatedUser = await updateUserAvatar(userId, file.filename);
 
   if (!updatedUser) {
     throw new NotFoundError('User not found');
@@ -595,7 +600,7 @@ export const deleteAvatar = async (userId: string) => {
   }
 
   if (user.avatar) {
-    console.log(user.avatar);
+    // console.log(user.avatar);
     await deleteAvatarFile(user.avatar);
   }
 
