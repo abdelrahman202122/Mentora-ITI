@@ -17,7 +17,6 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
 
-    
     email: {
       type: String,
       required: true,
@@ -35,7 +34,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: Object.values(UserRole),
       default: UserRole.LEARNER,
-      required: true
+      required: true,
     },
 
     isEmailVerified: {
@@ -52,15 +51,15 @@ const userSchema = new Schema<IUser>(
       type: String,
     },
 
-    tutorProfile: {
-      type: Schema.Types.ObjectId,
-      ref: 'TutorProfile',
-      default: null,
-    },
+    // tutorProfile: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'TutorProfile',
+    //   default: null,
+    // },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 /**
@@ -93,7 +92,9 @@ userSchema.pre('findOneAndUpdate', async function (next) {
 
   // Upsert form: findOneAndUpdate(filter, { $setOnInsert: { password: '...' } }, { upsert: true })
   if (update.$setOnInsert?.password) {
-    update.$setOnInsert.password = await hashPassword(update.$setOnInsert.password as string);
+    update.$setOnInsert.password = await hashPassword(
+      update.$setOnInsert.password as string,
+    );
   }
 
   next();

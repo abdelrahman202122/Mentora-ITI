@@ -118,10 +118,10 @@ export type CancelBookingInput = z.infer<typeof cancelBookingSchema>;
  * Schema for confirming a completed session with the learner-provided code
  */
 export const confirmBookingCodeSchema = z.object({
-  confirmationCode: z
+  code: z
     .string()
     .trim()
-    .min(6, 'Confirmation code must be at least 6 characters')
+    .min(1, 'Confirmation code is required')
     .max(64, 'Confirmation code cannot exceed 64 characters'),
 });
 

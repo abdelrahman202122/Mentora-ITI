@@ -1,0 +1,3308 @@
+openapi: 3.0.0
+info:
+  title: Mentora
+  version: 1.0.0
+  description: ''
+servers:
+  - url: 'http://localhost:4200/'
+paths:
+  /api/users/register:
+    post:
+      summary: Register
+      responses:
+        '201':
+          description: Register
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            RateLimit-Policy:
+              schema:
+                type: string
+              example: 10;w=900
+            RateLimit-Limit:
+              schema:
+                type: integer
+              example: 10
+            RateLimit-Remaining:
+              schema:
+                type: integer
+              example: 9
+            RateLimit-Reset:
+              schema:
+                type: integer
+              example: 900
+            Set-Cookie:
+              schema:
+                type: string
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 157
+            ETag:
+              schema:
+                type: string
+              example: W/"9d-8OZLsYo4y8Eg+881hL1OuZh8iXg"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 09:35:48 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: color
+            example:
+              name: verina
+              email: verina@test.com
+              password: '123456'
+  /api/users/login:
+    post:
+      summary: Login
+      responses:
+        '200':
+          description: Login
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            RateLimit-Policy:
+              schema:
+                type: string
+              example: 10;w=900
+            RateLimit-Limit:
+              schema:
+                type: integer
+              example: 10
+            RateLimit-Remaining:
+              schema:
+                type: integer
+              example: 9
+            RateLimit-Reset:
+              schema:
+                type: integer
+              example: 867
+            Set-Cookie:
+              schema:
+                type: string
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 116
+            ETag:
+              schema:
+                type: string
+              example: W/"74-w7jm70ogDKk2nqMsFbuosc2Pb90"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 09:36:21 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: color
+            example:
+              email: verina@test.com
+              password: '123456'
+  /api/users/refresh-token:
+    post:
+      summary: Refresh Token
+      responses:
+        '200':
+          description: Refresh Token
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            RateLimit-Policy:
+              schema:
+                type: string
+              example: 10;w=900
+            RateLimit-Limit:
+              schema:
+                type: integer
+              example: 10
+            RateLimit-Remaining:
+              schema:
+                type: integer
+              example: 9
+            RateLimit-Reset:
+              schema:
+                type: integer
+              example: 900
+            Set-Cookie:
+              schema:
+                type: string
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 16
+            ETag:
+              schema:
+                type: string
+              example: W/"10-oV4hJxRVSENxc/wX8+mA4/Pe4tA"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:06:57 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+  /api/users/logout:
+    post:
+      summary: Logout
+      responses:
+        '200':
+          description: Logout
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Set-Cookie:
+              schema:
+                type: string
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 52
+            ETag:
+              schema:
+                type: string
+              example: W/"34-RTw5tHxjaaqEcEVbesn1aQCzRls"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:07:12 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+  /api/tutors/{tutorId}/profile:
+    get:
+      summary: Get Tutor Profile
+      responses:
+        '200':
+          description: Get Tutor Profile
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 787
+            ETag:
+              schema:
+                type: string
+              example: W/"313-ry3rChgmLy/gv8kuFrMzqMTlJRM"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:15:42 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+    parameters:
+      - name: tutorId
+        in: path
+        required: true
+        deprecated: false
+        schema:
+          type: string
+        example: 6a3118f309d47a8f9199ee35
+  /api/tutors/{tutorId}/availability:
+    get:
+      summary: Get Tutor Availability
+      responses:
+        '200':
+          description: Get Tutor Availability
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 453
+            ETag:
+              schema:
+                type: string
+              example: W/"1c5-Iwzuzr/TZ6fxvoKnPz3eNAwMW/k"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:20:27 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+    parameters:
+      - name: tutorId
+        in: path
+        required: true
+        deprecated: false
+        schema: {}
+        example: 6a3118f309d47a8f9199ee35
+  /api/tutors/{tutorId}/subjects:
+    get:
+      summary: Get All Tutor Subjects
+      responses:
+        '200':
+          description: Get All Tutor Subjects
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 928
+            ETag:
+              schema:
+                type: string
+              example: W/"3a0-4kLyeilP/U7oAn3i6LEowugB5XU"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:46:38 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+    parameters:
+      - name: tutorId
+        in: path
+        required: true
+        deprecated: false
+        schema: {}
+        example: 6a3118f309d47a8f9199ee35
+  /api/tutors/{tutorId}/subjects/{subjectId}:
+    get:
+      summary: Get Tutor Subjects by Id
+      responses:
+        '200':
+          description: Get Tutor Subjects by Id
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 508
+            ETag:
+              schema:
+                type: string
+              example: W/"1fc-HA8Od7s6pP4BR9+myaoU7nJxwEo"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:46:49 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+    parameters:
+      - name: tutorId
+        in: path
+        required: true
+        deprecated: false
+        schema: {}
+        example: 6a3118f309d47a8f9199ee35
+      - name: subjectId
+        in: path
+        required: true
+        deprecated: false
+        schema: {}
+        example: 6a3128a609d47a8f9199ee63
+  /api/tutors/me/profile:
+    post:
+      summary: Create Tutor Profile
+      responses:
+        '201':
+          description: Create Tutor Profile
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Set-Cookie:
+              schema:
+                type: string
+              example: refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 672
+            ETag:
+              schema:
+                type: string
+              example: W/"2a0-2RiP8G49P7K5l7Mscf+sO+6jn1A"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:14:42 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                headline:
+                  type: string
+                bio:
+                  type: string
+                languages:
+                  type: array
+                  items:
+                    type: string
+                hourlyRate:
+                  type: integer
+                education:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      degree:
+                        type: string
+                      field:
+                        type: string
+                      institution:
+                        type: string
+                      graduationYear:
+                        type: integer
+                experience:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      startYear:
+                        type: integer
+                      startMonth:
+                        type: integer
+                      endYear:
+                        nullable: true
+                      endMonth:
+                        nullable: true
+                      isCurrent:
+                        type: boolean
+            example:
+              headline: Web Development Instructor
+              bio: >-
+                Hi! I'm Verina. I'm an ITI Trainee. I teach full-stack web
+                development.
+              languages:
+                - en
+                - ar
+              hourlyRate: 100
+              education:
+                - degree: Bachelor's Degree
+                  field: CS
+                  institution: Alexandria University
+                  graduationYear: 2025
+              experience:
+                - title: ITI Trainee
+                  startYear: 2026
+                  startMonth: 1
+                  endYear: null
+                  endMonth: null
+                  isCurrent: true
+    patch:
+      summary: Update Tutor Profile
+      responses:
+        '200':
+          description: Update Tutor Profile
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 787
+            ETag:
+              schema:
+                type: string
+              example: W/"313-wchpgei72DzYKmL6l7Pwl1w1kEc"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:15:26 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                languages:
+                  type: array
+                  items:
+                    type: string
+                hourlyRate:
+                  type: integer
+                experience:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      startYear:
+                        type: integer
+                      startMonth:
+                        type: integer
+                      endYear:
+                        type: integer
+                      endMonth:
+                        type: integer
+                      isCurrent:
+                        type: boolean
+            example:
+              languages:
+                - en
+                - ar
+                - fr
+              hourlyRate: 120
+              experience:
+                - title: ITI Trainee
+                  startYear: 2026
+                  startMonth: 1
+                  endYear: 2026
+                  endMonth: 6
+                  isCurrent: false
+                - title: Freelance Developer
+                  startYear: 2026
+                  startMonth: 6
+                  endYear: null
+                  endMonth: null
+                  isCurrent: true
+  /api/tutors/me/availability:
+    post:
+      summary: Create Tutor Availability
+      responses:
+        '201':
+          description: Create Tutor Availability
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 414
+            ETag:
+              schema:
+                type: string
+              example: W/"19e-zcCNnlvcPV98clS2LR2vQNpOUdE"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:19:07 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slots:
+                  type: object
+                  properties:
+                    monday:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          startTime:
+                            type: string
+                            format: style
+                          endTime:
+                            type: string
+                    wednesday:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          startTime:
+                            type: string
+                            format: style
+                          endTime:
+                            type: string
+            example:
+              slots:
+                monday:
+                  - startTime: '10:00'
+                    endTime: '12:00'
+                  - startTime: '14:30'
+                    endTime: '19:00'
+                wednesday:
+                  - startTime: '16:00'
+                    endTime: '20:00'
+    put:
+      summary: Update Tutor Availability
+      responses:
+        '200':
+          description: Update Tutor Availability
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 453
+            ETag:
+              schema:
+                type: string
+              example: W/"1c5-JtvgnkBkHNTjsPsz5ebqoo0gkBo"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:20:06 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slots:
+                  type: object
+                  properties:
+                    monday:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          startTime:
+                            type: string
+                            format: style
+                          endTime:
+                            type: string
+                    wednesday:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          startTime:
+                            type: string
+                            format: style
+                          endTime:
+                            type: string
+                    friday:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          startTime:
+                            type: string
+                            format: style
+                          endTime:
+                            type: string
+            example:
+              slots:
+                monday:
+                  - startTime: '10:00'
+                    endTime: '12:00'
+                  - startTime: '14:30'
+                    endTime: '19:00'
+                wednesday:
+                  - startTime: '16:00'
+                    endTime: '20:00'
+                friday:
+                  - startTime: '10:00'
+                    endTime: '12:00'
+  /api/tutors/me/subjects:
+    post:
+      summary: Create Tutor Subject
+      responses:
+        '201':
+          description: Create Tutor Subject
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 502
+            ETag:
+              schema:
+                type: string
+              example: W/"1f6-7j6vEy/vJMLj6fmVzdf3mqV03BQ"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:42:47 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                educationLevel:
+                  type: string
+                curriculum:
+                  type: string
+                gradeNote:
+                  type: string
+            example:
+              category: mathematics
+              title: Introduction to Algebra
+              description: >-
+                Learn the fundamentals of algebra, including variables,
+                expressions, equations, and basic problem-solving techniques.
+              educationLevel: preparatory
+              curriculum: national_new
+              gradeNote: Grade 8
+  /api/tutors/me/subjects/{subjectId}:
+    put:
+      summary: Update Tutor Subject
+      responses:
+        '200':
+          description: Update Tutor Subject
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 508
+            ETag:
+              schema:
+                type: string
+              example: W/"1fc-ZWhGRN2rO5/5/McktTfCwRbq+0w"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:45:58 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                educationLevel:
+                  type: string
+                curriculum:
+                  type: string
+                gradeNote:
+                  type: string
+            example:
+              category: mathematics
+              title: Introduction to Algebra
+              description: >-
+                Learn the fundamentals of algebra, including variables,
+                expressions, equations, and basic problem-solving techniques.
+              educationLevel: preparatory
+              curriculum: national_new
+              gradeNote: Preparatory 1
+    parameters:
+      - name: subjectId
+        in: path
+        required: true
+        deprecated: false
+        schema: {}
+        example: 6a31280a09d47a8f9199ee61
+    delete:
+      summary: Delete Tutor Subject
+      responses:
+        '200':
+          description: Delete Tutor Subject
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 63
+            ETag:
+              schema:
+                type: string
+              example: W/"3f-3nbZMElYUfvKi25YbSK9i7auY3g"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:47:38 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Tutor
+  /api/metadata/categories:
+    get:
+      summary: Get Subject Categories
+      responses:
+        '200':
+          description: Get Subject Categories
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 890
+            ETag:
+              schema:
+                type: string
+              example: W/"37a-eWrzU+n8NHtc542zK4E8DJnxOS4"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:55:46 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Metadata
+  /api/metadata/education-levels:
+    get:
+      summary: Get Subject Education Levels
+      responses:
+        '200':
+          description: Get Subject Education Levels
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 529
+            ETag:
+              schema:
+                type: string
+              example: W/"211-Z1UjwHFbt+LR2oQJFqjAvsc0AcI"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:56:57 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+      tags:
+        - Metadata
+  /api/metadata/curricula:
+    get:
+      summary: Get Subject Curricula
+      responses:
+        '200':
+          description: Get Subject Curricula
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            ETag:
+              schema:
+                type: string
+              example: W/"86e-VO7pP1QsU/BYuWoLu7oG8IHqOTg"
+            Content-Encoding:
+              schema:
+                type: string
+              example: br
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:57:59 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+            Transfer-Encoding:
+              schema:
+                type: string
+              example: chunked
+      tags:
+        - Metadata
+  /api/health:
+    get:
+      summary: Health
+      responses:
+        '200':
+          description: Health
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+            Content-Length:
+              schema:
+                type: integer
+              example: 127
+            ETag:
+              schema:
+                type: string
+              example: W/"7f-TBfRiuYt85wAy/88c8kMBdgcpqY"
+            Date:
+              schema:
+                type: string
+              example: Tue, 16 Jun 2026 10:58:10 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+              example: timeout=5
+  /api/bookings:
+    post:
+      summary: Create Booking Request
+      description: Creates a new booking request. Accessible only by learners.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Validation or business rule error)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (User not authenticated or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can create bookings or role check failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Duplicate booking or tutor not available)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/me:
+    get:
+      summary: List My Bookings
+      description: Retrieves a paginated list of bookings for the authenticated user (learner or tutor).
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number (starts at 1)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of bookings per page
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Field to sort by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sorting direction
+        - name: bookingStatus
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, confirmed, rejected, completed, canceled, expired]
+          description: Filter bookings by booking status
+        - name: paymentStatus
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [unpaid, pending, paid, failed, refunded]
+          description: Filter bookings by payment status
+        - name: tutorProfileId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          description: Filter bookings by tutor profile ID
+        - name: subjectId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          description: Filter bookings by subject ID
+      responses:
+        '200':
+          description: Bookings retrieved successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingListSuccessResponse'
+        '400':
+          description: Bad Request (Validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}:
+    get:
+      summary: Get Booking by ID
+      description: Retrieves details of a specific booking. Learners and Tutors can only view bookings they are associated with. Admins can view any booking.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      responses:
+        '200':
+          description: Booking retrieved successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (User does not have permission to view this booking)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/accept:
+    patch:
+      summary: Accept Booking Request
+      description: Accept a pending booking request. Can only be completed by the assigned tutor. Generates a confirmation code.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        '200':
+          description: Booking accepted successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format, or booking passed start time)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can accept bookings, or the booking does not belong to the tutor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking status is not pending or has changed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/reject:
+    patch:
+      summary: Reject Booking Request
+      description: Reject a pending booking request. Can only be completed by the assigned tutor.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        '200':
+          description: Booking rejected successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can reject bookings, or the booking does not belong to the tutor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking status is not pending or has changed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/cancel:
+    patch:
+      summary: Cancel Booking
+      description: Cancel a confirmed booking before it starts. Accessible by either the learner or the tutor of the booking.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelBookingRequest'
+      responses:
+        '200':
+          description: Booking canceled successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format, or booking has already started)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners and tutors can cancel bookings, or the booking does not belong to the user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Only confirmed bookings can be canceled)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/confirm-code:
+    post:
+      summary: Confirm Booking Completion by Code
+      description: Verifies the completion of a confirmed session using the confirmation code provided by the learner. Accessible only by the assigned tutor.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmBookingCodeRequest'
+      responses:
+        '200':
+          description: Booking confirmed successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format, or booking does not have a confirmation code)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (Invalid confirmation code)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can confirm booking completion, or the booking does not belong to the tutor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking status is not confirmed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+  schemas:
+    Booking:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        learnerId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4568'
+        tutorId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        tutorProfileId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        subjectId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4571'
+        startAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T10:00:00.000Z'
+        endAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T11:00:00.000Z'
+        durationMinutes:
+          type: integer
+          minimum: 15
+          maximum: 480
+          example: 60
+        price:
+          type: number
+          minimum: 0
+          example: 150.5
+        currency:
+          type: string
+          enum: [EGP, USD, EUR]
+          example: EGP
+        bookingStatus:
+          type: string
+          enum: [pending, confirmed, rejected, completed, canceled, expired]
+          example: pending
+        paymentStatus:
+          type: string
+          enum: [unpaid, pending, paid, failed, refunded]
+          example: unpaid
+        confirmationCode:
+          type: string
+          nullable: true
+          example: 'A1B2C3'
+          description: Decrypted confirmation code. Returned for Admin always, for Learner only after payment is paid, and never returned to Tutor.
+        confirmationCodeUsedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-07-20T11:05:00.000Z'
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-07-20T11:05:00.000Z'
+        canceledAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-07-20T09:00:00.000Z'
+        canceledBy:
+          type: string
+          enum: [tutor, learner]
+          nullable: true
+          example: learner
+        learnerNote:
+          type: string
+          maxLength: 500
+          nullable: true
+          example: 'I would like to focus on calculus basics.'
+        cancelReason:
+          type: string
+          maxLength: 500
+          nullable: true
+          example: 'Sudden emergency arose.'
+        paymentId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          nullable: true
+          example: '60c72b2f9b1d8b2a1c8b4572'
+        reviewId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          nullable: true
+          example: '60c72b2f9b1d8b2a1c8b4573'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-19T00:45:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-19T00:46:00.000Z'
+    CreateBookingRequest:
+      type: object
+      required:
+        - tutorProfileId
+        - subjectId
+        - startAt
+        - endAt
+        - durationMinutes
+      properties:
+        tutorProfileId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        subjectId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4571'
+        startAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T10:00:00.000Z'
+          description: Must be in the future.
+        endAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T11:00:00.000Z'
+          description: Must be after startAt.
+        durationMinutes:
+          type: integer
+          minimum: 15
+          maximum: 480
+          example: 60
+          description: Must match the startAt and endAt interval.
+        learnerNote:
+          type: string
+          maxLength: 500
+          example: 'I would like to focus on calculus basics.'
+    CancelBookingRequest:
+      type: object
+      properties:
+        cancelReason:
+          type: string
+          maxLength: 500
+          example: 'Sudden schedule conflict.'
+    ConfirmBookingCodeRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+          example: 'A1B2C3'
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Operation completed successfully.'
+    BookingSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Booking created successfully'
+        data:
+          $ref: '#/components/schemas/Booking'
+    BookingListSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Bookings retrieved successfully'
+        data:
+          type: object
+          required:
+            - bookings
+            - pagination
+          properties:
+            bookings:
+              type: array
+              items:
+                $ref: '#/components/schemas/Booking'
+            pagination:
+              type: object
+              required:
+                - page
+                - limit
+                - total
+                - totalPages
+              properties:
+                page:
+                  type: integer
+                  example: 1
+                limit:
+                  type: integer
+                  example: 10
+                total:
+                  type: integer
+                  example: 15
+                totalPages:
+                  type: integer
+                  example: 2
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: 'An error occurred'
+    ValidationErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+        - errors
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: 'Validation error'
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            tutorProfileId:
+              - 'Invalid ID format'
+            startAt:
+              - 'Start time must be in the future'
