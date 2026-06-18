@@ -1,21 +1,78 @@
-"use client";
+'use client';
 
-import { useActionState } from "react";
-import { BookOpen, GraduationCap, Loader2, Sparkles, UserRound } from "lucide-react";
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { BookOpen, GraduationCap, Loader2, UserRound } from 'lucide-react';
 
-import { registerAction } from "./actions";
-import { Button } from "@/components/ui/button";
+import AuthService from '@/lib/auth-service';
+import { registerSchema } from '@/lib/schemas';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
+type FormErrors = {
+  name?: string[];
+  email?: string[];
+  password?: string[];
+};
+
+type RegisterState = {
+  formError?: string;
+  errors?: FormErrors;
+  success?: string;
+};
 
 export default function RegisterPage() {
-  const [state, action, isPending] = useActionState(registerAction, undefined);
+  const router = useRouter();
+  const [state, setState] = useState<RegisterState>({});
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsPending(true);
+    setState({});
+
+    const formData = new FormData(event.currentTarget);
+    const payload = {
+      name: (formData.get('name')?.toString() ?? '').trim(),
+      email: (formData.get('email')?.toString() ?? '').trim(),
+      password: formData.get('password')?.toString() ?? '',
+      role: (formData.get('role')?.toString() ?? 'learner') as
+        | 'learner'
+        | 'tutor',
+    };
+
+    const validation = registerSchema.safeParse(payload);
+    if (!validation.success) {
+      setState({ errors: validation.error.flatten().fieldErrors });
+      setIsPending(false);
+      return;
+    }
+
+    try {
+      await AuthService.register(validation.data);
+      router.push('/Home');
+    } catch (error: unknown) {
+      const err = error as {
+        message?: string;
+        fieldErrors?: Record<string, string[]>;
+      };
+
+      setState({
+        formError: err.message || 'Registration failed. Please try again.',
+        errors: err.fieldErrors,
+      });
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-slate-950 sm:px-6">
@@ -40,7 +97,7 @@ export default function RegisterPage() {
           </CardHeader>
 
           <CardContent className="px-7 pb-7">
-            <form action={action} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-3">
                 <label className="relative flex h-14 cursor-pointer items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 transition-all hover:border-indigo-300 hover:bg-indigo-50/60 hover:text-indigo-700 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 has-[:checked]:text-indigo-700 has-[:checked]:shadow-sm has-[:checked]:ring-2 has-[:checked]:ring-indigo-500/15">
                   <input
@@ -48,11 +105,10 @@ export default function RegisterPage() {
                     className="peer sr-only"
                     name="role"
                     type="radio"
-                    value="student"
+                    value="learner"
                   />
                   <span className="flex flex-col items-center gap-1 text-xs font-medium">
-                    <UserRound className="size-4" />
-                    I am a Student
+                    <UserRound className="size-4" />I am a Student
                   </span>
                 </label>
 
@@ -61,11 +117,10 @@ export default function RegisterPage() {
                     className="peer sr-only"
                     name="role"
                     type="radio"
-                    value="teacher"
+                    value="tutor"
                   />
                   <span className="flex flex-col items-center gap-1 text-xs font-medium">
-                    <BookOpen className="size-4" />
-                    I am a Teacher
+                    <BookOpen className="size-4" />I am a Teacher
                   </span>
                 </label>
               </div>
@@ -75,7 +130,9 @@ export default function RegisterPage() {
                 type="button"
                 variant="outline"
               >
-                <span className="mr-1 text-base font-semibold text-blue-600">G</span>
+                <span className="mr-1 text-base font-semibold text-blue-600">
+                  G
+                </span>
                 Continue with Google
               </Button>
 
@@ -87,9 +144,18 @@ export default function RegisterPage() {
                 <div className="h-px flex-1 bg-slate-200" />
               </div>
 
+              {state?.formError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                  {state.formError}
+                </div>
+              )}
+
               <div className="space-y-4">
                 <FieldError message={state?.errors?.name?.[0]}>
-                  <label className="text-xs font-semibold text-slate-700" htmlFor="name">
+                  <label
+                    className="text-xs font-semibold text-slate-700"
+                    htmlFor="name"
+                  >
                     Full name
                   </label>
                   <Input
@@ -101,7 +167,10 @@ export default function RegisterPage() {
                 </FieldError>
 
                 <FieldError message={state?.errors?.email?.[0]}>
-                  <label className="text-xs font-semibold text-slate-700" htmlFor="email">
+                  <label
+                    className="text-xs font-semibold text-slate-700"
+                    htmlFor="email"
+                  >
                     Email address
                   </label>
                   <Input
@@ -141,22 +210,18 @@ export default function RegisterPage() {
                     Creating account
                   </>
                 ) : (
-                  "Sign Up"
+                  'Sign Up'
                 )}
               </Button>
 
-              {state?.success && (
-                <div className="flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
-                  <Sparkles className="size-4" />
-                  Account created successfully.
-                </div>
-              )}
-
               <p className="text-center text-sm text-slate-600">
-                Already have an account?{" "}
-                <a className="font-semibold text-indigo-600 hover:text-indigo-700" href="/Login">
+                Already have an account?{' '}
+                <Link
+                  className="font-semibold text-indigo-600 hover:text-indigo-700"
+                  href="/Login"
+                >
                   Log In
-                </a>
+                </Link>
               </p>
             </form>
           </CardContent>
@@ -176,7 +241,9 @@ function FieldError({
   return (
     <div>
       {children}
-      {message && <p className="mt-2 text-xs font-medium text-red-600">{message}</p>}
+      {message && (
+        <p className="mt-2 text-xs font-medium text-red-600">{message}</p>
+      )}
     </div>
   );
 }

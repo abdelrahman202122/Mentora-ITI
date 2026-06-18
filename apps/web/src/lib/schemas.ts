@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const userRoles = ["student", "teacher"] as const;
+export const userRoles = ["learner", "tutor"] as const;
 
 export const registerSchema = z.object({
   email: z.email("Email not valid"),

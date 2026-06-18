@@ -24,6 +24,10 @@ export const registerSchema = z.object({
       required_error: 'Password is required',
     })
     .min(6, 'Password must be at least 6 characters'),
+  role: z
+    .nativeEnum(UserRole)
+    .optional()
+    .default(UserRole.LEARNER),
 });
 
 export const loginSchema = z.object({

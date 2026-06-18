@@ -34,7 +34,7 @@ export const register = async (
       name: data.name,
       email: data.email,
       password: data.password,
-      role: UserRole.LEARNER,
+      role: data.role,
     });
 
     const accessToken =

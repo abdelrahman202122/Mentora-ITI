@@ -5,10 +5,11 @@ import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const hasNextAuth = !!req.auth;
+  const hasApiSession = !!req.cookies.get("accessToken")?.value;
   const mockSessionCookie = req.cookies.get(MOCK_SESSION_COOKIE)?.value;
   const verifiedUserId = mockSessionCookie ? verifySession(mockSessionCookie) : null;
   const isMockLoggedIn = verifiedUserId ? isUserIdValidSync(verifiedUserId) : false;
-  const isLoggedIn = hasNextAuth || isMockLoggedIn;
+  const isLoggedIn = hasNextAuth || hasApiSession || isMockLoggedIn;
   const { nextUrl } = req;
 
   const isAuthRoute =

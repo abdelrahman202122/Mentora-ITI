@@ -1,0 +1,11 @@
+
+> api@0.1.0 dev
+> tsx watch src/server.ts
+
+Connecting to MongoDB...
+MongoDB connected
+12:08:45 AM [tsx] change in ./src\config\redis.ts Restarting...
+cConnecting to MongoDB...
+MongoDB connected
+Socket.IO initialized
+[2026-06-18T21:08:51.110Z] [32minfo[39m: Server started on http://localhost:4000

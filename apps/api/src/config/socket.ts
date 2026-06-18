@@ -5,7 +5,7 @@ import { type RedisClientType } from 'redis';
 import { Server as SocketServer } from 'socket.io';
 
 import { env } from './env.js';
-import { getRedisClient } from './redis.js';
+import { getRedisClient, isRedisAvailable } from './redis.js';
 import { registerChatSocketHandlers } from '../modules/chats/chat.socket.js';
 
 let io: SocketServer | null = null;
@@ -20,24 +20,28 @@ export async function initializeSocketServer(server: HttpServer) {
   });
   io = socketServer;
 
-  const redisPublisher = getRedisClient();
-  socketRedisSubscriber = redisPublisher.duplicate();
+  if (isRedisAvailable()) {
+    const redisPublisher = getRedisClient();
+    socketRedisSubscriber = redisPublisher.duplicate();
 
-  try {
-    await socketRedisSubscriber.connect();
-    socketServer.adapter(createAdapter(redisPublisher, socketRedisSubscriber));
-  } catch (error) {
     try {
-      if (socketRedisSubscriber.isOpen) {
-        await socketRedisSubscriber.quit();
+      await socketRedisSubscriber.connect();
+      socketServer.adapter(createAdapter(redisPublisher, socketRedisSubscriber));
+    } catch (error) {
+      try {
+        if (socketRedisSubscriber.isOpen) {
+          await socketRedisSubscriber.quit();
+        }
+      } catch (disconnectError) {
+        console.error('Failed to close Socket.IO Redis subscriber', disconnectError);
+      } finally {
+        socketRedisSubscriber = undefined;
       }
-    } catch (disconnectError) {
-      console.error('Failed to close Socket.IO Redis subscriber', disconnectError);
-    } finally {
-      socketRedisSubscriber = undefined;
-    }
 
-    throw error;
+      throw error;
+    }
+  } else {
+    console.warn('Socket.IO Redis adapter disabled because Redis is unavailable.');
   }
 
   socketServer.on('connection', (socket) => {

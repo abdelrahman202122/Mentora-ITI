@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/JWT.js';
+import { UserRole } from '../modules/users/user.interface.js';
 
 export const authMiddleware = (
   req: Request,
@@ -19,7 +20,7 @@ export const authMiddleware = (
 
     const decoded = verifyAccessToken(token) as {
       userId: string;
-      role: string;
+      role: UserRole;
     };
 
     req.user = {
