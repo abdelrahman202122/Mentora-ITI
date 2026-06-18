@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 
 import { loginSchema } from "@/lib/schemas";
@@ -12,6 +13,17 @@ type LoginResponse = {
     role: string;
   };
 };
+
+const ACCESS_TOKEN_REFRESH_BUFFER_MS = 30_000;
+const refreshRequests = new Map<string, Promise<JWT>>();
+
+function getApiUrl(): string {
+  return (
+    process.env.API_URL ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    "http://localhost:4000/api"
+  ).replace(/\/$/, "");
+}
 
 function getSetCookieHeaders(headers: Headers): string[] {
   const headersWithGetSetCookie = headers as Headers & {
@@ -56,6 +68,70 @@ function getJwtExpiry(token: string): number {
   return Date.now() + 15 * 60 * 1000;
 }
 
+async function requestNewTokens(token: JWT): Promise<JWT> {
+  if (!token.refreshToken) {
+    return { ...token, error: "RefreshAccessTokenError" };
+  }
+
+  const response = await fetch(`${getApiUrl()}/users/refresh-token`, {
+    method: "POST",
+    headers: {
+      Cookie: `refreshToken=${encodeURIComponent(token.refreshToken)}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Token refresh failed with status ${response.status}`);
+  }
+
+  const accessToken = getCookieValue(response.headers, "accessToken");
+  const refreshToken = getCookieValue(response.headers, "refreshToken");
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("Token refresh response did not include both tokens");
+  }
+
+  return {
+    ...token,
+    accessToken,
+    refreshToken,
+    accessTokenExpires: getJwtExpiry(accessToken),
+    error: undefined,
+  };
+}
+
+function refreshAccessToken(token: JWT): Promise<JWT> {
+  if (!token.refreshToken) {
+    return Promise.resolve({ ...token, error: "RefreshAccessTokenError" });
+  }
+
+  const existingRequest = refreshRequests.get(token.refreshToken);
+
+  if (existingRequest) {
+    return existingRequest;
+  }
+
+  const refreshToken = token.refreshToken;
+  const request = requestNewTokens(token).catch((error: unknown) => {
+    console.error(
+      "Failed to refresh access token",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+
+    return { ...token, error: "RefreshAccessTokenError" as const };
+  });
+
+  refreshRequests.set(refreshToken, request);
+  void request.finally(() => {
+    if (refreshRequests.get(refreshToken) === request) {
+      refreshRequests.delete(refreshToken);
+    }
+  });
+
+  return request;
+}
+
 export const { auth, handlers, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
@@ -73,11 +149,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const apiUrl =
-          process.env.API_URL ??
-          process.env.NEXT_PUBLIC_API_URL ??
-          "http://localhost:4000/api";
-        const response = await fetch(`${apiUrl.replace(/\/$/, "")}/users/login`, {
+        const response = await fetch(`${getApiUrl()}/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -115,15 +187,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
         token.accessTokenExpires = user.accessTokenExpires;
+        return token;
       }
 
-      return token;
+      if (
+        token.accessTokenExpires &&
+        Date.now() < token.accessTokenExpires - ACCESS_TOKEN_REFRESH_BUFFER_MS
+      ) {
+        return token;
+      }
+
+      return refreshAccessToken(token);
     },
     session({ session, token }) {
       if (session.user) {
         session.user.id = token.userId ?? token.sub ?? "";
         session.user.role = token.role ?? "";
       }
+
+      session.error = token.error;
 
       return session;
     },

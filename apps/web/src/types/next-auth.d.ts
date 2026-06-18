@@ -13,6 +13,7 @@ declare module "next-auth" {
       id: string;
       role?: string;
     } & NonNullable<DefaultSession["user"]>;
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -23,6 +24,7 @@ declare module "next-auth/jwt" {
     accessToken?: string;
     refreshToken?: string;
     accessTokenExpires?: number;
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -33,5 +35,6 @@ declare module "@auth/core/jwt" {
     accessToken?: string;
     refreshToken?: string;
     accessTokenExpires?: number;
+    error?: "RefreshAccessTokenError";
   }
 }
