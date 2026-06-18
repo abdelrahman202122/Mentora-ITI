@@ -121,6 +121,7 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
         errorCode = parsed.error?.code ?? null;
         errorType = parsed.error?.type ?? null;
       } catch {
+        errorCode = 'unknown';
         errorType = 'unknown';
       }
 
@@ -175,7 +176,7 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
       latencyMs: Date.now() - startedAt,
       promptMessagesCount: input.messages.length,
       errorCode: 'provider_failed',
-      errorType: error instanceof Error ? error.message : 'unknown',
+      errorType: 'exception',
     });
 
     return {
