@@ -3,9 +3,11 @@ import { TutorProfileData } from "../tutorTypes/profile";
 
 export async function getTutorProfile(tutorId: string): Promise<TutorProfileData> {
   try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
     const options = {
-      url: `http://localhost:3000/data/tutorProfile.json`,
+      url: `${baseUrl}/data/tutorProfile.json`,
       method: "get",
+      timeout: 5000,
     };
 
     const { data } = (await axios.request(options)).data;
