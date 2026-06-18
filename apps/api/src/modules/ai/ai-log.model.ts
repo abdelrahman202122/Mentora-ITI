@@ -48,6 +48,7 @@ const aiLogSchema = new Schema(
     },
     errorStatus: {
       type: Number,
+      min: 100,
       default: null,
     },
     errorCode: {

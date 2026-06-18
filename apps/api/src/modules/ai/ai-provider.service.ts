@@ -127,6 +127,7 @@ const OPENAI_TIMEOUT_MS = 10_000;
         errorCode = parsed.error?.code ?? null;
         errorType = parsed.error?.type ?? null;
       } catch {
+        errorCode = 'unknown';
         errorType = 'unknown';
       }
 
@@ -181,7 +182,7 @@ const OPENAI_TIMEOUT_MS = 10_000;
       latencyMs: Date.now() - startedAt,
       promptMessagesCount: input.messages.length,
       errorCode: 'provider_failed',
-      errorType: error instanceof Error ? error.message : 'unknown',
+      errorType: 'exception',
     });
 
     return {
