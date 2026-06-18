@@ -2128,3 +2128,1181 @@ paths:
               schema:
                 type: string
               example: timeout=5
+  /api/bookings:
+    post:
+      summary: Create Booking Request
+      description: Creates a new booking request. Accessible only by learners.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Validation or business rule error)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (User not authenticated or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can create bookings or role check failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Duplicate booking or tutor not available)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/me:
+    get:
+      summary: List My Bookings
+      description: Retrieves a paginated list of bookings for the authenticated user (learner or tutor).
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number (starts at 1)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of bookings per page
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Field to sort by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sorting direction
+        - name: bookingStatus
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, confirmed, rejected, completed, canceled, expired]
+          description: Filter bookings by booking status
+        - name: paymentStatus
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [unpaid, pending, paid, failed, refunded]
+          description: Filter bookings by payment status
+        - name: tutorProfileId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          description: Filter bookings by tutor profile ID
+        - name: subjectId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          description: Filter bookings by subject ID
+      responses:
+        '200':
+          description: Bookings retrieved successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingListSuccessResponse'
+        '400':
+          description: Bad Request (Validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}:
+    get:
+      summary: Get Booking by ID
+      description: Retrieves details of a specific booking. Learners and Tutors can only view bookings they are associated with. Admins can view any booking.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      responses:
+        '200':
+          description: Booking retrieved successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (User does not have permission to view this booking)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/accept:
+    patch:
+      summary: Accept Booking Request
+      description: Accept a pending booking request. Can only be completed by the assigned tutor. Generates a confirmation code.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        '200':
+          description: Booking accepted successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format, or booking passed start time)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can accept bookings, or the booking does not belong to the tutor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking status is not pending or has changed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/reject:
+    patch:
+      summary: Reject Booking Request
+      description: Reject a pending booking request. Can only be completed by the assigned tutor.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        '200':
+          description: Booking rejected successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can reject bookings, or the booking does not belong to the tutor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking status is not pending or has changed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/cancel:
+    patch:
+      summary: Cancel Booking
+      description: Cancel a confirmed booking before it starts. Accessible by either the learner or the tutor of the booking.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelBookingRequest'
+      responses:
+        '200':
+          description: Booking canceled successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format, or booking has already started)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners and tutors can cancel bookings, or the booking does not belong to the user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Only confirmed bookings can be canceled)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/bookings/{bookingId}/confirm-code:
+    post:
+      summary: Confirm Booking Completion by Code
+      description: Verifies the completion of a confirmed session using the confirmation code provided by the learner. Accessible only by the assigned tutor.
+      tags:
+        - Bookings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+          description: The 24-character hex MongoDB ObjectId of the booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmBookingCodeRequest'
+      responses:
+        '200':
+          description: Booking confirmed successfully
+          headers:
+            Content-Security-Policy:
+              schema:
+                type: string
+              example: >-
+                default-src 'self';base-uri 'self';font-src 'self' https:
+                data:;form-action 'self';frame-ancestors 'self';img-src 'self'
+                data:;object-src 'none';script-src 'self';script-src-attr
+                'none';style-src 'self' https:
+                'unsafe-inline';upgrade-insecure-requests
+            Cross-Origin-Opener-Policy:
+              schema:
+                type: string
+              example: same-origin
+            Origin-Agent-Cluster:
+              schema:
+                type: string
+              example: '?1'
+            Referrer-Policy:
+              schema:
+                type: string
+              example: no-referrer
+            Strict-Transport-Security:
+              schema:
+                type: string
+              example: max-age=31536000; includeSubDomains
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            X-DNS-Prefetch-Control:
+              schema:
+                type: string
+              example: 'off'
+            X-Download-Options:
+              schema:
+                type: string
+              example: noopen
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Permitted-Cross-Domain-Policies:
+              schema:
+                type: string
+              example: none
+            X-XSS-Protection:
+              schema:
+                type: integer
+              example: 0
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: http://localhost:3000
+            Vary:
+              schema:
+                type: string
+              example: Origin, Accept-Encoding
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+              example: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format, or booking does not have a confirmation code)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (Invalid confirmation code)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can confirm booking completion, or the booking does not belong to the tutor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking status is not confirmed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+  schemas:
+    Booking:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        learnerId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4568'
+        tutorId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        tutorProfileId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        subjectId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4571'
+        startAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T10:00:00.000Z'
+        endAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T11:00:00.000Z'
+        durationMinutes:
+          type: integer
+          minimum: 15
+          maximum: 480
+          example: 60
+        price:
+          type: number
+          minimum: 0
+          example: 150.5
+        currency:
+          type: string
+          enum: [EGP, USD, EUR]
+          example: EGP
+        bookingStatus:
+          type: string
+          enum: [pending, confirmed, rejected, completed, canceled, expired]
+          example: pending
+        paymentStatus:
+          type: string
+          enum: [unpaid, pending, paid, failed, refunded]
+          example: unpaid
+        confirmationCode:
+          type: string
+          nullable: true
+          example: 'A1B2C3'
+          description: Decrypted confirmation code. Returned for Admin always, for Learner only after payment is paid, and never returned to Tutor.
+        confirmationCodeUsedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-07-20T11:05:00.000Z'
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-07-20T11:05:00.000Z'
+        canceledAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-07-20T09:00:00.000Z'
+        canceledBy:
+          type: string
+          enum: [tutor, learner]
+          nullable: true
+          example: learner
+        learnerNote:
+          type: string
+          maxLength: 500
+          nullable: true
+          example: 'I would like to focus on calculus basics.'
+        cancelReason:
+          type: string
+          maxLength: 500
+          nullable: true
+          example: 'Sudden emergency arose.'
+        paymentId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          nullable: true
+          example: '60c72b2f9b1d8b2a1c8b4572'
+        reviewId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          nullable: true
+          example: '60c72b2f9b1d8b2a1c8b4573'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-19T00:45:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-19T00:46:00.000Z'
+    CreateBookingRequest:
+      type: object
+      required:
+        - tutorProfileId
+        - subjectId
+        - startAt
+        - endAt
+        - durationMinutes
+      properties:
+        tutorProfileId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        subjectId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4571'
+        startAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T10:00:00.000Z'
+          description: Must be in the future.
+        endAt:
+          type: string
+          format: date-time
+          example: '2026-07-20T11:00:00.000Z'
+          description: Must be after startAt.
+        durationMinutes:
+          type: integer
+          minimum: 15
+          maximum: 480
+          example: 60
+          description: Must match the startAt and endAt interval.
+        learnerNote:
+          type: string
+          maxLength: 500
+          example: 'I would like to focus on calculus basics.'
+    CancelBookingRequest:
+      type: object
+      properties:
+        cancelReason:
+          type: string
+          maxLength: 500
+          example: 'Sudden schedule conflict.'
+    ConfirmBookingCodeRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+          example: 'A1B2C3'
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Operation completed successfully.'
+    BookingSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Booking created successfully'
+        data:
+          $ref: '#/components/schemas/Booking'
+    BookingListSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Bookings retrieved successfully'
+        data:
+          type: object
+          required:
+            - bookings
+            - pagination
+          properties:
+            bookings:
+              type: array
+              items:
+                $ref: '#/components/schemas/Booking'
+            pagination:
+              type: object
+              required:
+                - page
+                - limit
+                - total
+                - totalPages
+              properties:
+                page:
+                  type: integer
+                  example: 1
+                limit:
+                  type: integer
+                  example: 10
+                total:
+                  type: integer
+                  example: 15
+                totalPages:
+                  type: integer
+                  example: 2
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: 'An error occurred'
+    ValidationErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+        - errors
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: 'Validation error'
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            tutorProfileId:
+              - 'Invalid ID format'
+            startAt:
+              - 'Start time must be in the future'
