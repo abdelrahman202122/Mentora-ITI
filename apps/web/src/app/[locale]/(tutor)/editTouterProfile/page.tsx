@@ -1,6 +1,7 @@
 import { Plus , Camera } from "lucide-react";
 import CourseCard from "../../component/CourseCard/CourseCard";
 import Field from "../../component/Field/Field";
+import Link from "next/link";
 export default function EditProfile() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -98,12 +99,14 @@ export default function EditProfile() {
 
         {/* Footer */}
         <footer className="border-t pt-6 text-sm text-muted-foreground flex flex-col md:flex-row justify-between gap-4">
-          <span>© 2024 EduMarket Inc.</span>
+            <span>© {new Date().getFullYear()} EduMarket Inc.</span>
+
 
           <div className="flex gap-6">
-            <a>Privacy</a>
-            <a>Terms</a>
-            <a>Help</a>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/help">Help</Link>
+            
           </div>
         </footer>
 
