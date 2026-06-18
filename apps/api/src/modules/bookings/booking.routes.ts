@@ -12,6 +12,8 @@ import {
   confirmBookingCodeSchema,
 } from '../../validators/booking.js';
 import * as bookingController from './booking.controller.js';
+import { roleMiddleware } from '../../middleware/role.moddleware.js';
+import { UserRole } from '../users/user.interface.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -23,6 +25,7 @@ router.use(authMiddleware);
 router.post(
   '/',
   validate({ body: createBookingSchema }),
+  roleMiddleware(UserRole.LEARNER),
   bookingController.createBooking,
 );
 
@@ -34,6 +37,7 @@ router.post(
 router.get(
   '/me',
   validate({ query: listBookingsSchema }),
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   bookingController.listMyBookings,
 );
 
@@ -45,6 +49,7 @@ router.get(
 router.get(
   '/:bookingId',
   validate({ params: bookingIdSchema }),
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   bookingController.getBookingById,
 );
 
@@ -57,6 +62,7 @@ router.get(
 router.patch(
   '/:bookingId/accept',
   validate({ params: bookingIdSchema, body: acceptBookingSchema }),
+  roleMiddleware(UserRole.TUTOR),
   bookingController.acceptBooking,
 );
 
@@ -69,6 +75,7 @@ router.patch(
 router.patch(
   '/:bookingId/reject',
   validate({ params: bookingIdSchema, body: rejectBookingSchema }),
+  roleMiddleware(UserRole.TUTOR),
   bookingController.rejectBooking,
 );
 
@@ -81,6 +88,7 @@ router.patch(
 router.patch(
   '/:bookingId/cancel',
   validate({ params: bookingIdSchema, body: cancelBookingSchema }),
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   bookingController.cancelBooking,
 );
 
@@ -93,6 +101,7 @@ router.patch(
 router.post(
   '/:bookingId/confirm-code',
   validate({ params: bookingIdSchema, body: confirmBookingCodeSchema }),
+  roleMiddleware(UserRole.TUTOR),
   bookingController.confirmBookingCode,
 );
 

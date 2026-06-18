@@ -141,7 +141,7 @@ function dateToTimeString(date: Date): string {
  * Returns true if time1 <= time2
  */
 function isTimeLeOrEqual(time1: string, time2: string): boolean {
-  return time1.localeCompare(time2) <= 0;
+  return time1 <= time2;
 }
 
 /**
