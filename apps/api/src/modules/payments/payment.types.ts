@@ -32,7 +32,7 @@ export interface CreatePaymentInput {
   learnerId: Types.ObjectId;
   tutorId: Types.ObjectId;
   amount: number;
-  currency: string;
+  currency: 'EGP' | 'USD' | 'EUR';
   provider: 'paymob';
 }
 
