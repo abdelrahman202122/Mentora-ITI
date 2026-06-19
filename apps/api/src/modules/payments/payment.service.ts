@@ -1,37 +1,182 @@
 import type { Types } from 'mongoose';
 import * as paymentRepository from './payment.repository.js';
+import * as bookingRepository from '../bookings/booking.repository.js';
+import { BookingStatus, PaymentStatus as BookingPaymentStatus } from '../bookings/booking.types.js';
+import { PaymentStatus } from './payment.types.js';
+import { NotFoundError, ForbiddenError, ConflictError, AppError } from '../../common/errors/AppError.js';
+import { paymobConfig } from '../../config/paymob.config.js';
+import { DEFAULT_CURRENCY } from './payment.model.js';
 
 /**
  * Payment service handles business logic for payment and Paymob checkout workflows.
  */
 
+// ---------------------------------------------------------------------------
+// Paymob Intention API helpers
+// ---------------------------------------------------------------------------
+
+interface PaymobIntentionResponse {
+  client_secret: string;
+  id: string;
+}
+
+/**
+ * Call the Paymob Intention API to create a payment intention.
+ * Uses the Secret Key for server-to-server authentication.
+ * Returns the client_secret used to build the hosted checkout URL.
+ *
+ * @param amountCents - Amount in the smallest currency unit (cents/piastres)
+ * @param currency    - ISO currency code (e.g. 'EGP')
+ * @param internalOrderId - Our internal reference (payment._id as string)
+ */
+async function createPaymobIntention(
+  amountCents: number,
+  currency: string,
+  internalOrderId: string,
+): Promise<PaymobIntentionResponse> {
+  const url = `${paymobConfig.baseUrl}/v1/intention/`;
+
+  const body = {
+    amount: amountCents,
+    currency,
+    payment_methods: [paymobConfig.integrationId],
+    items: [],
+    billing_data: {},
+    special_reference: internalOrderId,
+    notification_url: '',   // Configured in the Paymob dashboard
+    redirection_url: '',    // Configured in the Paymob dashboard
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${paymobConfig.secretKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new AppError(
+      `Paymob Intention API error (${response.status}): ${errorText}`,
+      502,
+      'PAYMENT_GATEWAY_ERROR',
+    );
+  }
+
+  return response.json() as Promise<PaymobIntentionResponse>;
+}
+
+/**
+ * Build the Paymob Unified Checkout (hosted) URL from a client_secret.
+ */
+function buildCheckoutUrl(clientSecret: string): string {
+  return `${paymobConfig.baseUrl}/unifiedcheckout/?publicKey=${paymobConfig.publicKey}&clientSecret=${clientSecret}`;
+}
+
+// ---------------------------------------------------------------------------
+// Exported service functions
+// ---------------------------------------------------------------------------
+
 /**
  * POST /api/payments/checkout
  * Initiate a Paymob checkout session for a confirmed, unpaid booking.
  *
- * Steps to implement:
+ * Steps:
  * 1. Fetch the booking by bookingId and verify it exists.
- * 2. Verify the requesting learner owns the booking (booking.learnerId === learnerId).
+ * 2. Verify the requesting learner owns the booking.
  * 3. Verify booking.bookingStatus === 'confirmed'.
  * 4. Verify booking.paymentStatus === 'unpaid' or 'failed' (recoverable states).
  * 5. Ensure no existing successful payment already exists for this booking.
  * 6. Derive the payment amount server-side from booking.price (never trust client-provided amount).
  * 7. Create a local payment record via paymentRepository.createPayment with status 'pending'.
- * 8. Call Paymob API to register a payment order using the server-side amount and currency.
- * 9. Request the Paymob payment key / hosted-checkout URL.
- * 10. Save Paymob providerOrderId and providerCheckoutUrl on the local payment record.
+ * 8. Call Paymob Intention API to register a payment order.
+ * 9. Build the hosted-checkout URL from the returned client_secret.
+ * 10. Save Paymob providerOrderId (intention id) and providerCheckoutUrl on the local payment record.
  * 11. Update booking.paymentId with the new payment document ID.
  * 12. Return only frontend-safe checkout data: { paymentId, checkoutUrl } to the controller.
  */
 export async function initiateCheckout(
   bookingId: Types.ObjectId,
   learnerId: Types.ObjectId,
-): Promise<unknown> {
-  // TODO: implement
-  void paymentRepository;
-  void bookingId;
-  void learnerId;
-  throw new Error('initiateCheckout: not yet implemented');
+): Promise<{ paymentId: string; checkoutUrl: string }> {
+  // Step 1: Fetch the booking
+  const booking = await bookingRepository.findBookingById(bookingId);
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  // Step 2: Verify learner ownership
+  if (!booking.learnerId.equals(learnerId)) {
+    throw new ForbiddenError('You do not have permission to pay for this booking');
+  }
+
+  // Step 3: Verify booking is confirmed
+  if (booking.bookingStatus !== BookingStatus.CONFIRMED) {
+    throw new ConflictError(
+      `Only confirmed bookings can be paid. Current booking status: ${booking.bookingStatus}`,
+    );
+  }
+
+  // Step 4: Verify payment status is unpaid or failed (recoverable)
+  const recoverableStatuses: BookingPaymentStatus[] = [
+    BookingPaymentStatus.UNPAID,
+    BookingPaymentStatus.FAILED,
+  ];
+  if (!recoverableStatuses.includes(booking.paymentStatus as BookingPaymentStatus)) {
+    throw new ConflictError(
+      `Cannot initiate checkout. Current payment status: ${booking.paymentStatus}`,
+    );
+  }
+
+  // Step 5: Ensure no existing successful payment exists for this booking
+  const existingPayment = await paymentRepository.findPaymentByBookingId(bookingId);
+  if (existingPayment && existingPayment.status === PaymentStatus.SUCCESS) {
+    throw new ConflictError('This booking has already been paid successfully');
+  }
+
+  // Step 6: Derive amount server-side from booking (never trust client)
+  const amount = booking.price;                              // decimal (e.g. 250.00)
+  const currency = (booking.currency ?? DEFAULT_CURRENCY) as 'EGP' | 'USD' | 'EUR';
+  const amountCents = Math.round(amount * 100);              // Paymob expects smallest unit
+
+  // Step 7: Create a local payment record with status 'pending'
+  const payment = await paymentRepository.createPayment({
+    bookingId,
+    learnerId,
+    tutorId: booking.tutorId,
+    amount,
+    currency,
+    provider: 'paymob',
+  });
+
+  // Step 8: Call Paymob Intention API
+  const intention = await createPaymobIntention(
+    amountCents,
+    currency,
+    (payment._id as Types.ObjectId).toString(),
+  );
+
+  // Step 9: Build the hosted checkout URL
+  const checkoutUrl = buildCheckoutUrl(intention.client_secret);
+
+  // Step 10: Persist the Paymob intention id and checkout URL on the payment record
+  await paymentRepository.updatePaymentById(payment._id as Types.ObjectId, {
+    providerOrderId: intention.id,
+    providerCheckoutUrl: checkoutUrl,
+  });
+
+  // Step 11: Link the payment ID to the booking
+  await bookingRepository.updateBooking(bookingId, {
+    paymentId: payment._id as Types.ObjectId,
+  });
+
+  // Step 12: Return only frontend-safe data
+  return {
+    paymentId: (payment._id as Types.ObjectId).toString(),
+    checkoutUrl,
+  };
 }
 
 /**
