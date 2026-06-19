@@ -1,5 +1,8 @@
-import bcrypt from 'bcryptjs';
 import mongoose, { type Model } from 'mongoose';
+import {
+  encryptConfirmationCode,
+  isEncryptedConfirmationCode,
+} from './confirmation-code.util.js';
 import type { IBooking } from './booking.types.js';
 import {
   BookingStatus,
@@ -10,7 +13,6 @@ const { Schema, model, models } = mongoose;
 
 export const DEFAULT_CURRENCY = 'EGP';
 export const DEFAULT_COMMISSION_RATE = 0.2; // 20%
-const SALT_ROUNDS = 10;
 
 const isValidDuration = (startAt: Date, endAt: Date, durationMinutes: number) =>
   endAt.getTime() - startAt.getTime() === durationMinutes * 60 * 1000;
@@ -125,6 +127,15 @@ const bookingSchema = new Schema<IBooking>(
       type: Date,
       default: undefined,
     },
+    canceledAt: {
+      type: Date,
+      default: undefined,
+    },
+    canceledBy: {
+      type: String,
+      enum: ['tutor', 'learner'],
+      default: undefined,
+    },
     learnerNote: {
       type: String,
       maxlength: [500, 'Learner note cannot exceed 500 characters'],
@@ -163,8 +174,8 @@ bookingSchema.index({ tutorId: 1, bookingStatus: 1 });
 bookingSchema.index({ paymentStatus: 1, bookingStatus: 1 });
 bookingSchema.index({ confirmationCode: 1 }, { sparse: true });
 
-// Pre-save hook to hash confirmation code if it's new
-bookingSchema.pre('save', async function (next) {
+// Pre-save hook to encrypt confirmation codes before persistence
+bookingSchema.pre('save', function (next) {
   if (!this.isModified('confirmationCode')) {
     return next();
   }
@@ -173,9 +184,12 @@ bookingSchema.pre('save', async function (next) {
     return next();
   }
 
+  if (isEncryptedConfirmationCode(this.confirmationCode)) {
+    return next();
+  }
+
   try {
-    const hashed = await bcrypt.hash(this.confirmationCode, SALT_ROUNDS);
-    this.confirmationCode = hashed;
+    this.confirmationCode = encryptConfirmationCode(this.confirmationCode);
     next();
   } catch (error) {
     next(error as Error);

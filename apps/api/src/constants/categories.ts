@@ -28,7 +28,6 @@ export const CATEGORIES = [
     value: 'social_studies',
     en: 'Social Studies',
     ar: 'الدراسات الاجتماعية',
-    icon: '🌍',
   },
   {
     value: 'humanities',

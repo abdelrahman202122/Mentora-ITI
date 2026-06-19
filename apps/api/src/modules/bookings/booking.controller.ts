@@ -11,10 +11,6 @@ const { Types } = mongoose;
  * Booking controller handles HTTP requests for booking operations
  */
 
-function throwNotImplemented(message: string): never {
-  throw new AppError(message, 501, 'NOT_IMPLEMENTED');
-}
-
 /**
  * POST /api/bookings
  * Create a new booking request
@@ -70,7 +66,7 @@ export async function createBooking(
 
 /**
  * GET /api/bookings/me
- * List the authenticated user's bookings
+ * List the authenticated user's bookings (learner or tutor)
  */
 export async function listMyBookings(
   req: Request,
@@ -83,7 +79,51 @@ export async function listMyBookings(
       throw new UnauthorizedError('User not authenticated');
     }
 
-    throwNotImplemented('Listing bookings is not implemented yet');
+    // Get pagination parameters from query
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(
+      1,
+      Math.min(100, parseInt(req.query.limit as string) || 10),
+    );
+
+    // Get filter parameters from query
+    const filters = {
+      bookingStatus: req.query.bookingStatus as string | undefined,
+      paymentStatus: req.query.paymentStatus as string | undefined,
+      tutorProfileId: req.query.tutorProfileId as string | undefined,
+      subjectId: req.query.subjectId as string | undefined,
+    };
+
+    const userRole = req.user.role;
+    const userId = new Types.ObjectId(req.user.userId);
+
+    let result;
+    if (userRole === 'tutor') {
+      result = await bookingService.listTutorBookings(userId, page, limit, {
+        bookingStatus: filters.bookingStatus,
+        paymentStatus: filters.paymentStatus,
+        subjectId: filters.subjectId,
+      });
+    } else if (userRole === 'admin') {
+      result = await bookingService.listAdminBookings(page, limit, filters);
+    } else {
+      result = await bookingService.listLearnerBookings(
+        userId,
+        page,
+        limit,
+        filters,
+      );
+    }
+
+    sendSuccess(res, 200, 'Bookings retrieved successfully', {
+      bookings: result.bookings,
+      pagination: {
+        page: result.page,
+        limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -99,7 +139,23 @@ export async function getBookingById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Getting a booking is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    // Get booking with authorization check
+    const booking = await bookingService.getBookingByIdWithAuth(
+      bookingObjectId,
+      req.user.userId,
+      req.user.role,
+    );
+
+    sendSuccess(res, 200, 'Booking retrieved successfully', booking);
   } catch (error) {
     next(error);
   }
@@ -115,7 +171,28 @@ export async function acceptBooking(
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Accepting a booking is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Validate tutor role
+    bookingService.validateTutorRole({
+      id: req.user.userId,
+      role: req.user.role,
+    });
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    // Accept booking service
+    const booking = await bookingService.acceptBooking(
+      bookingObjectId,
+      req.user.userId,
+    );
+
+    sendSuccess(res, 200, 'Booking accepted successfully', booking);
   } catch (error) {
     next(error);
   }
@@ -126,12 +203,33 @@ export async function acceptBooking(
  * Reject a pending booking request
  */
 export async function rejectBooking(
-  _req: Request,
-  _res: Response,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Rejecting a booking is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Validate tutor role
+    bookingService.validateTutorRole({
+      id: req.user.userId,
+      role: req.user.role,
+    });
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    // Reject booking service
+    const booking = await bookingService.rejectBooking(
+      bookingObjectId,
+      req.user.userId,
+    );
+
+    sendSuccess(res, 200, 'Booking rejected successfully', booking);
   } catch (error) {
     next(error);
   }
@@ -142,12 +240,30 @@ export async function rejectBooking(
  * Cancel a booking before completion
  */
 export async function cancelBooking(
-  _req: Request,
-  _res: Response,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Canceling a booking is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    const { cancelReason } = req.body as { cancelReason?: string };
+
+    const booking = await bookingService.cancelBooking(
+      bookingObjectId,
+      req.user.userId,
+      req.user.role,
+      cancelReason,
+    );
+
+    sendSuccess(res, 200, 'Booking canceled successfully', booking);
   } catch (error) {
     next(error);
   }
@@ -158,12 +274,41 @@ export async function cancelBooking(
  * Confirm session completion with the learner-provided code
  */
 export async function confirmBookingCode(
-  _req: Request,
-  _res: Response,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    throwNotImplemented('Confirming a booking code is not implemented yet');
+    // Validate user is authenticated
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    // Validate tutor role
+    bookingService.validateTutorRole({
+      id: req.user.userId,
+      role: req.user.role,
+    });
+
+    // Get booking ID from params
+    const { bookingId } = req.params as { bookingId: string };
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    // Get confirmation code from request body
+    const { code } = req.body;
+
+    if (!code || typeof code !== 'string' || code.trim().length === 0) {
+      throw new AppError('Confirmation code is required', 400, 'INVALID_INPUT');
+    }
+
+    // Confirm booking code service
+    const booking = await bookingService.confirmBookingCode(
+      bookingObjectId,
+      req.user.userId,
+      code.trim(),
+    );
+
+    sendSuccess(res, 200, 'Booking confirmed successfully', booking);
   } catch (error) {
     next(error);
   }

@@ -1,6 +1,8 @@
 import { Router } from 'express';
 
 import { validate } from '../../middleware/validation.middleware.js';
+import { authMiddleware } from '../../middleware/auth.middleware.js';
+import { authRateLimit } from '../../middleware/rateLimit.middleware.js';
 import {
   createBookingSchema,
   bookingIdSchema,
@@ -11,9 +13,11 @@ import {
   confirmBookingCodeSchema,
 } from '../../validators/booking.js';
 import * as bookingController from './booking.controller.js';
+import { roleMiddleware } from '../../middleware/role.moddleware.js';
+import { UserRole } from '../users/user.interface.js';
 
 const router = Router();
-
+router.use(authMiddleware);
 /**
  * POST /api/bookings
  * Create a new booking request
@@ -21,7 +25,9 @@ const router = Router();
  */
 router.post(
   '/',
+  authRateLimit,
   validate({ body: createBookingSchema }),
+  roleMiddleware(UserRole.LEARNER),
   bookingController.createBooking,
 );
 
@@ -32,7 +38,9 @@ router.post(
  */
 router.get(
   '/me',
+  authRateLimit,
   validate({ query: listBookingsSchema }),
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   bookingController.listMyBookings,
 );
 
@@ -43,7 +51,9 @@ router.get(
  */
 router.get(
   '/:bookingId',
+  authRateLimit,
   validate({ params: bookingIdSchema }),
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   bookingController.getBookingById,
 );
 
@@ -55,7 +65,9 @@ router.get(
  */
 router.patch(
   '/:bookingId/accept',
+  authRateLimit,
   validate({ params: bookingIdSchema, body: acceptBookingSchema }),
+  roleMiddleware(UserRole.TUTOR),
   bookingController.acceptBooking,
 );
 
@@ -67,7 +79,9 @@ router.patch(
  */
 router.patch(
   '/:bookingId/reject',
+  authRateLimit,
   validate({ params: bookingIdSchema, body: rejectBookingSchema }),
+  roleMiddleware(UserRole.TUTOR),
   bookingController.rejectBooking,
 );
 
@@ -79,7 +93,9 @@ router.patch(
  */
 router.patch(
   '/:bookingId/cancel',
+  authRateLimit,
   validate({ params: bookingIdSchema, body: cancelBookingSchema }),
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   bookingController.cancelBooking,
 );
 
@@ -91,7 +107,9 @@ router.patch(
  */
 router.post(
   '/:bookingId/confirm-code',
+  authRateLimit,
   validate({ params: bookingIdSchema, body: confirmBookingCodeSchema }),
+  roleMiddleware(UserRole.TUTOR),
   bookingController.confirmBookingCode,
 );
 
