@@ -17,6 +17,7 @@ import metadataRoutes from './modules/metadata/metadata.routes.js';
 import auditRouter from './modules/audit/audit.route.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import filesRouter from './modules/files/file.routes.js';
+import chatRoutes from './modules/chats/chat.routes.js';
 
 export function createApp() {
   const app = express();
@@ -49,6 +50,7 @@ export function createApp() {
   app.use('/api/audits', auditRouter);
   app.use('/api/ai', aiRoutes);
   app.use('/api/files', filesRouter);
+  app.use('/api/chats', chatRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
