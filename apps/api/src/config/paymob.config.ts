@@ -13,7 +13,7 @@ export const paymobConfig = {
         env.PAYMOB_HMAC_SECRET,
 
     integrationId:
-        env.PATMOB_INTEGRATION_ID,
+        env.PAYMOB_INTEGRATION_ID,
 
     baseUrl:
         "https://accept.paymob.com"
