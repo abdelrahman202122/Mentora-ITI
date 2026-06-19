@@ -47,18 +47,37 @@ async function createPaymobIntention(
     redirection_url: '',    // Configured in the Paymob dashboard
   };
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Token ${paymobConfig.secretKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const TIMEOUT_MS = 10_000;
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${paymobConfig.secretKey}`,
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'TimeoutError') {
+      throw new AppError(
+        `Paymob Intention API timed out after ${TIMEOUT_MS}ms`,
+        504,
+        'PAYMENT_GATEWAY_TIMEOUT',
+      );
+    }
+    throw new AppError(
+      `Paymob Intention API unreachable: ${err instanceof Error ? err.message : String(err)}`,
+      502,
+      'PAYMENT_GATEWAY_UNREACHABLE',
+    );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new AppError(
+
       `Paymob Intention API error (${response.status}): ${errorText}`,
       502,
       'PAYMENT_GATEWAY_ERROR',
