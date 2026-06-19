@@ -1,7 +1,19 @@
-import { Plus , Camera } from "lucide-react";
+
+import { Plus, Camera } from "lucide-react";
 import CourseCard from "../../component/CourseCard/CourseCard";
 import Field from "../../component/Field/Field";
-export default function EditProfile() {
+import Link from "next/link";
+import { getTutorProfile } from "../../services/getTutorProfile";
+
+export default async function EditProfile() {
+  
+  const tutorProfile = await getTutorProfile("1");
+
+  const {
+    headline,
+    bio,
+  } = tutorProfile;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
@@ -44,8 +56,15 @@ export default function EditProfile() {
             <div className="flex-1 space-y-5">
               <div className="grid md:grid-cols-2 gap-5">
 
-                <Field label="Full Name" defaultValue="Dr. Elena Rodriguez" />
-                <Field label="Professional Title" defaultValue="PhD in Applied Linguistics" />
+                <Field
+                  label="Full Name"
+                  defaultValue="Dr. Elena Rodriguez"
+                />
+
+                <Field
+                  label="Professional Title"
+                  defaultValue={headline}
+                />
 
               </div>
 
@@ -53,8 +72,9 @@ export default function EditProfile() {
                 <label className="text-xs font-bold text-muted-foreground uppercase">
                   About Me / Bio
                 </label>
+
                 <textarea
-                  defaultValue="I am a passionate educator with over 15 years of experience..."
+                  defaultValue={bio}
                   className="w-full mt-2 min-h-[120px] rounded-lg border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -68,17 +88,13 @@ export default function EditProfile() {
 
           <div className="grid md:grid-cols-2 gap-6">
 
-            <CourseCard
-              title="Advanced Cognitive Linguistics"
-              rate="85"
-              tag="Linguistics"
-            />
-
-            <CourseCard
-              title="Academic Writing & Ethics"
-              rate="65"
-              tag="Writing"
-            />
+              <CourseCard
+                key="course-1"
+                title="Advanced Cognitive Linguistics"
+                rate="85"
+                tag="Experience"
+                idPrefix="1"
+              />
 
             {/* Add New */}
             <button className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition">
@@ -98,12 +114,12 @@ export default function EditProfile() {
 
         {/* Footer */}
         <footer className="border-t pt-6 text-sm text-muted-foreground flex flex-col md:flex-row justify-between gap-4">
-          <span>© 2024 EduMarket Inc.</span>
+          <span>© {new Date().getFullYear()} EduMarket Inc.</span>
 
           <div className="flex gap-6">
-            <a>Privacy</a>
-            <a>Terms</a>
-            <a>Help</a>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/help">Help</Link>
           </div>
         </footer>
 
@@ -111,5 +127,3 @@ export default function EditProfile() {
     </div>
   );
 }
-
-

@@ -1,5 +1,4 @@
-
-  {
+{
     "data": {
       "_id": "1",
       "userId": "u1",
@@ -39,7 +38,16 @@
           "endYear": 2022,
           "endMonth": 5,
           "isCurrent": false
+        },
+        {
+          "title": "backend Developer",
+          "startYear": 2023,
+          "startMonth": 1,
+          "endYear": 2029,
+          "endMonth": 5,
+          "isCurrent": false
         }
+
       ]
     }
   }
