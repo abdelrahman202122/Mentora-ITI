@@ -3,7 +3,7 @@ import { Plus, Camera } from "lucide-react";
 import CourseCard from "../../component/CourseCard/CourseCard";
 import Field from "../../component/Field/Field";
 import Link from "next/link";
-import { getTutorProfile } from "../../services/gitTutorProfile";
+import { getTutorProfile } from "../../services/getTutorProfile";
 
 export default async function EditProfile() {
   
@@ -93,6 +93,7 @@ export default async function EditProfile() {
                 title="Advanced Cognitive Linguistics"
                 rate="85"
                 tag="Experience"
+                idPrefix="1"
               />
 
             {/* Add New */}

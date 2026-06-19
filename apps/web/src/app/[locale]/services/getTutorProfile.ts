@@ -1,15 +1,16 @@
 import axios from "axios";
 import { TutorProfileData } from "../tutorTypes/profile";
-
+console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
 export async function getTutorProfile(tutorId: string): Promise<TutorProfileData> {
   try {
     const options = {
-      url: `http://localhost:3000/data/tutorProfile.json`,
+      url: `${process.env.NEXT_PUBLIC_APP_BASE_URL}/data/tutorProfile.json`,
       method: "get",
+      timeout: 10000
     };
 
-    const { data } = (await axios.request(options)).data;
-
+    const response = await axios.request(options);
+    const data = response.data.data;
     console.log(data);
     return data as TutorProfileData;
   } catch (error) {

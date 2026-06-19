@@ -4,11 +4,15 @@ export default function CourseCard({
   title,
   rate,
   tag,
+  idPrefix,
 }: {
   title: string;
   rate: string;
   tag: string;
+  idPrefix: string;
 }) {
+  const titleId = `${idPrefix}-course-title`;
+  const rateId = `${idPrefix}-hourly-rate`;
   return (
     <div className="bg-card border border-border rounded-xl p-5 space-y-4 group relative">
 
@@ -24,14 +28,14 @@ export default function CourseCard({
 
       <div>
         <label
-          htmlFor="course-title"
+          htmlFor={titleId}
           className="text-xs text-muted-foreground uppercase font-bold"
         >
           Course Title
         </label>
 
         <input
-          id="course-title"
+          id={titleId}
           defaultValue={title}
           className="w-full text-lg font-bold bg-transparent outline-none"
         />
@@ -40,7 +44,7 @@ export default function CourseCard({
       <div className="flex justify-between items-end">
         <div>
           <label
-            htmlFor="hourly-rate"
+            htmlFor={rateId}
             className="text-xs text-muted-foreground uppercase font-bold"
           >
             Hourly Rate
@@ -48,7 +52,7 @@ export default function CourseCard({
           <div className="flex items-center gap-1 text-primary font-bold text-xl">
             <span>$</span>
             <input
-              id="hourly-rate"
+              id={rateId}
               defaultValue={rate}
               className="w-14 bg-transparent outline-none"
             />
