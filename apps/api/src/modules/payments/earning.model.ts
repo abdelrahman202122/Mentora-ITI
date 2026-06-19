@@ -23,7 +23,10 @@ const earningSchema = new Schema<IEarning>(
     grossAmount: {
       type: Number,
       required: [true, 'Gross amount is required'],
-      min: [0, 'Gross amount cannot be negative'],
+      validate: {
+        validator: (v: number) => v > 0,
+        message: 'Gross amount must be greater than zero',
+      },
     },
     commissionRate: {
       type: Number,
@@ -34,12 +37,18 @@ const earningSchema = new Schema<IEarning>(
     commissionAmount: {
       type: Number,
       required: [true, 'Commission amount is required'],
-      min: [0, 'Commission amount cannot be negative'],
+      validate: {
+        validator: (v: number) => v > 0,
+        message: 'Commission amount must be greater than zero',
+      },
     },
     tutorAmount: {
       type: Number,
       required: [true, 'Tutor amount is required'],
-      min: [0, 'Tutor amount cannot be negative'],
+      validate: {
+        validator: (v: number) => v > 0,
+        message: 'Tutor amount must be greater than zero',
+      },
     },
     currency: {
       type: String,
@@ -66,6 +75,46 @@ const earningSchema = new Schema<IEarning>(
     timestamps: true,
   },
 );
+
+// Schema-level validator: enforce monetary invariants
+// Acceptable floating-point tolerance for currency arithmetic (sub-cent)
+const EPSILON = 0.001;
+
+earningSchema.pre('validate', function (next) {
+  const { grossAmount, commissionRate, commissionAmount, tutorAmount } = this;
+
+  // Only run when all four fields are present (required validators fire separately)
+  if (
+    grossAmount == null ||
+    commissionRate == null ||
+    commissionAmount == null ||
+    tutorAmount == null
+  ) {
+    return next();
+  }
+
+  // Invariant 1: commissionAmount ≈ grossAmount × commissionRate
+  const expectedCommission = grossAmount * commissionRate;
+  if (Math.abs(commissionAmount - expectedCommission) > EPSILON) {
+    return next(
+      new Error(
+        `commissionAmount (${commissionAmount}) must equal grossAmount × commissionRate (${expectedCommission.toFixed(4)})`,
+      ),
+    );
+  }
+
+  // Invariant 2: tutorAmount + commissionAmount ≈ grossAmount
+  const computedTotal = tutorAmount + commissionAmount;
+  if (Math.abs(computedTotal - grossAmount) > EPSILON) {
+    return next(
+      new Error(
+        `tutorAmount + commissionAmount (${computedTotal.toFixed(4)}) must equal grossAmount (${grossAmount})`,
+      ),
+    );
+  }
+
+  next();
+});
 
 // Indexes for common query paths (spec: earning by tutor and status)
 earningSchema.index({ tutorId: 1 });
