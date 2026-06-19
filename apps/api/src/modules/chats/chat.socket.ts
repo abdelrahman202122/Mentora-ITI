@@ -2,6 +2,7 @@ import mongoose, { type Types as MongooseTypes } from 'mongoose';
 import { type Server as SocketServer, type Socket } from 'socket.io';
 import { z } from 'zod';
 
+import { getSocketUser } from '../../middleware/socket-auth.middleware.js';
 import { MessageModel } from '../messages/message.model.js';
 import { ChatModel, type ChatDocument } from './chat.model.js';
 
@@ -22,32 +23,33 @@ const chatEvents = {
   error: 'chat:error',
 } as const;
 
-const objectIdSchema = z.string().refine((value) => Types.ObjectId.isValid(value), {
-  message: 'Invalid ObjectId',
-});
+const objectIdSchema = z
+  .string()
+  .refine((value) => Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId',
+  });
 
 const joinChatPayloadSchema = z.object({
   chatId: objectIdSchema,
-  userId: objectIdSchema,
 });
 
 const sendMessagePayloadSchema = z.object({
   chatId: objectIdSchema,
-  senderId: objectIdSchema,
   content: z.string().trim().min(1).max(5000),
 });
 
 const messageReceiptPayloadSchema = z.object({
   chatId: objectIdSchema,
   messageId: objectIdSchema,
-  userId: objectIdSchema,
 });
 
 type JoinChatPayload = z.infer<typeof joinChatPayloadSchema>;
 type SendMessagePayload = z.infer<typeof sendMessagePayloadSchema>;
 type MessageReceiptPayload = z.infer<typeof messageReceiptPayloadSchema>;
 
-type SocketAck<T> = (response: { ok: true; data: T } | { ok: false; error: string }) => void;
+type SocketAck<T> = (
+  response: { ok: true; data: T } | { ok: false; error: string },
+) => void;
 type SocketErrorAck = (response: { ok: false; error: string }) => void;
 
 function getChatRoomName(chatId: string) {
@@ -125,7 +127,8 @@ async function handleJoinChat(
   }
 
   try {
-    await findParticipantChat(data.chatId, data.userId);
+    const { userId } = getSocketUser(socket);
+    await findParticipantChat(data.chatId, userId);
 
     const room = getChatRoomName(data.chatId);
     await socket.join(room);
@@ -138,7 +141,8 @@ async function handleJoinChat(
     socket.emit(chatEvents.joined, response);
     ack?.({ ok: true, data: response });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to join chat';
+    const message =
+      error instanceof Error ? error.message : 'Failed to join chat';
     emitError(socket, message);
     ack?.({ ok: false, error: message });
   }
@@ -156,6 +160,9 @@ async function handleLeaveChat(
   }
 
   try {
+    const { userId } = getSocketUser(socket);
+    await findParticipantChat(data.chatId, userId);
+
     const room = getChatRoomName(data.chatId);
     await socket.leave(room);
 
@@ -167,7 +174,8 @@ async function handleLeaveChat(
     socket.emit(chatEvents.left, response);
     ack?.({ ok: true, data: response });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to leave chat';
+    const message =
+      error instanceof Error ? error.message : 'Failed to leave chat';
     emitError(socket, message);
     ack?.({ ok: false, error: message });
   }
@@ -194,19 +202,20 @@ async function handleSendMessage(
   }
 
   try {
-    const chat = await findParticipantChat(data.chatId, data.senderId);
-    const recipientId = getRecipientId(chat, data.senderId);
+    const { userId: senderId } = getSocketUser(socket);
+    const chat = await findParticipantChat(data.chatId, senderId);
+    const recipientId = getRecipientId(chat, senderId);
 
     const message = await MessageModel.create({
       chatId: data.chatId,
-      senderId: data.senderId,
+      senderId,
       recipientId,
       content: data.content,
     });
 
     chat.lastMessage = {
       messageId: message._id,
-      senderId: new Types.ObjectId(data.senderId),
+      senderId: new Types.ObjectId(senderId),
       preview: message.content,
       sentAt: message.createdAt,
     };
@@ -215,7 +224,7 @@ async function handleSendMessage(
     const response = {
       id: message._id.toString(),
       chatId: data.chatId,
-      senderId: data.senderId,
+      senderId,
       recipientId,
       content: message.content,
       status: message.status,
@@ -225,7 +234,8 @@ async function handleSendMessage(
     io.to(getChatRoomName(data.chatId)).emit(chatEvents.newMessage, response);
     ack?.({ ok: true, data: response });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to send message';
+    const message =
+      error instanceof Error ? error.message : 'Failed to send message';
     emitError(socket, message);
     ack?.({ ok: false, error: message });
   }
@@ -251,12 +261,13 @@ async function updateMessageReceipt(
   }
 
   try {
-    await findParticipantChat(data.chatId, data.userId);
+    const { userId } = getSocketUser(socket);
+    await findParticipantChat(data.chatId, userId);
 
     const message = await MessageModel.findOne({
       _id: data.messageId,
       chatId: data.chatId,
-      recipientId: data.userId,
+      recipientId: userId,
       deletedAt: null,
     });
 
@@ -288,26 +299,42 @@ async function updateMessageReceipt(
     };
 
     io.to(getChatRoomName(data.chatId)).emit(
-      receiptType === 'delivered' ? chatEvents.messageDelivered : chatEvents.messageRead,
+      receiptType === 'delivered'
+        ? chatEvents.messageDelivered
+        : chatEvents.messageRead,
       response,
     );
     ack?.({ ok: true, data: response });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : `Failed to mark message as ${receiptType}`;
+      error instanceof Error
+        ? error.message
+        : `Failed to mark message as ${receiptType}`;
     emitError(socket, message);
     ack?.({ ok: false, error: message });
   }
 }
 
 export function registerChatSocketHandlers(io: SocketServer, socket: Socket) {
-  socket.on(chatEvents.join, (payload: JoinChatPayload, ack?: SocketAck<{ chatId: string; room: string }>) => {
-    void handleJoinChat(socket, payload, ack);
-  });
+  socket.on(
+    chatEvents.join,
+    (
+      payload: JoinChatPayload,
+      ack?: SocketAck<{ chatId: string; room: string }>,
+    ) => {
+      void handleJoinChat(socket, payload, ack);
+    },
+  );
 
-  socket.on(chatEvents.leave, (payload: JoinChatPayload, ack?: SocketAck<{ chatId: string; room: string }>) => {
-    void handleLeaveChat(socket, payload, ack);
-  });
+  socket.on(
+    chatEvents.leave,
+    (
+      payload: JoinChatPayload,
+      ack?: SocketAck<{ chatId: string; room: string }>,
+    ) => {
+      void handleLeaveChat(socket, payload, ack);
+    },
+  );
 
   socket.on(
     chatEvents.sendMessage,
