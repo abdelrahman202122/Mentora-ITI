@@ -38,16 +38,16 @@ const earningSchema = new Schema<IEarning>(
       type: Number,
       required: [true, 'Commission amount is required'],
       validate: {
-        validator: (v: number) => v > 0,
-        message: 'Commission amount must be greater than zero',
+        validator: (v: number) => v >= 0,
+        message: 'Commission amount must not be negative',
       },
     },
     tutorAmount: {
       type: Number,
       required: [true, 'Tutor amount is required'],
       validate: {
-        validator: (v: number) => v > 0,
-        message: 'Tutor amount must be greater than zero',
+        validator: (v: number) => v >= 0,
+        message: 'Tutor amount must not be negative',
       },
     },
     currency: {
