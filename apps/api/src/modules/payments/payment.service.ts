@@ -144,10 +144,18 @@ export async function initiateCheckout(
     );
   }
 
-  // Step 5: Ensure no existing successful payment exists for this booking
+  // Step 5: Ensure no existing payment (in any status) exists for this booking.
+  // Rejecting all statuses — not just SUCCESS — prevents a race condition where two
+  // concurrent requests both pass this check and both create a pending payment record.
   const existingPayment = await paymentRepository.findPaymentByBookingId(bookingId);
-  if (existingPayment && existingPayment.status === PaymentStatus.SUCCESS) {
-    throw new ConflictError('This booking has already been paid successfully');
+  if (existingPayment) {
+    if (existingPayment.status === PaymentStatus.SUCCESS) {
+      throw new ConflictError('This booking has already been paid successfully');
+    }
+    throw new ConflictError(
+      `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
+      'Please wait for it to complete or contact support.',
+    );
   }
 
   // Step 6: Derive amount server-side from booking (never trust client)
