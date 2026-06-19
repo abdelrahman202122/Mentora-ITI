@@ -16,24 +16,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useLogin } from '@/hooks/use-auth';
+import { getSafeRedirectPath } from '@/lib/safe-redirect';
 import { loginSchema, type LoginPayload } from '@/lib/schemas';
-
-function getSafeRedirectPath(): string {
-  const candidate = new URLSearchParams(window.location.search).get('next');
-
-  if (!candidate?.startsWith('/')) {
-    return '/Home';
-  }
-
-  try {
-    const redirectUrl = new URL(candidate, window.location.origin);
-    return redirectUrl.origin === window.location.origin
-      ? `${redirectUrl.pathname}${redirectUrl.search}${redirectUrl.hash}`
-      : '/Home';
-  } catch {
-    return '/Home';
-  }
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,7 +33,8 @@ export default function LoginPage() {
   function handleLogin(values: LoginPayload) {
     loginMutation.mutate(values, {
       onSuccess: () => {
-        router.replace(getSafeRedirectPath());
+        const nextPath = new URLSearchParams(window.location.search).get('next');
+        router.replace(getSafeRedirectPath(nextPath, window.location.origin));
         router.refresh();
       },
     });
