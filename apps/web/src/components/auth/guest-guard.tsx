@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-auth";
+import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
 export function GuestGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -13,7 +14,8 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isPending && !error && user) {
-      router.replace("/Home");
+      const nextPath = new URLSearchParams(window.location.search).get("next");
+      router.replace(getSafeRedirectPath(nextPath, window.location.origin));
     }
   }, [error, isPending, router, user]);
 
