@@ -19,25 +19,33 @@ const { Types } = mongoose;
  * Learner initiates a Paymob checkout session for their own confirmed, unpaid booking.
  */
 export async function initiateCheckout(
-  req: Request,
+  req: Request<object, object, CreateCheckoutInput>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify req.user?.userId exists, throw UnauthorizedError if not
-    // TODO: Extract bookingId from req.body (validated by createCheckoutSchema)
-    // TODO: Convert bookingId string to Types.ObjectId
-    // TODO: Convert req.user.userId string to Types.ObjectId for learnerId
-    // TODO: Call paymentService.initiateCheckout(bookingId, learnerId)
-    // TODO: Return sendSuccess(res, 201, 'Checkout initiated successfully', { paymentId, checkoutUrl })
+    // Verify the authenticated user exists
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('Authentication required');
+    }
 
-    void req;
-    void res;
-    void Types;
-    void paymentService;
-    void UnauthorizedError;
-    void sendSuccess;
-    throw new Error('initiateCheckout controller: not yet implemented');
+    // Extract bookingId from req.body (validated by createCheckoutSchema)
+    const { bookingId } = req.body;
+
+    // Convert bookingId string to Types.ObjectId
+    const bookingObjectId = new Types.ObjectId(bookingId);
+
+    // Convert req.user.userId string to Types.ObjectId for learnerId
+    const learnerObjectId = new Types.ObjectId(req.user.userId);
+
+    // Call paymentService.initiateCheckout and get safe checkout data
+    const { paymentId, checkoutUrl } = await paymentService.initiateCheckout(
+      bookingObjectId,
+      learnerObjectId,
+    );
+
+    // Return the checkout data to the client
+    sendSuccess(res, 201, 'Checkout initiated successfully', { paymentId, checkoutUrl });
   } catch (error) {
     next(error);
   }
@@ -48,24 +56,30 @@ export async function initiateCheckout(
  * Retrieve a payment by ID. Accessible by the owning learner or the tutor of that booking.
  */
 export async function getPaymentById(
-  req: Request,
+  req: Request<PaymentIdParam>,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify req.user?.userId exists, throw UnauthorizedError if not
-    // TODO: Extract paymentId from req.params (validated by paymentIdSchema)
-    // TODO: Convert paymentId string to Types.ObjectId
-    // TODO: Call paymentService.getPaymentById(paymentId, req.user.userId, req.user.role)
-    // TODO: Return sendSuccess(res, 200, 'Payment retrieved successfully', payment)
+    // Verify the authenticated user exists
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('Authentication required');
+    }
 
-    void req;
-    void res;
-    void Types;
-    void paymentService;
-    void UnauthorizedError;
-    void sendSuccess;
-    throw new Error('getPaymentById controller: not yet implemented');
+    // Extract paymentId from req.params (validated by paymentIdSchema)
+    const { paymentId } = req.params;
+
+    // Convert paymentId string to Types.ObjectId
+    const paymentObjectId = new Types.ObjectId(paymentId);
+
+    // Delegate to service with role-based access control
+    const payment = await paymentService.getPaymentById(
+      paymentObjectId,
+      req.user.userId,
+      req.user.role,
+    );
+
+    sendSuccess(res, 200, 'Payment retrieved successfully', payment);
   } catch (error) {
     next(error);
   }
@@ -82,16 +96,17 @@ export async function handleWebhook(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Extract the HMAC signature from the query string (e.g. req.query.hmac)
-    // TODO: Extract the raw webhook payload from req.body
-    // TODO: Call paymentService.handlePaymobWebhook(payload, hmacSignature)
-    // TODO: Always respond 200 to acknowledge the webhook regardless of processing outcome
+    // Extract the HMAC signature from the query string
+    const hmacSignature = typeof req.query['hmac'] === 'string' ? req.query['hmac'] : '';
 
-    void req;
-    void res;
-    void paymentService;
-    void sendSuccess;
-    throw new Error('handleWebhook controller: not yet implemented');
+    // Extract the raw webhook payload from req.body
+    const payload = req.body as Record<string, unknown>;
+
+    // Process the webhook — service handles validation and idempotency internally
+    await paymentService.handlePaymobWebhook(payload, hmacSignature);
+
+    // Always respond 200 to acknowledge the webhook regardless of processing outcome
+    sendSuccess(res, 200, 'Webhook received');
   } catch (error) {
     next(error);
   }
