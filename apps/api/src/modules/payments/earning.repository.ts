@@ -97,6 +97,6 @@ export async function updateEarningAtomically(
   return Earning.findOneAndUpdate(
     filter,
     { $set: updates },
-    { new: true },
+    { new: true, runValidators: true },
   ).exec();
 }
