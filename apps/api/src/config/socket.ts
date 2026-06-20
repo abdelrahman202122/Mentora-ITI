@@ -6,6 +6,7 @@ import { Server as SocketServer } from 'socket.io';
 
 import { env } from './env.js';
 import { getRedisClient } from './redis.js';
+import { authenticateSocket } from '../middleware/socket-auth.middleware.js';
 import { registerChatSocketHandlers } from '../modules/chats/chat.socket.js';
 
 let io: SocketServer | null = null;
@@ -32,13 +33,18 @@ export async function initializeSocketServer(server: HttpServer) {
         await socketRedisSubscriber.quit();
       }
     } catch (disconnectError) {
-      console.error('Failed to close Socket.IO Redis subscriber', disconnectError);
+      console.error(
+        'Failed to close Socket.IO Redis subscriber',
+        disconnectError,
+      );
     } finally {
       socketRedisSubscriber = undefined;
     }
 
     throw error;
   }
+
+  socketServer.use(authenticateSocket);
 
   socketServer.on('connection', (socket) => {
     registerChatSocketHandlers(socketServer, socket);

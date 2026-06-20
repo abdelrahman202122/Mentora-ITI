@@ -90,7 +90,10 @@ const paymentSchema = new Schema<IPayment>(
 );
 
 // Indexes for common query paths and provider references
-paymentSchema.index({ bookingId: 1 });
+// Unique constraint: only one payment document per booking at any time.
+// This is a database-level guard against the race condition where two concurrent
+// requests both pass the application-level duplicate check and try to insert.
+paymentSchema.index({ bookingId: 1 }, { unique: true });
 paymentSchema.index({ learnerId: 1 });
 paymentSchema.index({ tutorId: 1 });
 paymentSchema.index({ status: 1 });

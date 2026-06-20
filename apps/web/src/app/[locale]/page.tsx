@@ -1,10 +1,20 @@
 import { Button } from '@/components/ui/button';
-import { AuthGuard } from '@/components/auth/AuthGuard';
+import Header from './component/Header/Header';
+import Hero from './component/Hero/Hero';
+import SubjectSection from './component/SubjectsSection/SubjectsSection';
+import GradeLevels from './component/GradeLevels/GradeLevels';
+import HowItWorks from './component/HowItWorks/HowItWorks';
+import Reviews from './component/Reviews/Reviews';
 
 export default function Home() {
   return (
-    <AuthGuard>
-      <Button variant="outline">Welcome to Mentora</Button>
-    </AuthGuard>
+    <>
+    <Header />
+    <Hero />
+    <SubjectSection />
+    <GradeLevels />
+    <HowItWorks />
+    <Reviews />
+    </>
   );
 }
