@@ -6,6 +6,7 @@ import { PaymentStatus } from './payment.types.js';
 import { NotFoundError, ForbiddenError, ConflictError, AppError } from '../../common/errors/AppError.js';
 import { paymobConfig } from '../../config/paymob.config.js';
 import { DEFAULT_CURRENCY } from './payment.model.js';
+import mongoose from 'mongoose';
 
 /**
  * Payment service handles business logic for payment and Paymob checkout workflows.
@@ -47,14 +48,28 @@ async function createPaymobIntention(
     redirection_url: '',    // Configured in the Paymob dashboard
   };
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Token ${paymobConfig.secretKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${paymobConfig.secretKey}`,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch {
+    throw new AppError(
+      'Paymob Intention API is unreachable',
+      502,
+      'PAYMENT_GATEWAY_ERROR',
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -130,10 +145,18 @@ export async function initiateCheckout(
     );
   }
 
-  // Step 5: Ensure no existing successful payment exists for this booking
+  // Step 5: Ensure no existing payment (in any status) exists for this booking.
+  // Rejecting all statuses — not just SUCCESS — prevents a race condition where two
+  // concurrent requests both pass this check and both create a pending payment record.
   const existingPayment = await paymentRepository.findPaymentByBookingId(bookingId);
-  if (existingPayment && existingPayment.status === PaymentStatus.SUCCESS) {
-    throw new ConflictError('This booking has already been paid successfully');
+  if (existingPayment) {
+    if (existingPayment.status === PaymentStatus.SUCCESS) {
+      throw new ConflictError('This booking has already been paid successfully');
+    }
+    throw new ConflictError(
+      `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
+      'Please wait for it to complete or contact support.',
+    );
   }
 
   // Step 6: Derive amount server-side from booking (never trust client)
@@ -141,42 +164,54 @@ export async function initiateCheckout(
   const currency = (booking.currency ?? DEFAULT_CURRENCY) as 'EGP' | 'USD' | 'EUR';
   const amountCents = Math.round(amount * 100);              // Paymob expects smallest unit
 
-  // Step 7: Create a local payment record with status 'pending'
-  const payment = await paymentRepository.createPayment({
-    bookingId,
-    learnerId,
-    tutorId: booking.tutorId,
-    amount,
-    currency,
-    provider: 'paymob',
-  });
+  const session =
+    await mongoose.startSession();
+  session.startTransaction();
 
-  // Step 8: Call Paymob Intention API
-  const intention = await createPaymobIntention(
-    amountCents,
-    currency,
-    (payment._id as Types.ObjectId).toString(),
-  );
+  try {
+    // Step 7: Create a local payment record with status 'pending'
+    const payment = await paymentRepository.createPayment({
+      bookingId,
+      learnerId,
+      tutorId: booking.tutorId,
+      amount,
+      currency,
+      provider: 'paymob',
+    });
 
-  // Step 9: Build the hosted checkout URL
-  const checkoutUrl = buildCheckoutUrl(intention.client_secret);
+    // Step 8: Call Paymob Intention API
+    const intention = await createPaymobIntention(
+      amountCents,
+      currency,
+      (payment._id as Types.ObjectId).toString(),
+    );
 
-  // Step 10: Persist the Paymob intention id and checkout URL on the payment record
-  await paymentRepository.updatePaymentById(payment._id as Types.ObjectId, {
-    providerOrderId: intention.id,
-    providerCheckoutUrl: checkoutUrl,
-  });
+    // Step 9: Build the hosted checkout URL
+    const checkoutUrl = buildCheckoutUrl(intention.client_secret);
 
-  // Step 11: Link the payment ID to the booking
-  await bookingRepository.updateBooking(bookingId, {
-    paymentId: payment._id as Types.ObjectId,
-  });
+    // Step 10: Persist the Paymob intention id and checkout URL on the payment record
+    await paymentRepository.updatePaymentById(payment._id as Types.ObjectId, {
+      providerOrderId: intention.id,
+      providerCheckoutUrl: checkoutUrl,
+    });
 
-  // Step 12: Return only frontend-safe data
-  return {
-    paymentId: (payment._id as Types.ObjectId).toString(),
-    checkoutUrl,
-  };
+    // Step 11: Link the payment ID to the booking
+    await bookingRepository.updateBooking(bookingId, {
+      paymentId: payment._id as Types.ObjectId,
+    });
+    // Step 12: Return only frontend-safe data
+    return {
+      paymentId: (payment._id as Types.ObjectId).toString(),
+      checkoutUrl,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
+  } finally {
+    session.endSession();
+  }
+
+
 }
 
 /**

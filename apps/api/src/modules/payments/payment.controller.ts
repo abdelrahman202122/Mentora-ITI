@@ -7,6 +7,7 @@ import type {
   CreateCheckoutInput,
   PaymentIdParam,
 } from '../../validators/payment.js';
+import { logger } from '../../config/logger.js';
 
 const { Types } = mongoose;
 
@@ -106,8 +107,8 @@ export async function handleWebhook(
     await paymentService.handlePaymobWebhook(payload, hmacSignature);
 
     // Always respond 200 to acknowledge the webhook regardless of processing outcome
-    sendSuccess(res, 200, 'Webhook received');
   } catch (error) {
-    next(error);
+    logger.error('Error handling webhook', error);
   }
+  sendSuccess(res, 200, 'Webhook received');
 }
