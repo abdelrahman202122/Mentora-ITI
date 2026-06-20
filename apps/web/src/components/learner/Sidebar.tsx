@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useLocale } from "next-intl"
 import {
   LayoutDashboard,
   Users,
@@ -14,19 +15,21 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
-import { mockUser } from "@/lib/mockData"
+import { mockUser } from "@/mocks/mock-data"
+import { getLocalePath } from "@/utils/i18n/locale-path"
 
 const learnerNavLinks = [
-  { href: "/pages/learner/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/pages/learner/ai-assistant", icon: Bot, label: "AI Assistant" },
-  { href: "/pages/learner/tutor-match", icon: Users, label: "Tutor Match" },
-  { href: "/pages/learner/messages", icon: MessageSquare, label: "Messages" },
-  { href: "/pages/learner/payments", icon: CreditCard, label: "Payments" },
-  { href: "/pages/learner/settings", icon: Settings, label: "Settings" },
+  { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { path: "/ai-assistant", icon: Bot, label: "AI Assistant" },
+  { path: "/tutor-match", icon: Users, label: "Tutor Match" },
+  { path: "/messages", icon: MessageSquare, label: "Messages" },
+  { path: "/payments", icon: CreditCard, label: "Payments" },
+  { path: "/settings", icon: Settings, label: "Settings" },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const locale = useLocale()
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
@@ -75,11 +78,12 @@ export default function Sidebar() {
       {/* Nav Links */}
       <nav className="flex flex-col gap-1">
         {learnerNavLinks.map((navLink) => {
-          const isActive = pathname.startsWith(navLink.href)
+          const href = getLocalePath(locale, navLink.path)
+          const isActive = pathname.startsWith(href)
           return (
             <Link
-              key={navLink.href}
-              href={navLink.href}
+              key={navLink.path}
+              href={href}
               className={`flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors ${
                 collapsed ? "justify-center" : "justify-start"
               } ${
@@ -99,7 +103,7 @@ export default function Sidebar() {
       <div className="mt-auto">
         <button
           onClick={() => {
-            window.location.href = "/login"
+            window.location.href = getLocalePath(locale, "/login")
           }}
           className={`flex items-center gap-3 px-2 py-2 rounded-lg text-gray-500 hover:text-red-500 text-sm w-full ${
             collapsed ? "justify-center" : "justify-start"
