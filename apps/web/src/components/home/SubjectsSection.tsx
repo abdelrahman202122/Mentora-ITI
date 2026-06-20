@@ -3,8 +3,7 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Triangle, Atom, FlaskConical, Pill, LayoutGrid, Globe } from "lucide-react";
+import { Users, BookOpen, Triangle, Atom, FlaskConical, Pill } from "lucide-react";
 
 // التنسيقات الحركية
 const containerVariants = {

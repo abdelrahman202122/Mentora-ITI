@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Search } from "lucide-react"
 import Image from "next/image"
-import heroImage from "../../../../../public/Hero.jpg"
+import heroImage from "../../../public/Hero.jpg"
 
 export default function Hero() {
   return (
