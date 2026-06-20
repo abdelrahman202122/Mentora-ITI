@@ -17,4 +17,3 @@ export const paymobConfig = {
 
     baseUrl:
         "https://accept.paymob.com"
-};
