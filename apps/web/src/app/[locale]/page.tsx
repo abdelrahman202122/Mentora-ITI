@@ -1,9 +1,9 @@
-import Header from '../../components/home/Header/Header';
-import Hero from '../../components/home/Hero/Hero';
-import SubjectSection from '../../components/home/SubjectsSection/SubjectsSection';
-import GradeLevels from '../../components/home/GradeLevels/GradeLevels';
-import HowItWorks from '../../components/home/HowItWorks/HowItWorks';
-import Reviews from '../../components/home/Reviews/Reviews';
+import Header from '../../components/home/Header';
+import Hero from '../../components/home/Hero';
+import SubjectSection from '../../components/home/SubjectsSection';
+import GradeLevels from '../../components/home/GradeLevels';
+import HowItWorks from '../../components/home/HowItWorks';
+import Reviews from '../../components/home/Reviews';
 
 export default function Home() {
   return (
