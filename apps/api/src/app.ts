@@ -45,11 +45,11 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-  app.post(
-    "/api/payments/webhook",
-    express.raw({ type: "application/json" }),
-    handleWebhook
-  );
+  // app.post(
+  //   "/api/payments/webhook",
+  //   express.raw({ type: "application/json" }),
+  //   handleWebhook
+  // );
 
   app.use(express.json({ limit: '1mb' }));
 
@@ -57,8 +57,8 @@ export function createApp() {
   app.use('/api/tutors', tutorRoutes);
   app.use('/api/health', healthRoutes);
   app.use('/api/bookings', bookingRoutes);
-  app.use('/api/payments', paymentRoutes);
-  app.use('/api/earnings', earningRoutes);
+  // app.use('/api/payments', paymentRoutes);
+  // app.use('/api/earnings', earningRoutes);
   app.use('/api/metadata', metadataRoutes);
   app.use('/api/audits', auditRouter);
   app.use('/api/ai', aiRoutes);

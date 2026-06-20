@@ -1,20 +1,14 @@
-import axios from "axios";
-import type { TutorProfileData } from "@/types/tutor/tutor-profile";
-console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
-export async function getTutorProfile(tutorId: string): Promise<TutorProfileData> {
-  try {
-    const options = {
-      url: `${process.env.NEXT_PUBLIC_APP_BASE_URL}/data/tutorProfile.json`,
-      method: "get",
-      timeout: 10000
-    };
+import type { TutorProfileData } from '@/types/tutor/tutor-profile';
+import tutorProfileFixture from '@/mocks/tutor-profile.json';
 
-    const response = await axios.request(options);
-    const data = response.data.data;
-    console.log(data);
-    return data as TutorProfileData;
-  } catch (error) {
-    console.log(error);
-    throw error;
+export async function getTutorProfile(
+  tutorId: string,
+): Promise<TutorProfileData> {
+  const profile = tutorProfileFixture.data as TutorProfileData;
+
+  if (profile._id !== tutorId) {
+    throw new Error(`Tutor profile ${tutorId} was not found`);
   }
+
+  return profile;
 }
