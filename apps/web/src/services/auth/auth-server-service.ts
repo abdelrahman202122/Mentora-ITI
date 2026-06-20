@@ -17,15 +17,25 @@ export async function getCurrentUserServer(): Promise<AuthUser | null> {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
   }
 
-  const response = await fetch(
-    `${apiBaseUrl.replace(/\/$/, "")}/users/me`,
-    {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/users/me`, {
       cache: "no-store",
+      signal: controller.signal,
       headers: {
         cookie: cookieHeader,
       },
-    },
-  );
+    });
+  } catch (error) {
+    console.error("Current-user lookup failed", error);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (response.status === 401) {
     return null;
