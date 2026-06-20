@@ -1,20 +1,19 @@
-import { Button } from '@/components/ui/button';
-import Header from './component/Header/Header';
-import Hero from './component/Hero/Hero';
-import SubjectSection from './component/SubjectsSection/SubjectsSection';
-import GradeLevels from './component/GradeLevels/GradeLevels';
-import HowItWorks from './component/HowItWorks/HowItWorks';
-import Reviews from './component/Reviews/Reviews';
+import Header from '../../components/home/Header/Header';
+import Hero from '../../components/home/Hero/Hero';
+import SubjectSection from '../../components/home/SubjectsSection/SubjectsSection';
+import GradeLevels from '../../components/home/GradeLevels/GradeLevels';
+import HowItWorks from '../../components/home/HowItWorks/HowItWorks';
+import Reviews from '../../components/home/Reviews/Reviews';
 
 export default function Home() {
   return (
     <>
-    <Header />
-    <Hero />
-    <SubjectSection />
-    <GradeLevels />
-    <HowItWorks />
-    <Reviews />
+      <Header />
+      <Hero />
+      <SubjectSection />
+      <GradeLevels />
+      <HowItWorks />
+      <Reviews />
     </>
   );
 }
