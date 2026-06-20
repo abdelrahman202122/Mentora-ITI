@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Star } from "lucide-react"
+import { getLocalePath } from "@/utils/i18n/locale-path"
 
 interface TutorCardProps {
   id: string
@@ -7,6 +8,7 @@ interface TutorCardProps {
   title: string
   subjects: string[]
   rating: number
+  locale: string
 }
 
 export default function TutorCard({
@@ -15,6 +17,7 @@ export default function TutorCard({
   title,
   subjects,
   rating,
+  locale,
 }: TutorCardProps) {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
@@ -52,7 +55,7 @@ export default function TutorCard({
             <span className="text-xs font-medium text-gray-700">{rating}</span>
           </div>
           <Link
-            href={"/pages/learner/tutor-match/" + id}
+            href={getLocalePath(locale, "/tutor-match/" + id)}
             className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-indigo-700 whitespace-nowrap"
           >
             View Profile
