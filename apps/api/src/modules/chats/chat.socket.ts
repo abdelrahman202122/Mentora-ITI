@@ -2,8 +2,10 @@ import mongoose, { type Types as MongooseTypes } from 'mongoose';
 import { type Server as SocketServer, type Socket } from 'socket.io';
 import { z } from 'zod';
 
+import { logger } from '../../config/logger.js';
 import { getSocketUser } from '../../middleware/socket-auth.middleware.js';
 import { MessageModel } from '../messages/message.model.js';
+import { createMessageNotification } from '../notifications/notification.socket.js';
 import { ChatModel, type ChatDocument } from './chat.model.js';
 
 const { Types } = mongoose;
@@ -233,6 +235,21 @@ async function handleSendMessage(
 
     io.to(getChatRoomName(data.chatId)).emit(chatEvents.newMessage, response);
     ack?.({ ok: true, data: response });
+
+    void createMessageNotification(io, {
+      recipientId,
+      senderId,
+      chatId: data.chatId,
+      messageId: message._id.toString(),
+      content: message.content,
+    }).catch((error: unknown) => {
+      logger.error('Failed to create message notification', {
+        chatId: data.chatId,
+        messageId: message._id.toString(),
+        recipientId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to send message';
