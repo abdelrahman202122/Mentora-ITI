@@ -9,7 +9,7 @@
  *   description — short clarifying note in both languages (shown as subtitle in UI)
  */
 
-const CURRICULA = [
+export const CURRICULA = [
   {
     value: 'national_new',
     en: 'Egyptian National (New)',

@@ -32,6 +32,8 @@ export interface IBooking extends Document {
   confirmationCode: string | null;
   confirmationCodeUsedAt?: Date;
   completedAt?: Date;
+  canceledAt?: Date;
+  canceledBy?: 'tutor' | 'learner';
   learnerNote?: string;
   cancelReason?: string;
   paymentId?: Types.ObjectId;
@@ -59,7 +61,36 @@ export interface UpdateBookingInput {
   confirmationCode?: string | null;
   confirmationCodeUsedAt?: Date;
   completedAt?: Date;
+  canceledAt?: Date;
+  canceledBy?: 'tutor' | 'learner';
   cancelReason?: string;
   paymentId?: Types.ObjectId;
   reviewId?: Types.ObjectId;
 }
+
+/** Serialized booking shape returned from API handlers. */
+export type BookingResponse = {
+  _id: Types.ObjectId;
+  learnerId: Types.ObjectId;
+  tutorId: Types.ObjectId;
+  tutorProfileId: Types.ObjectId;
+  subjectId: Types.ObjectId;
+  startAt: Date;
+  endAt: Date;
+  durationMinutes: number;
+  price: number;
+  currency: string;
+  bookingStatus: BookingStatus;
+  paymentStatus: PaymentStatus;
+  confirmationCode?: string | null;
+  confirmationCodeUsedAt?: Date;
+  completedAt?: Date;
+  canceledAt?: Date;
+  canceledBy?: 'tutor' | 'learner';
+  learnerNote?: string;
+  cancelReason?: string;
+  paymentId?: Types.ObjectId;
+  reviewId?: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+};

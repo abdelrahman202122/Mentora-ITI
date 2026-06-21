@@ -6,7 +6,10 @@ import { Server as SocketServer } from 'socket.io';
 
 import { env } from './env.js';
 import { getRedisClient } from './redis.js';
+import { authenticateSocket } from '../middleware/socket-auth.middleware.js';
 import { registerChatSocketHandlers } from '../modules/chats/chat.socket.js';
+import { joinNotificationRoom } from '../modules/notifications/notification.socket.js';
+import { logger } from './logger.js';
 
 let io: SocketServer | null = null;
 let socketRedisSubscriber: RedisClientType | undefined;
@@ -32,7 +35,10 @@ export async function initializeSocketServer(server: HttpServer) {
         await socketRedisSubscriber.quit();
       }
     } catch (disconnectError) {
-      console.error('Failed to close Socket.IO Redis subscriber', disconnectError);
+      console.error(
+        'Failed to close Socket.IO Redis subscriber',
+        disconnectError,
+      );
     } finally {
       socketRedisSubscriber = undefined;
     }
@@ -40,8 +46,17 @@ export async function initializeSocketServer(server: HttpServer) {
     throw error;
   }
 
+  socketServer.use(authenticateSocket);
+
   socketServer.on('connection', (socket) => {
     registerChatSocketHandlers(socketServer, socket);
+
+    void joinNotificationRoom(socket).catch((error: unknown) => {
+      logger.error('Failed to join notification room', {
+        error: error instanceof Error ? error.message : String(error),
+        socketId: socket.id,
+      });
+    });
 
     socket.emit('connected', {
       socketId: socket.id,
