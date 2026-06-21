@@ -78,6 +78,10 @@ export async function getAvailabilityForDateRange(
 
   const { timezone, slots } = availability;
 
+  if (!timezone) {
+    throw new Error(`Tutor ${tutorId} has no timezone set`);
+  }
+
   // get the start and end dates in the tutor's timezone
   const start = DateTime.fromISO(startDate, { zone: timezone }).startOf('day');
   const end = DateTime.fromISO(endDate, { zone: timezone }).startOf('day');
@@ -161,6 +165,10 @@ export const getFilteredAvailabilityForDateRange = async (
 
   if (!availability) {
     return null;
+  }
+
+  if (!availability.tutorTimezone) {
+    throw new Error(`Tutor ${tutorId} has no timezone set`);
   }
 
   // get confirmed bookings for the tutor in this date range
