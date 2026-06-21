@@ -4,19 +4,19 @@ const timeSlotSchema = new mongoose.Schema(
   {
     startTime: {
       type: String,
-      required: true, // "HH:MM" 24h
-      match: /^([01]\d|2[0-3]):([0-5]\d)$/,
+      required: true,
+      match: /^([01]\d|2[0-3]):([0-5]\d)$/, // "HH:MM" 24h
     },
     endTime: {
       type: String,
-      required: true, // "HH:MM" 24h
-      match: /^([01]\d|2[0-3]):([0-5]\d)$/,
+      required: true,
+      match: /^([01]\d|2[0-3]):([0-5]\d)$/, // "HH:MM" 24h
     },
   },
   { _id: false },
 );
 
-timeSlotSchema.pre('validate', function() {
+timeSlotSchema.pre('validate', function () {
   if (this.startTime >= this.endTime) {
     throw new Error('endTime must be after startTime');
   }
@@ -70,6 +70,25 @@ const tutorAvailabilitySchema = new mongoose.Schema(
       type: slotsSchema,
       default: () => ({}),
     },
+
+    timezone: {
+      type: String,
+      required: true,
+      trim: true,
+      // validate that the timezone is a valid IANA timezone string
+      validate: {
+        validator: (value: string) => {
+          try {
+            Intl.DateTimeFormat(undefined, { timeZone: value });
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        message: (props: { value: string }) =>
+          `"${props.value}" is not a valid IANA timezone`,
+      },
+    },
   },
   {
     timestamps: {
@@ -94,3 +113,16 @@ export const TutorAvailabilityModel =
     'TutorAvailability',
     tutorAvailabilitySchema,
   );
+
+export type TimeSlot = mongoose.InferSchemaType<typeof timeSlotSchema>;
+
+export type Weekday =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
+export type AvailabilitySlots = Record<Weekday, TimeSlot[]>;

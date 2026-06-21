@@ -21,7 +21,12 @@ export const createAvailabilityController = async (
     return sendError(res, 400, "Invalid payload: missing 'slots' data");
   }
 
-  const availability = await createAvailability(userId, { slots });
+  const timezone = req.body.timezone;
+  if (!timezone) {
+    return sendError(res, 400, "Invalid payload: missing 'timezone' data");
+  }
+
+  const availability = await createAvailability(userId, { slots, timezone });
 
   return sendSuccess(
     res,
@@ -46,7 +51,12 @@ export const replaceAvailabilityController = async (
     return sendError(res, 400, "Invalid payload: missing 'slots' data");
   }
 
-  const availability = await replaceAvailability(userId, { slots });
+  const timezone = req.body.timezone;
+  if (!timezone) {
+    return sendError(res, 400, "Invalid payload: missing 'timezone' data");
+  }
+
+  const availability = await replaceAvailability(userId, { slots, timezone });
 
   return sendSuccess(
     res,

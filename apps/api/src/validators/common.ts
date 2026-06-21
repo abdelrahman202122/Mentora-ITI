@@ -63,3 +63,18 @@ export const currencySchema = z
  * Common ISO date string validation
  */
 export const isoDateSchema = z.string().datetime('Invalid date format');
+
+/**
+ * IANA timezone validation
+ */
+export const ianaTimezoneSchema = z.string().refine(
+  (value) => {
+    try {
+      Intl.DateTimeFormat(undefined, { timeZone: value });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Invalid IANA timezone' },
+);

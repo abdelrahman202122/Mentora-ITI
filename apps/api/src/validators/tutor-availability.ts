@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { objectIdSchema } from './common.js';
+import { ianaTimezoneSchema, objectIdSchema } from './common.js';
 
 const timeSlotSchema = z
   .object({
@@ -35,6 +35,7 @@ const slotsSchema = z
 
 export const tutorAvailabilitySchema = z.object({
   slots: slotsSchema,
+  timezone: ianaTimezoneSchema,
 });
 
 export type CreateTutorAvailabilityInput = z.infer<
