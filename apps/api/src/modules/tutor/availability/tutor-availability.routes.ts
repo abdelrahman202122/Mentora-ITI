@@ -5,10 +5,12 @@ import { validate } from '../../../middleware/validation.middleware.js';
 import {
   createAvailabilityController,
   getAvailabilityController,
+  getAvailabilitySlotsController,
   replaceAvailabilityController,
 } from './tutor-availability.controller.js';
 import {
   getTutorAvailabilityParamsSchema,
+  getTutorAvailabilitySlotsQuerySchema,
   tutorAvailabilitySchema,
 } from '../../../validators/tutor-availability.js';
 
@@ -35,5 +37,13 @@ router
     validate({ params: getTutorAvailabilityParamsSchema }),
     getAvailabilityController,
   );
+
+router.route('/:tutorId/availability/slots').get(
+  validate({
+    params: getTutorAvailabilityParamsSchema,
+    query: getTutorAvailabilitySlotsQuerySchema,
+  }),
+  getAvailabilitySlotsController,
+);
 
 export default router;

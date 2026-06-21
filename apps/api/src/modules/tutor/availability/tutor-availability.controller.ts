@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import {
   createAvailability,
   getAvailability,
+  getFilteredAvailabilityForDateRange,
   replaceAvailability,
 } from './tutor-availability.service.js';
 import { sendError, sendSuccess } from '../../../utils/api-response.js';
@@ -83,5 +84,35 @@ export const getAvailabilityController = async (
     200,
     'Tutor availability fetched successfully',
     availability,
+  );
+};
+
+export const getAvailabilitySlotsController = async (
+  req: Request,
+  res: Response,
+) => {
+  const tutorId = req.params.tutorId?.toString();
+
+  if (!tutorId) {
+    return sendError(res, 400, 'Tutor ID is required');
+  }
+
+  const { startDate, endDate } = req.query;
+
+  const slots = await getFilteredAvailabilityForDateRange(
+    tutorId,
+    startDate as string,
+    endDate as string,
+  );
+
+  if (!slots) {
+    return sendError(res, 404, 'Tutor availability not found');
+  }
+
+  return sendSuccess(
+    res,
+    200,
+    'Tutor availability slots fetched successfully',
+    slots,
   );
 };
