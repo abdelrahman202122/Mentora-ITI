@@ -7,11 +7,11 @@ import { getLocalePath } from '@/utils/i18n/locale-path'
 import { LocalePageProps } from '@/types/local/page-props'
 
 export default async function EditProfile({ params }: LocalePageProps) {
-  const user = await getCurrentUserServer()
-  const { locale } = await params
-  if (!user) {
-    redirect(getLocalePath(locale, '/login'))
-  }
+    const { locale } = await params
+    const user = await getCurrentUserServer()
+    if (!user) {
+      redirect(getLocalePath(locale, '/login'))
+    }
 
   const queryClient = new QueryClient()
 

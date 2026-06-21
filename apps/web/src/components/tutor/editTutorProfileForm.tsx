@@ -5,8 +5,10 @@ import CourseCard from "@/components/tutor/CourseCard";
 import Field from "@/components/tutor/Field";
 import Link from "next/link";
 import { useTutorProfile } from "@/hooks/tutor/useTutorProfile";
-
+import { useCurrentUser } from "@/hooks/auth/use-auth";
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
+  const { data: user } = useCurrentUser();
+  console.log("Current user:", user);
   const { data: tutorProfile, isLoading, error } = useTutorProfile(tutorId);
 
   if (isLoading) return <p>Loading...</p>;
@@ -17,7 +19,7 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-
+        
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between gap-6">
           <div>
@@ -59,7 +61,7 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
 
                 <Field
                   label="Full Name"
-                  defaultValue="Dr. Elena Rodriguez"
+                  defaultValue={user?.name || ""}
                 />
 
                 <Field
