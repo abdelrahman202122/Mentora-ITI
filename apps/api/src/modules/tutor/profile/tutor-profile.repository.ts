@@ -9,6 +9,26 @@ export const findByUserId = async (userId: string) => {
   return TutorProfileModel.findOne({ userId }).lean();
 };
 
+// get tutor profile with populated user info (name, avatar)
+export const getProfileWithUser = async (userId: string) => {
+  const profile = await TutorProfileModel.findOne({ userId })
+    .populate({
+      path: 'userId',
+      select: 'name avatar',
+    })
+    .lean();
+
+  if (!profile) return null;
+
+  // rename userId to userData
+  const { userId: userData, ...profileData } = profile;
+
+  return {
+    ...profileData,
+    userData,
+  };
+};
+
 // update profile fields
 export const updateByUserId = async (
   userId: string,

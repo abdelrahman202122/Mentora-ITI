@@ -7,12 +7,13 @@ import {
   findByUserId,
   updateByUserId,
   create,
+  getProfileWithUser,
 } from './tutor-profile.repository.js';
 import type { CreateTutorProfileInput } from '../../../validators/tutor-profile.js';
 
 // get full tutor profile
 export const getProfile = async (tutorId: string) => {
-  const tutor = await findByUserId(tutorId);
+  const tutor = await getProfileWithUser(tutorId);
 
   if (!tutor) {
     throw new NotFoundError('Tutor profile not found');

@@ -3,10 +3,11 @@ import Booking from './booking.model.js';
 import { TutorAvailabilityModel } from '../tutor/availability/tutor-availability.model.js';
 import { TutorProfileModel } from '../tutor/profile/tutor-profile.model.js';
 import { NotFoundError } from '../../common/errors/AppError.js';
-import type {
-  IBooking,
-  CreateBookingInput,
-  UpdateBookingInput,
+import {
+  type IBooking,
+  type CreateBookingInput,
+  type UpdateBookingInput,
+  BookingStatus,
 } from './booking.types.js';
 
 const { connection } = mongoose;
@@ -318,4 +319,24 @@ export async function getTutorHourlyRate(
   }
 
   return tutorProfile.hourlyRate as number;
+}
+
+/*
+ * Find confirmed bookings for a tutor within a date range
+ */
+export async function findConfirmedBookingsByTutorAndRange(
+  tutorId: string,
+  startDate: Date,
+  endDate: Date,
+) {
+  return await Booking.find({
+    tutorId,
+    bookingStatus: BookingStatus.CONFIRMED,
+    startAt: {
+      $lt: endDate,
+    },
+    endAt: {
+      $gt: startDate,
+    },
+  }).lean();
 }
