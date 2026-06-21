@@ -42,6 +42,7 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
               <div className="relative group w-28 h-28">
                 <img
                   src="https://images.unsplash.com/photo-1544005313-94ddf0286df2"
+                  alt="Tutor profile avatar"
                   className="w-full h-full object-cover rounded-full border-4 border-border"
                 />
 

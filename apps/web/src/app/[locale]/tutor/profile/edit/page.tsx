@@ -3,12 +3,14 @@ import { redirect } from 'next/navigation'
 import { getTutorProfile } from '@/services/tutor/tutor-profile-service'
 import { getCurrentUserServer } from '@/services/auth/auth-server-service'
 import EditProfileForm from '@/components/tutor/editTutorProfileForm'
+import { getLocalePath } from '@/utils/i18n/locale-path'
+import { LocalePageProps } from '@/types/local/page-props'
 
-export default async function EditProfile() {
+export default async function EditProfile({ params }: LocalePageProps) {
   const user = await getCurrentUserServer()
-
+  const { locale } = await params
   if (!user) {
-    redirect('/login')
+    redirect(getLocalePath(locale, '/login'))
   }
 
   const queryClient = new QueryClient()
