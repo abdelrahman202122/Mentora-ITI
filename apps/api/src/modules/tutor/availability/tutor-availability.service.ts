@@ -135,6 +135,9 @@ export async function getAvailabilityForDateRange(
 
   return {
     tutorId,
+    tutorTimezone: timezone,
+    startDate,
+    endDate,
     availability: result,
   };
 }
@@ -163,8 +166,12 @@ export const getFilteredAvailabilityForDateRange = async (
   // get confirmed bookings for the tutor in this date range
   const bookings = await findConfirmedBookingsByTutorAndRange(
     tutorId,
-    DateTime.fromISO(startDate, { zone: 'utc' }).startOf('day').toJSDate(),
-    DateTime.fromISO(endDate, { zone: 'utc' }).endOf('day').toJSDate(),
+    DateTime.fromISO(startDate, { zone: availability.tutorTimezone })
+      .startOf('day')
+      .toJSDate(),
+    DateTime.fromISO(endDate, { zone: availability.tutorTimezone })
+      .endOf('day')
+      .toJSDate(),
   );
 
   // filter out any slots that overlap with confirmed bookings
@@ -218,6 +225,7 @@ export const getFilteredAvailabilityForDateRange = async (
 
   return {
     tutorId,
+    tutorTimezone: availability.tutorTimezone,
     startDate,
     endDate,
     availability: filteredAvailability,
