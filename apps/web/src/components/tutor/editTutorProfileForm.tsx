@@ -95,7 +95,7 @@ const { data: tutorProfile, isLoading: isProfileLoading, error: profileError } =
                     <span>$</span>
                     <input
                       id={rateId}
-                      defaultValue={rating.toString()}
+                      defaultValue={rating != null ? rating.toString() : "" }
                       className="w-14 bg-transparent outline-none"
                     />
                     <span className="text-sm text-muted-foreground">/hr</span>
