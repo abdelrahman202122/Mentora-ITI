@@ -270,7 +270,7 @@ paths:
         '200':
           description: OK
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
               example: |-
@@ -319,7 +319,13 @@ paths:
                         "totalReviews": 0,
                         "createdAt": "2026-06-16T10:14:41.600Z",
                         "updatedAt": "2026-06-16T10:15:25.982Z",
-                        "__v": 0
+                        "__v": 0,
+                        "userData": { 
+                              "_id": "6a3118f309d47a8f9199ee35",
+                              "name": "Verina",
+                              "avatar": "avatar-1781709191913-487165499.png" 
+                        }
+                        
                     }
                 }
   /api/tutors/{tutorId}/availability:
