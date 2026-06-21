@@ -14,8 +14,9 @@ const { data: tutorProfile, isLoading: isProfileLoading, error: profileError } =
 
   if (isProfileLoading) return <p>Loading...</p>;
   if (profileError || !tutorProfile) return <p>Something went wrong.</p>;
-  const { headline, bio } = tutorProfile;
+  const { headline, bio, rating } = tutorProfile;
   const subjects = tutorSubjects || [];
+    const rateId = `${tutorId}-hourly-rate`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -82,6 +83,25 @@ const { data: tutorProfile, isLoading: isProfileLoading, error: profileError } =
                   className="w-full mt-2 min-h-[120px] rounded-lg border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
+              <div>
+              <div>
+                  <label
+                    htmlFor={rateId}
+                    className="text-xs text-muted-foreground uppercase font-bold"
+                  >
+                    Hourly Rate
+                  </label>
+                  <div className="flex items-center gap-1 text-primary font-bold text-xl">
+                    <span>$</span>
+                    <input
+                      id={rateId}
+                      defaultValue={rating.toString()}
+                      className="w-14 bg-transparent outline-none"
+                    />
+                    <span className="text-sm text-muted-foreground">/hr</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -101,7 +121,6 @@ const { data: tutorProfile, isLoading: isProfileLoading, error: profileError } =
             <CourseCard
               key={subject._id}
               title={subject.title}
-              rate={subject.educationLevel}
               tag={subject.category}
               idPrefix={subject._id}
             />
