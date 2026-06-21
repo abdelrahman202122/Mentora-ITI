@@ -204,7 +204,7 @@ export async function initiateCheckout(
       paymentId: (payment._id as Types.ObjectId).toString(),
       checkoutUrl,
     };
-  } catch (error) {
+  } catch {
     await session.abortTransaction();
     throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
   } finally {

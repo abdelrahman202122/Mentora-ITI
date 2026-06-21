@@ -94,7 +94,7 @@ export async function getPaymentById(
 export async function handleWebhook(
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ): Promise<void> {
   try {
     // Extract the HMAC signature from the query string
