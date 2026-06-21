@@ -1,20 +1,21 @@
 'use client'
-
 import { Plus, Camera } from "lucide-react";
 import CourseCard from "@/components/tutor/CourseCard";
 import Field from "@/components/tutor/Field";
 import Link from "next/link";
 import { useTutorProfile } from "@/hooks/tutor/useTutorProfile";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
+import { useTutorSubjects } from "@/hooks/tutor/useTutorSubjects";
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
   const { data: user } = useCurrentUser();
   console.log("Current user:", user);
-  const { data: tutorProfile, isLoading, error } = useTutorProfile(tutorId);
+const { data: tutorProfile, isLoading: isProfileLoading, error: profileError } = useTutorProfile(tutorId);
+  const { data: tutorSubjects, isLoading: isSubjectsLoading, error: subjectsError } = useTutorSubjects(tutorId);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error || !tutorProfile) return <p>Something went wrong.</p>;
-
+  if (isProfileLoading) return <p>Loading...</p>;
+  if (profileError || !tutorProfile) return <p>Something went wrong.</p>;
   const { headline, bio } = tutorProfile;
+  const subjects = tutorSubjects || [];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -88,16 +89,23 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
         {/* Courses */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold">Courses Offered</h2>
-
           <div className="grid md:grid-cols-2 gap-6">
 
+          {isSubjectsLoading && <p>Loading courses...</p>}
+          
+          {subjectsError && (
+            <p className="text-red-500"> couldn`t load courses. Try again later.</p>
+          )}
+
+          {!isSubjectsLoading && !subjectsError && subjects.map((subject) => (
             <CourseCard
-              key="course-1"
-              title="Advanced Cognitive Linguistics"
-              rate="85"
-              tag="Experience"
-              idPrefix="1"
+              key={subject._id}
+              title={subject.title}
+              rate={subject.educationLevel}
+              tag={subject.category}
+              idPrefix={subject._id}
             />
+          ))}
 
             {/* Add New */}
             <button className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition">
