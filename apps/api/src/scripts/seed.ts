@@ -169,7 +169,7 @@ async function seedTutor(seed: (typeof tutorSeeds)[number]) {
     role: UserRole.TUTOR,
   });
 
-  const profile = await TutorProfileModel.findOneAndUpdate(
+  await TutorProfileModel.findOneAndUpdate(
     { userId: tutor._id },
     {
       $set: {
@@ -213,6 +213,7 @@ async function seedTutor(seed: (typeof tutorSeeds)[number]) {
 
   const session = await mongoose.startSession();
 
+  try {
     await session.withTransaction(async () => {
       await TutorSubjectModel.deleteMany({ tutorId: tutor._id }, { session });
       await TutorSubjectModel.insertMany(
