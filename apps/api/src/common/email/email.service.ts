@@ -49,7 +49,7 @@ export const sendResetEmail = async (
           <p>If the button doesn't work, copy this link:</p>
           <p>${resetLink}</p>
 
-          <p>This link expires in 1 hour.</p>
+          <p>This link expires in 15 minutes.</p>
         </div>
       `,
     });

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as UserController from './user.controller.js';
 import { authMiddleware } from '../../middleware/auth.middleware.js';
-import { authRateLimit } from '../../middleware/rateLimit.middleware.js';
+import { authRateLimit, passwordResetRateLimit } from '../../middleware/rateLimit.middleware.js';
 import { uploadAvatarMiddleware } from '../../middleware/upload.middleware.js';
 import { validate } from '../../middleware/validation.middleware.js';
 import {
@@ -80,14 +80,14 @@ router.patch(
 
 router.post(
   '/forgot-password',
-  authRateLimit,
+  passwordResetRateLimit,
   validate(forgotPasswordSchema),
   UserController.forgotPassword
 );
 
 router.post(
   '/reset-password',
-  authRateLimit,
+  passwordResetRateLimit,
   validate(resetPasswordSchema),
   UserController.resetPassword
 );
