@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { Filter, Download, X } from "lucide-react"
 import { getTransactions, type Transaction } from "@/services/paymentHistory/payment-history-service"
-import TransactionRow from "@/components/learner/TransactionRow "
+import TransactionRow from "@/components/learner/TransactionRow"
 import TransactionCard from "@/components/learner/TransactionCard"
 import { exportCSV, exportInvoicePDF } from "@/utils/learner/exportUtils"
 

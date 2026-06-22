@@ -60,7 +60,7 @@ function PaymentSuccessContent({ locale }: { locale: string }) {
       </div>
 
       <div className="w-full lg:w-80 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex-shrink-0">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Advanced cognitive linguistics</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{subject}</h2>
         <p className="text-sm text-gray-500 mb-5">{tutorName}</p>
 
         <hr className="border-gray-100 mb-5" />

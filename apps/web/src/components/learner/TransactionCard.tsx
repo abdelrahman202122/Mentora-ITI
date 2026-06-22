@@ -30,7 +30,7 @@ export default function TransactionCard({ tx, onExportPDF }: TransactionCardProp
             <span className={`w-1.5 h-1.5 rounded-full ${tx.status === "Completed" ? "bg-green-500" : "bg-yellow-500"}`} />
             {tx.status}
           </span>
-          <button onClick={() => onExportPDF(tx)}>
+          <button onClick={() => onExportPDF(tx)} aria-label="Export invoice as PDF">
             <FileText size={16} className="text-indigo-400 hover:text-indigo-600" />
           </button>
         </div>

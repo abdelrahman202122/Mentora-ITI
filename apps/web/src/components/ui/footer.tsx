@@ -1,9 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear() 
+  const currentYear = new Date().getFullYear()
+  const params = useParams()
+  const locale = params.locale as string
 
   return (
     <footer className="w-full bg-sidebar/40 border-t border-sidebar-border px-6 md:px-12 py-6 mt-auto">
@@ -18,13 +21,13 @@ export default function Footer() {
 
     
         <nav className="flex items-center flex-wrap justify-center gap-6 md:gap-8 text-sm font-medium text-muted-foreground">
-          <Link href="/privacy-policy" className="hover:text-sidebar-primary transition-colors">
+          <Link href={`/${locale}/privacy-policy`} className="hover:text-sidebar-primary transition-colors">
             Privacy Policy
           </Link>
-          <Link href="/terms-of-service" className="hover:text-sidebar-primary transition-colors">
+          <Link href={`/${locale}/terms-of-service`} className="hover:text-sidebar-primary transition-colors">
             Terms of Service
           </Link>
-          <Link href="/help-center" className="hover:text-sidebar-primary transition-colors">
+          <Link href={`/${locale}/help-center`} className="hover:text-sidebar-primary transition-colors">
             Help Center
           </Link>
         </nav>

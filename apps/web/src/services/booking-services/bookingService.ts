@@ -13,7 +13,7 @@ export interface BookingResponse {
 }
 
 // 🔧 تحكمي من هنا: لو true هيشتغل Mock data، لو false هيضرب في الـ API الحقيقي علطول!
-const IS_MOCK = true; 
+const IS_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "YOUR_API_URL";
 
 export async function createBooking(payload: BookingPayload): Promise<BookingResponse> {

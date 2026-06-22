@@ -10,6 +10,7 @@ import { startConversation } from "@/services/message/message-service"
 export default function TutorProfilePage() {
   const params = useParams()
   const router = useRouter()
+  const locale = params.locale as string
   const [tutor, setTutor] = useState<TutorSummary | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -46,7 +47,7 @@ export default function TutorProfilePage() {
 
       {/* Back */}
       <Link
-        href="/tutor-match"
+        href={`/${locale}/tutor-match`}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4"
       >
         <ArrowLeft size={16} />
@@ -92,7 +93,7 @@ export default function TutorProfilePage() {
           onClick={async () => {
             const chatId = await startConversation(tutor.id, tutor.name)
             const qs = new URLSearchParams({ tutorName: tutor.name }).toString()
-            router.push("learner/messages/" + chatId + "?" + qs)
+            router.push(`/${locale}/learner/messages/${chatId}?${qs}`)
           }}
           className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer"
         >
@@ -168,7 +169,7 @@ export default function TutorProfilePage() {
 <div className="fixed bottom-6 right-6 z-50 animate-fade-in">
   <Link
     href={
-      `/en/booking` +
+      `/${locale}/booking` +
       `?tutorId=${tutor.id}` +
       `&tutorName=${encodeURIComponent(tutor.name)}` +
       `&hourlyRate=${tutor.hourlyRate}` +

@@ -1,8 +1,7 @@
 "use client"
-//used state hooks (useState, useSearchParams, useRouter).
 
 import { useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, useParams } from "next/navigation"
 import { Calendar, Clock, Hourglass, Send, ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { SummaryCard } from "@/components/learner/SummaryCard"
@@ -16,12 +15,13 @@ import {
 } from "@/components/ui/card"
 import { createBooking } from "@/services/booking/booking-service"
 
-// FIX #3: Centralise the subject ID as a named constant instead of a magic string literal
 const DEFAULT_SUBJECT_ID = "6a33efe7a0c348f1fca9873c"
 
 function BookSessionContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const params = useParams()
+  const locale = (params.locale as string) ?? "en"
 
   const tutorId = searchParams.get("tutorId") ?? ""
   const tutorName = searchParams.get("tutorName") ?? "Tutor"
@@ -32,7 +32,6 @@ function BookSessionContent() {
   const subjectId = searchParams.get("subjectId") ?? DEFAULT_SUBJECT_ID
 
   const [date, setDate] = useState("")
-  // FIX #5: Duration options reordered to ascending (30 → 60 → 90); default stays 60
   const [duration, setDuration] = useState("60")
   const [time, setTime] = useState("")
 
@@ -40,19 +39,15 @@ function BookSessionContent() {
   const [error, setError] = useState<string | null>(null)
 
   const isFormInvalid = !date || !duration || !time
- 
 
-  //This function return startat and end in this format{12-2-2026 3p.m}and calc enddate
   function buildDates(): { startAt: string; endAt: string } | null {
     if (!date || !time) return null
 
-   
     const startDate = new Date(`${date}T${time}:00`)
-    //use data here because i want to make operations on the date not only want the string
     if (isNaN(startDate.getTime())) return null
 
     const endDate = new Date(startDate.getTime() + Number(duration) * 60 * 1000)
-//get time retun timestamp (date and also time)
+
     return {
       startAt: startDate.toISOString(),
       endAt: endDate.toISOString(),
@@ -62,14 +57,12 @@ function BookSessionContent() {
   async function handleBooking() {
     setError(null)
 
-    //  Guard against invalid date construction before proceeding
     const dates = buildDates()
     if (!dates) {
       setError("Invalid date or time selected. Please try again.")
       return
     }
 
-    // Reject booking where the chosen time has already passed
     if (new Date(dates.startAt) < new Date()) {
       setError("The selected time has already passed. Please choose a future time.")
       return
@@ -79,14 +72,13 @@ function BookSessionContent() {
 
     try {
       await createBooking({
-        tutorProfileId: tutorId,
-        subjectId,         
-        startAt: dates.startAt,
-        endAt: dates.endAt,
-        durationMinutes: Number(duration),
+        tutorId,
+        subjectId,
+        startTime: dates.startAt,
+        endTime: dates.endAt,
       })
 
-      const params = new URLSearchParams({
+      const queryParams = new URLSearchParams({
         tutorId,
         tutorName,
         subject: subjectParam,
@@ -98,7 +90,7 @@ function BookSessionContent() {
       })
 
       setLoading(false)
-      router.push(`/en/payment?${params}`)
+      router.push(`/${locale}/payment?${queryParams}`)
 
     } catch (err) {
       const message =
@@ -139,7 +131,6 @@ function BookSessionContent() {
           <CardContent className="space-y-6">
 
             {/* 1. Date Input */}
-            {/* FIX #6: Added htmlFor / id pairing so screen readers associate label with input */}
             <div>
               <label
                 htmlFor="session-date"
@@ -161,7 +152,6 @@ function BookSessionContent() {
             </div>
 
             {/* 2. Lesson Duration */}
-         
             <div>
               <label
                 htmlFor="session-duration"
@@ -170,7 +160,7 @@ function BookSessionContent() {
                 Lesson Duration
               </label>
               <div className="relative flex items-center">
-                <Hourglass className="absolute left-4 text-muted-foreground" size={20} aria-hidden cursor-pointer />
+                <Hourglass className="absolute left-4 text-muted-foreground" size={20} aria-hidden />
                 <select
                   id="session-duration"
                   value={duration}
@@ -185,7 +175,7 @@ function BookSessionContent() {
               </div>
             </div>
 
-         
+            {/* 3. Time Input */}
             <div>
               <label
                 htmlFor="session-time"

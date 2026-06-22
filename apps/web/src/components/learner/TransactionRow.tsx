@@ -32,7 +32,7 @@ export default function TransactionRow({ tx, onExportPDF }: TransactionRowProps)
       </div>
 
       <div className="flex justify-end ">
-        <button onClick={() => onExportPDF(tx)}>
+        <button onClick={() => onExportPDF(tx)} aria-label="Export transaction as PDF">
           <FileText size={18} className="text-indigo-400 hover:text-indigo-600 cursor-pointer" />
         </button>
       </div>

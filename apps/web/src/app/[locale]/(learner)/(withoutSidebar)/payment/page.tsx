@@ -15,61 +15,40 @@ const SERVICE_FEE = 2.5
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatCardNumber(val: string): string {
-  return val.replace(/\D/g, "") 
-  //regex means replace non-digit charcters with empty string 
-  
-  .slice(0, 16).replace(/(.{4})/g, "$1 ").trim()
-  // .slice(0, 16)the limit of this inputs 16 numbers only  not allowed to write more than 16
-///(.{4})/g loop every 4 charcter and saveit on the memory  and take those 4 numbers that saved on the memory and add space after that
-//i used trim here because the lasst four numbers will be added spaces after that and we didnot need that so must be removed
+  return val.replace(/\D/g, "")
+    .slice(0, 16).replace(/(.{4})/g, "$1 ").trim()
 }
 
 function formatExpiry(val: string): string {
   const digits = val.replace(/\D/g, "").slice(0, 4)
   if (digits.length >= 3) return digits.slice(0, 2) + " / " + digits.slice(2)
-    //if  the user write more than 3 numbers format like this  03/28
-  return digits //if not return only the number 
+  return digits
 }
 
 function digitsOnly(val: string): string {
   return val.replace(/[\s/]/g, "")
 }
 
-/**
- * Validates expiry:
- * - Month must be 01–12
- * - Year must be current year or future (2-digit YY)
- * - Must not be in the past
- * Returns an error string or null if valid
- */
 function validateExpiry(val: string): string | null {
   const digits = digitsOnly(val)
 
   if (digits.length !== 4) return "Enter a valid Month or a valid year "
 
-  const month = Number(digits.slice(0, 2))//Month
+  const month = Number(digits.slice(0, 2))
   const year  = Number("20" + digits.slice(2))
 
   if (month < 1 || month > 12) return "Invalid month — must be 01 to 12"
 
-  const now       = new Date()
-  const expiryDate = new Date(year, month - 1, 1) // first day of expiry month
+  const now        = new Date()
+  const expiryDate = new Date(year, month - 1, 1)
 
   if (expiryDate < new Date(now.getFullYear(), now.getMonth(), 1)) {
     return "Card has expired"
   }
 
-  return null //  card is valid
+  return null
 }
 
-
-  // async function handleSubmit() {
-  //   // Run expiry validation one more time before submit
-  //   const expiryErr = validateExpiry(expiry)
-  //   if (expiryErr) {
-  //     setExpiryError(expiryErr)
-  //     return
-  //   }
 // ── Component ─────────────────────────────────────────────────────────────────
 
 function PaymentContent() {
@@ -78,70 +57,81 @@ function PaymentContent() {
   const params       = useParams()
   const locale       = (params.locale as string) ?? "en"
 
-  const tutorId    = searchParams.get("tutorId")    ?? ""
-  const tutorName  = searchParams.get("tutorName")  ?? "Tutor"
-  const subject    = searchParams.get("subject")    ?? "Session"
-  const date       = searchParams.get("date")       ?? ""
-  const time       = searchParams.get("time")       ?? ""
-  const hourlyRate = Number(searchParams.get("hourlyRate") ?? 45)
-  const duration   = Number(searchParams.get("duration")   ?? 60)
-  const currency   = searchParams.get("currency")   ?? "$"
+  const tutorId   = searchParams.get("tutorId")   ?? ""
+  const tutorName = searchParams.get("tutorName") ?? "Tutor"
+  const subject   = searchParams.get("subject")   ?? "Session"
+  const date      = searchParams.get("date")      ?? ""
+  const time      = searchParams.get("time")      ?? ""
+  const currency  = searchParams.get("currency")  ?? "$"
+
+  // FIX #3: Validate numeric query params — fall back to safe defaults if NaN
+  const rawHourlyRate = Number(searchParams.get("hourlyRate"))
+  const rawDuration   = Number(searchParams.get("duration"))
+  const hourlyRate    = isNaN(rawHourlyRate) || rawHourlyRate <= 0 ? 45 : rawHourlyRate
+  const duration      = isNaN(rawDuration)   || rawDuration   <= 0 ? 60 : rawDuration
 
   const sessionCost = (hourlyRate * duration) / 60
   const total       = sessionCost + SERVICE_FEE
 
-  const [cardNumber,   setCardNumber]   = useState("")
-  const [expiry,       setExpiry]       = useState("")
-  const [cvv,          setCvv]          = useState("")
-  const [expiryError,  setExpiryError]  = useState<string | null>(null)
-  const [method,       setMethod]       = useState<"card" | "paypal">("card")
-  const [submitting,   setSubmitting]   = useState(false)
+  const [cardNumber,  setCardNumber]  = useState("")
+  const [expiry,      setExpiry]      = useState("")
+  const [cvv,         setCvv]         = useState("")
+  const [expiryError, setExpiryError] = useState<string | null>(null)
+  const [method,      setMethod]      = useState<"card" | "paypal">("card")
+  const [submitting,  setSubmitting]  = useState(false)
 
-  // Validate expiry when user leaves the field
   function handleExpiryBlur() {
     if (expiry.length === 0) return
     setExpiryError(validateExpiry(expiry))
   }
 
-  // Clear error while user is still typing
   function handleExpiryChange(val: string) {
     setExpiry(formatExpiry(val))
     setExpiryError(null)
   }
 
   async function handleSubmit() {
-    // Run expiry validation one more time before submit
-    const expiryErr = validateExpiry(expiry)
-    if (expiryErr) {
-      setExpiryError(expiryErr)
-      return
+    // FIX #2: Only validate expiry for card payments
+    if (method === "card") {
+      const expiryErr = validateExpiry(expiry)
+      if (expiryErr) {
+        setExpiryError(expiryErr)
+        return
+      }
     }
 
     setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 1500))
 
-    saveTransaction({
-      id: "txn_" + Date.now(),
-      date: new Date().toLocaleDateString("en-US", {
-        month: "short", day: "numeric", year: "numeric",
-      }),
-      tutorName,
-      subject,
-      amount: total,
-      currency,
-      duration,
-      status: "Completed",
-    })
+    // FIX #1: Wrap in try/catch/finally so submitting is always reset
+    try {
+      await new Promise((r) => setTimeout(r, 1500))
 
-    setSubmitting(false)
-    router.push(
-      `/${locale}/payment/success` +
-      `?tutorName=${encodeURIComponent(tutorName)}` +
-      `&subject=${encodeURIComponent(subject)}` +
-      `&date=${encodeURIComponent(date)}` +
-      `&time=${encodeURIComponent(time)}` +
-      `&tutorId=${tutorId}`
-    )
+      saveTransaction({
+        id: "txn_" + Date.now(),
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short", day: "numeric", year: "numeric",
+        }),
+        tutorName,
+        subject,
+        amount: total,
+        currency,
+        duration,
+        status: "Completed",
+      })
+
+      router.push(
+        `/${locale}/payment/success` +
+        `?tutorName=${encodeURIComponent(tutorName)}` +
+        `&subject=${encodeURIComponent(subject)}` +
+        `&date=${encodeURIComponent(date)}` +
+        `&time=${encodeURIComponent(time)}` +
+        `&tutorId=${tutorId}`
+      )
+    } catch (err) {
+      console.error("Payment failed:", err)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const isCardInvalid =

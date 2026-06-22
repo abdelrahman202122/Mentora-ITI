@@ -18,5 +18,10 @@ export function saveTransaction(tx: Transaction) {
 export function getTransactions(): Transaction[] {
   if (typeof window === "undefined") return []
   const data = localStorage.getItem("mentora_transactions")
-  return data ? JSON.parse(data) : []
+  if (!data) return []
+  try {
+    return JSON.parse(data)
+  } catch {
+    return []
+  }
 }

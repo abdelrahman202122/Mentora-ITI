@@ -1,11 +1,21 @@
 import { type Transaction } from "@/services/paymentHistory/payment-history-service"
+import { jsPDF } from 'jspdf';
 
+// Neutralizes CSV/spreadsheet formula injection by prefixing values that
+// start with =, +, -, or @ with a single quote so spreadsheet apps treat
+// them as plain text instead of executing them as formulas.
+function sanitizeCSVField(value: string): string {
+  if (/^[=+\-@]/.test(value)) {
+    return `'${value}`
+  }
+  return value
+}
 
 export function exportCSV(transactions: Transaction[]) {
   if (transactions.length === 0) return
   const headers = ["Date", "Tutor", "Subject", "Duration", "Amount", "Currency", "Status"]
   const rows = transactions.map((tx) => [
-    tx.date, tx.tutorName, tx.subject,
+    tx.date, sanitizeCSVField(tx.tutorName), sanitizeCSVField(tx.subject),
     tx.duration >= 60 ? `${tx.duration / 60}h` : `${tx.duration}min`,
     tx.amount.toFixed(2), tx.currency, tx.status,
   ])
@@ -13,7 +23,7 @@ export function exportCSV(transactions: Transaction[]) {
     .map((row) => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
     .join("\n")
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-  const url = URL.createObjectURL(blob)//transfer it to url to download it
+  const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
   link.href = url
   link.download = "mentora_transactions.csv"
@@ -23,7 +33,26 @@ export function exportCSV(transactions: Transaction[]) {
 
 
 
-import jsPDF from 'jspdf';
+
+// ── Status color helper ───────────────────────────────────
+function getStatusColors(status: string): {
+  fill: [number, number, number];
+  text: string;
+} {
+  switch (status.toLowerCase()) {
+    case "completed":
+      return { fill: [209, 250, 229], text: "#065f46" }; // green
+    case "pending":
+      return { fill: [254, 243, 199], text: "#92400e" }; // yellow/orange
+    case "failed":
+    case "cancelled":
+      return { fill: [254, 226, 226], text: "#991b1b" }; // red
+    case "refunded":
+      return { fill: [219, 234, 254], text: "#1e40af" }; // blue
+    default:
+      return { fill: [243, 244, 246], text: "#374151" }; // gray
+  }
+}
 
 export function exportInvoicePDF(tx: Transaction) {
   const doc = new jsPDF({
@@ -34,7 +63,6 @@ export function exportInvoicePDF(tx: Transaction) {
 
   const pageW = 210;
   const margin = 20;
-  const contentW = pageW - margin * 2;
   let y = 20;
 
   // ── Helper functions ──────────────────────────────────────
@@ -63,13 +91,11 @@ export function exportInvoicePDF(tx: Transaction) {
   };
 
   // ── Header ────────────────────────────────────────────────
-  // Logo background pill
   doc.setFillColor(79, 70, 229);
   doc.roundedRect(margin, y - 5, 38, 10, 3, 3, 'F');
   setFont(13, 'bold', '#ffffff');
   doc.text('Mentora', margin + 4, y + 2);
 
-  // Invoice title (right side)
   setFont(16, 'bold', '#1f2937');
   doc.text('Invoice', pageW - margin, y, { align: 'right' });
   y += 7;
@@ -88,10 +114,11 @@ export function exportInvoicePDF(tx: Transaction) {
   // Status badge
   setFont(11, 'normal', '#6b7280');
   doc.text('Status', margin, y);
-  doc.setFillColor(209, 250, 229);
+  const { fill, text } = getStatusColors(tx.status);
+  doc.setFillColor(fill[0], fill[1], fill[2]);
   const statusW = doc.getTextWidth(tx.status) + 8;
   doc.roundedRect(pageW - margin - statusW, y - 5, statusW, 7, 2, 2, 'F');
-  setFont(10, 'bold', '#065f46');
+  setFont(10, 'bold', text);
   doc.text(tx.status, pageW - margin - statusW / 2, y, { align: 'center' });
   y += 14;
 
@@ -124,4 +151,3 @@ export function exportInvoicePDF(tx: Transaction) {
   // ── Save ──────────────────────────────────────────────────
   doc.save(`Invoice-${tx.id}.pdf`);
 }
-

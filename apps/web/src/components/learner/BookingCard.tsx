@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 interface BookingCardProps {
   bookingId: string
@@ -25,6 +24,8 @@ export default function BookingCard({
   currency = "$",
 }: BookingCardProps) {
   const router = useRouter()
+  const params = useParams()
+  const locale = params.locale as string
 
   return (
     <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
@@ -42,7 +43,7 @@ export default function BookingCard({
           <button
             onClick={() =>
               router.push(
-                `/en/payment?bookingId=${bookingId}&tutorName=${encodeURIComponent(tutorName)}&subject=${encodeURIComponent(subject)}&time=${encodeURIComponent(time)}&hourlyRate=${hourlyRate}&duration=${duration}&currency=${encodeURIComponent(currency)}`
+                `/${locale}/payment?bookingId=${bookingId}&tutorName=${encodeURIComponent(tutorName)}&subject=${encodeURIComponent(subject)}&time=${encodeURIComponent(time)}&hourlyRate=${hourlyRate}&duration=${duration}&currency=${encodeURIComponent(currency)}`
               )
             }
             className="bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 cursor-pointer"
