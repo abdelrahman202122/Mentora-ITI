@@ -103,7 +103,7 @@ export default function LearnerDashboardPage() {
           </div>
           <button
             onClick={() => window.open(mockBooking.tutor.meetingLink, "_blank")}
-            className="bg-white text-indigo-600 font-semibold text-sm px-4 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
+            className="bg-white text-indigo-600 font-semibold text-sm px-4 py-2 rounded-lg whitespace-nowrap flex-shrink-0 cursor-pointer"
           >
             Join Now
           </button>
