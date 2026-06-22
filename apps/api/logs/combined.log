@@ -415,3 +415,5 @@
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T16:30:06.919Z"}
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T16:41:28.675Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T16:41:28.693Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T16:45:05.205Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T16:45:05.214Z"}
