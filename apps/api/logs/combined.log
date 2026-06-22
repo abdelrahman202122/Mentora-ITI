@@ -411,5 +411,51 @@
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-15T07:41:39.275Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-19T21:55:14.373Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-19T22:10:21.908Z"}
-{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-21T12:49:19.084Z"}
-{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-21T12:50:03.155Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T00:08:16.217Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T00:08:16.247Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T14:19:55.428Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T14:19:55.461Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a33ee65a0c348f1fca9872c"},"timestamp":"2026-06-22T14:21:17.075Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:21:17 +0000] \"POST /api/users/login HTTP/1.1\" 200 114 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:21:17.096Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a33ee65a0c348f1fca9872c"},"timestamp":"2026-06-22T14:21:17.364Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2f2c7cb2f273a3accb5f70"},"timestamp":"2026-06-22T14:22:50.053Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:22:50 +0000] \"POST /api/users/login HTTP/1.1\" 200 123 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:22:50.057Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a2f2c7cb2f273a3accb5f70"},"timestamp":"2026-06-22T14:22:50.317Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:30:10 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:30:10.837Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:30:56 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:30:56.110Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:31:38 +0000] \"POST /api/chats HTTP/1.1\" 400 89 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:31:38.406Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:31:57 +0000] \"POST /api/chats HTTP/1.1\" 404 45 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:31:57.944Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:32:08 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:32:08.361Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:33:21 +0000] \"POST /api/chats HTTP/1.1\" 404 45 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:33:21.209Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:33:31 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:33:31.702Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:33:57 +0000] \"POST /api/chats HTTP/1.1\" 401 53 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:33:57.141Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2f2c7cb2f273a3accb5f70"},"timestamp":"2026-06-22T14:34:05.010Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:34:05 +0000] \"POST /api/users/login HTTP/1.1\" 200 123 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:34:05.016Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a2f2c7cb2f273a3accb5f70"},"timestamp":"2026-06-22T14:34:05.356Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:34:14 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:34:14.131Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-22T14:35:09.907Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:35:09 +0000] \"POST /api/users/login HTTP/1.1\" 200 124 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:35:09.911Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-22T14:35:10.176Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:35:15 +0000] \"POST /api/chats HTTP/1.1\" 403 39 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:35:15.042Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2f2c7cb2f273a3accb5f70"},"timestamp":"2026-06-22T14:35:40.614Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:35:40 +0000] \"POST /api/users/login HTTP/1.1\" 200 123 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:35:40.620Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a2f2c7cb2f273a3accb5f70"},"timestamp":"2026-06-22T14:35:40.939Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:36:36 +0000] \"GET /api/chats?page=1&limit=20&status=active HTTP/1.1\" 200 373 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:36:36.302Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:37:55 +0000] \"PATCH /api/chats/6a317941c2f8d8deefd6e505/archive HTTP/1.1\" 200 297 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:37:55.492Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:38:26 +0000] \"GET /api/chats?page=1&limit=20&status=active HTTP/1.1\" 200 141 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:38:26.526Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:38:36 +0000] \"GET /api/chats?page=1&limit=20 HTTP/1.1\" 200 141 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:38:36.324Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:38:43 +0000] \"GET /api/chats?page=1&limit=20 HTTP/1.1\" 200 141 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:38:43.730Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:39:16 +0000] \"GET /api/chats?status=archived HTTP/1.1\" 200 354 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:39:16.251Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:40:22 +0000] \"GET /api/chats?status=active HTTP/1.1\" 200 120 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:40:22.445Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:42:43 +0000] \"GET /api/chats?status=active HTTP/1.1\" 200 120 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:42:43.862Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-22T14:43:18.261Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:43:18 +0000] \"POST /api/users/login HTTP/1.1\" 200 124 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:43:18.264Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-22T14:43:18.529Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:43:24 +0000] \"PATCH /api/chats/6a317941c2f8d8deefd6e505/archive HTTP/1.1\" 200 300 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:43:24.207Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:43:35 +0000] \"PATCH /api/chats/6a317941c2f8d8deefd6e505/archive HTTP/1.1\" 200 300 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:43:35.411Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a33ebc29268388b317ba910"},"timestamp":"2026-06-22T14:44:12.438Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:44:12 +0000] \"POST /api/users/login HTTP/1.1\" 200 112 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:44:12.440Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a33ebc29268388b317ba910"},"timestamp":"2026-06-22T14:44:12.697Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:44:16 +0000] \"PATCH /api/chats/6a317941c2f8d8deefd6e505/archive HTTP/1.1\" 404 44 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:44:16.308Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:45:06 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:45:06.922Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:14:45:13 +0000] \"GET /api/chats?status=active HTTP/1.1\" 200 352 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-22T14:45:13.609Z"}
