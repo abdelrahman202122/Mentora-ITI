@@ -356,3 +356,47 @@ export const deleteAvatar = async (
     next(error);
   }
 };
+
+
+
+export const forgotPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+try {
+    const { email } = req.body;
+
+    const resetToken = await userService.forgotPassword(email);
+
+    res.status(200).json({
+      success: true,
+      message: 'If an account with that email exists, a reset link has been sent.',
+    });
+
+
+} catch (error) {
+    next(error);
+}
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+try {
+const { token, newPassword } = req.body;
+
+await userService.resetPassword(token, newPassword);
+
+res.status(200).json({
+  success: true,
+  message: 'Password reset successfully. Please log in with your new password.',
+});
+
+
+} catch (error) {
+next(error);
+}
+};

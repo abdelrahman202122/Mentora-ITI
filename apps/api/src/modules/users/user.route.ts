@@ -6,8 +6,10 @@ import { uploadAvatarMiddleware } from '../../middleware/upload.middleware.js';
 import { validate } from '../../middleware/validation.middleware.js';
 import {
   changePasswordSchema,
+  forgotPasswordSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   updateProfileSchema,
   updateUserByAdminSchema,
 } from './user.validation.js';
@@ -74,6 +76,20 @@ router.patch(
   authMiddleware,
   validate(updateProfileSchema), // ← added
   UserController.updateProfile,
+);
+
+router.post(
+  '/forgot-password',
+  authRateLimit,
+  validate(forgotPasswordSchema),
+  UserController.forgotPassword
+);
+
+router.post(
+  '/reset-password',
+  authRateLimit,
+  validate(resetPasswordSchema),
+  UserController.resetPassword
 );
 
 router.patch(

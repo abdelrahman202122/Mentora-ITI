@@ -25,6 +25,8 @@ const envSchema = z.object({
   PAYMOB_SECRET_KEY: z.string().min(1, 'PAYMOB_SECRET_KEY is required'),
   PAYMOB_HMAC_SECRET: z.string().min(1, 'PAYMOB_HMAC_SECRET is required'),
   PAYMOB_INTEGRATION_ID: z.coerce.number().int().positive(),
+  EMAIL_USER: z.string().email(),
+  EMAIL_PASS: z.string().min(6),
 });
 
 export const env = envSchema.parse(process.env);
