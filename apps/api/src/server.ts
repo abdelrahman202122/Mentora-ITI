@@ -19,7 +19,12 @@ function listen(server: Server, port: number) {
 
 async function bootstrap() {
   await connectDatabase();
-  await connectRedis();
+
+  if (env.REDIS_ENABLED) {
+    await connectRedis();
+  } else {
+    logger.warn('Redis disabled; Socket.IO will use the in-memory adapter');
+  }
 
   const app = createApp();
   const server = createServer(app);
