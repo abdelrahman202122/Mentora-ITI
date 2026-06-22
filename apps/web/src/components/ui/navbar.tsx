@@ -4,8 +4,10 @@ import Link from "next/link"
 
 type NavbarProps = {
   locale: string
-  role: "learner" | "tutor"
+  role?: "learner" | "tutor"
 }
+
+export function Navbar({ locale }: NavbarProps) {
 
 export function Navbar({ locale, role }: NavbarProps) {
   return (
