@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import * as UserController from './user.controller.js';
 import { authMiddleware } from '../../middleware/auth.middleware.js';
-import { authRateLimit } from '../../middleware/rateLimit.middleware.js';
+import { authRateLimit, passwordResetRateLimit } from '../../middleware/rateLimit.middleware.js';
 import { uploadAvatarMiddleware } from '../../middleware/upload.middleware.js';
 import { validate } from '../../middleware/validation.middleware.js';
 import {
   changePasswordSchema,
+  forgotPasswordSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   updateProfileSchema,
   updateUserByAdminSchema,
 } from './user.validation.js';
@@ -74,6 +76,20 @@ router.patch(
   authMiddleware,
   validate(updateProfileSchema), // ← added
   UserController.updateProfile,
+);
+
+router.post(
+  '/forgot-password',
+  passwordResetRateLimit,
+  validate(forgotPasswordSchema),
+  UserController.forgotPassword
+);
+
+router.post(
+  '/reset-password',
+  passwordResetRateLimit,
+  validate(resetPasswordSchema),
+  UserController.resetPassword
 );
 
 router.patch(
