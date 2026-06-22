@@ -421,3 +421,18 @@
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T16:55:08.412Z"}
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T16:55:15.940Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T16:55:15.958Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T17:42:44.936Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T17:42:45.012Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-22T17:43:12.258Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-22T17:43:12.376Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:43:37 +0000] \"GET /api/users/me HTTP/1.1\" 401 53 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-22T17:43:38.000Z"}
+{"level":"info","message":{"event":"refresh_token.success","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-22T17:43:39.521Z"}
+{"level":"info","message":{"event":"refresh_token.completed"},"timestamp":"2026-06-22T17:43:39.524Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:43:39 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 200 16 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-22T17:43:39.538Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:43:39 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-22T17:43:39.969Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:43:50 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-22T17:43:50.743Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:44:02 +0000] \"GET /api/users/me HTTP/1.1\" 200 148 \"-\" \"node\"","timestamp":"2026-06-22T17:44:02.190Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:44:02 +0000] \"GET /api/users/me HTTP/1.1\" 200 148 \"-\" \"node\"","timestamp":"2026-06-22T17:44:02.199Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:44:03 +0000] \"GET /api/tutors/6a2f2984b2f273a3accb5f5d/profile HTTP/1.1\" 200 483 \"-\" \"axios/1.18.0\"","timestamp":"2026-06-22T17:44:03.035Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:44:32 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-22T17:44:32.706Z"}
+{"level":"info","message":"::1 - - [22/Jun/2026:17:44:32 +0000] \"GET /api/tutors/6a2f2984b2f273a3accb5f5d/subjects HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-22T17:44:32.752Z"}
