@@ -1,46 +1,46 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useLocale } from "next-intl";
-import { 
-  GraduationCap, 
-  Mail, 
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import {
+  GraduationCap,
+  Mail,
   ArrowUp,
   Heart,
   Facebook,
   Twitter,
   Instagram,
-  Linkedin
-} from "lucide-react";
-import { getLocalePath } from "@/utils/i18n/locale-path";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+  Linkedin,
+} from 'lucide-react';
+import { getLocalePath } from '@/utils/i18n/locale-path';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function Footer() {
   const locale = useLocale();
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const socialLinks = [
-    { label: "Facebook", url: "https://facebook.com", icon: Facebook },
-    { label: "Twitter", url: "https://twitter.com", icon: Twitter },
-    { label: "Instagram", url: "https://instagram.com", icon: Instagram },
-    { label: "LinkedIn", url: "https://linkedin.com", icon: Linkedin },
+    { label: 'Facebook', url: 'https://facebook.com', icon: Facebook },
+    { label: 'Twitter', url: 'https://twitter.com', icon: Twitter },
+    { label: 'Instagram', url: 'https://instagram.com', icon: Instagram },
+    { label: 'LinkedIn', url: 'https://linkedin.com', icon: Linkedin },
   ];
 
   const exploreLinks = [
-    { label: "Home", path: "/" },
-    { label: "Subjects", path: "/#subjects" },
-    { label: "How It Works", path: "/#how-it-works" },
-    { label: "Testimonials", path: "/#testimonials" }
+    { label: 'Home', path: '/' },
+    { label: 'Subjects', path: '/#subjects' },
+    { label: 'How It Works', path: '/#how-it-works' },
+    { label: 'Testimonials', path: '/#testimonials' },
   ];
 
   const legalLinks = [
-    { label: "Privacy Policy", path: "/privacy" },
-    { label: "Terms of Service", path: "/terms" },
-    { label: "Help Center", path: "/help" }
+    { label: 'Privacy Policy', path: '/privacy' },
+    { label: 'Terms of Service', path: '/terms' },
+    { label: 'Help Center', path: '/help' },
   ];
 
   return (
@@ -50,14 +50,12 @@ export default function Footer() {
       <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-72 h-72 md:w-96 md:h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-        
         {/* Top Grid - تم تعديل توزيع الأعمدة على الموبايل والتابلت بشكل متناسق */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-8 pb-12 md:pb-16 text-center sm:text-left">
-          
           {/* Column 1: Brand & Bio */}
           <div className="space-y-4 md:space-y-6 flex flex-col items-center sm:items-start">
-            <Link 
-              href={getLocalePath(locale, "/")} 
+            <Link
+              href={getLocalePath(locale, '/')}
               className="flex items-center gap-3 group text-white"
             >
               <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
@@ -68,7 +66,9 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-slate-400 max-w-xs mx-auto sm:mx-0">
-              Mentora is a premium tutoring platform connecting students with certified educators. We aim to personalize education and make learning interactive, accessible, and delightful.
+              Mentora is a premium tutoring platform connecting students with
+              certified educators. We aim to personalize education and make
+              learning interactive, accessible, and delightful.
             </p>
             {/* Social Icons */}
             <div className="flex gap-4 pt-2 justify-center sm:justify-start">
@@ -95,7 +95,7 @@ export default function Footer() {
             <ul className="space-y-3 md:space-y-4 text-sm">
               {exploreLinks.map(({ label, path }) => (
                 <li key={label}>
-                  <Link 
+                  <Link
                     href={getLocalePath(locale, path)}
                     className="hover:text-white transition-colors duration-200 block sm:inline-block"
                   >
@@ -114,7 +114,10 @@ export default function Footer() {
             <ul className="space-y-3 md:space-y-4 text-sm flex flex-col items-center sm:items-start">
               {legalLinks.map(({ label, path }) => (
                 <li key={label}>
-                  <Link href={getLocalePath(locale, path)} className="hover:text-white transition-colors duration-200 block sm:inline-block">
+                  <Link
+                    href={getLocalePath(locale, path)}
+                    className="hover:text-white transition-colors duration-200 block sm:inline-block"
+                  >
                     {label}
                   </Link>
                 </li>
@@ -132,9 +135,13 @@ export default function Footer() {
               Newsletter
             </h3>
             <p className="text-sm leading-relaxed text-slate-400">
-              Subscribe to stay updated with new courses, tutorials, and premium learning guides.
+              Subscribe to stay updated with new courses, tutorials, and premium
+              learning guides.
             </p>
-            <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3">
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="flex flex-col gap-3"
+            >
               <Input
                 type="email"
                 required
@@ -157,10 +164,14 @@ export default function Footer() {
         {/* Bottom Bar - تم تحويله لعمود طولي متناسق على الموبايل وسطر أفقي على الشاشات الأكبر */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-6 pt-8 text-xs text-slate-500 text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-1.5">
-            <span>© {new Date().getFullYear()} Mentora. All rights reserved.</span>
+            <span>
+              © {new Date().getFullYear()} Mentora. All rights reserved.
+            </span>
             <span className="hidden sm:inline text-slate-700">|</span>
             <span className="flex items-center gap-1">
-              Made with <Heart className="size-3 text-red-500 fill-red-500 animate-pulse" /> at ITI Lab
+              Made with{' '}
+              <Heart className="size-3 text-red-500 fill-red-500 animate-pulse" />{' '}
+              at ITI Lab
             </span>
           </div>
 
