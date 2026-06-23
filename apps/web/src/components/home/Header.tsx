@@ -15,6 +15,7 @@ export default function Header() {
   
   // 1. جلب بيانات المستخدم، حالة التحميل، ودالة الـ logout
   const { data: user, isPending } = useCurrentUser();
+
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogout();
 
   // 2. دالة معالجة تسجيل الخروج والتحويل
