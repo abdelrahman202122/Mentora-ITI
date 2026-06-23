@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, Send } from 'lucide-react';
+import { Archive, ArrowLeft, Loader2, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
-import { useChatMessages } from '@/hooks/chat/use-chat';
+import { useArchiveChat, useChatMessages } from '@/hooks/chat/use-chat';
 import { useChatSocket } from '@/hooks/chat/use-chat-socket';
 import type { ChatMessage } from '@/types/chat/chat-types';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 type ChatConversationProps = {
   chatId: string;
   backHref: string;
+  archiveRedirectHref?: string;
   title?: string;
   subtitle?: string;
 };
@@ -46,12 +48,15 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
 export function ChatConversation({
   chatId,
   backHref,
+  archiveRedirectHref = backHref,
   title = 'Messages',
   subtitle = 'Conversation history',
 }: ChatConversationProps) {
+  const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [messageInput, setMessageInput] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
+  const [archiveError, setArchiveError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const {
     data,
@@ -63,6 +68,7 @@ export function ChatConversation({
     isPending,
     refetch,
   } = useChatMessages(chatId);
+  const archiveChatMutation = useArchiveChat();
   const { data: currentUser } = useCurrentUser();
   const {
     connectionStatus,
@@ -127,6 +133,19 @@ export function ChatConversation({
     }
   }
 
+  async function handleArchiveChat() {
+    setArchiveError(null);
+
+    try {
+      await archiveChatMutation.mutateAsync(chatId);
+      router.replace(archiveRedirectHref);
+    } catch (error) {
+      setArchiveError(
+        error instanceof Error ? error.message : 'Could not archive chat',
+      );
+    }
+  }
+
   return (
     <div className="mx-auto flex h-full max-w-2xl flex-col">
       <div className="mb-4 flex items-center gap-3">
@@ -140,10 +159,25 @@ export function ChatConversation({
           M
         </div>
 
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-sm font-semibold text-gray-900">{title}</h1>
           <p className="text-xs text-gray-500">{subtitle}</p>
         </div>
+
+        <Button
+          aria-label="Archive chat"
+          disabled={archiveChatMutation.isPending}
+          onClick={() => void handleArchiveChat()}
+          size="icon"
+          type="button"
+          variant="outline"
+        >
+          {archiveChatMutation.isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Archive className="size-4" />
+          )}
+        </Button>
       </div>
 
       <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-100">
@@ -210,9 +244,9 @@ export function ChatConversation({
       </div>
 
       <div className="space-y-2">
-        {socketError || sendError ? (
+        {socketError || sendError || archiveError ? (
           <p className="text-xs font-medium text-red-600">
-            {sendError ?? socketError}
+            {archiveError ?? sendError ?? socketError}
           </p>
         ) : null}
 

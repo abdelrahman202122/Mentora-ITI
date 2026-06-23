@@ -40,3 +40,10 @@ export async function archiveChat(chatId: string): Promise<Chat> {
   );
   return response.data.data;
 }
+
+export async function restoreChat(chatId: string): Promise<Chat> {
+  const response = await api.patch<ApiSuccess<Chat>>(
+    `/chats/${chatId}/restore`
+  );
+  return response.data.data;
+}

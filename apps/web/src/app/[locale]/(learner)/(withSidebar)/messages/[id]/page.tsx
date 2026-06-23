@@ -14,6 +14,7 @@ export default function ChatPage() {
     <ChatConversation
       chatId={params.id}
       backHref={getLocalePath(locale, '/messages')}
+      archiveRedirectHref={getLocalePath(locale, '/messages')}
     />
   );
 }
