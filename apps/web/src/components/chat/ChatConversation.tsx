@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, Send } from 'lucide-react';
 
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import { useChatMessages } from '@/hooks/chat/use-chat';
+import { useChatSocket } from '@/hooks/chat/use-chat-socket';
 import type { ChatMessage } from '@/types/chat/chat-types';
 import { cn } from '@/lib/utils';
 
@@ -48,6 +50,9 @@ export function ChatConversation({
   subtitle = 'Conversation history',
 }: ChatConversationProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [messageInput, setMessageInput] = useState('');
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
   const {
     data,
     error,
@@ -59,6 +64,12 @@ export function ChatConversation({
     refetch,
   } = useChatMessages(chatId);
   const { data: currentUser } = useCurrentUser();
+  const {
+    connectionStatus,
+    error: socketError,
+    isConnected,
+    sendMessage,
+  } = useChatSocket(chatId);
 
   const messages = useMemo(
     () =>
@@ -71,6 +82,30 @@ export function ChatConversation({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
+
+  async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!messageInput.trim() || isSending) {
+      return;
+    }
+
+    setIsSending(true);
+    setSendError(null);
+
+    try {
+      await sendMessage(messageInput);
+      setMessageInput('');
+    } catch (sendMessageError) {
+      setSendError(
+        sendMessageError instanceof Error
+          ? sendMessageError.message
+          : 'Could not send message',
+      );
+    } finally {
+      setIsSending(false);
+    }
+  }
 
   return (
     <div className="mx-auto flex h-full max-w-2xl flex-col">
@@ -154,18 +189,43 @@ export function ChatConversation({
         <div ref={bottomRef} />
       </div>
 
-      <form className="flex items-center gap-2 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-gray-100">
-        <Input
-          aria-label="Message"
-          className="h-10 flex-1"
-          disabled
-          placeholder="Type a message..."
-          type="text"
-        />
-        <Button disabled size="icon" type="button">
-          <Send className="size-4" />
-        </Button>
-      </form>
+      <div className="space-y-2">
+        {socketError || sendError ? (
+          <p className="text-xs font-medium text-red-600">
+            {sendError ?? socketError}
+          </p>
+        ) : null}
+
+        <form
+          className="flex items-center gap-2 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-gray-100"
+          onSubmit={handleSendMessage}
+        >
+          <Input
+            aria-label="Message"
+            className="h-10 flex-1"
+            disabled={!isConnected || isSending}
+            onChange={(event) => setMessageInput(event.target.value)}
+            placeholder={
+              connectionStatus === 'connecting'
+                ? 'Connecting...'
+                : 'Type a message...'
+            }
+            type="text"
+            value={messageInput}
+          />
+          <Button
+            disabled={!isConnected || isSending || !messageInput.trim()}
+            size="icon"
+            type="submit"
+          >
+            {isSending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Send className="size-4" />
+            )}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -189,7 +249,7 @@ function MessageBubble({
             : 'rounded-bl-md bg-gray-100 text-gray-900',
         )}
       >
-        <p className="whitespace-pre-wrap wrap-break-word">{message.content}</p>
+        <p className="whitespace-pre-wrap break-words">{message.content}</p>
         {messageTime ? (
           <time
             className={cn(
