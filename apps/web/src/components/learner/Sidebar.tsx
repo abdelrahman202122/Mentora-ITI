@@ -23,7 +23,7 @@ const learnerNavLinks = [
   { path: "/ai-assistant", icon: Bot, label: "AI Assistant" },
   { path: "/tutor-match", icon: Users, label: "Tutor Match" },
   { path: "/messages", icon: MessageSquare, label: "Messages" },
-  { path: "/payments", icon: CreditCard, label: "Payments" },
+  { path: "/paymentHistory", icon: CreditCard, label: "Payments" },
   { path: "/settings", icon: Settings, label: "Settings" },
 ]
 

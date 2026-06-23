@@ -60,11 +60,14 @@ export function validate(input: ValidationInput): RequestHandler {
         }
 
         if (target === 'query') {
-          for (const key of Object.keys(req.query)) {
-            delete req.query[key];
-          }
-
-          Object.assign(req.query, result.data);
+          // Express 5 exposes req.query through a getter. Shadow it so later
+          // handlers receive Zod's coerced values and defaults.
+          Object.defineProperty(req, 'query', {
+            value: result.data,
+            configurable: true,
+            enumerable: true,
+            writable: true,
+          });
           continue;
         }
 

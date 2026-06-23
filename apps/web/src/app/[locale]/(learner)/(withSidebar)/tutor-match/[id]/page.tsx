@@ -3,16 +3,14 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { useLocale } from "next-intl"
 import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar } from "lucide-react"
-import { getTutorById, type TutorSummary } from "@/services/tutor/tutor-service"
+import { getTutorById, type TutorSummary } from "@/services/tutorsLearner/tutor"
 import { startConversation } from "@/services/message/message-service"
-import { getLocalePath } from "@/utils/i18n/locale-path"
 
 export default function TutorProfilePage() {
   const params = useParams()
   const router = useRouter()
-  const locale = useLocale()
+  const locale = params.locale as string
   const [tutor, setTutor] = useState<TutorSummary | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -49,7 +47,7 @@ export default function TutorProfilePage() {
 
       {/* Back */}
       <Link
-        href={getLocalePath(locale, "/tutor-match")}
+        href={`/${locale}/tutor-match`}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4"
       >
         <ArrowLeft size={16} />
@@ -95,9 +93,9 @@ export default function TutorProfilePage() {
           onClick={async () => {
             const chatId = await startConversation(tutor.id, tutor.name)
             const qs = new URLSearchParams({ tutorName: tutor.name }).toString()
-            router.push(getLocalePath(locale, "/messages/" + chatId) + "?" + qs)
+            router.push(`/${locale}/learner/messages/${chatId}?${qs}`)
           }}
-          className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+          className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer"
         >
           <MessageSquare size={15} />
           Chat with {tutor.name}
@@ -167,14 +165,22 @@ export default function TutorProfilePage() {
         </div>
       </div>
 
-      {/* Book Now */}
-      <Link
-        href={getLocalePath(locale, "/bookings/new") + "?tutorId=" + tutor.id}
-        className="block w-full bg-indigo-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-indigo-700 mb-6"
-      >
-        Book a Session — {tutor.hourlyRate} {tutor.currency}/hr
-      </Link>
-
+ 
+<div className="fixed bottom-6 right-6 z-50 animate-fade-in">
+  <Link
+    href={
+      `/${locale}/booking` +
+      `?tutorId=${tutor.id}` +
+      `&tutorName=${encodeURIComponent(tutor.name)}` +
+      `&hourlyRate=${tutor.hourlyRate}` +
+      `&currency=${encodeURIComponent(tutor.currency)}` +
+      `&subject=${encodeURIComponent(tutor.subjects[0] || "General Session")}`
+    }
+    className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
+  >
+    <span>Book a Session — {tutor.hourlyRate} {tutor.currency}/hr</span>
+  </Link>
+</div>
     </div>
   )
 }

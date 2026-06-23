@@ -74,3 +74,37 @@ export const updateProfileSchema = z
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
+
+
+
+export const forgotPasswordSchema = z
+.object({
+  email: z
+  .string()
+  .trim()
+  .email('Invalid email address'),
+})
+.strict();
+
+export type ForgotPasswordInput =
+z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+.object({
+token: z
+.string()
+.min(1, 'Token is required'),
+
+newPassword: z
+  .string()
+  .min(
+    6,
+    'Password must be at least 6 characters'
+  ),
+
+
+})
+.strict();
+
+export type ResetPasswordInput =
+z.infer<typeof resetPasswordSchema>;
