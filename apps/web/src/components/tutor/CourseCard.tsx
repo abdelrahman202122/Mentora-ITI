@@ -1,49 +1,66 @@
-import {  Edit, Trash2 } from "lucide-react";
+
+import { Edit, Trash2, GraduationCap, Calendar, Layers } from "lucide-react";
+import { TutorSubject } from "@/types/tutor/tutor-subject";
+import { formatDate } from "@/utils/tutor/formateDate";
 
 export default function CourseCard({
-  title,
-  tag,
-  idPrefix,
+  course,
 }: {
-  title: string;
-  tag: string;
-  idPrefix: string;
+  course: TutorSubject ;
 }) {
-  const titleId = `${idPrefix}-course-title`;
+const level = course.gradeNote || course.educationLevel;
+  const category = course.category.charAt(0).toUpperCase() + course.category.slice(1);
+
   return (
-    <div className="bg-card border border-border rounded-xl p-5 space-y-4 group relative">
+    <div className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 group relative hover:shadow-sm transition-shadow">
 
-      {/* Actions */}
-      <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-         <button aria-label="Edit course" className="p-2 rounded-full bg-background border hover:text-primary">
-          <Edit className="w-4 h-4" />
-        </button>
-        <button aria-label="Delete course" className="p-2 rounded-full bg-background border hover:text-red-500">
-          <Trash2 className="w-4 h-4" />
-        </button>
+      {/* Category badge — primary color at low opacity */}
+      <span className="self-start text-xs font-semibold px-2.5 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+        {category}
+      </span>
+
+      {/* Title + description */}
+      <div className="space-y-1 pr-14">
+        <h3 className="text-base font-semibold text-foreground leading-snug">
+          {course.title}
+        </h3>
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          {course.description}
+        </p>
       </div>
 
-      <div>
-        <label
-          htmlFor={titleId}
-          className="text-xs text-muted-foreground uppercase font-bold"
-        >
-          Course Title
-        </label>
+      {/* Divider */}
+      <div className="border-t border-border" />
 
-        <input
-          id={titleId}
-          defaultValue={title}
-          className="w-full text-lg font-bold bg-transparent outline-none"
-        />
-      </div>
+      {/* Meta grid */}
+      <div className="grid grid-cols-2 gap-3">
 
-      <div className="flex justify-between items-end">
+        <div className="flex items-start gap-2">
+          <GraduationCap className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Level</p>
+            <p className="text-sm text-foreground font-medium">{level}</p>
+          </div>
+        </div>
 
-        <span className="text-xs px-3 py-1 rounded-full bg-muted border text-muted-foreground">
-          {tag}
-        </span>
+        <div className="flex items-start gap-2">
+          <Layers className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Curriculum</p>
+            <p className="text-sm text-foreground font-medium">{course.curriculum}</p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2 col-span-2">
+          <Calendar className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Created</p>
+            <p className="text-sm text-foreground font-medium">{formatDate(course.createdAt)}</p>
+          </div>
+        </div>
+
       </div>
     </div>
   );
 }
+

@@ -1,17 +1,15 @@
 import api, { ApiClientError } from "@/lib/axios";
-import type { TutorSubject } from "@/types/tutor/tutor-subject";
 import type { ApiSuccess } from "@/types/apis/api-success";
+import type { Curriculum } from "@/types/metaData/curriculum";
 
-
-export async function getTutorSubjects(
-  tutorId: string
-): Promise<TutorSubject[]> {
+export async function getCurricula(): Promise<Curriculum[]> {
   try {
-    const response = await api.get<ApiSuccess<TutorSubject[]>>(
-      `/tutors/${tutorId}/subjects`
+    const response = await api.get<ApiSuccess<Curriculum[]>>(
+      "/metadata/curricula"
     );
 
     console.log(
+      "Curricula Response:----------------------------------------------",
       response.data
     );
 
