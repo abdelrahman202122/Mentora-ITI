@@ -14,6 +14,7 @@ import type {
 import { chatKeys } from "./use-chat";
 
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
+const MESSAGE_SEND_TIMEOUT_MS = 8000;
 
 function toChatMessage(payload: NewMessagePayload): ChatMessage {
   return {
@@ -156,22 +157,18 @@ export function useChatSocket(chatId: string) {
         throw new Error("Chat socket is not connected");
       }
 
-      const payload = await new Promise<NewMessagePayload>((resolve, reject) => {
-        socket.emit(
-          "message:send",
-          { chatId, content: trimmedContent },
-          (response) => {
-            if (response.ok) {
-              resolve(response.data);
-              return;
-            }
+      const response = await socket
+        .timeout(MESSAGE_SEND_TIMEOUT_MS)
+        .emitWithAck("message:send", {
+          chatId,
+          content: trimmedContent,
+        });
 
-            reject(new Error(response.error));
-          }
-        );
-      });
+      if (!response.ok) {
+        throw new Error(response.error);
+      }
 
-      addMessageToCache(payload);
+      addMessageToCache(response.data);
     },
     [addMessageToCache, chatId]
   );
