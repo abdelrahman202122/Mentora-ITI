@@ -9,6 +9,8 @@ tags:
   - name: User
   - name: Tutor
   - name: Metadata
+  - name: Chats
+    description: Authenticated learner-tutor conversations and message history
 paths:
   /api/users/register:
     post:
@@ -1208,6 +1210,241 @@ paths:
                         }
                     ]
                 }
+  /api/chats:
+    post:
+      operationId: createOrGetChat
+      summary: Create or retrieve a chat
+      description: Creates a chat between the authenticated learner and an active tutor. If the pair already has a chat, the existing chat is returned and its status is changed back to active.
+      tags:
+        - Chats
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatRequest'
+      responses:
+        '200':
+          description: Chat created or existing chat returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSuccessResponse'
+        '400':
+          description: Invalid request body or tutor ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only learners can create chats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Active tutor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      operationId: listChats
+      summary: List the authenticated user's chats
+      description: Returns the authenticated learner's or tutor's chats, filtered by status and sorted by most recent activity first. Each chat contains a summary of the other participant.
+      tags:
+        - Chats
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number to retrieve
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of chats returned per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+        - name: status
+          in: query
+          required: false
+          description: Chat status to include
+          schema:
+            type: string
+            enum: [active, archived]
+            default: active
+          example: active
+      responses:
+        '200':
+          description: Chats retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatListSuccessResponse'
+        '400':
+          description: Invalid pagination or status query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only learners and tutors can list chats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/chats/{chatId}/messages:
+    get:
+      operationId: listChatMessages
+      summary: List messages in a chat
+      description: Returns non-deleted messages for a chat in chronological order within the requested page. The authenticated learner or tutor must be a participant in the chat.
+      tags:
+        - Chats
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ChatId'
+        - name: page
+          in: query
+          required: false
+          description: Page number to retrieve
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of messages returned per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          example: 50
+      responses:
+        '200':
+          description: Messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListSuccessResponse'
+        '400':
+          description: Invalid chat ID or pagination query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only learners and tutors can retrieve messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Chat not found or the authenticated user is not a participant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/chats/{chatId}/archive:
+    patch:
+      operationId: archiveChat
+      summary: Archive a chat
+      description: Changes a chat's status to archived. The authenticated learner or tutor must be a participant. Repeating the operation is safe and leaves the chat archived.
+      tags:
+        - Chats
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ChatId'
+      responses:
+        '200':
+          description: Chat archived successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSuccessResponse'
+        '400':
+          description: Invalid chat ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Only learners and tutors can archive chats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Chat not found or the authenticated user is not a participant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/health:
     get:
       summary: Health
@@ -1729,7 +1966,251 @@ components:
     noauthAuth:
       type: http
       scheme: noauth
+  parameters:
+    ChatId:
+      name: chatId
+      in: path
+      required: true
+      description: The 24-character hexadecimal MongoDB ObjectId of the chat
+      schema:
+        type: string
+        pattern: '^[a-fA-F0-9]{24}$'
+      example: '60c72b2f9b1d8b2a1c8b4567'
   schemas:
+    CreateChatRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - tutorId
+      properties:
+        tutorId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          description: User ID of the active tutor with whom the learner wants to chat
+          example: '60c72b2f9b1d8b2a1c8b4569'
+    ChatParticipant:
+      type: object
+      required:
+        - id
+        - name
+        - role
+      properties:
+        id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        name:
+          type: string
+          example: Ahmed Hassan
+        role:
+          type: string
+          enum: [learner, tutor]
+          example: tutor
+        avatar:
+          type: string
+          nullable: true
+          example: avatar-1782045981474-730788955.png
+    ChatLastMessage:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        senderId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4568'
+        preview:
+          type: string
+          maxLength: 500
+          example: Can you help me with algebra?
+        sentAt:
+          type: string
+          format: date-time
+          example: '2026-06-22T10:00:00.000Z'
+    Chat:
+      type: object
+      required:
+        - id
+        - status
+        - participant
+        - lastMessage
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        status:
+          type: string
+          enum: [active, archived]
+          example: active
+        participant:
+          $ref: '#/components/schemas/ChatParticipant'
+        lastMessage:
+          $ref: '#/components/schemas/ChatLastMessage'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-22T09:00:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-22T10:00:00.000Z'
+    ChatMessage:
+      type: object
+      required:
+        - id
+        - chatId
+        - senderId
+        - recipientId
+        - type
+        - content
+        - status
+        - deliveredAt
+        - readAt
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        chatId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        senderId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4568'
+        recipientId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        type:
+          type: string
+          enum: [text, system]
+          example: text
+        content:
+          type: string
+          maxLength: 5000
+          example: Can you help me with algebra?
+        status:
+          type: string
+          enum: [sent, delivered, read]
+          example: delivered
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-06-22T10:00:01.000Z'
+        readAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-22T10:00:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-22T10:00:01.000Z'
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+        total:
+          type: integer
+          minimum: 0
+          example: 1
+        totalPages:
+          type: integer
+          minimum: 0
+          example: 1
+    ChatSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Chat ready
+        data:
+          $ref: '#/components/schemas/Chat'
+    ChatListSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Chats retrieved successfully
+        data:
+          type: object
+          required:
+            - chats
+            - pagination
+          properties:
+            chats:
+              type: array
+              items:
+                $ref: '#/components/schemas/Chat'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+    MessageListSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Messages retrieved successfully
+        data:
+          type: object
+          required:
+            - messages
+            - pagination
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatMessage'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
     Booking:
       type: object
       properties:

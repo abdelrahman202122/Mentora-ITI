@@ -1,0 +1,532 @@
+asyncapi: 3.0.0
+info:
+  title: Mentora Realtime API
+  version: 1.0.0
+  description: Socket.IO events for authenticated chat, message receipts, and notifications.
+defaultContentType: application/json
+servers:
+  local:
+    host: localhost:4000
+    pathname: /socket.io
+    protocol: socket.io
+    description: Local Mentora Socket.IO server
+    security:
+      - $ref: '#/components/securitySchemes/cookieAuth'
+channels:
+  connected:
+    address: connected
+    description: Confirms that an authenticated Socket.IO connection is ready.
+    messages:
+      connected:
+        $ref: '#/components/messages/Connected'
+  ping:
+    address: ping
+    description: Checks that the Socket.IO connection is responsive.
+    messages:
+      ping:
+        $ref: '#/components/messages/Ping'
+  chatJoin:
+    address: chat:join
+    description: Requests membership in a participant's chat room.
+    messages:
+      joinChat:
+        $ref: '#/components/messages/JoinChat'
+  chatJoined:
+    address: chat:joined
+    description: Confirms that the socket joined a chat room.
+    messages:
+      chatJoined:
+        $ref: '#/components/messages/ChatJoined'
+  chatLeave:
+    address: chat:leave
+    description: Requests removal from a participant's chat room.
+    messages:
+      leaveChat:
+        $ref: '#/components/messages/LeaveChat'
+  chatLeft:
+    address: chat:left
+    description: Confirms that the socket left a chat room.
+    messages:
+      chatLeft:
+        $ref: '#/components/messages/ChatLeft'
+  chatError:
+    address: chat:error
+    description: Reports validation, authorization, or persistence failures for chat events.
+    messages:
+      chatError:
+        $ref: '#/components/messages/ChatError'
+  messageSend:
+    address: message:send
+    description: Sends and persists a text message in a participant's chat.
+    messages:
+      sendMessage:
+        $ref: '#/components/messages/SendMessage'
+  messageNew:
+    address: message:new
+    description: Broadcasts a newly persisted message to sockets viewing the chat.
+    messages:
+      newMessage:
+        $ref: '#/components/messages/NewMessage'
+  messageDelivered:
+    address: message:delivered
+    description: Marks an owned incoming message as delivered.
+    messages:
+      markMessageDelivered:
+        $ref: '#/components/messages/MarkMessageDelivered'
+  messageDeliveredUpdate:
+    address: message:delivered:update
+    description: Broadcasts the persisted delivered receipt to the chat room.
+    messages:
+      messageDeliveredUpdate:
+        $ref: '#/components/messages/MessageDeliveredUpdate'
+  messageRead:
+    address: message:read
+    description: Marks an owned incoming message as read.
+    messages:
+      markMessageRead:
+        $ref: '#/components/messages/MarkMessageRead'
+  messageReadUpdate:
+    address: message:read:update
+    description: Broadcasts the persisted read receipt to the chat room.
+    messages:
+      messageReadUpdate:
+        $ref: '#/components/messages/MessageReadUpdate'
+  notificationNew:
+    address: notification:new
+    description: Delivers a persisted notification to the recipient's user room.
+    messages:
+      notificationNew:
+        $ref: '#/components/messages/NotificationNew'
+  notificationReadUpdate:
+    address: notification:read:update
+    description: Synchronizes a notification read through REST across the recipient's sockets.
+    messages:
+      notificationReadUpdate:
+        $ref: '#/components/messages/NotificationReadUpdate'
+  notificationReadAllUpdate:
+    address: notification:read-all:update
+    description: Synchronizes a REST mark-all-read operation across the recipient's sockets.
+    messages:
+      notificationReadAllUpdate:
+        $ref: '#/components/messages/NotificationReadAllUpdate'
+operations:
+  sendConnected:
+    action: send
+    summary: Server confirms an authenticated connection.
+    channel:
+      $ref: '#/channels/connected'
+    messages:
+      - $ref: '#/channels/connected/messages/connected'
+  receivePing:
+    action: receive
+    summary: Server receives a connection health check from the client.
+    channel:
+      $ref: '#/channels/ping'
+    messages:
+      - $ref: '#/channels/ping/messages/ping'
+    x-socketio-ack:
+      payload:
+        $ref: '#/components/schemas/OkAck'
+  receiveChatJoin:
+    action: receive
+    summary: Server receives a request to join a chat room.
+    channel:
+      $ref: '#/channels/chatJoin'
+    messages:
+      - $ref: '#/channels/chatJoin/messages/joinChat'
+    x-socketio-ack:
+      payload:
+        $ref: '#/components/schemas/ChatRoomAck'
+  sendChatJoined:
+    action: send
+    summary: Server confirms chat room membership.
+    channel:
+      $ref: '#/channels/chatJoined'
+    messages:
+      - $ref: '#/channels/chatJoined/messages/chatJoined'
+  receiveChatLeave:
+    action: receive
+    summary: Server receives a request to leave a chat room.
+    channel:
+      $ref: '#/channels/chatLeave'
+    messages:
+      - $ref: '#/channels/chatLeave/messages/leaveChat'
+    x-socketio-ack:
+      payload:
+        $ref: '#/components/schemas/ChatRoomAck'
+  sendChatLeft:
+    action: send
+    summary: Server confirms that the socket left a chat room.
+    channel:
+      $ref: '#/channels/chatLeft'
+    messages:
+      - $ref: '#/channels/chatLeft/messages/chatLeft'
+  sendChatError:
+    action: send
+    summary: Server reports a chat event failure.
+    channel:
+      $ref: '#/channels/chatError'
+    messages:
+      - $ref: '#/channels/chatError/messages/chatError'
+  receiveMessageSend:
+    action: receive
+    summary: Server receives and persists a message from a chat participant.
+    channel:
+      $ref: '#/channels/messageSend'
+    messages:
+      - $ref: '#/channels/messageSend/messages/sendMessage'
+    x-socketio-ack:
+      payload:
+        $ref: '#/components/schemas/NewMessageAck'
+  sendMessageNew:
+    action: send
+    summary: Server broadcasts a newly persisted message.
+    channel:
+      $ref: '#/channels/messageNew'
+    messages:
+      - $ref: '#/channels/messageNew/messages/newMessage'
+  receiveMessageDelivered:
+    action: receive
+    summary: Server receives a delivered receipt from the message recipient.
+    channel:
+      $ref: '#/channels/messageDelivered'
+    messages:
+      - $ref: '#/channels/messageDelivered/messages/markMessageDelivered'
+    x-socketio-ack:
+      payload:
+        $ref: '#/components/schemas/MessageReceiptAck'
+  sendMessageDeliveredUpdate:
+    action: send
+    summary: Server broadcasts the delivered receipt.
+    channel:
+      $ref: '#/channels/messageDeliveredUpdate'
+    messages:
+      - $ref: '#/channels/messageDeliveredUpdate/messages/messageDeliveredUpdate'
+  receiveMessageRead:
+    action: receive
+    summary: Server receives a read receipt from the message recipient.
+    channel:
+      $ref: '#/channels/messageRead'
+    messages:
+      - $ref: '#/channels/messageRead/messages/markMessageRead'
+    x-socketio-ack:
+      payload:
+        $ref: '#/components/schemas/MessageReceiptAck'
+  sendMessageReadUpdate:
+    action: send
+    summary: Server broadcasts the read receipt.
+    channel:
+      $ref: '#/channels/messageReadUpdate'
+    messages:
+      - $ref: '#/channels/messageReadUpdate/messages/messageReadUpdate'
+  sendNotificationNew:
+    action: send
+    summary: Server delivers a new notification to an online recipient.
+    channel:
+      $ref: '#/channels/notificationNew'
+    messages:
+      - $ref: '#/channels/notificationNew/messages/notificationNew'
+  sendNotificationReadUpdate:
+    action: send
+    summary: Server synchronizes one notification read across the user's sockets.
+    channel:
+      $ref: '#/channels/notificationReadUpdate'
+    messages:
+      - $ref: '#/channels/notificationReadUpdate/messages/notificationReadUpdate'
+  sendNotificationReadAllUpdate:
+    action: send
+    summary: Server synchronizes mark-all-read across the user's sockets.
+    channel:
+      $ref: '#/channels/notificationReadAllUpdate'
+    messages:
+      - $ref: '#/channels/notificationReadAllUpdate/messages/notificationReadAllUpdate'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: httpApiKey
+      name: accessToken
+      in: cookie
+      description: HttpOnly JWT cookie issued by POST /api/users/login or registration.
+  messages:
+    Connected:
+      name: connected
+      payload:
+        $ref: '#/components/schemas/ConnectedPayload'
+    Ping:
+      name: ping
+      payload:
+        type: object
+        additionalProperties: false
+    JoinChat:
+      name: chat:join
+      payload:
+        $ref: '#/components/schemas/ChatRoomInput'
+    ChatJoined:
+      name: chat:joined
+      payload:
+        $ref: '#/components/schemas/ChatRoomPayload'
+    LeaveChat:
+      name: chat:leave
+      payload:
+        $ref: '#/components/schemas/ChatRoomInput'
+    ChatLeft:
+      name: chat:left
+      payload:
+        $ref: '#/components/schemas/ChatRoomPayload'
+    ChatError:
+      name: chat:error
+      payload:
+        $ref: '#/components/schemas/ErrorPayload'
+    SendMessage:
+      name: message:send
+      payload:
+        $ref: '#/components/schemas/SendMessageInput'
+    NewMessage:
+      name: message:new
+      payload:
+        $ref: '#/components/schemas/NewMessagePayload'
+    MarkMessageDelivered:
+      name: message:delivered
+      payload:
+        $ref: '#/components/schemas/MessageReceiptInput'
+    MessageDeliveredUpdate:
+      name: message:delivered:update
+      payload:
+        $ref: '#/components/schemas/MessageReceiptPayload'
+    MarkMessageRead:
+      name: message:read
+      payload:
+        $ref: '#/components/schemas/MessageReceiptInput'
+    MessageReadUpdate:
+      name: message:read:update
+      payload:
+        $ref: '#/components/schemas/MessageReceiptPayload'
+    NotificationNew:
+      name: notification:new
+      payload:
+        $ref: '#/components/schemas/NotificationPayload'
+    NotificationReadUpdate:
+      name: notification:read:update
+      payload:
+        $ref: '#/components/schemas/NotificationPayload'
+    NotificationReadAllUpdate:
+      name: notification:read-all:update
+      payload:
+        $ref: '#/components/schemas/NotificationReadAllPayload'
+  schemas:
+    ObjectId:
+      type: string
+      pattern: '^[a-fA-F0-9]{24}$'
+      examples:
+        - 6a394a743b4ebebae1acfe8a
+    ConnectedPayload:
+      type: object
+      additionalProperties: false
+      required: [socketId]
+      properties:
+        socketId:
+          type: string
+          examples:
+            - 8gP_ZF4M3tT9T42AAAB
+    ChatRoomInput:
+      type: object
+      additionalProperties: false
+      required: [chatId]
+      properties:
+        chatId:
+          $ref: '#/components/schemas/ObjectId'
+    ChatRoomPayload:
+      type: object
+      additionalProperties: false
+      required: [chatId, room]
+      properties:
+        chatId:
+          $ref: '#/components/schemas/ObjectId'
+        room:
+          type: string
+          examples:
+            - chat:6a394a743b4ebebae1acfe8a
+    SendMessageInput:
+      type: object
+      additionalProperties: false
+      required: [chatId, content]
+      properties:
+        chatId:
+          $ref: '#/components/schemas/ObjectId'
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          examples:
+            - Testing Socket.IO from Postman
+    NewMessagePayload:
+      type: object
+      additionalProperties: false
+      required: [id, chatId, senderId, recipientId, content, status, createdAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        chatId:
+          $ref: '#/components/schemas/ObjectId'
+        senderId:
+          $ref: '#/components/schemas/ObjectId'
+        recipientId:
+          $ref: '#/components/schemas/ObjectId'
+        content:
+          type: string
+          maxLength: 5000
+        status:
+          type: string
+          enum: [sent]
+        createdAt:
+          type: string
+          format: date-time
+    MessageReceiptInput:
+      type: object
+      additionalProperties: false
+      required: [chatId, messageId]
+      properties:
+        chatId:
+          $ref: '#/components/schemas/ObjectId'
+        messageId:
+          $ref: '#/components/schemas/ObjectId'
+    MessageReceiptPayload:
+      type: object
+      additionalProperties: false
+      required: [id, chatId, status, deliveredAt, readAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        chatId:
+          $ref: '#/components/schemas/ObjectId'
+        status:
+          type: string
+          enum: [delivered, read]
+        deliveredAt:
+          type: [string, 'null']
+          format: date-time
+        readAt:
+          type: [string, 'null']
+          format: date-time
+    NotificationActor:
+      type: [object, 'null']
+      required: [id, name]
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+        avatar:
+          type: string
+    NotificationPayload:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          type,
+          title,
+          body,
+          data,
+          status,
+          deliveredAt,
+          readAt,
+          createdAt,
+          actor,
+        ]
+      properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
+        type:
+          type: string
+          enum: [message, booking, payment, review, system]
+        title:
+          type: string
+          maxLength: 120
+        body:
+          type: string
+          maxLength: 500
+        data:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+          enum: [unread, read]
+        deliveredAt:
+          type: [string, 'null']
+          format: date-time
+        readAt:
+          type: [string, 'null']
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        actor:
+          $ref: '#/components/schemas/NotificationActor'
+    NotificationReadAllPayload:
+      type: object
+      additionalProperties: false
+      required: [updatedCount, readAt]
+      properties:
+        updatedCount:
+          type: integer
+          minimum: 0
+        readAt:
+          type: string
+          format: date-time
+    ErrorPayload:
+      type: object
+      additionalProperties: false
+      required: [message]
+      properties:
+        message:
+          type: string
+    OkAck:
+      type: object
+      additionalProperties: false
+      required: [ok]
+      properties:
+        ok:
+          const: true
+    ErrorAck:
+      type: object
+      additionalProperties: false
+      required: [ok, error]
+      properties:
+        ok:
+          const: false
+        error:
+          type: string
+    ChatRoomAck:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [ok, data]
+          properties:
+            ok:
+              const: true
+            data:
+              $ref: '#/components/schemas/ChatRoomPayload'
+        - $ref: '#/components/schemas/ErrorAck'
+    NewMessageAck:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [ok, data]
+          properties:
+            ok:
+              const: true
+            data:
+              $ref: '#/components/schemas/NewMessagePayload'
+        - $ref: '#/components/schemas/ErrorAck'
+    MessageReceiptAck:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [ok, data]
+          properties:
+            ok:
+              const: true
+            data:
+              $ref: '#/components/schemas/MessageReceiptPayload'
+        - $ref: '#/components/schemas/ErrorAck'

@@ -6,11 +6,12 @@ Mentora is a private education marketplace that connects learners with tutors th
 
 ### Team Composition
 
-#### Frontend Team (3 Developers)
+#### Frontend Team (4 Developers)
 
 - **FE1** — Authentication, Layouts, Localization
-- **FE2** — Learner Experience & AI Assistant
+- **FE2** — Learner Experience
 - **FE3** — Tutor Dashboard & Admin Dashboard
+- **FE4** — Chat & AI Experiences
 
 #### Backend Team (4 Developers)
 
@@ -295,13 +296,10 @@ Enable communication between learners and tutors.
 
 ### Frontend Tasks
 
-#### FE2
+#### FE4
 
 - Chat list
 - Chat conversation page
-
-#### FE3
-
 - Tutor messaging interface
 
 #### FE1
@@ -361,7 +359,7 @@ Provide AI-powered tutor recommendations.
 
 ### Frontend Tasks
 
-#### FE2
+#### FE4
 
 - AI chat interface
 - Recommendation UI
