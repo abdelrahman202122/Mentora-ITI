@@ -10,9 +10,6 @@ export async function deleteTutorSubject(
       `/tutors/me/subjects/${subjectId}`
     );
 
-    console.log(
-      response.data
-    );
 
     return response.data;
   } catch (error) {

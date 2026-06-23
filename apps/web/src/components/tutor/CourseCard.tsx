@@ -100,20 +100,25 @@ export default function CourseCard({ course }: { course: TutorSubject }) {
 
       {/* Actions */}
       <div className="absolute top-4 right-4 flex items-center gap-2">
-        <button
-          disabled={showConfirm}
-          className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-primary/10 transition disabled:opacity-40"
-        >
-          <Edit className="w-4 h-4 text-primary" />
-        </button>
+<button
+  type="button"
+  aria-label="Edit subject"
+  disabled={showConfirm}
+  onClick={() => {/* TODO: handle edit */}}
+  className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-primary/10 transition disabled:opacity-40"
+>
+  <Edit className="w-4 h-4 text-primary" />
+</button>
 
-        <button
-          onClick={() => setShowConfirm(true)}
-          disabled={showConfirm || deleteSubject.isPending}
-          className="h-8 w-8 rounded-lg border border-red-200 flex items-center justify-center hover:bg-red-50 transition disabled:opacity-40"
-        >
-          <Trash2 className="w-4 h-4 text-red-500" />
-        </button>
+<button
+  type="button"
+  aria-label="Delete subject"
+  onClick={() => setShowConfirm(true)}
+  disabled={showConfirm || deleteSubject.isPending}
+  className="h-8 w-8 rounded-lg border border-red-200 flex items-center justify-center hover:bg-red-50 transition disabled:opacity-40"
+>
+  <Trash2 className="w-4 h-4 text-red-500" />
+</button>
       </div>
 
       {/* Category */}
