@@ -6,7 +6,11 @@ import Link from 'next/link';
 import { useTutorProfile } from '@/hooks/tutor/useTutorProfile';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import { useTutorSubjects } from '@/hooks/tutor/useTutorSubjects';
+import CardForm from '@/components/tutor/CardForm';
+import { useState } from 'react';
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   const { data: user } = useCurrentUser();
   const {
     data: tutorProfile,
@@ -121,14 +125,15 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
               subjects.map((subject) => (
                 <CourseCard
                   key={subject._id}
-                  title={subject.title}
-                  tag={subject.category}
-                  idPrefix={subject._id}
+                  course={subject}
                 />
               ))}
-
+            {isOpen && <CardForm onClose={() => setIsOpen(false)} />}
             {/* Add New */}
-            <button className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition">
+            <button 
+              onClick={() => setIsOpen(true)}
+              className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition"
+            >
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <Plus />
               </div>
