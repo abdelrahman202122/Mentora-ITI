@@ -1,38 +1,38 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { MessageSquare } from "lucide-react";
+import Link from 'next/link';
+import { MessageSquare } from 'lucide-react';
 
-import type { Chat } from "@/types/chat/chat-types";
-import { cn } from "@/lib/utils";
+import type { Chat } from '@/types/chat/chat-types';
+import { cn } from '@/lib/utils';
 
 type ChatListItemProps = {
   chat: Chat;
   href: string;
 };
 
-const timeFormatter = new Intl.DateTimeFormat("en", {
-  hour: "2-digit",
-  minute: "2-digit",
+const timeFormatter = new Intl.DateTimeFormat('en', {
+  hour: '2-digit',
+  minute: '2-digit',
 });
 
 function getInitials(name: string) {
   return name
-    .split(" ")
+    .split(' ')
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
-    .join("");
+    .join('');
 }
 
 function formatLastMessageTime(value?: string) {
   if (!value) {
-    return "";
+    return '';
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "";
+    return '';
   }
 
   return timeFormatter.format(date);
@@ -40,16 +40,15 @@ function formatLastMessageTime(value?: string) {
 
 export function ChatListItem({ chat, href }: ChatListItemProps) {
   const participantInitials = getInitials(chat.participant.name);
-  const lastMessagePreview =
-    chat.lastMessage?.preview ?? "No messages yet.";
+  const lastMessagePreview = chat.lastMessage?.preview ?? 'No messages yet.';
   const lastMessageTime = formatLastMessageTime(chat.lastMessage?.sentAt);
 
   return (
     <Link
       href={href}
       className={cn(
-        "flex min-h-20 items-center gap-3 border-b border-gray-100 px-4 py-3 transition-colors last:border-b-0",
-        "hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        'flex min-h-20 items-center gap-3 border-b border-gray-100 px-4 py-3 transition-colors last:border-b-0',
+        'hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
       )}
     >
       <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-sm font-semibold text-indigo-700">
@@ -62,7 +61,10 @@ export function ChatListItem({ chat, href }: ChatListItemProps) {
             {chat.participant.name}
           </p>
           {lastMessageTime ? (
-            <time className="shrink-0 text-xs text-gray-400">
+            <time
+              dateTime={chat.lastMessage?.sentAt}
+              className="shrink-0 text-xs text-gray-400"
+            >
               {lastMessageTime}
             </time>
           ) : null}

@@ -1,9 +1,9 @@
-import { io, type Socket } from "socket.io-client";
+import { io, type Socket } from 'socket.io-client';
 
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
-} from "@/types/chat/chat-types";
+} from '@/types/chat/chat-types';
 
 export type ChatSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
@@ -13,24 +13,33 @@ function getSocketOrigin() {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   if (!apiBaseUrl) {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured");
+    throw new Error('NEXT_PUBLIC_API_BASE_URL is not configured');
   }
 
   try {
-    return new URL(apiBaseUrl).origin;
+    const url = new URL(apiBaseUrl);
+    const pathname = url.pathname.replace(/\/$/, '');
+
+    return {
+      origin: url.origin,
+      path: `${pathname}/socket.io`,
+    };
   } catch {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL must be a valid absolute URL");
+    throw new Error('NEXT_PUBLIC_API_BASE_URL must be a valid absolute URL');
   }
 }
 
 export function getChatSocket(): ChatSocket {
-  if (typeof window === "undefined") {
-    throw new Error("The chat socket is only available in the browser");
+  if (typeof window === 'undefined') {
+    throw new Error('The chat socket is only available in the browser');
   }
 
   if (!chatSocket) {
-    chatSocket = io(getSocketOrigin(), {
+    const { origin, path } = getSocketOrigin();
+
+    chatSocket = io(origin, {
       autoConnect: false,
+      path,
       withCredentials: true,
     });
   }
