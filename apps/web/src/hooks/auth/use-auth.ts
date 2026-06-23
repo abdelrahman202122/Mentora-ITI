@@ -57,7 +57,7 @@ export function useLogout() {
 
   return useMutation<void, ApiClientError>({
     mutationFn: logout,
-    onSuccess: async () => {
+    onSettled: async () => {
       queryClient.setQueryData(authKeys.currentUser, null);
       await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
     },
