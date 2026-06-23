@@ -10,6 +10,7 @@
     "start": "node dist/server.js",
     "server": "nodemon dist/server.js",
     "seed": "tsx src/scripts/seed.ts",
+    "seed:tutors": "tsx src/scripts/tutor-seed.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
