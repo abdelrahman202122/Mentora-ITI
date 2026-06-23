@@ -11,6 +11,7 @@
     "server": "nodemon dist/server.js",
     "seed": "tsx src/scripts/seed.ts",
     "seed:tutors": "tsx src/scripts/tutor-seed.ts",
+    "create-view": "tsx src/scripts/buildTutorSearchView.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
