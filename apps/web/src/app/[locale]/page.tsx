@@ -4,16 +4,24 @@ import SubjectSection from '../../components/home/SubjectsSection';
 import GradeLevels from '../../components/home/GradeLevels';
 import HowItWorks from '../../components/home/HowItWorks';
 import Reviews from '../../components/home/Reviews';
+import StartLearning from '../../components/home/StartLearning';
+
 
 export default function Home() {
   return (
     <>
       <Header />
+    
       <Hero />
       <SubjectSection />
       <GradeLevels />
       <HowItWorks />
       <Reviews />
+      <StartLearning/>
+     
+ 
+    
+     
     </>
   );
 }
