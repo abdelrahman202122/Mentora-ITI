@@ -68,6 +68,7 @@ export function ChatConversation({
     connectionStatus,
     error: socketError,
     isConnected,
+    markMessageRead,
     sendMessage,
   } = useChatSocket(chatId);
 
@@ -82,6 +83,25 @@ export function ChatConversation({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!currentUser?.id || !isConnected) {
+      return;
+    }
+
+    const unreadIncomingMessages = messages.filter(
+      (message) =>
+        message.recipientId === currentUser.id &&
+        message.senderId !== currentUser.id &&
+        message.status !== 'read',
+    );
+
+    unreadIncomingMessages.forEach((message) => {
+      void markMessageRead(message.id).catch((error: unknown) => {
+        console.error('Failed to mark message as read', error);
+      });
+    });
+  }, [currentUser?.id, isConnected, markMessageRead, messages]);
 
   async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -250,17 +270,17 @@ function MessageBubble({
         )}
       >
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
-        {messageTime ? (
-          <time
-            className={cn(
-              'mt-1 block text-xs',
-              isOwnMessage ? 'text-indigo-100' : 'text-gray-400',
-            )}
-            dateTime={message.createdAt}
-          >
-            {messageTime}
-          </time>
-        ) : null}
+        <div
+          className={cn(
+            'mt-1 flex items-center gap-2 text-xs',
+            isOwnMessage ? 'justify-end text-indigo-100' : 'text-gray-400',
+          )}
+        >
+          {messageTime ? (
+            <time dateTime={message.createdAt}>{messageTime}</time>
+          ) : null}
+          {isOwnMessage ? <span>{message.status}</span> : null}
+        </div>
       </div>
     </div>
   );
