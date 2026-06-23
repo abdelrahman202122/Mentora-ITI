@@ -1,7 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { routing } from "../../i18n/routing";
 import { HtmlLang } from "@/components/i18n/HtmlLang";
-import Footer from "@/components/home/Footer";
+// import Footer from "@/components/home/Footer";
 
 function isSupportedLocale(locale: string): locale is (typeof routing.locales)[number] {
   return routing.locales.includes(locale as (typeof routing.locales)[number]);
@@ -23,7 +23,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={locale}>
       <HtmlLang locale={locale} />
       {children}
-      <Footer />
+      {/* <Footer /> */}
     </NextIntlClientProvider>
   );
 }
