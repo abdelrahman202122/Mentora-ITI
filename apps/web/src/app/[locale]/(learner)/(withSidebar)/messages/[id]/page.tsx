@@ -1,117 +1,187 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef } from "react"
-import { useParams, useSearchParams } from "next/navigation"
-import { ArrowLeft, Send } from "lucide-react"
-import Link from "next/link"
-import { useLocale } from "next-intl"
-import { getMessages, saveMessage, type ChatMessage } from "@/services/message/message-service"
-import { getLocalePath } from "@/utils/i18n/locale-path"
+import { useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useLocale } from "next-intl";
+import { ArrowLeft, Loader2, Send } from "lucide-react";
 
-export default function ChatPage() {
-  const params = useParams()
-  const searchParams = useSearchParams()
-  const locale = useLocale()
-  const tutorName = searchParams.get("tutorName") || "Tutor"
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState("")
-  const [loading, setLoading] = useState(true)
-  const bottomRef = useRef<HTMLDivElement>(null)
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useCurrentUser } from "@/hooks/auth/use-auth";
+import { useChatMessages } from "@/hooks/chat/use-chat";
+import type { ChatMessage } from "@/types/chat/chat-types";
+import { cn } from "@/lib/utils";
+import { getLocalePath } from "@/utils/i18n/locale-path";
 
-  useEffect(() => {
-    async function fetch() {
-      const data = await getMessages(params.id as string)
-      setMessages(data)
-      setLoading(false)
-    }
-    fetch()
-  }, [params.id])
+const messageTimeFormatter = new Intl.DateTimeFormat("en", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+function formatMessageTime(value: string) {
+  const date = new Date(value);
 
-  async function handleSend() {
-    if (!input.trim()) return
-
-    const newMessage = {
-      role: "learner" as const,
-      text: input,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    }
-
-    await saveMessage(params.id as string, newMessage)
-    setMessages((prev) => [...prev, { id: Date.now(), ...newMessage }])
-    setInput("")
+  if (Number.isNaN(date.getTime())) {
+    return "";
   }
 
-  return (
-    <div className="max-w-2xl mx-auto flex flex-col h-full">
+  return messageTimeFormatter.format(date);
+}
 
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <Link
-          href={getLocalePath(locale, "/messages")}
-          className="text-gray-500 hover:text-indigo-600"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <div className="w-10 h-10 rounded-full bg-indigo-100 flex-shrink-0" />
+function sortMessagesByCreatedAt(messages: ChatMessage[]) {
+  return [...messages].sort(
+    (first, second) =>
+      new Date(first.createdAt).getTime() - new Date(second.createdAt).getTime()
+  );
+}
+
+export default function ChatPage() {
+  const params = useParams<{ id: string }>();
+  const locale = useLocale();
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatId = params.id;
+
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetchingNextPage,
+    isPending,
+    refetch,
+  } = useChatMessages(chatId);
+  const { data: currentUser } = useCurrentUser();
+
+  const messages = useMemo(
+    () => sortMessagesByCreatedAt(data?.pages.flatMap((page) => page.messages) ?? []),
+    [data]
+  );
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  return (
+    <div className="mx-auto flex h-full max-w-2xl flex-col">
+      <div className="mb-4 flex items-center gap-3">
+        <Button asChild size="icon" variant="ghost">
+          <Link href={getLocalePath(locale, "/messages")} aria-label="Back to messages">
+            <ArrowLeft className="size-5" />
+          </Link>
+        </Button>
+
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-sm font-semibold text-indigo-700">
+          M
+        </div>
+
         <div>
-          <p className="text-sm font-semibold text-gray-800">{tutorName}</p>
-          <p className="text-xs text-green-500">Online</p>
+          <h1 className="text-sm font-semibold text-gray-900">Messages</h1>
+          <p className="text-xs text-gray-500">Conversation history</p>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto flex flex-col gap-3 mb-4 bg-white rounded-xl p-4 shadow-sm">
-        {loading ? (
-          <p className="text-gray-400 text-center">Loading...</p>
-        ) : (
-          messages.map((msg) => (
+      <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-100">
+        {hasNextPage ? (
+          <Button
+            className="mx-auto"
+            disabled={isFetchingNextPage}
+            onClick={() => void fetchNextPage()}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {isFetchingNextPage ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              "Load older messages"
+            )}
+          </Button>
+        ) : null}
+
+        {isPending ? (
+          <div className="flex flex-1 items-center justify-center gap-2 text-sm text-gray-500">
+            <Loader2 className="size-4 animate-spin" />
+            Loading messages
+          </div>
+        ) : null}
+
+        {isError ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                Could not load messages
+              </p>
+              <p className="mt-1 text-xs text-gray-500">{error.message}</p>
+            </div>
+            <Button type="button" variant="outline" onClick={() => void refetch()}>
+              Try again
+            </Button>
+          </div>
+        ) : null}
+
+        {!isPending && !isError && messages.length === 0 ? (
+          <div className="flex flex-1 items-center justify-center text-center text-sm text-gray-500">
+            No messages yet.
+          </div>
+        ) : null}
+
+        {messages.map((message) => {
+          const isOwnMessage = message.senderId === currentUser?.id;
+          const messageTime = formatMessageTime(message.createdAt);
+
+          return (
             <div
-              key={msg.id}
-              className={`flex ${msg.role === "learner" ? "justify-end" : "justify-start"}`}
+              key={message.id}
+              className={cn(
+                "flex",
+                isOwnMessage ? "justify-end" : "justify-start"
+              )}
             >
-              <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${
-                msg.role === "learner"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-800"
-              }`}>
-                <p>{msg.text}</p>
-                <p className={`text-xs mt-1 ${
-                  msg.role === "learner" ? "text-indigo-200" : "text-gray-400"
-                }`}>
-                  {msg.time}
-                </p>
+              <div
+                className={cn(
+                  "max-w-[78%] rounded-2xl px-4 py-2 text-sm",
+                  isOwnMessage
+                    ? "rounded-br-md bg-indigo-600 text-white"
+                    : "rounded-bl-md bg-gray-100 text-gray-900"
+                )}
+              >
+                <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                {messageTime ? (
+                  <time
+                    className={cn(
+                      "mt-1 block text-xs",
+                      isOwnMessage ? "text-indigo-100" : "text-gray-400"
+                    )}
+                    dateTime={message.createdAt}
+                  >
+                    {messageTime}
+                  </time>
+                ) : null}
               </div>
             </div>
-          ))
-        )}
+          );
+        })}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-3 shadow-sm">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+      <form className="flex items-center gap-2 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-gray-100">
+        <Input
+          aria-label="Message"
+          className="h-10 flex-1"
+          disabled
           placeholder="Type a message..."
-          className="flex-1 text-sm outline-none"
+          type="text"
         />
-        <button
-          onClick={handleSend}
-          className="bg-indigo-600 text-white p-2 rounded-xl"
-        >
-          <Send size={16} />
-        </button>
-      </div>
-
+        <Button disabled size="icon" type="button">
+          <Send className="size-4" />
+        </Button>
+      </form>
     </div>
-  )
+  );
 }
