@@ -17,7 +17,6 @@ const tutorSubjectSchema = new mongoose.Schema(
       type: String,
       enum: CATEGORY_VALUES,
       required: true,
-      index: true,
     },
 
     title: {
@@ -55,8 +54,6 @@ const tutorSubjectSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-
-tutorSubjectSchema.index({ tutorId: 1, category: 1 });
 
 export type TutorSubject = mongoose.InferSchemaType<typeof tutorSubjectSchema>;
 
