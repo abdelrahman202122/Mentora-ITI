@@ -13,6 +13,7 @@ import {
   createChat,
   listChats,
   listMessages,
+  restoreChat,
 } from "@/services/chat/chat-service";
 import type {
   Chat,
@@ -95,6 +96,17 @@ export function useArchiveChat() {
 
   return useMutation<Chat, ApiClientError, string>({
     mutationFn: archiveChat,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+    },
+  });
+}
+
+export function useRestoreChat() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Chat, ApiClientError, string>({
+    mutationFn: restoreChat,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
     },

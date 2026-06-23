@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useChats } from "@/hooks/chat/use-chat";
+import { useChats, useRestoreChat } from "@/hooks/chat/use-chat";
 import type { Chat, ChatStatus } from "@/types/chat/chat-types";
 
 import { ChatListItem } from "./ChatListItem";
@@ -54,6 +54,7 @@ export function ChatList({
     isPending,
     refetch,
   } = useChats(status);
+  const restoreChatMutation = useRestoreChat();
 
   const chats = data?.pages.flatMap((page) => page.chats) ?? [];
 
@@ -65,6 +66,12 @@ export function ChatList({
       </CardHeader>
 
       <CardContent className="p-0">
+        {restoreChatMutation.error ? (
+          <p className="border-b px-4 py-3 text-xs font-medium text-red-600">
+            {restoreChatMutation.error.message}
+          </p>
+        ) : null}
+
         {isPending ? <ChatListSkeleton /> : null}
 
         {isError ? (
@@ -105,6 +112,27 @@ export function ChatList({
                 key={chat.id}
                 chat={chat}
                 href={getChatHref(chat)}
+                action={
+                  status === "archived" ? (
+                    <Button
+                      disabled={restoreChatMutation.isPending}
+                      onClick={() => restoreChatMutation.mutate(chat.id)}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      {restoreChatMutation.isPending &&
+                      restoreChatMutation.variables === chat.id ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" />
+                          Restoring
+                        </>
+                      ) : (
+                        "Restore"
+                      )}
+                    </Button>
+                  ) : undefined
+                }
               />
             ))}
           </div>

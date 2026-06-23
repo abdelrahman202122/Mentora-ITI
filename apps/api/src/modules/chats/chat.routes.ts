@@ -44,4 +44,11 @@ router.patch(
   chatController.archiveChat,
 );
 
+router.patch(
+  '/:chatId/restore',
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
+  validate({ params: chatIdParamsSchema }),
+  chatController.restoreChat,
+);
+
 export default router;
