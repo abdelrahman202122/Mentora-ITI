@@ -7,7 +7,7 @@ export const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   name: z.string().min(2, "Name must be at least 2 characters"),
   role: z.enum(userRoles, {
-    invalid_type_error: "Please choose a valid account type",
+    errorMap: () => ({ message: "Please choose a valid account type" }),
   }),
 });
 
