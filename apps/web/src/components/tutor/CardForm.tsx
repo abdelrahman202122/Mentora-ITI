@@ -42,12 +42,21 @@ export default function CourseForm({ onClose }: { onClose: () => void }) {
     },
   });
 
+// async function handleSubmit(values: CoursePayload) {
+//   createSubject.mutate(values, {
+//     onSuccess: () => onClose(),
+//     onError: (error) => console.error(error),
+//   })
+// }
 async function handleSubmit(values: CoursePayload) {
-  createSubject.mutate(values, {
-    onSuccess: () => onClose(),
-    onError: (error) => console.error(error),
-  })
+try {
+    await createSubject.mutateAsync(values)
+    onClose()
+  } catch (error) {
+    console.error(error)
+  }
 }
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-card border border-border rounded-2xl w-full max-w-xl p-6 space-y-4">

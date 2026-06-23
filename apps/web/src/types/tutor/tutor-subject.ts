@@ -6,7 +6,7 @@ export interface TutorSubject {
     curriculum: string;
     description: string;
     educationLevel: string;
-    gradeNote: string;
+    gradeNote: string | null;
     title: string;
     tutorId: string;
     updatedAt: string;

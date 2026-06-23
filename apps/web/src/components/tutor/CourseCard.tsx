@@ -2,12 +2,14 @@
 import { Edit, Trash2, GraduationCap, Calendar, Layers } from "lucide-react";
 import { TutorSubject } from "@/types/tutor/tutor-subject";
 import { formatDate } from "@/utils/tutor/formateDate";
-
+import { useLocale } from "next-intl";
 export default function CourseCard({
+
   course,
 }: {
   course: TutorSubject ;
 }) {
+  const locale = useLocale() as "ar" | "en";
 const level = course.gradeNote || course.educationLevel;
   const category = course.category.charAt(0).toUpperCase() + course.category.slice(1);
 
@@ -55,7 +57,7 @@ const level = course.gradeNote || course.educationLevel;
           <Calendar className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">Created</p>
-            <p className="text-sm text-foreground font-medium">{formatDate(course.createdAt)}</p>
+            <p className="text-sm text-foreground font-medium">{formatDate(course.createdAt , locale)}</p>
           </div>
         </div>
 

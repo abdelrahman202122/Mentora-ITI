@@ -1,7 +1,10 @@
-export function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+export function formatDate(iso: string, locale: string) {
+  const formattedLocale =
+    locale === "ar" ? "ar-EG" : "en-US";
+
+  return new Date(iso).toLocaleDateString(formattedLocale, {
     year: "numeric",
-    month: "short",
+    month: "long",
     day: "numeric",
   });
 }

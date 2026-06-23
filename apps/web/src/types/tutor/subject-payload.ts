@@ -3,6 +3,6 @@ export type CreateSubjectPayload = {
   curriculum: string;
   description: string;
   educationLevel: string;
-  gradeNote: string;
+  gradeNote: string | null;
   title: string;
 };
