@@ -5,6 +5,7 @@ import GradeLevels from '../../components/home/GradeLevels';
 import HowItWorks from '../../components/home/HowItWorks';
 import Reviews from '../../components/home/Reviews';
 import StartLearning from '../../components/home/StartLearning';
+import Footer from '@/components/home/Footer';
 
 
 export default function Home() {
@@ -18,7 +19,8 @@ export default function Home() {
       <HowItWorks />
       <Reviews />
       <StartLearning/>
-     
+      <Footer/>     
+    
  
     
      

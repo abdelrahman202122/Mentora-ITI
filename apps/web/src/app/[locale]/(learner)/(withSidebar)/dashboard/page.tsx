@@ -119,6 +119,7 @@ export default function LearnerDashboardPage() {
           {bookings.map((booking) => (
             <BookingCard
               key={booking.id}
+              bookingId={booking.id}
               subject={booking.subject}
               tutorName={booking.tutorName}
               time={booking.time}
