@@ -398,10 +398,12 @@ export async function initiateCheckout(
         'This booking has already been paid successfully',
       );
     }
-    throw new ConflictError(
-      `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-        'Please wait for it to complete or contact support.',
-    );
+    if (existingPayment.status !== PaymentStatus.FAILED) {
+      throw new ConflictError(
+        `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
+          'Please wait for it to complete or contact support.',
+      );
+    }
   }
 
   // Step 6: Derive amount server-side from booking (never trust client)
