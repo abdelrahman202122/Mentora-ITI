@@ -11,7 +11,7 @@ import type {
   TutorRecommendationResult,
 } from "@/types/ai/ai-types";
 
-type FindTutorByAIInput = TutorRecommendationInput & {
+type FindTutorByAIInput = Omit<TutorRecommendationInput, "conversationId"> & {
   locale?: string;
   goal?: string;
 };
