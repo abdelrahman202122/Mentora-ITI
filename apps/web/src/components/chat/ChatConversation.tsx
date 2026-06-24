@@ -3,21 +3,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import Link from 'next/link';
-import { Archive, ArrowLeft, Loader2, Send } from 'lucide-react';
+import { Archive, ArrowLeft, Loader2, RotateCcw, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
-import { useArchiveChat, useChatMessages } from '@/hooks/chat/use-chat';
+import {
+  useArchiveChat,
+  useChatMessages,
+  useRestoreChat,
+} from '@/hooks/chat/use-chat';
 import { useChatSocket } from '@/hooks/chat/use-chat-socket';
-import type { ChatMessage } from '@/types/chat/chat-types';
+import type { ChatMessage, ChatStatus } from '@/types/chat/chat-types';
 import { cn } from '@/lib/utils';
 
 type ChatConversationProps = {
   chatId: string;
   backHref: string;
   archiveRedirectHref?: string;
+  restoreRedirectHref?: string;
+  status?: ChatStatus;
   title?: string;
   subtitle?: string;
 };
@@ -45,10 +51,24 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
   );
 }
 
+function formatMessageStatus(status: ChatMessage['status']) {
+  if (status === 'read') {
+    return 'Read';
+  }
+
+  if (status === 'delivered') {
+    return 'Delivered';
+  }
+
+  return 'Sent';
+}
+
 export function ChatConversation({
   chatId,
   backHref,
   archiveRedirectHref = backHref,
+  restoreRedirectHref = backHref,
+  status = 'active',
   title = 'Messages',
   subtitle = 'Conversation history',
 }: ChatConversationProps) {
@@ -69,6 +89,7 @@ export function ChatConversation({
     refetch,
   } = useChatMessages(chatId);
   const archiveChatMutation = useArchiveChat();
+  const restoreChatMutation = useRestoreChat();
   const { data: currentUser } = useCurrentUser();
   const {
     connectionStatus,
@@ -85,6 +106,12 @@ export function ChatConversation({
       ),
     [data],
   );
+  const isArchived = status === 'archived';
+  const messagePlaceholder = isArchived
+    ? 'Restore this chat to send messages'
+    : connectionStatus === 'connecting'
+      ? 'Connecting...'
+      : 'Type a message...';
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -146,6 +173,19 @@ export function ChatConversation({
     }
   }
 
+  async function handleRestoreChat() {
+    setArchiveError(null);
+
+    try {
+      await restoreChatMutation.mutateAsync(chatId);
+      router.replace(restoreRedirectHref);
+    } catch (error) {
+      setArchiveError(
+        error instanceof Error ? error.message : 'Could not restore chat',
+      );
+    }
+  }
+
   return (
     <div className="mx-auto flex h-full max-w-2xl flex-col">
       <div className="mb-4 flex items-center gap-3">
@@ -164,20 +204,49 @@ export function ChatConversation({
           <p className="text-xs text-gray-500">{subtitle}</p>
         </div>
 
-        <Button
-          aria-label="Archive chat"
-          disabled={archiveChatMutation.isPending}
-          onClick={() => void handleArchiveChat()}
-          size="icon"
-          type="button"
-          variant="outline"
-        >
-          {archiveChatMutation.isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Archive className="size-4" />
-          )}
-        </Button>
+        {isArchived ? (
+          <Button
+            aria-label="Restore chat"
+            disabled={restoreChatMutation.isPending}
+            onClick={() => void handleRestoreChat()}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {restoreChatMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Restoring
+              </>
+            ) : (
+              <>
+                <RotateCcw className="size-4" />
+                Restore
+              </>
+            )}
+          </Button>
+        ) : (
+          <Button
+            aria-label="Archive chat"
+            disabled={archiveChatMutation.isPending}
+            onClick={() => void handleArchiveChat()}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {archiveChatMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Archiving
+              </>
+            ) : (
+              <>
+                <Archive className="size-4" />
+                Archive
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
       <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-100">
@@ -257,18 +326,16 @@ export function ChatConversation({
           <Input
             aria-label="Message"
             className="h-10 flex-1"
-            disabled={!isConnected || isSending}
+            disabled={isArchived || !isConnected || isSending}
             onChange={(event) => setMessageInput(event.target.value)}
-            placeholder={
-              connectionStatus === 'connecting'
-                ? 'Connecting...'
-                : 'Type a message...'
-            }
+            placeholder={messagePlaceholder}
             type="text"
             value={messageInput}
           />
           <Button
-            disabled={!isConnected || isSending || !messageInput.trim()}
+            disabled={
+              isArchived || !isConnected || isSending || !messageInput.trim()
+            }
             size="icon"
             type="submit"
           >
@@ -313,7 +380,9 @@ function MessageBubble({
           {messageTime ? (
             <time dateTime={message.createdAt}>{messageTime}</time>
           ) : null}
-          {isOwnMessage ? <span>{message.status}</span> : null}
+          {isOwnMessage ? (
+            <span>{formatMessageStatus(message.status)}</span>
+          ) : null}
         </div>
       </div>
     </div>
