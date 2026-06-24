@@ -1,10 +1,10 @@
-
 'use client';
 
 import { X, Loader2 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useSubjectCategories } from "@/hooks/metadata/useSubjectCategories";
 import { useEducationLevels } from "@/hooks/metadata/useEducationLevels";
 import { useCurricula } from "@/hooks/metadata/useCurricula";
@@ -19,16 +19,28 @@ import { Category } from "@/types/metaData/category";
 import { EducationLevel } from "@/types/metaData/educationLevel";
 import { Curriculum } from "@/types/metaData/curriculum";
 import { courseSchema, type CoursePayload } from "@/schemas/subject/subject-schema";
-import { createTutorSubject } from "@/services/tutor/addSubject";
 import { useCreateTutorSubject } from "@/hooks/tutor/useCreateTutorSubject";
+import { useUpdateTutorSubject } from "@/hooks/tutor/useUpdateTutorSubject";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
-export default function CourseForm({ onClose }: { onClose: () => void }) {
+import { getTutorSubjectById } from "@/services/tutor/getSubjectById";
+
+export default function CourseForm({
+  onClose,
+  subjectId,
+}: {
+  onClose: () => void;
+  subjectId?: string;
+}) {
+  const isEditMode = !!subjectId;
   const locale = useLocale() as "ar" | "en";
   const { data: categoriesData } = useSubjectCategories();
   const { data: educationLevelsData } = useEducationLevels();
   const { data: curriculaData } = useCurricula();
   const user = useCurrentUser();
-  const createSubject = useCreateTutorSubject(user.data?.id || "");
+  const tutorId = user.data?.id || "";
+
+  const createSubject = useCreateTutorSubject(tutorId);
+  const updateSubject = useUpdateTutorSubject(tutorId);
 
   const form = useForm<CoursePayload>({
     resolver: zodResolver(courseSchema),
@@ -42,27 +54,43 @@ export default function CourseForm({ onClose }: { onClose: () => void }) {
     },
   });
 
-// async function handleSubmit(values: CoursePayload) {
-//   createSubject.mutate(values, {
-//     onSuccess: () => onClose(),
-//     onError: (error) => console.error(error),
-//   })
-// }
-async function handleSubmit(values: CoursePayload) {
-try {
-    await createSubject.mutateAsync(values)
-    onClose()
-  } catch (error) {
-    console.error(error)
+  // Fetch and pre-fill form in edit mode
+  useEffect(() => {
+    if (!isEditMode || !tutorId) return;
+
+    getTutorSubjectById(tutorId, subjectId).then((data) => {
+      form.reset({
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        educationLevel: data.educationLevel,
+        curriculum: data.curriculum,
+        gradeNote: data.gradeNote || "",
+      });
+    });
+  }, [isEditMode, tutorId, subjectId]);
+
+  async function handleSubmit(values: CoursePayload) {
+    try {
+      if (isEditMode) {
+        await updateSubject.mutateAsync({ subjectId, payload: values });
+      } else {
+        await createSubject.mutateAsync(values);
+      }
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
   }
-}
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-card border border-border rounded-2xl w-full max-w-xl p-6 space-y-4">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold">Add New Course</h2>
+          <h2 className="text-lg font-bold">
+            {isEditMode ? "Update Course" : "Add New Course"}
+          </h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X />
           </button>
@@ -171,10 +199,10 @@ try {
               {form.formState.isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Saving...
+                  {isEditMode ? "Updating..." : "Saving..."}
                 </>
               ) : (
-                "Save"
+                isEditMode ? "Update" : "Save"
               )}
             </button>
           </div>

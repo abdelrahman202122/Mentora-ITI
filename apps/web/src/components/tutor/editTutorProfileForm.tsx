@@ -9,7 +9,9 @@ import { useTutorSubjects } from '@/hooks/tutor/useTutorSubjects';
 import CardForm from '@/components/tutor/CardForm';
 import { useState } from 'react';
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+const [isOpen, setIsOpen] = useState(false);
+const [editingSubjectId, setEditingSubjectId] = useState<string | undefined>(undefined);
+
 
   const { data: user } = useCurrentUser();
   const {
@@ -126,9 +128,23 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
                 <CourseCard
                   key={subject._id}
                   course={subject}
+                  onEdit={(id) => {
+                  setEditingSubjectId(id);
+                  setIsOpen(true);
+                }}
                 />
               ))}
-            {isOpen && <CardForm onClose={() => setIsOpen(false)} />}
+            {/* {isOpen && <CardForm onClose={() => setIsOpen(false)} />} */}
+            {isOpen && (
+              <CardForm
+                subjectId={editingSubjectId}
+                onClose={() => {
+                  setIsOpen(false);
+                  setEditingSubjectId(undefined);
+                }}
+              />
+            )}
+
             {/* Add New */}
             <button 
               onClick={() => setIsOpen(true)}
