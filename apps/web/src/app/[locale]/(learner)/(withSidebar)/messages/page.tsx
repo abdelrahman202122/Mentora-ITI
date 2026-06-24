@@ -38,7 +38,14 @@ export default function MessagesPage() {
             ? "Restore conversations you want to continue."
             : "Continue your tutor conversations."
         }
-        getChatHref={(chat) => getLocalePath(locale, `/messages/${chat.id}`)}
+        getChatHref={(chat) =>
+          getLocalePath(
+            locale,
+            isArchived
+              ? `/messages/${chat.id}?status=archived`
+              : `/messages/${chat.id}`,
+          )
+        }
         status={status}
         title={isArchived ? "Archived messages" : "Messages"}
       />
