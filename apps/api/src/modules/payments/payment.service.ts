@@ -312,6 +312,9 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
 function getCommissionRate(): number {
   const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
   if (rawRate) {
+function getCommissionRate(): number {
+  const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
+  if (rawRate) {
     const configuredRate = Number(rawRate);
     if (
       Number.isFinite(configuredRate) &&
@@ -322,6 +325,7 @@ function getCommissionRate(): number {
     }
   }
   return DEFAULT_COMMISSION_RATE;
+}
 }
 
 function roundMoney(value: number): number {
