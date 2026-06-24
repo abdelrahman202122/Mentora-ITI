@@ -8,6 +8,9 @@ import {
   ArrowUp,
   Heart,
 } from 'lucide-react';
+import { getLocalePath } from '@/utils/i18n/locale-path';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const Facebook = ({ className }: { className?: string }) => (
   <svg
@@ -72,9 +75,6 @@ const Linkedin = ({ className }: { className?: string }) => (
     <circle cx="4" cy="4" r="2" />
   </svg>
 );
-import { getLocalePath } from '@/utils/i18n/locale-path';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 export default function Footer() {
   const locale = useLocale();
