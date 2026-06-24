@@ -1,11 +1,24 @@
 import type { Types } from 'mongoose';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import * as paymentRepository from './payment.repository.js';
+import * as earningRepository from './earning.repository.js';
 import * as bookingRepository from '../bookings/booking.repository.js';
-import { BookingStatus, PaymentStatus as BookingPaymentStatus } from '../bookings/booking.types.js';
+import {
+  BookingStatus,
+  PaymentStatus as BookingPaymentStatus,
+} from '../bookings/booking.types.js';
 import { PaymentStatus } from './payment.types.js';
-import { NotFoundError, ForbiddenError, ConflictError, AppError } from '../../common/errors/AppError.js';
+import {
+  NotFoundError,
+  ForbiddenError,
+  ConflictError,
+  AppError,
+} from '../../common/errors/AppError.js';
 import { paymobConfig } from '../../config/paymob.config.js';
 import { DEFAULT_CURRENCY } from './payment.model.js';
+import { DEFAULT_COMMISSION_RATE } from '../bookings/booking.model.js';
+import { generateConfirmationCode } from '../bookings/confirmation-code.util.js';
+import { logger } from '../../config/logger.js';
 import mongoose from 'mongoose';
 
 /**
@@ -44,8 +57,8 @@ async function createPaymobIntention(
     items: [],
     billing_data: {},
     special_reference: internalOrderId,
-    notification_url: '',   // Configured in the Paymob dashboard
-    redirection_url: '',    // Configured in the Paymob dashboard
+    notification_url: '', // Configured in the Paymob dashboard
+    redirection_url: '', // Configured in the Paymob dashboard
   };
 
   const controller = new AbortController();
@@ -91,6 +104,228 @@ function buildCheckoutUrl(clientSecret: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Paymob webhook helpers
+// ---------------------------------------------------------------------------
+
+type JsonRecord = Record<string, unknown>;
+
+interface PaymobWebhookData {
+  providerTransactionId: string;
+  providerOrderId: string;
+  success: boolean;
+  amountCents: number;
+  failureReason?: string;
+  internalPaymentId?: Types.ObjectId;
+  rawProviderResponse: JsonRecord;
+}
+
+const PAYMOB_HMAC_FIELDS = [
+  'amount_cents',
+  'created_at',
+  'currency',
+  'error_occured',
+  'has_parent_transaction',
+  'id',
+  'integration_id',
+  'is_3d_secure',
+  'is_auth',
+  'is_capture',
+  'is_refunded',
+  'is_standalone_payment',
+  'is_voided',
+  'order.id',
+  'owner',
+  'pending',
+  'source_data.pan',
+  'source_data.sub_type',
+  'source_data.type',
+  'success',
+] as const;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function normalizeWebhookPayload(payload: unknown): JsonRecord {
+  if (Buffer.isBuffer(payload)) {
+    try {
+      const parsed = JSON.parse(payload.toString('utf8')) as unknown;
+      if (isRecord(parsed)) {
+        return parsed;
+      }
+    } catch {
+      throw new AppError(
+        'Invalid Paymob webhook JSON payload',
+        400,
+        'INVALID_WEBHOOK_PAYLOAD',
+      );
+    }
+  }
+
+  if (!isRecord(payload)) {
+    throw new AppError(
+      'Invalid Paymob webhook payload',
+      400,
+      'INVALID_WEBHOOK_PAYLOAD',
+    );
+  }
+
+  return payload;
+}
+
+function getWebhookObject(payload: JsonRecord): JsonRecord {
+  return isRecord(payload.obj) ? payload.obj : payload;
+}
+
+function getPathValue(record: JsonRecord, path: string): unknown {
+  return path.split('.').reduce<unknown>((current, key) => {
+    if (!isRecord(current)) return undefined;
+    return current[key];
+  }, record);
+}
+
+function stringifyHmacValue(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  return String(value);
+}
+
+function buildPaymobHmacSource(webhookObject: JsonRecord): string {
+  return PAYMOB_HMAC_FIELDS.map((field) =>
+    stringifyHmacValue(getPathValue(webhookObject, field)),
+  ).join('');
+}
+
+function verifyPaymobHmac(
+  webhookObject: JsonRecord,
+  hmacSignature: string,
+): void {
+  if (!hmacSignature) {
+    throw new ForbiddenError('Missing Paymob HMAC signature');
+  }
+
+  const expectedSignature = createHmac('sha512', paymobConfig.hmacSecret)
+    .update(buildPaymobHmacSource(webhookObject))
+    .digest('hex');
+
+  const provided = Buffer.from(hmacSignature.toLowerCase(), 'hex');
+  const expected = Buffer.from(expectedSignature, 'hex');
+
+  if (
+    provided.length !== expected.length ||
+    !timingSafeEqual(provided, expected)
+  ) {
+    throw new ForbiddenError('Invalid Paymob HMAC signature');
+  }
+}
+
+function parseBoolean(value: unknown): boolean | null {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    if (value.toLowerCase() === 'true') return true;
+    if (value.toLowerCase() === 'false') return false;
+  }
+  return null;
+}
+
+function parsePositiveNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+    return value;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+
+  return null;
+}
+
+function parseString(value: unknown): string | null {
+  if (typeof value === 'string' && value.trim() !== '') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return null;
+}
+
+function parseObjectId(value: unknown): Types.ObjectId | undefined {
+  const stringValue = parseString(value);
+  if (!stringValue || !mongoose.Types.ObjectId.isValid(stringValue)) {
+    return undefined;
+  }
+  return new mongoose.Types.ObjectId(stringValue);
+}
+
+function extractFailureReason(webhookObject: JsonRecord): string | undefined {
+  const directReason =
+    parseString(webhookObject['data.message']) ??
+    parseString(webhookObject.message) ??
+    parseString(webhookObject.error) ??
+    parseString(webhookObject.failure_reason);
+
+  if (directReason) return directReason;
+
+  if (isRecord(webhookObject.data)) {
+    return parseString(webhookObject.data.message) ?? undefined;
+  }
+
+  return undefined;
+}
+
+function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
+  const webhookObject = getWebhookObject(payload);
+  const providerTransactionId =
+    parseString(webhookObject.transaction_id) ?? parseString(webhookObject.id);
+  const providerOrderId =
+    parseString(webhookObject.order_id) ??
+    parseString(webhookObject.order) ??
+    parseString(getPathValue(webhookObject, 'order.id'));
+  const success = parseBoolean(webhookObject.success);
+  const amountCents = parsePositiveNumber(webhookObject.amount_cents);
+
+  if (
+    !providerTransactionId ||
+    !providerOrderId ||
+    success === null ||
+    amountCents === null
+  ) {
+    throw new AppError(
+      'Missing required Paymob webhook fields',
+      400,
+      'INVALID_WEBHOOK_PAYLOAD',
+    );
+  }
+
+  return {
+    providerTransactionId,
+    providerOrderId,
+    success,
+    amountCents,
+    failureReason: extractFailureReason(webhookObject),
+    internalPaymentId:
+      parseObjectId(webhookObject.special_reference) ??
+      parseObjectId(webhookObject.merchant_order_id) ??
+      parseObjectId(getPathValue(webhookObject, 'order.merchant_order_id')),
+    rawProviderResponse: payload,
+  };
+}
+
+function getCommissionRate(): number {
+  const configuredRate = Number(process.env.MENTORA_COMMISSION_RATE);
+  if (
+    Number.isFinite(configuredRate) &&
+    configuredRate >= 0 &&
+    configuredRate <= 1
+  ) {
+    return configuredRate;
+  }
+  return DEFAULT_COMMISSION_RATE;
+}
+
+function roundMoney(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+// ---------------------------------------------------------------------------
 // Exported service functions
 // ---------------------------------------------------------------------------
 
@@ -124,7 +359,9 @@ export async function initiateCheckout(
 
   // Step 2: Verify learner ownership
   if (!booking.learnerId.equals(learnerId)) {
-    throw new ForbiddenError('You do not have permission to pay for this booking');
+    throw new ForbiddenError(
+      'You do not have permission to pay for this booking',
+    );
   }
 
   // Step 3: Verify booking is confirmed
@@ -139,7 +376,9 @@ export async function initiateCheckout(
     BookingPaymentStatus.UNPAID,
     BookingPaymentStatus.FAILED,
   ];
-  if (!recoverableStatuses.includes(booking.paymentStatus as BookingPaymentStatus)) {
+  if (
+    !recoverableStatuses.includes(booking.paymentStatus as BookingPaymentStatus)
+  ) {
     throw new ConflictError(
       `Cannot initiate checkout. Current payment status: ${booking.paymentStatus}`,
     );
@@ -148,24 +387,29 @@ export async function initiateCheckout(
   // Step 5: Ensure no existing payment (in any status) exists for this booking.
   // Rejecting all statuses — not just SUCCESS — prevents a race condition where two
   // concurrent requests both pass this check and both create a pending payment record.
-  const existingPayment = await paymentRepository.findPaymentByBookingId(bookingId);
+  const existingPayment =
+    await paymentRepository.findPaymentByBookingId(bookingId);
   if (existingPayment) {
     if (existingPayment.status === PaymentStatus.SUCCESS) {
-      throw new ConflictError('This booking has already been paid successfully');
+      throw new ConflictError(
+        'This booking has already been paid successfully',
+      );
     }
     throw new ConflictError(
       `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-      'Please wait for it to complete or contact support.',
+        'Please wait for it to complete or contact support.',
     );
   }
 
   // Step 6: Derive amount server-side from booking (never trust client)
-  const amount = booking.price;                              // decimal (e.g. 250.00)
-  const currency = (booking.currency ?? DEFAULT_CURRENCY) as 'EGP' | 'USD' | 'EUR';
-  const amountCents = Math.round(amount * 100);              // Paymob expects smallest unit
+  const amount = booking.price; // decimal (e.g. 250.00)
+  const currency = (booking.currency ?? DEFAULT_CURRENCY) as
+    | 'EGP'
+    | 'USD'
+    | 'EUR';
+  const amountCents = Math.round(amount * 100); // Paymob expects smallest unit
 
-  const session =
-    await mongoose.startSession();
+  const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
@@ -210,8 +454,6 @@ export async function initiateCheckout(
   } finally {
     session.endSession();
   }
-
-
 }
 
 /**
@@ -263,9 +505,130 @@ export async function handlePaymobWebhook(
   payload: Record<string, unknown>,
   hmacSignature: string,
 ): Promise<void> {
-  // TODO: implement
-  void paymentRepository;
-  void payload;
-  void hmacSignature;
-  throw new Error('handlePaymobWebhook: not yet implemented');
+  const normalizedPayload = normalizeWebhookPayload(payload);
+  const webhookObject = getWebhookObject(normalizedPayload);
+
+  // Step 1: Verify callback authenticity before trusting any fields.
+  verifyPaymobHmac(webhookObject, hmacSignature);
+
+  // Step 2: Parse the normalized Paymob transaction callback.
+  const webhookData = parsePaymobWebhookData(normalizedPayload);
+
+  // Step 3: Locate the local payment record using Paymob's order reference.
+  const payment =
+    (await paymentRepository.findPaymentByProviderOrderId(
+      webhookData.providerOrderId,
+    )) ??
+    (webhookData.internalPaymentId
+      ? await paymentRepository.findPaymentById(webhookData.internalPaymentId)
+      : null);
+
+  // Step 4: Unknown payments are acknowledged to prevent endless provider retries.
+  if (!payment) {
+    logger.warn(
+      `Paymob webhook acknowledged for unknown order ${webhookData.providerOrderId}`,
+    );
+    return;
+  }
+
+  // Step 5: Successful callbacks are idempotent.
+  if (payment.status === PaymentStatus.SUCCESS) {
+    logger.info(
+      `Duplicate Paymob webhook acknowledged for payment ${payment._id}`,
+    );
+    return;
+  }
+
+  const expectedAmountCents = Math.round(payment.amount * 100);
+  if (webhookData.amountCents !== expectedAmountCents) {
+    logger.warn(
+      `Paymob webhook amount mismatch for payment ${payment._id}: expected ${expectedAmountCents}, received ${webhookData.amountCents}`,
+    );
+    return;
+  }
+
+  const now = new Date();
+
+  if (webhookData.success) {
+    // Step 6a: Atomically move the payment into success so duplicate callbacks
+    // cannot create duplicate booking/earning side effects.
+    const updatedPayment = await paymentRepository.updatePaymentAtomically(
+      {
+        _id: payment._id,
+        status: { $ne: PaymentStatus.SUCCESS },
+      },
+      {
+        status: PaymentStatus.SUCCESS,
+        paidAt: now,
+        failedAt: null,
+        failureReason: null,
+        providerTransactionId: webhookData.providerTransactionId,
+        rawProviderResponse: webhookData.rawProviderResponse,
+      },
+    );
+
+    if (!updatedPayment) {
+      logger.info(
+        `Duplicate Paymob success webhook acknowledged for payment ${payment._id}`,
+      );
+      return;
+    }
+
+    // Steps 6b-6c: Mark the booking as paid and generate the learner-visible code.
+    const booking = await bookingRepository.findBookingById(payment.bookingId);
+    if (!booking) {
+      logger.warn(
+        `Payment ${payment._id} succeeded but booking ${payment.bookingId} was not found`,
+      );
+      return;
+    }
+
+    await bookingRepository.updateBooking(payment.bookingId, {
+      paymentStatus: BookingPaymentStatus.PAID,
+    });
+
+    // Step 6d: Create the pending tutor earning if it does not already exist.
+    const existingEarning = await earningRepository.findEarningByBookingId(
+      payment.bookingId,
+    );
+    if (!existingEarning) {
+      const commissionRate = getCommissionRate();
+      const grossAmount = payment.amount;
+      const commissionAmount = roundMoney(grossAmount * commissionRate);
+      const tutorAmount = roundMoney(grossAmount - commissionAmount);
+
+      await earningRepository.createEarning({
+        bookingId: payment.bookingId,
+        paymentId: payment._id as Types.ObjectId,
+        tutorId: payment.tutorId,
+        grossAmount,
+        commissionRate,
+        commissionAmount,
+        tutorAmount,
+        currency: payment.currency,
+      });
+    }
+
+    return;
+  }
+
+  // Step 7: Failed payments keep the booking recoverable.
+  await paymentRepository.updatePaymentAtomically(
+    {
+      _id: payment._id,
+      status: { $ne: PaymentStatus.SUCCESS },
+    },
+    {
+      status: PaymentStatus.FAILED,
+      failedAt: now,
+      failureReason:
+        webhookData.failureReason ?? 'Paymob reported payment failure',
+      providerTransactionId: webhookData.providerTransactionId,
+      rawProviderResponse: webhookData.rawProviderResponse,
+    },
+  );
+
+  await bookingRepository.updateBooking(payment.bookingId, {
+    paymentStatus: BookingPaymentStatus.FAILED,
+  });
 }
