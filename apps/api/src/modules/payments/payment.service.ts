@@ -310,13 +310,16 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
 }
 
 function getCommissionRate(): number {
-  const configuredRate = Number(process.env.MENTORA_COMMISSION_RATE);
-  if (
-    Number.isFinite(configuredRate) &&
-    configuredRate >= 0 &&
-    configuredRate <= 1
-  ) {
-    return configuredRate;
+  const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
+  if (rawRate) {
+    const configuredRate = Number(rawRate);
+    if (
+      Number.isFinite(configuredRate) &&
+      configuredRate >= 0 &&
+      configuredRate <= 1
+    ) {
+      return configuredRate;
+    }
   }
   return DEFAULT_COMMISSION_RATE;
 }
