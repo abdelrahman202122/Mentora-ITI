@@ -18,7 +18,7 @@ export default function Home() {
       <GradeLevels />
       <HowItWorks />
       <Reviews />
-      <StartLearning/>kl
+      <StartLearning/>
       <Footer/>     
     
  

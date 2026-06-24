@@ -117,7 +117,7 @@ export default function LearnerDashboardPage() {
         </h2>
         <div className="flex flex-col gap-3">
           {bookings.map((booking) => (
-            <BookingCard
+            <BookingCard 
               key={booking.id}
               bookingId={booking.id}
               subject={booking.subject}
