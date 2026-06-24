@@ -7,7 +7,7 @@ import {
   BookingStatus,
   PaymentStatus as BookingPaymentStatus,
 } from '../bookings/booking.types.js';
-import { PaymentStatus } from './payment.types.js';
+import { PaymentStatus, type IPayment } from './payment.types.js';
 import {
   NotFoundError,
   ForbiddenError,
@@ -337,6 +337,45 @@ function sanitizeProviderResponse(payload: JsonRecord): JsonRecord {
   return sanitized;
 }
 
+async function reconcileSuccessfulPaymentSideEffects(
+  payment: IPayment,
+): Promise<void> {
+  const booking = await bookingRepository.findBookingById(payment.bookingId);
+  if (!booking) {
+    logger.warn(
+      `Payment ${payment._id} succeeded but booking ${payment.bookingId} was not found`,
+    );
+    return;
+  }
+
+  await bookingRepository.updateBooking(payment.bookingId, {
+    paymentStatus: BookingPaymentStatus.PAID,
+  });
+
+  const existingEarning = await earningRepository.findEarningByBookingId(
+    payment.bookingId,
+  );
+  if (existingEarning) {
+    return;
+  }
+
+  const commissionRate = getCommissionRate();
+  const grossAmount = payment.amount;
+  const commissionAmount = roundMoney(grossAmount * commissionRate);
+  const tutorAmount = roundMoney(grossAmount - commissionAmount);
+
+  await earningRepository.createEarning({
+    bookingId: payment.bookingId,
+    paymentId: payment._id as Types.ObjectId,
+    tutorId: payment.tutorId,
+    grossAmount,
+    commissionRate,
+    commissionAmount,
+    tutorAmount,
+    currency: payment.currency,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Exported service functions
 // ---------------------------------------------------------------------------
@@ -504,7 +543,7 @@ export async function getPaymentById(
  * 2. Parse and validate the webhook payload fields (transaction_id, order_id, success, amount_cents, etc.).
  * 3. Locate the local payment record via paymentRepository.findPaymentByProviderOrderId(providerOrderId).
  * 4. If the payment record is not found, log a warning and return 200 to acknowledge the webhook.
- * 5. If payment.status is already 'success', treat this as a duplicate and return 200 (idempotent).
+ * 5. If payment.status is already 'success', treat this as a duplicate and reconcile side effects.
  * 6. If Paymob reports success === true:
  *    a. Atomically update payment: status → 'success', paidAt → now, providerTransactionId, rawProviderResponse.
  *    b. Update the linked booking: paymentStatus → 'paid'.
@@ -550,6 +589,7 @@ export async function handlePaymobWebhook(
     logger.info(
       `Duplicate Paymob webhook acknowledged for payment ${payment._id}`,
     );
+    await reconcileSuccessfulPaymentSideEffects(payment);
     return;
   }
 
@@ -587,43 +627,12 @@ export async function handlePaymobWebhook(
       logger.info(
         `Duplicate Paymob success webhook acknowledged for payment ${payment._id}`,
       );
+      await reconcileSuccessfulPaymentSideEffects(payment);
       return;
     }
 
-    // Steps 6b-6c: Mark the booking as paid and generate the learner-visible code.
-    const booking = await bookingRepository.findBookingById(payment.bookingId);
-    if (!booking) {
-      logger.warn(
-        `Payment ${payment._id} succeeded but booking ${payment.bookingId} was not found`,
-      );
-      return;
-    }
-
-    await bookingRepository.updateBooking(payment.bookingId, {
-      paymentStatus: BookingPaymentStatus.PAID,
-    });
-
-    // Step 6d: Create the pending tutor earning if it does not already exist.
-    const existingEarning = await earningRepository.findEarningByBookingId(
-      payment.bookingId,
-    );
-    if (!existingEarning) {
-      const commissionRate = getCommissionRate();
-      const grossAmount = payment.amount;
-      const commissionAmount = roundMoney(grossAmount * commissionRate);
-      const tutorAmount = roundMoney(grossAmount - commissionAmount);
-
-      await earningRepository.createEarning({
-        bookingId: payment.bookingId,
-        paymentId: payment._id as Types.ObjectId,
-        tutorId: payment.tutorId,
-        grossAmount,
-        commissionRate,
-        commissionAmount,
-        tutorAmount,
-        currency: payment.currency,
-      });
-    }
+    // Steps 6b-6d: Reconcile idempotent booking and earning side effects.
+    await reconcileSuccessfulPaymentSideEffects(updatedPayment);
 
     return;
   }
