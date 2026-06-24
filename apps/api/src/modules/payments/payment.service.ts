@@ -629,7 +629,7 @@ export async function handlePaymobWebhook(
   }
 
   // Step 7: Failed payments keep the booking recoverable.
-  await paymentRepository.updatePaymentAtomically(
+  const updatedPayment = await paymentRepository.updatePaymentAtomically(
     {
       _id: payment._id,
       status: { $ne: PaymentStatus.SUCCESS },
@@ -643,7 +643,12 @@ export async function handlePaymobWebhook(
       rawProviderResponse: webhookData.rawProviderResponse,
     },
   );
-
+  if (!updatedPayment) {
+    logger.info(
+      `Paymob failure webhook ignored because payment ${payment._id} is already successful`,
+    );
+    return;
+  }
   await bookingRepository.updateBooking(payment.bookingId, {
     paymentStatus: BookingPaymentStatus.FAILED,
   });
