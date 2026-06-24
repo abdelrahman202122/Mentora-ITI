@@ -1,0 +1,82 @@
+{
+  "aiTutorFinder": {
+    "badge": "باحث المعلمين بالذكاء الاصطناعي",
+    "title": "اعثر على معلم يناسب احتياجاتك التعليمية",
+    "description": "استخدم معايير واضحة حتى تستمر التوصيات في العمل حتى إذا لم يكن مزود نصوص الذكاء الاصطناعي متاحا.",
+    "formTitle": "معايير التعلم",
+    "formDescription": "هذه الحقول ترتبط مباشرة بمحرك التوصيات في الخادم.",
+    "fields": {
+      "goal": "الهدف",
+      "query": "المادة أو الموضوع",
+      "category": "الفئة",
+      "educationLevel": "المرحلة التعليمية",
+      "curriculum": "المنهج",
+      "languages": "اللغات",
+      "maxHourlyRate": "أقصى سعر بالساعة"
+    },
+    "placeholders": {
+      "goal": "أحتاج مساعدة في رياضيات IGCSE قبل الامتحانات",
+      "query": "رياضيات",
+      "languages": "الإنجليزية، العربية",
+      "maxHourlyRate": "300",
+      "any": "أي",
+      "anyField": "أي {label}"
+    },
+    "validation": {
+      "queryRequired": "اكتب المادة أو الموضوع",
+      "budgetPositive": "يجب أن تكون الميزانية أكبر من صفر"
+    },
+    "goalFallback": "البحث عن معلم لـ {query}",
+    "actions": {
+      "findTutors": "ابحث عن معلمين"
+    },
+    "errors": {
+      "recommendationsFailed": "تعذر العثور على توصيات للمعلمين."
+    },
+    "results": {
+      "title": "المعلمون المقترحون",
+      "matchesFound": "تم العثور على {count} نتيجة",
+      "rankedByScore": "مرتبة حسب درجة التطابق",
+      "score": "الدرجة",
+      "hourlyRate": "السعر بالساعة",
+      "rating": "التقييم",
+      "languages": "اللغات"
+    },
+    "empty": {
+      "title": "ستظهر النتائج هنا",
+      "description": "سيقيم الخادم المعلمين حسب المادة والمنهج واللغة والسعر والجودة."
+    },
+    "noResults": {
+      "title": "لم يطابق أي معلم هذا البحث",
+      "description": "جرب مادة أوسع أو منهجا مختلفا أو سعرا أعلى بالساعة."
+    },
+    "strength": {
+      "strong": "قوي",
+      "good": "جيد",
+      "partial": "جزئي",
+      "weak": "ضعيف"
+    },
+    "fallbackCategories": {
+      "mathematics": "الرياضيات",
+      "sciences": "العلوم",
+      "languages": "اللغات",
+      "technology": "التكنولوجيا وعلوم الحاسب",
+      "test_prep": "التحضير للاختبارات"
+    },
+    "fallbackEducationLevels": {
+      "primary": "المرحلة الابتدائية",
+      "preparatory": "المرحلة الإعدادية",
+      "secondary": "المرحلة الثانوية",
+      "university": "الجامعة",
+      "professional": "التطوير المهني"
+    },
+    "fallbackCurricula": {
+      "national_new": "المنهج المصري الجديد",
+      "igcse": "IGCSE / كامبريدج",
+      "ib": "البكالوريا الدولية",
+      "american": "المنهج الأمريكي",
+      "british": "المنهج البريطاني",
+      "none": "غير محدد"
+    }
+  }
+}
