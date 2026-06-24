@@ -328,6 +328,15 @@ function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+function sanitizeProviderResponse(payload: JsonRecord): JsonRecord {
+  const sanitized = JSON.parse(JSON.stringify(payload)) as JsonRecord;
+  const webhookObject = getWebhookObject(sanitized);
+  if (isRecord(webhookObject.source_data)) {
+    delete webhookObject.source_data.pan;
+  }
+  return sanitized;
+}
+
 // ---------------------------------------------------------------------------
 // Exported service functions
 // ---------------------------------------------------------------------------
@@ -568,7 +577,9 @@ export async function handlePaymobWebhook(
         failedAt: null,
         failureReason: null,
         providerTransactionId: webhookData.providerTransactionId,
-        rawProviderResponse: webhookData.rawProviderResponse,
+        rawProviderResponse: sanitizeProviderResponse(
+          webhookData.rawProviderResponse,
+        ),
       },
     );
 
