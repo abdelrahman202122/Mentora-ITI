@@ -11,7 +11,7 @@ export async function getTutorSubjectById(
       `/tutors/${tutorId}/subjects/${subjectId}`
     );
 
-    console.log(response.data);
+    // console.log(response.data);
 
     return response.data.data;
   } catch (error) {

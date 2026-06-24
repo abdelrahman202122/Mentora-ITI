@@ -54,11 +54,12 @@ export default function CourseForm({
     },
   });
 
-  // Fetch and pre-fill form in edit mode
-  useEffect(() => {
-    if (!isEditMode || !tutorId) return;
-
-    getTutorSubjectById(tutorId, subjectId).then((data) => {
+// Fetch and pre-fill form in edit mode
+useEffect(() => {
+  if (!isEditMode || !tutorId) return;
+  
+  getTutorSubjectById(tutorId, subjectId)
+    .then((data) => {
       form.reset({
         title: data.title,
         description: data.description,
@@ -67,9 +68,12 @@ export default function CourseForm({
         curriculum: data.curriculum,
         gradeNote: data.gradeNote || "",
       });
+    })
+    .catch((error) => {
+      console.error("Failed to load subject data:", error);
+      // toast.error("Failed to load subject data. Please try again.");
     });
-  }, [isEditMode, tutorId, subjectId]);
-
+}, [isEditMode, tutorId, subjectId]);
   async function handleSubmit(values: CoursePayload) {
     try {
       if (isEditMode) {

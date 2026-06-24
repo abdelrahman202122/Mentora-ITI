@@ -23,13 +23,13 @@ export function useUpdateTutorSubject(
           : ["tutorSubjects"],
       });
 
-      queryClient.invalidateQueries({
-        queryKey: [
-          "tutor-subject",
-          tutorId,
-          variables.subjectId,
-        ],
-      });
+    //   queryClient.invalidateQueries({
+    //     queryKey: [
+    //       "tutor-subject",
+    //       tutorId,
+    //       variables.subjectId,
+    //     ],
+    //   });
     },
   });
 }
