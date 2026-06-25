@@ -451,7 +451,7 @@ export async function initiateCheckout(
     if (existingPayment.status !== PaymentStatus.FAILED) {
       throw new ConflictError(
         `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-          'Please wait for it to complete or contact support.',
+        'Please wait for it to complete or contact support.',
       );
     }
   }
@@ -548,16 +548,14 @@ export async function getPaymentById(
       throw new ForbiddenError('You do not have permission to view this payment');
     }
   }
-  // If the user has a role other than learner, tutor, or admin, deny access.
-  else if (role !== 'admin') {
+  // If the user has a role other than learner or tutor, deny access.
+  else {
     throw new ForbiddenError('You do not have permission to view this payment');
   }
 
   // Step 5: Strip rawProviderResponse before returning to non-admin users.
   const paymentObj = payment.toObject();
-  if (role !== 'admin') {
-    delete paymentObj.rawProviderResponse;
-  }
+  delete paymentObj.rawProviderResponse;
 
   // Step 6: Return the sanitized payment document.
   return paymentObj;
