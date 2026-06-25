@@ -312,9 +312,6 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
 function getCommissionRate(): number {
   const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
   if (rawRate) {
-function getCommissionRate(): number {
-  const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
-  if (rawRate) {
     const configuredRate = Number(rawRate);
     if (
       Number.isFinite(configuredRate) &&
@@ -326,343 +323,342 @@ function getCommissionRate(): number {
   }
   return DEFAULT_COMMISSION_RATE;
 }
-}
 
-function roundMoney(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-function sanitizeProviderResponse(payload: JsonRecord): JsonRecord {
-  const sanitized = JSON.parse(JSON.stringify(payload)) as JsonRecord;
-  const webhookObject = getWebhookObject(sanitized);
-  if (isRecord(webhookObject.source_data)) {
-    delete webhookObject.source_data.pan;
-  }
-  return sanitized;
-}
-
-async function reconcileSuccessfulPaymentSideEffects(
-  payment: IPayment,
-): Promise<void> {
-  const booking = await bookingRepository.findBookingById(payment.bookingId);
-  if (!booking) {
-    logger.warn(
-      `Payment ${payment._id} succeeded but booking ${payment.bookingId} was not found`,
-    );
-    return;
+  function roundMoney(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
-  await bookingRepository.updateBooking(payment.bookingId, {
-    paymentStatus: BookingPaymentStatus.PAID,
-  });
-
-  const existingEarning = await earningRepository.findEarningByBookingId(
-    payment.bookingId,
-  );
-  if (existingEarning) {
-    return;
-  }
-
-  const commissionRate = getCommissionRate();
-  const grossAmount = payment.amount;
-  const commissionAmount = roundMoney(grossAmount * commissionRate);
-  const tutorAmount = roundMoney(grossAmount - commissionAmount);
-
-  await earningRepository.createEarning({
-    bookingId: payment.bookingId,
-    paymentId: payment._id as Types.ObjectId,
-    tutorId: payment.tutorId,
-    grossAmount,
-    commissionRate,
-    commissionAmount,
-    tutorAmount,
-    currency: payment.currency,
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Exported service functions
-// ---------------------------------------------------------------------------
-
-/**
- * POST /api/payments/checkout
- * Initiate a Paymob checkout session for a confirmed, unpaid booking.
- *
- * Steps:
- * 1. Fetch the booking by bookingId and verify it exists.
- * 2. Verify the requesting learner owns the booking.
- * 3. Verify booking.bookingStatus === 'confirmed'.
- * 4. Verify booking.paymentStatus === 'unpaid' or 'failed' (recoverable states).
- * 5. Ensure no existing successful payment already exists for this booking.
- * 6. Derive the payment amount server-side from booking.price (never trust client-provided amount).
- * 7. Create a local payment record via paymentRepository.createPayment with status 'pending'.
- * 8. Call Paymob Intention API to register a payment order.
- * 9. Build the hosted-checkout URL from the returned client_secret.
- * 10. Save Paymob providerOrderId (intention id) and providerCheckoutUrl on the local payment record.
- * 11. Update booking.paymentId with the new payment document ID.
- * 12. Return only frontend-safe checkout data: { paymentId, checkoutUrl } to the controller.
- */
-export async function initiateCheckout(
-  bookingId: Types.ObjectId,
-  learnerId: Types.ObjectId,
-): Promise<{ paymentId: string; checkoutUrl: string }> {
-  // Step 1: Fetch the booking
-  const booking = await bookingRepository.findBookingById(bookingId);
-  if (!booking) {
-    throw new NotFoundError('Booking not found');
-  }
-
-  // Step 2: Verify learner ownership
-  if (!booking.learnerId.equals(learnerId)) {
-    throw new ForbiddenError(
-      'You do not have permission to pay for this booking',
-    );
-  }
-
-  // Step 3: Verify booking is confirmed
-  if (booking.bookingStatus !== BookingStatus.CONFIRMED) {
-    throw new ConflictError(
-      `Only confirmed bookings can be paid. Current booking status: ${booking.bookingStatus}`,
-    );
-  }
-
-  // Step 4: Verify payment status is unpaid or failed (recoverable)
-  const recoverableStatuses: BookingPaymentStatus[] = [
-    BookingPaymentStatus.UNPAID,
-    BookingPaymentStatus.FAILED,
-  ];
-  if (
-    !recoverableStatuses.includes(booking.paymentStatus as BookingPaymentStatus)
-  ) {
-    throw new ConflictError(
-      `Cannot initiate checkout. Current payment status: ${booking.paymentStatus}`,
-    );
-  }
-
-  // Step 5: Ensure no existing payment (in any status) exists for this booking.
-  // Rejecting all statuses — not just SUCCESS — prevents a race condition where two
-  // concurrent requests both pass this check and both create a pending payment record.
-  const existingPayment =
-    await paymentRepository.findPaymentByBookingId(bookingId);
-  if (existingPayment) {
-    if (existingPayment.status === PaymentStatus.SUCCESS) {
-      throw new ConflictError(
-        'This booking has already been paid successfully',
-      );
+  function sanitizeProviderResponse(payload: JsonRecord): JsonRecord {
+    const sanitized = JSON.parse(JSON.stringify(payload)) as JsonRecord;
+    const webhookObject = getWebhookObject(sanitized);
+    if (isRecord(webhookObject.source_data)) {
+      delete webhookObject.source_data.pan;
     }
-    if (existingPayment.status !== PaymentStatus.FAILED) {
-      throw new ConflictError(
-        `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-          'Please wait for it to complete or contact support.',
-      );
-    }
+    return sanitized;
   }
 
-  // Step 6: Derive amount server-side from booking (never trust client)
-  const amount = booking.price; // decimal (e.g. 250.00)
-  const currency = (booking.currency ?? DEFAULT_CURRENCY) as
-    | 'EGP'
-    | 'USD'
-    | 'EUR';
-  const amountCents = Math.round(amount * 100); // Paymob expects smallest unit
+  async function reconcileSuccessfulPaymentSideEffects(
+    payment: IPayment,
+  ): Promise<void> {
+    const booking = await bookingRepository.findBookingById(payment.bookingId);
+    if (!booking) {
+      logger.warn(
+        `Payment ${payment._id} succeeded but booking ${payment.bookingId} was not found`,
+      );
+      return;
+    }
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    // Step 7: Create a local payment record with status 'pending'
-    const payment = await paymentRepository.createPayment({
-      bookingId,
-      learnerId,
-      tutorId: booking.tutorId,
-      amount,
-      currency,
-      provider: 'paymob',
+    await bookingRepository.updateBooking(payment.bookingId, {
+      paymentStatus: BookingPaymentStatus.PAID,
     });
 
-    // Step 8: Call Paymob Intention API
-    const intention = await createPaymobIntention(
-      amountCents,
-      currency,
-      (payment._id as Types.ObjectId).toString(),
+    const existingEarning = await earningRepository.findEarningByBookingId(
+      payment.bookingId,
     );
+    if (existingEarning) {
+      return;
+    }
 
-    // Step 9: Build the hosted checkout URL
-    const checkoutUrl = buildCheckoutUrl(intention.client_secret);
+    const commissionRate = getCommissionRate();
+    const grossAmount = payment.amount;
+    const commissionAmount = roundMoney(grossAmount * commissionRate);
+    const tutorAmount = roundMoney(grossAmount - commissionAmount);
 
-    // Step 10: Persist the Paymob intention id and checkout URL on the payment record
-    await paymentRepository.updatePaymentById(payment._id as Types.ObjectId, {
-      providerOrderId: intention.id,
-      providerCheckoutUrl: checkoutUrl,
-    });
-
-    // Step 11: Link the payment ID to the booking
-    await bookingRepository.updateBooking(bookingId, {
+    await earningRepository.createEarning({
+      bookingId: payment.bookingId,
       paymentId: payment._id as Types.ObjectId,
+      tutorId: payment.tutorId,
+      grossAmount,
+      commissionRate,
+      commissionAmount,
+      tutorAmount,
+      currency: payment.currency,
     });
-    // Step 12: Return only frontend-safe data
-    return {
-      paymentId: (payment._id as Types.ObjectId).toString(),
-      checkoutUrl,
-    };
-  } catch {
-    await session.abortTransaction();
-    throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
-  } finally {
-    session.endSession();
-  }
-}
-
-/**
- * GET /api/payments/:paymentId
- * Retrieve a payment by ID with role-based access control.
- *
- * Steps to implement:
- * 1. Fetch the payment via paymentRepository.findPaymentById(paymentId).
- * 2. Throw NotFoundError if the payment does not exist.
- * 3. If the requesting user is a learner, verify payment.learnerId matches userId.
- * 4. If the requesting user is a tutor, verify payment.tutorId matches userId.
- * 5. Strip rawProviderResponse before returning to non-admin users.
- * 6. Return the sanitized payment document.
- */
-export async function getPaymentById(
-  paymentId: Types.ObjectId,
-  userId: string,
-  role: string,
-): Promise<unknown> {
-  // TODO: implement
-  void paymentRepository;
-  void paymentId;
-  void userId;
-  void role;
-  throw new Error('getPaymentById: not yet implemented');
-}
-
-/**
- * POST /api/payments/webhook
- * Handle Paymob payment callback / webhook and update payment and booking state.
- *
- * Steps to implement:
- * 1. Verify the HMAC signature from Paymob using PAYMOB_HMAC_SECRET to reject forged requests.
- * 2. Parse and validate the webhook payload fields (transaction_id, order_id, success, amount_cents, etc.).
- * 3. Locate the local payment record via paymentRepository.findPaymentByProviderOrderId(providerOrderId).
- * 4. If the payment record is not found, log a warning and return 200 to acknowledge the webhook.
- * 5. If payment.status is already 'success', treat this as a duplicate and reconcile side effects.
- * 6. If Paymob reports success === true:
- *    a. Atomically update payment: status → 'success', paidAt → now, providerTransactionId, rawProviderResponse.
- *    b. Update the linked booking: paymentStatus → 'paid'.
- *    c. Generate a unique confirmation code and set booking.confirmationCode.
- *    d. Create an Earning record for the tutor (grossAmount, commissionRate from env, commissionAmount, tutorAmount).
- * 7. If Paymob reports success === false:
- *    a. Update payment: status → 'failed', failedAt → now, failureReason, rawProviderResponse.
- *    b. Update the linked booking: paymentStatus → 'failed'.
- * 8. Return 200 to acknowledge the webhook regardless of outcome.
- */
-export async function handlePaymobWebhook(
-  payload: Record<string, unknown>,
-  hmacSignature: string,
-): Promise<void> {
-  const normalizedPayload = normalizeWebhookPayload(payload);
-  const webhookObject = getWebhookObject(normalizedPayload);
-
-  // Step 1: Verify callback authenticity before trusting any fields.
-  verifyPaymobHmac(webhookObject, hmacSignature);
-
-  // Step 2: Parse the normalized Paymob transaction callback.
-  const webhookData = parsePaymobWebhookData(normalizedPayload);
-
-  // Step 3: Locate the local payment record using Paymob's order reference.
-  const payment =
-    (await paymentRepository.findPaymentByProviderOrderId(
-      webhookData.providerOrderId,
-    )) ??
-    (webhookData.internalPaymentId
-      ? await paymentRepository.findPaymentById(webhookData.internalPaymentId)
-      : null);
-
-  // Step 4: Unknown payments are acknowledged to prevent endless provider retries.
-  if (!payment) {
-    logger.warn(
-      `Paymob webhook acknowledged for unknown order ${webhookData.providerOrderId}`,
-    );
-    return;
   }
 
-  // Step 5: Successful callbacks are idempotent.
-  if (payment.status === PaymentStatus.SUCCESS) {
-    logger.info(
-      `Duplicate Paymob webhook acknowledged for payment ${payment._id}`,
-    );
-    await reconcileSuccessfulPaymentSideEffects(payment);
-    return;
+  // ---------------------------------------------------------------------------
+  // Exported service functions
+  // ---------------------------------------------------------------------------
+
+  /**
+   * POST /api/payments/checkout
+   * Initiate a Paymob checkout session for a confirmed, unpaid booking.
+   *
+   * Steps:
+   * 1. Fetch the booking by bookingId and verify it exists.
+   * 2. Verify the requesting learner owns the booking.
+   * 3. Verify booking.bookingStatus === 'confirmed'.
+   * 4. Verify booking.paymentStatus === 'unpaid' or 'failed' (recoverable states).
+   * 5. Ensure no existing successful payment already exists for this booking.
+   * 6. Derive the payment amount server-side from booking.price (never trust client-provided amount).
+   * 7. Create a local payment record via paymentRepository.createPayment with status 'pending'.
+   * 8. Call Paymob Intention API to register a payment order.
+   * 9. Build the hosted-checkout URL from the returned client_secret.
+   * 10. Save Paymob providerOrderId (intention id) and providerCheckoutUrl on the local payment record.
+   * 11. Update booking.paymentId with the new payment document ID.
+   * 12. Return only frontend-safe checkout data: { paymentId, checkoutUrl } to the controller.
+   */
+  export async function initiateCheckout(
+    bookingId: Types.ObjectId,
+    learnerId: Types.ObjectId,
+  ): Promise<{ paymentId: string; checkoutUrl: string }> {
+    // Step 1: Fetch the booking
+    const booking = await bookingRepository.findBookingById(bookingId);
+    if (!booking) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    // Step 2: Verify learner ownership
+    if (!booking.learnerId.equals(learnerId)) {
+      throw new ForbiddenError(
+        'You do not have permission to pay for this booking',
+      );
+    }
+
+    // Step 3: Verify booking is confirmed
+    if (booking.bookingStatus !== BookingStatus.CONFIRMED) {
+      throw new ConflictError(
+        `Only confirmed bookings can be paid. Current booking status: ${booking.bookingStatus}`,
+      );
+    }
+
+    // Step 4: Verify payment status is unpaid or failed (recoverable)
+    const recoverableStatuses: BookingPaymentStatus[] = [
+      BookingPaymentStatus.UNPAID,
+      BookingPaymentStatus.FAILED,
+    ];
+    if (
+      !recoverableStatuses.includes(booking.paymentStatus as BookingPaymentStatus)
+    ) {
+      throw new ConflictError(
+        `Cannot initiate checkout. Current payment status: ${booking.paymentStatus}`,
+      );
+    }
+
+    // Step 5: Ensure no existing payment (in any status) exists for this booking.
+    // Rejecting all statuses — not just SUCCESS — prevents a race condition where two
+    // concurrent requests both pass this check and both create a pending payment record.
+    const existingPayment =
+      await paymentRepository.findPaymentByBookingId(bookingId);
+    if (existingPayment) {
+      if (existingPayment.status === PaymentStatus.SUCCESS) {
+        throw new ConflictError(
+          'This booking has already been paid successfully',
+        );
+      }
+      if (existingPayment.status !== PaymentStatus.FAILED) {
+        throw new ConflictError(
+          `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
+          'Please wait for it to complete or contact support.',
+        );
+      }
+    }
+
+    // Step 6: Derive amount server-side from booking (never trust client)
+    const amount = booking.price; // decimal (e.g. 250.00)
+    const currency = (booking.currency ?? DEFAULT_CURRENCY) as
+      | 'EGP'
+      | 'USD'
+      | 'EUR';
+    const amountCents = Math.round(amount * 100); // Paymob expects smallest unit
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Step 7: Create a local payment record with status 'pending'
+      const payment = await paymentRepository.createPayment({
+        bookingId,
+        learnerId,
+        tutorId: booking.tutorId,
+        amount,
+        currency,
+        provider: 'paymob',
+      });
+
+      // Step 8: Call Paymob Intention API
+      const intention = await createPaymobIntention(
+        amountCents,
+        currency,
+        (payment._id as Types.ObjectId).toString(),
+      );
+
+      // Step 9: Build the hosted checkout URL
+      const checkoutUrl = buildCheckoutUrl(intention.client_secret);
+
+      // Step 10: Persist the Paymob intention id and checkout URL on the payment record
+      await paymentRepository.updatePaymentById(payment._id as Types.ObjectId, {
+        providerOrderId: intention.id,
+        providerCheckoutUrl: checkoutUrl,
+      });
+
+      // Step 11: Link the payment ID to the booking
+      await bookingRepository.updateBooking(bookingId, {
+        paymentId: payment._id as Types.ObjectId,
+      });
+      // Step 12: Return only frontend-safe data
+      return {
+        paymentId: (payment._id as Types.ObjectId).toString(),
+        checkoutUrl,
+      };
+    } catch {
+      await session.abortTransaction();
+      throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
+    } finally {
+      session.endSession();
+    }
   }
 
-  const expectedAmountCents = Math.round(payment.amount * 100);
-  if (webhookData.amountCents !== expectedAmountCents) {
-    logger.warn(
-      `Paymob webhook amount mismatch for payment ${payment._id}: expected ${expectedAmountCents}, received ${webhookData.amountCents}`,
-    );
-    return;
+  /**
+   * GET /api/payments/:paymentId
+   * Retrieve a payment by ID with role-based access control.
+   *
+   * Steps to implement:
+   * 1. Fetch the payment via paymentRepository.findPaymentById(paymentId).
+   * 2. Throw NotFoundError if the payment does not exist.
+   * 3. If the requesting user is a learner, verify payment.learnerId matches userId.
+   * 4. If the requesting user is a tutor, verify payment.tutorId matches userId.
+   * 5. Strip rawProviderResponse before returning to non-admin users.
+   * 6. Return the sanitized payment document.
+   */
+  export async function getPaymentById(
+    paymentId: Types.ObjectId,
+    userId: string,
+    role: string,
+  ): Promise<unknown> {
+    // TODO: implement
+    void paymentRepository;
+    void paymentId;
+    void userId;
+    void role;
+    throw new Error('getPaymentById: not yet implemented');
   }
 
-  const now = new Date();
+  /**
+   * POST /api/payments/webhook
+   * Handle Paymob payment callback / webhook and update payment and booking state.
+   *
+   * Steps to implement:
+   * 1. Verify the HMAC signature from Paymob using PAYMOB_HMAC_SECRET to reject forged requests.
+   * 2. Parse and validate the webhook payload fields (transaction_id, order_id, success, amount_cents, etc.).
+   * 3. Locate the local payment record via paymentRepository.findPaymentByProviderOrderId(providerOrderId).
+   * 4. If the payment record is not found, log a warning and return 200 to acknowledge the webhook.
+   * 5. If payment.status is already 'success', treat this as a duplicate and reconcile side effects.
+   * 6. If Paymob reports success === true:
+   *    a. Atomically update payment: status → 'success', paidAt → now, providerTransactionId, rawProviderResponse.
+   *    b. Update the linked booking: paymentStatus → 'paid'.
+   *    c. Generate a unique confirmation code and set booking.confirmationCode.
+   *    d. Create an Earning record for the tutor (grossAmount, commissionRate from env, commissionAmount, tutorAmount).
+   * 7. If Paymob reports success === false:
+   *    a. Update payment: status → 'failed', failedAt → now, failureReason, rawProviderResponse.
+   *    b. Update the linked booking: paymentStatus → 'failed'.
+   * 8. Return 200 to acknowledge the webhook regardless of outcome.
+   */
+  export async function handlePaymobWebhook(
+    payload: Record<string, unknown>,
+    hmacSignature: string,
+  ): Promise<void> {
+    const normalizedPayload = normalizeWebhookPayload(payload);
+    const webhookObject = getWebhookObject(normalizedPayload);
 
-  if (webhookData.success) {
-    // Step 6a: Atomically move the payment into success so duplicate callbacks
-    // cannot create duplicate booking/earning side effects.
+    // Step 1: Verify callback authenticity before trusting any fields.
+    verifyPaymobHmac(webhookObject, hmacSignature);
+
+    // Step 2: Parse the normalized Paymob transaction callback.
+    const webhookData = parsePaymobWebhookData(normalizedPayload);
+
+    // Step 3: Locate the local payment record using Paymob's order reference.
+    const payment =
+      (await paymentRepository.findPaymentByProviderOrderId(
+        webhookData.providerOrderId,
+      )) ??
+      (webhookData.internalPaymentId
+        ? await paymentRepository.findPaymentById(webhookData.internalPaymentId)
+        : null);
+
+    // Step 4: Unknown payments are acknowledged to prevent endless provider retries.
+    if (!payment) {
+      logger.warn(
+        `Paymob webhook acknowledged for unknown order ${webhookData.providerOrderId}`,
+      );
+      return;
+    }
+
+    // Step 5: Successful callbacks are idempotent.
+    if (payment.status === PaymentStatus.SUCCESS) {
+      logger.info(
+        `Duplicate Paymob webhook acknowledged for payment ${payment._id}`,
+      );
+      await reconcileSuccessfulPaymentSideEffects(payment);
+      return;
+    }
+
+    const expectedAmountCents = Math.round(payment.amount * 100);
+    if (webhookData.amountCents !== expectedAmountCents) {
+      logger.warn(
+        `Paymob webhook amount mismatch for payment ${payment._id}: expected ${expectedAmountCents}, received ${webhookData.amountCents}`,
+      );
+      return;
+    }
+
+    const now = new Date();
+
+    if (webhookData.success) {
+      // Step 6a: Atomically move the payment into success so duplicate callbacks
+      // cannot create duplicate booking/earning side effects.
+      const updatedPayment = await paymentRepository.updatePaymentAtomically(
+        {
+          _id: payment._id,
+          status: { $ne: PaymentStatus.SUCCESS },
+        },
+        {
+          status: PaymentStatus.SUCCESS,
+          paidAt: now,
+          failedAt: null,
+          failureReason: null,
+          providerTransactionId: webhookData.providerTransactionId,
+          rawProviderResponse: sanitizeProviderResponse(
+            webhookData.rawProviderResponse,
+          ),
+        },
+      );
+
+      if (!updatedPayment) {
+        logger.info(
+          `Duplicate Paymob success webhook acknowledged for payment ${payment._id}`,
+        );
+        await reconcileSuccessfulPaymentSideEffects(payment);
+        return;
+      }
+
+      // Steps 6b-6d: Reconcile idempotent booking and earning side effects.
+      await reconcileSuccessfulPaymentSideEffects(updatedPayment);
+
+      return;
+    }
+
+    // Step 7: Failed payments keep the booking recoverable.
     const updatedPayment = await paymentRepository.updatePaymentAtomically(
       {
         _id: payment._id,
         status: { $ne: PaymentStatus.SUCCESS },
       },
       {
-        status: PaymentStatus.SUCCESS,
-        paidAt: now,
-        failedAt: null,
-        failureReason: null,
+        status: PaymentStatus.FAILED,
+        failedAt: now,
+        failureReason:
+          webhookData.failureReason ?? 'Paymob reported payment failure',
         providerTransactionId: webhookData.providerTransactionId,
-        rawProviderResponse: sanitizeProviderResponse(
-          webhookData.rawProviderResponse,
-        ),
+        rawProviderResponse: webhookData.rawProviderResponse,
       },
     );
-
     if (!updatedPayment) {
       logger.info(
-        `Duplicate Paymob success webhook acknowledged for payment ${payment._id}`,
+        `Paymob failure webhook ignored because payment ${payment._id} is already successful`,
       );
-      await reconcileSuccessfulPaymentSideEffects(payment);
       return;
     }
-
-    // Steps 6b-6d: Reconcile idempotent booking and earning side effects.
-    await reconcileSuccessfulPaymentSideEffects(updatedPayment);
-
-    return;
+    await bookingRepository.updateBooking(payment.bookingId, {
+      paymentStatus: BookingPaymentStatus.FAILED,
+    });
   }
-
-  // Step 7: Failed payments keep the booking recoverable.
-  const updatedPayment = await paymentRepository.updatePaymentAtomically(
-    {
-      _id: payment._id,
-      status: { $ne: PaymentStatus.SUCCESS },
-    },
-    {
-      status: PaymentStatus.FAILED,
-      failedAt: now,
-      failureReason:
-        webhookData.failureReason ?? 'Paymob reported payment failure',
-      providerTransactionId: webhookData.providerTransactionId,
-      rawProviderResponse: webhookData.rawProviderResponse,
-    },
-  );
-  if (!updatedPayment) {
-    logger.info(
-      `Paymob failure webhook ignored because payment ${payment._id} is already successful`,
-    );
-    return;
-  }
-  await bookingRepository.updateBooking(payment.bookingId, {
-    paymentStatus: BookingPaymentStatus.FAILED,
-  });
-}
