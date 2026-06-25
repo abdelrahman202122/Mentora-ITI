@@ -7,6 +7,7 @@ import CurriculumStep from "./CurriculumStep";
 import LevelStep from "./LevelStep";
 import SubjectStep from "./SubjectStep";
 import ResultsStep from "./ResultsStep";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface StepperSidebarProps {
   currentStep: number;
@@ -31,12 +32,12 @@ function StepperSidebar({
   ];
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
-      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+    <div className="flex flex-col gap-4 p-5 bg-surface-container-low border border-outline-variant rounded-2xl shadow-sm">
+      <h3 className="text-xs font-bold text-outline uppercase tracking-wider mb-2">
         Search Steps
       </h3>
       
-      <div className="space-y-6 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+      <div className="space-y-6 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant/30">
         {steps.map((step) => {
           const isActive = step.number === currentStep;
           const isCompleted = step.number < currentStep && step.value !== null;
@@ -55,10 +56,10 @@ function StepperSidebar({
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition-all z-10 ${
                   isActive
-                    ? "border-indigo-600 bg-indigo-600 text-white ring-4 ring-indigo-50"
+                    ? "border-primary bg-primary text-on-primary ring-4 ring-primary-container/35 scale-105"
                     : isCompleted
-                    ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-200 bg-white text-slate-400 group-hover:border-slate-300"
+                    ? "border-primary bg-primary-container/20 text-primary"
+                    : "border-outline-variant bg-surface-container-lowest text-outline group-hover:border-outline"
                 }`}
               >
                 {isCompleted ? <Check className="size-4 stroke-[3]" /> : step.number}
@@ -67,17 +68,17 @@ function StepperSidebar({
                 <p
                   className={`text-sm font-semibold transition-colors ${
                     isActive
-                      ? "text-indigo-600"
+                      ? "text-primary"
                       : isCompleted
-                      ? "text-slate-800"
-                      : "text-slate-400"
+                      ? "text-on-surface"
+                      : "text-outline"
                   }`}
                 >
                   {step.label}
                 </p>
                 {step.value && (
-                  <p className="text-[11px] text-emerald-600 font-medium capitalize">
-                    {step.value}
+                  <p className="text-[11px] text-primary font-medium capitalize">
+                    {step.value.replace("_", " ")}
                   </p>
                 )}
               </div>
@@ -160,6 +161,9 @@ export default function FindTutor() {
             subject={selectedSubject}
             onReset={handleReset}
             onEditStep={handleStepClick}
+            setCurriculum={setSelectedCurriculum}
+            setLevel={setSelectedLevel}
+            setSubject={setSelectedSubject}
           />
         );
       default:
@@ -168,7 +172,7 @@ export default function FindTutor() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start max-w-6xl mx-auto py-4">
+    <div className="flex flex-col lg:flex-row gap-8 items-start mx-auto py-4">
       {/* Sidebar - Visual Stepper Indicator */}
       <aside className="w-full lg:w-72 lg:sticky lg:top-6 flex-shrink-0">
         <StepperSidebar
@@ -181,18 +185,29 @@ export default function FindTutor() {
       </aside>
 
       {/* Main Panel - Dynamic Stage Rendering */}
-      <main className="flex-1 w-full bg-white border border-slate-100 rounded-2xl p-6 shadow-sm min-h-[480px] flex flex-col justify-between">
-        <div className="flex-1 pb-8">
-          {renderStep()}
+      <main className="flex-1 w-full bg-surface-container-lowest border border-outline-variant rounded-3xl p-6 shadow-sm min-h-[500px] flex flex-col justify-between overflow-hidden">
+        <div className="flex-1 pb-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              transition={{ duration: 0.25 }}
+              className="w-full"
+            >
+              {renderStep()}
+            </motion.div>
+          </AnimatePresence>
         </div>
         
         {/* Persistent Navigation Controls */}
-        <div className="flex items-center justify-between border-t border-slate-100 pt-5 mt-4 flex-shrink-0">
+        <div className="flex items-center justify-between border-t border-outline-variant pt-5 mt-4 flex-shrink-0">
           <Button
             onClick={handleBack}
             disabled={currentStep === 1}
             variant="outline"
-            className="border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-semibold px-5 py-2.5 rounded-xl"
+            className="border-outline-variant text-on-surface-variant hover:bg-surface-dim font-bold text-xs px-5 py-3 rounded-xl transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Back
           </Button>
@@ -201,7 +216,7 @@ export default function FindTutor() {
             <Button
               onClick={handleNext}
               disabled={!isStepComplete()}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer font-semibold px-6 py-2.5 rounded-xl transition-all"
+              className="bg-primary hover:bg-primary/90 text-on-primary font-bold text-xs px-6 py-3 rounded-xl transition-all cursor-pointer shadow-sm shadow-primary/10 disabled:bg-surface-variant disabled:text-outline-variant disabled:cursor-not-allowed disabled:shadow-none"
             >
               Next Step
             </Button>
