@@ -109,6 +109,9 @@ export default function FindTutor() {
       setCurrentStep((s) => s + 1);
     }
   };
+  const handleAutoAdvance = () => {
+    setCurrentStep((s) => (s < 4 ? s + 1 : s));
+  };
 
   const handleBack = () => {
     if (currentStep > 1) {
@@ -134,7 +137,7 @@ export default function FindTutor() {
           <CurriculumStep
             selected={selectedCurriculum}
             onSelect={setSelectedCurriculum}
-            onNext={handleNext}
+            onNext={handleAutoAdvance}
           />
         );
       case 2:
@@ -142,7 +145,7 @@ export default function FindTutor() {
           <LevelStep
             selected={selectedLevel}
             onSelect={setSelectedLevel}
-            onNext={handleNext}
+            onNext={handleAutoAdvance}
           />
         );
       case 3:
@@ -150,7 +153,7 @@ export default function FindTutor() {
           <SubjectStep
             selected={selectedSubject}
             onSelect={setSelectedSubject}
-            onNext={handleNext}
+            onNext={  handleAutoAdvance}
           />
         );
       case 4:

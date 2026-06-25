@@ -167,6 +167,9 @@ export default function ResultsStep({
     setSelectedCurriculum("");
     setSelectedLevel("");
     setSelectedSubject("");
+    setCurriculum?.(null);
+   setLevel?.(null);
+  setSubject?.(null);
   };
 
   const handleBook = (name: string) => {
