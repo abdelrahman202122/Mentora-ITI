@@ -17,7 +17,6 @@ import {
 import { paymobConfig } from '../../config/paymob.config.js';
 import { DEFAULT_CURRENCY } from './payment.model.js';
 import { DEFAULT_COMMISSION_RATE } from '../bookings/booking.model.js';
-import { generateConfirmationCode } from '../bookings/confirmation-code.util.js';
 import { logger } from '../../config/logger.js';
 import mongoose from 'mongoose';
 
