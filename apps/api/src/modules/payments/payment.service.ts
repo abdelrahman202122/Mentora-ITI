@@ -17,7 +17,6 @@ import {
 import { paymobConfig } from '../../config/paymob.config.js';
 import { DEFAULT_CURRENCY } from './payment.model.js';
 import { DEFAULT_COMMISSION_RATE } from '../bookings/booking.model.js';
-import { generateConfirmationCode } from '../bookings/confirmation-code.util.js';
 import { logger } from '../../config/logger.js';
 import mongoose from 'mongoose';
 
@@ -312,9 +311,6 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
 function getCommissionRate(): number {
   const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
   if (rawRate) {
-function getCommissionRate(): number {
-  const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
-  if (rawRate) {
     const configuredRate = Number(rawRate);
     if (
       Number.isFinite(configuredRate) &&
@@ -325,7 +321,6 @@ function getCommissionRate(): number {
     }
   }
   return DEFAULT_COMMISSION_RATE;
-}
 }
 
 function roundMoney(value: number): number {
