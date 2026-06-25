@@ -308,6 +308,7 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
   };
 }
 
+
 function getCommissionRate(): number {
   const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
   if (rawRate) {
@@ -322,6 +323,7 @@ function getCommissionRate(): number {
   }
   return DEFAULT_COMMISSION_RATE;
 }
+
 
 function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -448,7 +450,7 @@ export async function initiateCheckout(
     if (existingPayment.status !== PaymentStatus.FAILED) {
       throw new ConflictError(
         `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-          'Please wait for it to complete or contact support.',
+        'Please wait for it to complete or contact support.',
       );
     }
   }
@@ -525,12 +527,37 @@ export async function getPaymentById(
   userId: string,
   role: string,
 ): Promise<unknown> {
-  // TODO: implement
-  void paymentRepository;
-  void paymentId;
-  void userId;
-  void role;
-  throw new Error('getPaymentById: not yet implemented');
+  // Step 1: Fetch the payment
+  const payment = await paymentRepository.findPaymentById(paymentId);
+
+  // Step 2: Throw NotFoundError if the payment does not exist.
+  if (!payment) {
+    throw new NotFoundError('Payment not found');
+  }
+
+  // Step 3: If the requesting user is a learner, verify payment.learnerId matches userId.
+  if (role === 'learner') {
+    if (payment.learnerId.toString() !== userId) {
+      throw new ForbiddenError('You do not have permission to view this payment');
+    }
+  }
+  // Step 4: If the requesting user is a tutor, verify payment.tutorId matches userId.
+  else if (role === 'tutor') {
+    if (payment.tutorId.toString() !== userId) {
+      throw new ForbiddenError('You do not have permission to view this payment');
+    }
+  }
+  // If the user has a role other than learner or tutor, deny access.
+  else {
+    throw new ForbiddenError('You do not have permission to view this payment');
+  }
+
+  // Step 5: Strip rawProviderResponse before returning to non-admin users.
+  const paymentObj = payment.toObject();
+  delete paymentObj.rawProviderResponse;
+
+  // Step 6: Return the sanitized payment document.
+  return paymentObj;
 }
 
 /**
