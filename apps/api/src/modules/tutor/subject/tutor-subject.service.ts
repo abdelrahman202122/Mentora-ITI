@@ -1,5 +1,9 @@
 import { NotFoundError } from '../../../common/errors/AppError.js';
+import { CATEGORIES } from '../../../constants/categories.js';
+import { CURRICULA } from '../../../constants/curricula.js';
+import { EDUCATION_LEVELS } from '../../../constants/educationLevels.js';
 import type { tutorSubjectInput } from '../../../validators/tutor-subject.js';
+import { TutorSubject } from './tutor-subject.model.js';
 import {
   create,
   deleteById,
@@ -8,14 +12,32 @@ import {
   updateById,
 } from './tutor-subject.repository.js';
 
+/**
+ * Enriches a TutorSubject object with its category, educationLevel, and curriculum details.
+ * @param subject - The lean tutor subject object retrieved from the database.
+ * @returns A new object with the subject data and its mapped entities.
+ */
+const enrichSubject = (subject: TutorSubject) => {
+  return {
+    ...subject,
+    category:
+      CATEGORIES.find((c) => c.value === subject.category) ?? subject.category,
+    educationLevel:
+      EDUCATION_LEVELS.find((e) => e.value === subject.educationLevel) ??
+      subject.educationLevel,
+    curriculum:
+      CURRICULA.find((c) => c.value === subject.curriculum) ??
+      subject.curriculum,
+  };
+};
+
 export const getTutorSubjects = async (tutorId: string) => {
   const subjects = await findByTutorId(tutorId);
-
   if (!subjects.length) {
     return [];
   }
 
-  return subjects;
+  return subjects.map((subject) => enrichSubject(subject));
 };
 
 export const getTutorSubject = async (tutorId: string, subjectId: string) => {
@@ -25,7 +47,7 @@ export const getTutorSubject = async (tutorId: string, subjectId: string) => {
     throw new NotFoundError('Tutor subject not found');
   }
 
-  return subject;
+  return enrichSubject(subject); //
 };
 
 export const createTutorSubject = async (
