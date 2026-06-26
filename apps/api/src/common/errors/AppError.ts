@@ -25,3 +25,6 @@ export class ConflictError     extends AppError {
 export class NotFoundError     extends AppError {
   constructor(message: string) { super(message, 404, 'NOT_FOUND'); }
 }
+export class EmailError     extends AppError {
+  constructor(message: string) { super(message, 500, 'EMAIL_ERROR'); }
+}

@@ -13,3 +13,17 @@ export const authRateLimit = rateLimit({
       'Too many requests. Please try again later.',
   },
 });
+
+
+export const passwordResetRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  message: {
+    success: false,
+    message:
+      'Too many password reset requests. Please try again later.',
+  },
+});

@@ -154,3 +154,13 @@ export async function archiveChat(chatId: string, userId: string) {
 
   return getPopulatedChat(chat._id.toString(), userId);
 }
+
+export async function restoreChat(chatId: string, userId: string) {
+  const chat = await chatRepository.restoreParticipantChat(chatId, userId);
+
+  if (!chat) {
+    throw new NotFoundError('Chat not found');
+  }
+
+  return getPopulatedChat(chat._id.toString(), userId);
+}

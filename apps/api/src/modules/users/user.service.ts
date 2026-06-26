@@ -3,6 +3,7 @@
 
 import { unlink } from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {
   ConflictError,
   NotFoundError,
@@ -29,6 +30,7 @@ import {
   findUserById,
   updateUserAvatar,
 } from './user.repository.js';
+import { sendResetEmail } from '../../common/email/email.service.js';
 
 export const register = async (data: RegisterInput): Promise<AuthResult> => {
   try {
@@ -241,7 +243,7 @@ const findUserProfile = async (
     name: user.name,
     email: user.email,
     role: user.role,
-    avatar: user.avatar,
+    avatar: user.avatar  ?? undefined,
     isEmailVerified: user.isEmailVerified,
     // tutorProfile: user.tutorProfile,
   };
@@ -293,7 +295,7 @@ export const getUsers = async (adminId: string, query: ListUsersQuery) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      avatar: user.avatar,
+      avatar: user.avatar ?? null,
       isEmailVerified: user.isEmailVerified,
       isActive: user.isActive,
     })),
@@ -622,4 +624,101 @@ export const deleteAvatar = async (userId: string) => {
     avatar: updatedUser.avatar,
     isEmailVerified: updatedUser.isEmailVerified,
   };
+};
+
+
+
+export const forgotPassword = async (
+  email: string
+): Promise<void> => {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  logger.info({
+    event: 'password.forgot.attempt',
+    emailHash: emailHash(normalizedEmail),
+  });
+
+const user = await UserModel.findOne({
+  email: normalizedEmail,
+});
+
+  // 🔐 Prevent user enumeration
+  if (!user) {
+    logger.warn({
+      event: 'password.forgot.not_found',
+      emailHash: emailHash(normalizedEmail),
+    });
+
+    return;
+  }
+
+  const resetToken = crypto
+    .randomBytes(32)
+    .toString('hex');
+
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  const RESET_TOKEN_EXPIRATION_MS =
+    15 * 60 * 1000;
+
+  user.passwordResetToken = hashedToken;
+  user.passwordResetExpires = new Date(
+    Date.now() + RESET_TOKEN_EXPIRATION_MS
+  );
+
+  await user.save();
+
+  logger.info({
+    event: 'password.forgot.success',
+    userId: user._id.toString(),
+  });
+
+  // Send the raw token via email (not stored in DB)
+  sendResetEmail(
+    user.email,
+    resetToken
+  ).catch((error) => {
+    logger.error({ event: 'email.reset.failed', userId: user._id.toString(), error });
+  });
+};
+
+export const resetPassword = async (
+  token: string,
+  newPassword: string
+): Promise<void> => {
+  logger.info({ event: 'password.reset.attempt' });
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await UserModel.findOne({
+  passwordResetToken: hashedToken,
+  passwordResetExpires: { $gt: new Date() },
+  });
+
+  if (!user) {
+  logger.warn({ event: 'password.reset.invalid_or_expired_token' });
+  throw new UnauthorizedError('Invalid or expired reset token');
+  }
+
+  user.password = newPassword;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
+
+  await user.save();
+
+  await RefreshTokenModel.deleteMany({ userId: user._id });
+
+  void createAuditLog(
+  user._id.toString(),
+  AuditAction.PASSWORD_CHANGE,
+  'User'
+  );
+
+  logger.info({
+  event: 'password.reset.success',
+  userId: user._id.toString(),
+  });
 };

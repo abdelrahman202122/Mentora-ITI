@@ -1,10 +1,16 @@
+'use client';
+
+import { useLocale } from 'next-intl';
+import { getLocalePath } from '@/utils/i18n/locale-path';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Search } from "lucide-react"
 import Image from "next/image"
 import heroImage from "../../../public/Hero.jpg"
+import Link from 'next/link'
 
 export default function Hero() {
+  const locale = useLocale();
   return (
     <section className="flex flex-col lg:flex-row items-center justify-between gap-12 px-6 py-16 lg:px-20">
       {/* Left Content */}
@@ -21,13 +27,25 @@ export default function Hero() {
         
         {/* Search Bar */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+          {/* <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
           <Input 
             className="pl-10 pr-16 h-14 rounded-xl border-slate-200" 
             placeholder="Let our AI assistant find the perfect tutor for you" 
           />
           <Button className="absolute right-1 top-1 h-12 w-12 rounded-lg bg-indigo-600 hover:bg-indigo-700">
             <ArrowRight className="h-5 w-5" />
+          </Button> */}
+
+
+          
+          <Button
+            asChild
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-md"
+          >
+            <Link href={getLocalePath(locale, "/FindTutor")}>
+              <Search className="w-5 h-5 mr-2" />
+              Browse Mentors
+            </Link>
           </Button>
         </div>
 
