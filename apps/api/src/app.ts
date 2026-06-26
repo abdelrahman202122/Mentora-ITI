@@ -22,6 +22,7 @@ import aiRoutes from './modules/ai/ai.routes.js';
 import filesRouter from './modules/files/file.routes.js';
 import chatRoutes from './modules/chats/chat.routes.js';
 import notificationRoutes from './modules/notifications/notification.routes.js';
+import reviewRoutes from './modules/reviews/review.routes.js';
 
 export function createApp() {
   const app = express();
@@ -66,6 +67,7 @@ export function createApp() {
   app.use('/api/files', filesRouter);
   app.use('/api/chats', chatRoutes);
   app.use('/api/notifications', notificationRoutes);
+  app.use('/api/reviews', reviewRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
