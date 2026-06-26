@@ -34,9 +34,24 @@ export const updateByUserId = async (
   userId: string,
   data: Record<string, unknown>,
 ) => {
-  return TutorProfileModel.findOneAndUpdate(
+  const profile = await TutorProfileModel.findOneAndUpdate(
     { userId },
     { $set: data },
     { new: true, runValidators: true }, // return the updated document, run schema validation
-  ).lean();
+  )
+    .populate({
+      path: 'userId',
+      select: 'name avatar',
+    })
+    .lean();
+
+  if (!profile) return null;
+
+  // rename userId to userData
+  const { userId: userData, ...profileData } = profile;
+
+  return {
+    ...profileData,
+    userData,
+  };
 };

@@ -4,6 +4,17 @@ export const findUserById = async (userId: string) => {
   return UserModel.findById(userId);
 };
 
+export const updateUserName = async (userId: string, name: string) => {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { name },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+};
+
 export const updateUserAvatar = async (userId: string, avatarUrl: string) => {
   return UserModel.findByIdAndUpdate(
     userId,

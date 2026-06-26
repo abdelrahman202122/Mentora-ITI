@@ -9,7 +9,11 @@ import {
   create,
   getProfileWithUser,
 } from './tutor-profile.repository.js';
-import type { CreateTutorProfileInput } from '../../../validators/tutor-profile.js';
+import type {
+  CreateTutorProfileInput,
+  UpdateTutorProfileInput,
+} from '../../../validators/tutor-profile.js';
+import { updateUserName } from '../../users/user.repository.js';
 
 // get full tutor profile
 export const getProfile = async (tutorId: string) => {
@@ -58,7 +62,7 @@ export const createProfile = async (
 // update field in tutor profile
 export const updateOwnProfile = async (
   userId: string,
-  data: Record<string, unknown>,
+  data: UpdateTutorProfileInput,
 ) => {
   const tutor = await findByUserId(userId);
 
@@ -66,7 +70,13 @@ export const updateOwnProfile = async (
     throw new NotFoundError('Tutor profile not found');
   }
 
-  const updated = await updateByUserId(userId, data);
+  const { name, ...profileData } = data;
+
+  if (name) {
+    await updateUserName(userId, name);
+  }
+
+  const updated = await updateByUserId(userId, profileData);
 
   if (!updated) {
     throw new NotFoundError('Tutor profile not found');
