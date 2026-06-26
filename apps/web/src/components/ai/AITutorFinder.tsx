@@ -191,6 +191,7 @@ export function AITutorFinder() {
   });
 
   const recommendations = finder.data?.recommendations ?? [];
+  const assistantMessage = finder.data?.assistantMessage;
   const hasSearched = Boolean(finder.data);
   const errorMessage = useMemo(
     () => (finder.error ? getErrorMessage(finder.error, t) : null),
@@ -205,15 +206,16 @@ export function AITutorFinder() {
     [finder.data?.criteria, t]
   );
 
-  async function handleSubmit(values: TutorFinderFormValues) {
+  function handleSubmit(values: TutorFinderFormValues) {
     const maxHourlyRate =
       typeof values.maxHourlyRate === "number"
         ? values.maxHourlyRate
         : undefined;
+    const goal = values.goal?.trim();
 
-    await finder.mutateAsync({
+    finder.mutate({
       locale,
-      goal: values.goal?.trim() || t("goalFallback", { query: values.query }),
+      goal: goal || t("goalFallback", { query: values.query }),
       query: values.query,
       category: cleanOptionalValue(values.category),
       educationLevel: cleanOptionalValue(values.educationLevel),
@@ -387,60 +389,85 @@ export function AITutorFinder() {
         <section className="flex min-h-[520px] flex-col gap-4">
           {!hasSearched ? (
             <EmptyState t={t} />
-          ) : recommendations.length === 0 ? (
-            <NoResultsState t={t} />
           ) : (
             <>
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-950">
-                    {t("results.title")}
-                  </h2>
-                  <p className="text-sm text-slate-500">
-                    {t("results.matchesFound", {
-                      count: recommendations.length,
-                    })}
+              {assistantMessage ? (
+                <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-indigo-700">
+                    <Bot className="size-4" />
+                    {t("assistant.title")}
+                  </div>
+                  <p className="text-sm leading-6 text-slate-700">
+                    {assistantMessage.content}
                   </p>
+                  {assistantMessage.metadata?.provider ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      {t("assistant.provider", {
+                        provider: String(assistantMessage.metadata.provider),
+                      })}
+                    </p>
+                  ) : null}
                 </div>
-                <Badge variant="outline">{t("results.rankedByScore")}</Badge>
-              </div>
+              ) : null}
 
-              {criteriaSummary.length > 0 ? (
-                <div className="flex flex-wrap gap-2 rounded-lg border border-slate-100 bg-white p-3">
-                  <span className="text-sm font-medium text-slate-700">
-                    {t("criteria.title")}
-                  </span>
-                  {criteriaSummary.map((item) => (
-                    <Badge key={item.label} variant="secondary">
-                      {item.label}: {item.value}
+              {recommendations.length === 0 ? (
+                <NoResultsState t={t} />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-semibold text-slate-950">
+                        {t("results.title")}
+                      </h2>
+                      <p className="text-sm text-slate-500">
+                        {t("results.matchesFound", {
+                          count: recommendations.length,
+                        })}
+                      </p>
+                    </div>
+                    <Badge variant="outline">
+                      {t("results.rankedByScore")}
                     </Badge>
-                  ))}
-                </div>
-              ) : null}
+                  </div>
 
-              {actionErrorMessage ? (
-                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                  {actionErrorMessage}
-                </p>
-              ) : null}
+                  {criteriaSummary.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 rounded-lg border border-slate-100 bg-white p-3">
+                      <span className="text-sm font-medium text-slate-700">
+                        {t("criteria.title")}
+                      </span>
+                      {criteriaSummary.map((item) => (
+                        <Badge key={item.label} variant="secondary">
+                          {item.label}: {item.value}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
 
-              <div className="grid gap-4">
-                {recommendations.map((recommendation) => (
-                  <RecommendationCard
-                    isStartingChat={
-                      startingChatTutorId === recommendation.tutorId
-                    }
-                    key={recommendation.tutorProfileId}
-                    onStartChat={() => handleStartChat(recommendation)}
-                    profileHref={getLocalePath(
-                      locale,
-                      `/tutor-match/${recommendation.tutorId}`
-                    )}
-                    recommendation={recommendation}
-                    t={t}
-                  />
-                ))}
-              </div>
+                  {actionErrorMessage ? (
+                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                      {actionErrorMessage}
+                    </p>
+                  ) : null}
+
+                  <div className="grid gap-4">
+                    {recommendations.map((recommendation) => (
+                      <RecommendationCard
+                        isStartingChat={
+                          startingChatTutorId === recommendation.tutorId
+                        }
+                        key={recommendation.tutorProfileId}
+                        onStartChat={() => handleStartChat(recommendation)}
+                        profileHref={getLocalePath(
+                          locale,
+                          `/tutor-match/${recommendation.tutorId}`
+                        )}
+                        recommendation={recommendation}
+                        t={t}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
         </section>
