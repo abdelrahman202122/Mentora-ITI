@@ -8,6 +8,7 @@ import {
   startAIConversation,
 } from "@/services/ai/ai-service";
 import type {
+  SendAIConversationMessageResult,
   TutorRecommendationInput,
   TutorRecommendationFlowResult,
 } from "@/types/ai/ai-types";
@@ -26,14 +27,25 @@ export function useFindTutorByAI() {
         goal: trimmedGoal || undefined,
         extractedPreferences: criteria,
       });
-      const messageResult = trimmedGoal
-        ? await sendAIConversationMessage(conversation._id, {
+
+      let messageResult: SendAIConversationMessageResult | undefined;
+
+      if (trimmedGoal) {
+        try {
+          messageResult = await sendAIConversationMessage(conversation._id, {
             content: trimmedGoal,
             metadata: {
               source: "ai_tutor_finder",
             },
-          })
-        : undefined;
+          });
+        } catch (error) {
+          console.error("Failed to send AI conversation message", {
+            conversationId: conversation._id,
+            error,
+          });
+        }
+      }
+
       const recommendations = await getTutorRecommendations({
         ...criteria,
         conversationId: conversation._id,
