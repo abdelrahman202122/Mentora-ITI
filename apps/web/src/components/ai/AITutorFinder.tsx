@@ -191,6 +191,7 @@ export function AITutorFinder() {
   });
 
   const recommendations = finder.data?.recommendations ?? [];
+  const assistantMessage = finder.data?.assistantMessage;
   const hasSearched = Boolean(finder.data);
   const errorMessage = useMemo(
     () => (finder.error ? getErrorMessage(finder.error, t) : null),
@@ -205,15 +206,16 @@ export function AITutorFinder() {
     [finder.data?.criteria, t]
   );
 
-  async function handleSubmit(values: TutorFinderFormValues) {
+  function handleSubmit(values: TutorFinderFormValues) {
     const maxHourlyRate =
       typeof values.maxHourlyRate === "number"
         ? values.maxHourlyRate
         : undefined;
+    const goal = values.goal?.trim();
 
-    await finder.mutateAsync({
+    finder.mutate({
       locale,
-      goal: values.goal?.trim() || t("goalFallback", { query: values.query }),
+      goal: goal || t("goalFallback", { query: values.query }),
       query: values.query,
       category: cleanOptionalValue(values.category),
       educationLevel: cleanOptionalValue(values.educationLevel),
@@ -415,6 +417,25 @@ export function AITutorFinder() {
                       {item.label}: {item.value}
                     </Badge>
                   ))}
+                </div>
+              ) : null}
+
+              {assistantMessage ? (
+                <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-indigo-700">
+                    <Bot className="size-4" />
+                    {t("assistant.title")}
+                  </div>
+                  <p className="text-sm leading-6 text-slate-700">
+                    {assistantMessage.content}
+                  </p>
+                  {assistantMessage.metadata?.provider ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      {t("assistant.provider", {
+                        provider: String(assistantMessage.metadata.provider),
+                      })}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
 
