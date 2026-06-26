@@ -61,6 +61,10 @@
 }
 
 :root {
+  --font-sans:
+    var(--font-plus-jakarta-sans), var(--font-noto-sans-arabic), system-ui,
+    sans-serif;
+
   /* ← الـ indigo اللي استخدمناه في كل حاجة */
   --primary: oklch(0.457 0.24 264.376);
   --primary-foreground: oklch(1 0 0);
