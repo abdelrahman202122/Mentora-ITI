@@ -32,6 +32,10 @@ export const reviewSchema = new Schema(
     rating: {
       type: Number,
       required: true,
+      validate: {
+        validator: Number.isInteger,
+        message: 'Rating must be an integer',
+      },
       min: [1, 'Rating must be at least 1'],
       max: [5, 'Rating must be at most 5'],
     },
