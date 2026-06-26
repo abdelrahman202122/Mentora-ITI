@@ -8,7 +8,13 @@ import { formatDate } from "@/utils/tutor/formateDate";
 import { useDeleteTutorSubject } from "@/hooks/tutor/useDeleteSubject";
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 
-export default function CourseCard({ course }: { course: TutorSubject }) {
+export default function CourseCard({ course,
+    onEdit,
+
+ }: { course: TutorSubject,
+      onEdit?: (id: string) => void;
+
+  }) {
   const user = useCurrentUser()
   const locale = useLocale() as "ar" | "en";
   const deleteSubject = useDeleteTutorSubject(user.data?.id);
@@ -34,16 +40,15 @@ export default function CourseCard({ course }: { course: TutorSubject }) {
     {isOwner && (
 
       <div className="absolute top-4 right-4 flex items-center gap-2">
-          <button
+        <button
           type="button"
           aria-label="Edit subject"
           disabled={showConfirm}
-          onClick={() => {/* TODO: handle edit */}}
+          onClick={() => onEdit?.(course._id)}
           className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-primary/10 transition disabled:opacity-40"
         >
           <Edit className="w-4 h-4 text-primary" />
         </button>
-
         <button
           type="button"
           aria-label="Delete subject"
