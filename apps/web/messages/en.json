@@ -1,0 +1,92 @@
+{
+  "aiTutorFinder": {
+    "badge": "AI Tutor Finder",
+    "title": "Find a tutor that matches your learning needs",
+    "description": "Search with structured criteria so recommendations keep working even when the AI text provider is unavailable.",
+    "formTitle": "Learning criteria",
+    "formDescription": "These fields map directly to the backend recommendation engine.",
+    "fields": {
+      "goal": "Goal",
+      "query": "Subject or topic",
+      "category": "Category",
+      "educationLevel": "Education level",
+      "curriculum": "Curriculum",
+      "languages": "Languages",
+      "maxHourlyRate": "Max hourly rate"
+    },
+    "placeholders": {
+      "goal": "I need help with IGCSE math before exams",
+      "query": "math",
+      "languages": "English, Arabic",
+      "maxHourlyRate": "300",
+      "any": "Any",
+      "anyField": "Any {label}"
+    },
+    "validation": {
+      "queryRequired": "Tell us the subject or topic",
+      "budgetPositive": "Budget must be greater than 0"
+    },
+    "goalFallback": "Find a tutor for {query}",
+    "actions": {
+      "findTutors": "Find tutors",
+      "messageTutor": "Message tutor",
+      "startingChat": "Starting chat",
+      "viewProfile": "View profile"
+    },
+    "errors": {
+      "recommendationsFailed": "Could not find tutor recommendations."
+    },
+    "results": {
+      "title": "Recommended tutors",
+      "matchesFound": "{count, plural, one {# match found} other {# matches found}}",
+      "rankedByScore": "Ranked by match score",
+      "score": "score",
+      "hourlyRate": "Hourly rate",
+      "rating": "Rating",
+      "languages": "Languages"
+    },
+    "criteria": {
+      "title": "Search criteria"
+    },
+    "assistant": {
+      "title": "AI assistant reply",
+      "provider": "Provider: {provider}"
+    },
+    "empty": {
+      "title": "Your matches will appear here",
+      "description": "The backend will score tutors by subject, curriculum, language, price, and quality."
+    },
+    "noResults": {
+      "title": "No tutors matched this search",
+      "description": "Try a broader subject, a different curriculum, or a higher hourly rate."
+    },
+    "strength": {
+      "strong": "Strong",
+      "good": "Good",
+      "partial": "Partial",
+      "weak": "Weak"
+    },
+    "fallbackCategories": {
+      "mathematics": "Mathematics",
+      "sciences": "Sciences",
+      "languages": "Languages",
+      "technology": "Technology & CS",
+      "test_prep": "Test Preparation"
+    },
+    "fallbackEducationLevels": {
+      "primary": "Primary School",
+      "preparatory": "Preparatory School",
+      "secondary": "Secondary School",
+      "university": "University",
+      "professional": "Professional"
+    },
+    "fallbackCurricula": {
+      "national_new": "Egyptian National (New)",
+      "igcse": "IGCSE / Cambridge",
+      "ib": "IB",
+      "american": "American",
+      "british": "British",
+      "none": "Not Applicable"
+    }
+  }
+}

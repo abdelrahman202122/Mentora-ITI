@@ -1,4 +1,7 @@
+import api from "@/lib/axios"
 import { mockTutor } from "@/mocks/mock-data"
+import type { ApiSuccess } from "@/types/apis/api-success"
+import type { TutorProfileData } from "@/types/tutor/tutor-profile"
 
 export type TutorSummary = {
   id: string
@@ -15,17 +18,40 @@ export type TutorSummary = {
   isAvailable: boolean
 }
 
-export async function getTutors(): Promise<TutorSummary[]> {
-  // ✅ لما الـ backend يخلص
-  // const res = await api.get("/tutors")
-  // return res.data
+type TutorProfileWithUser = TutorProfileData & {
+  userData?: {
+    name?: string
+    avatar?: string
+  }
+}
 
+function toTutorSummary(
+  profile: TutorProfileWithUser,
+  tutorId: string
+): TutorSummary {
+  return {
+    id: tutorId,
+    name: profile.userData?.name ?? "Tutor",
+    title: profile.headline,
+    subjects: profile.languages.length > 0 ? profile.languages : ["Tutoring"],
+    rating: profile.rating,
+    bio: profile.bio,
+    hourlyRate: profile.hourlyRate,
+    currency: "EGP",
+    availability: profile.isAvailable ? ["Available"] : [],
+    totalReviews: profile.totalReviews,
+    totalStudents: 0,
+    isAvailable: profile.isAvailable,
+  }
+}
+
+export async function getTutors(): Promise<TutorSummary[]> {
   return [
     {
       id: mockTutor._id,
       name: mockTutor.user.firstName + " " + mockTutor.user.lastName,
       title: mockTutor.headline,
-      subjects: mockTutor.subjects.map((s) => s.nameEn),
+      subjects: mockTutor.subjects.map((subject) => subject.nameEn),
       rating: mockTutor.averageRating,
       bio: mockTutor.bio,
       hourlyRate: mockTutor.hourlyRate,
@@ -39,20 +65,26 @@ export async function getTutors(): Promise<TutorSummary[]> {
 }
 
 export async function getTutorById(id: string): Promise<TutorSummary | null> {
-  // ✅ لما الـ backend يخلص
-  // const res = await api.get(`/tutors/${id}`)
-  // return res.data
+  try {
+    const response = await api.get<ApiSuccess<TutorProfileWithUser>>(
+      `/tutors/${id}/profile`
+    )
+
+    return toTutorSummary(response.data.data, id)
+  } catch (error) {
+    console.error("Failed to fetch tutor profile; using mock fallback", {
+      error,
+      tutorId: id,
+    })
+    // Keep the existing mock fallback for frontend-only tutor-match pages.
+  }
 
   const tutors = await getTutors()
-  return tutors.find((t) => t.id === id) || null
+  return tutors.find((tutor) => tutor.id === id) || null
 }
 
 export async function getTutorReviews(_id: string) {
   void _id
-
-  // ✅ لما الـ backend يخلص
-  // const res = await api.get(`/tutors/${id}/reviews`)
-  // return res.data
 
   return [
     {

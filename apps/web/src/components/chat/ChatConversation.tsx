@@ -3,19 +3,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, Send } from 'lucide-react';
+import { Archive, ArrowLeft, Loader2, RotateCcw, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
-import { useChatMessages } from '@/hooks/chat/use-chat';
+import {
+  useArchiveChat,
+  useChatMessages,
+  useRestoreChat,
+} from '@/hooks/chat/use-chat';
 import { useChatSocket } from '@/hooks/chat/use-chat-socket';
-import type { ChatMessage } from '@/types/chat/chat-types';
+import type { ChatMessage, ChatStatus } from '@/types/chat/chat-types';
 import { cn } from '@/lib/utils';
 
 type ChatConversationProps = {
   chatId: string;
   backHref: string;
+  archiveRedirectHref?: string;
+  restoreRedirectHref?: string;
+  status?: ChatStatus;
   title?: string;
   subtitle?: string;
 };
@@ -43,15 +51,32 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
   );
 }
 
+function formatMessageStatus(status: ChatMessage['status']) {
+  if (status === 'read') {
+    return 'Read';
+  }
+
+  if (status === 'delivered') {
+    return 'Delivered';
+  }
+
+  return 'Sent';
+}
+
 export function ChatConversation({
   chatId,
   backHref,
+  archiveRedirectHref = backHref,
+  restoreRedirectHref = backHref,
+  status = 'active',
   title = 'Messages',
   subtitle = 'Conversation history',
 }: ChatConversationProps) {
+  const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [messageInput, setMessageInput] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
+  const [archiveError, setArchiveError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const {
     data,
@@ -63,11 +88,14 @@ export function ChatConversation({
     isPending,
     refetch,
   } = useChatMessages(chatId);
+  const archiveChatMutation = useArchiveChat();
+  const restoreChatMutation = useRestoreChat();
   const { data: currentUser } = useCurrentUser();
   const {
     connectionStatus,
     error: socketError,
     isConnected,
+    markMessageRead,
     sendMessage,
   } = useChatSocket(chatId);
 
@@ -78,10 +106,35 @@ export function ChatConversation({
       ),
     [data],
   );
+  const isArchived = status === 'archived';
+  const messagePlaceholder = isArchived
+    ? 'Restore this chat to send messages'
+    : connectionStatus === 'connecting'
+      ? 'Connecting...'
+      : 'Type a message...';
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!currentUser?.id || !isConnected) {
+      return;
+    }
+
+    const unreadIncomingMessages = messages.filter(
+      (message) =>
+        message.recipientId === currentUser.id &&
+        message.senderId !== currentUser.id &&
+        message.status !== 'read',
+    );
+
+    unreadIncomingMessages.forEach((message) => {
+      void markMessageRead(message.id).catch((error: unknown) => {
+        console.error('Failed to mark message as read', error);
+      });
+    });
+  }, [currentUser?.id, isConnected, markMessageRead, messages]);
 
   async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -107,6 +160,32 @@ export function ChatConversation({
     }
   }
 
+  async function handleArchiveChat() {
+    setArchiveError(null);
+
+    try {
+      await archiveChatMutation.mutateAsync(chatId);
+      router.replace(archiveRedirectHref);
+    } catch (error) {
+      setArchiveError(
+        error instanceof Error ? error.message : 'Could not archive chat',
+      );
+    }
+  }
+
+  async function handleRestoreChat() {
+    setArchiveError(null);
+
+    try {
+      await restoreChatMutation.mutateAsync(chatId);
+      router.replace(restoreRedirectHref);
+    } catch (error) {
+      setArchiveError(
+        error instanceof Error ? error.message : 'Could not restore chat',
+      );
+    }
+  }
+
   return (
     <div className="mx-auto flex h-full max-w-2xl flex-col">
       <div className="mb-4 flex items-center gap-3">
@@ -120,10 +199,54 @@ export function ChatConversation({
           M
         </div>
 
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-sm font-semibold text-gray-900">{title}</h1>
           <p className="text-xs text-gray-500">{subtitle}</p>
         </div>
+
+        {isArchived ? (
+          <Button
+            aria-label="Restore chat"
+            disabled={restoreChatMutation.isPending}
+            onClick={() => void handleRestoreChat()}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {restoreChatMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Restoring
+              </>
+            ) : (
+              <>
+                <RotateCcw className="size-4" />
+                Restore
+              </>
+            )}
+          </Button>
+        ) : (
+          <Button
+            aria-label="Archive chat"
+            disabled={archiveChatMutation.isPending}
+            onClick={() => void handleArchiveChat()}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {archiveChatMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Archiving
+              </>
+            ) : (
+              <>
+                <Archive className="size-4" />
+                Archive
+              </>
+            )}
+          </Button>
+        )}
       </div>
 
       <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-100">
@@ -190,9 +313,9 @@ export function ChatConversation({
       </div>
 
       <div className="space-y-2">
-        {socketError || sendError ? (
+        {socketError || sendError || archiveError ? (
           <p className="text-xs font-medium text-red-600">
-            {sendError ?? socketError}
+            {archiveError ?? sendError ?? socketError}
           </p>
         ) : null}
 
@@ -203,18 +326,16 @@ export function ChatConversation({
           <Input
             aria-label="Message"
             className="h-10 flex-1"
-            disabled={!isConnected || isSending}
+            disabled={isArchived || !isConnected || isSending}
             onChange={(event) => setMessageInput(event.target.value)}
-            placeholder={
-              connectionStatus === 'connecting'
-                ? 'Connecting...'
-                : 'Type a message...'
-            }
+            placeholder={messagePlaceholder}
             type="text"
             value={messageInput}
           />
           <Button
-            disabled={!isConnected || isSending || !messageInput.trim()}
+            disabled={
+              isArchived || !isConnected || isSending || !messageInput.trim()
+            }
             size="icon"
             type="submit"
           >
@@ -250,17 +371,19 @@ function MessageBubble({
         )}
       >
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
-        {messageTime ? (
-          <time
-            className={cn(
-              'mt-1 block text-xs',
-              isOwnMessage ? 'text-indigo-100' : 'text-gray-400',
-            )}
-            dateTime={message.createdAt}
-          >
-            {messageTime}
-          </time>
-        ) : null}
+        <div
+          className={cn(
+            'mt-1 flex items-center gap-2 text-xs',
+            isOwnMessage ? 'justify-end text-indigo-100' : 'text-gray-400',
+          )}
+        >
+          {messageTime ? (
+            <time dateTime={message.createdAt}>{messageTime}</time>
+          ) : null}
+          {isOwnMessage ? (
+            <span>{formatMessageStatus(message.status)}</span>
+          ) : null}
+        </div>
       </div>
     </div>
   );

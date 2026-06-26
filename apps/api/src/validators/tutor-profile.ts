@@ -40,6 +40,7 @@ export const createTutorProfileSchema = z.object({
 export type CreateTutorProfileInput = z.infer<typeof createTutorProfileSchema>;
 
 export const updateTutorProfileSchema = z.object({
+  name: z.string().trim().min(2).optional(),
   headline: z.string().trim().min(1).max(200).optional(),
   bio: z.string().trim().min(1).max(500).optional(),
   hourlyRate: z.number().positive().optional(),
