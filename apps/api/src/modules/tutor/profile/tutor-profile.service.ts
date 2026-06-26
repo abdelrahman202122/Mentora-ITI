@@ -90,6 +90,11 @@ export const updateOwnProfile = async (
       await updateUserName(userId, name, session);
     }
 
+    // only update name if profileData is empty
+    if (Object.keys(profileData).length === 0) {
+      return getProfileWithUser(userId);
+    }
+
     const updated = await updateByUserId(userId, profileData, session);
 
     if (!updated) {
