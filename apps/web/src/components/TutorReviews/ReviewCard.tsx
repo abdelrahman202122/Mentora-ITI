@@ -7,6 +7,7 @@ type Props = {
   date: string;
   comment: string;
   replied?: boolean;
+  avatarUrl?: string;
 };
 
 export default function ReviewCard({
@@ -15,18 +16,26 @@ export default function ReviewCard({
   date,
   comment,
   replied,
+  avatarUrl
 }: Props) {
   return (
     <div className="border border-border bg-card p-6 rounded-xl hover:shadow-sm transition">
       <div className="flex justify-between mb-3">
         <div className="flex">
-            <img
-                src=""
+ {avatarUrl ? (
+              <img
+                src={avatarUrl}
                 className="h-8 w-8 rounded-full object-cover ring-2 ring-background"
-                alt="avatar"
-            />
-
-            <div>
+                alt={`${name} avatar`}
+              />
+            ) : (
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-semibold"
+                aria-hidden="true"
+              >
+                {name.charAt(0)}
+              </div>
+            )}            <div>
             <p className="font-semibold">{name}</p>
             <p className="text-xs text-muted-foreground">{date}</p>
             </div>

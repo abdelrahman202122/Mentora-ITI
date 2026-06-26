@@ -16,6 +16,7 @@ export function getStatusLabel(booking: Booking): string {
   if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "pending") return "Confirmed & Payment Pending";
   if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "failed") return "Confirmed & Payment Failed";
   if (booking.bookingStatus === "confirmed") return "Confirmed";
+  if(booking.paymentStatus === "refunded") return "refunded"
   if (booking.paymentStatus === "unpaid") return "Awaiting Payment";
   if (booking.paymentStatus === "failed") return "Payment Failed";
   if (booking.paymentStatus === "pending") return "Payment Pending";
@@ -45,6 +46,7 @@ type ActionState = "pending" | "confirmed" | "none";
 
 export function getActionState(booking: Booking): ActionState {
   if (isExpired(booking.startAt)) return "none";
+  if (booking.bookingStatus === "expired") return "none";
   if (booking.bookingStatus === "pending") return "pending";
   if (booking.bookingStatus === "confirmed") return "confirmed";
   return "none";

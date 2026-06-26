@@ -27,7 +27,7 @@ export default function ReviewsPage() {
         </p>
       </div>
 
-      <ReviewSummary />
+      <ReviewSummary reviews= {128} />
     <div className="space-y-4 mt-6">
       {data.map((r, i) => (
         <ReviewCard key={i} {...r} />

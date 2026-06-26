@@ -1,6 +1,8 @@
 import { StarHalf, Star , StarHalfIcon , LucideStarHalf } from "lucide-react";
 
-export default function ReviewSummary() {
+export default function ReviewSummary({ reviews } : {
+  reviews: number;
+}) {
   return (
     <section className="grid grid-cols-1 md:grid-cols-12 gap-6">
       {/* Average */}
@@ -31,7 +33,7 @@ export default function ReviewSummary() {
         </div>
 
         <p className="text-sm text-muted-foreground mt-2">
-          Based on 128 reviews
+          Based on {reviews} reviews
         </p>
       </div>
 

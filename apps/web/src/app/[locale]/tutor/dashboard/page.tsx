@@ -66,7 +66,7 @@ export default function InstructorDashboard() {
             <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <input
                 placeholder="Enter Student Verification Code"
-                className="flex-1 rounded-xl px-4 py-3 bg-white/10 border border-white/20 placeholder:text-white/60 outline-none"
+                className="flex-1 rounded-xl px-4 py-3 bg-white/10 border border-white/20 placeholder:text-white/60 outline-none focus-visible:ring-primary"
               />
               <button className="btn-primary bg-white text-primary hover:bg-white/90">
                 Verify & Start Session
