@@ -2,7 +2,6 @@ import {
   ConflictError,
   NotFoundError,
 } from '../../../common/errors/AppError.js';
-import { UserModel } from '../../users/user.model.js';
 import {
   findByUserId,
   updateByUserId,
@@ -13,7 +12,12 @@ import type {
   CreateTutorProfileInput,
   UpdateTutorProfileInput,
 } from '../../../validators/tutor-profile.js';
-import { updateUserName } from '../../users/user.repository.js';
+import {
+  findUserById,
+  updateUserName,
+  updateUserRole,
+} from '../../users/user.repository.js';
+import { withTransaction } from '../../../common/transactionHelper.js';
 
 // get full tutor profile
 export const getProfile = async (tutorId: string) => {
@@ -31,7 +35,7 @@ export const createProfile = async (
   userId: string,
   data: CreateTutorProfileInput,
 ) => {
-  const user = await UserModel.findById(userId);
+  const user = await findUserById(userId);
 
   if (!user) {
     throw new NotFoundError('User not found');
@@ -43,19 +47,27 @@ export const createProfile = async (
     throw new ConflictError('Tutor profile already exists');
   }
 
-  const profile = await create({
-    userId,
-    ...data,
-    isAvailable: data.isAvailable ?? true,
-    rating: 0,
-    totalReviews: 0,
-  });
+  // start transaction for: create profile and update user role to 'tutor'
+  const profile = await withTransaction(async (session) => {
+    const profile = await create(
+      {
+        userId,
+        ...data,
+        isAvailable: data.isAvailable ?? true,
+        rating: 0,
+        totalReviews: 0,
+      },
+      session,
+    );
 
-  await UserModel.findByIdAndUpdate(userId, {
-    role: 'tutor',
-    // tutorProfile: profile._id,
+    await updateUserRole(
+      userId,
+      'tutor',
+      // profile._id,
+      session,
+    );
+    return profile;
   });
-
   return profile;
 };
 
@@ -72,15 +84,20 @@ export const updateOwnProfile = async (
 
   const { name, ...profileData } = data;
 
-  if (name) {
-    await updateUserName(userId, name);
-  }
+  // start transaction for: update profile and user name
+  const updated = await withTransaction(async (session) => {
+    if (name) {
+      await updateUserName(userId, name, session);
+    }
 
-  const updated = await updateByUserId(userId, profileData);
+    const updated = await updateByUserId(userId, profileData, session);
 
-  if (!updated) {
-    throw new NotFoundError('Tutor profile not found');
-  }
+    if (!updated) {
+      throw new NotFoundError('Tutor profile not found');
+    }
+
+    return updated;
+  });
 
   return updated;
 };
