@@ -1,3 +1,4 @@
+import type { TutorSearchParams } from '../../validators/tutor-search.js';
 import { TutorSearchViewModel } from './search-view/tutor-search-view.model.js';
 
 /**
@@ -10,7 +11,8 @@ export const findAll = async () => {
 /**
  * Find tutors based on search query
  */
-export const findTutors = async (query: string) => {
+export const findTutors = async (params: TutorSearchParams) => {
+  const query = params.q!;
   const hasArabic = /[\u0600-\u06FF]/.test(query); // will use arabic analyzer for queries containing arabic text only
   // const hasLatin = /[A-Za-z]/.test(query);
   // const isMixed = hasArabic && hasLatin;
