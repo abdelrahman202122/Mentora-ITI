@@ -12,7 +12,6 @@ export async function getTutorSubjects(
     );
 
     console.log(
-      "Tutor Subjects Response:----------------------------------------------",
       response.data
     );
 

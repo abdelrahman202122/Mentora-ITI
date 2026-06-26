@@ -2,7 +2,7 @@ export interface Education {
   degree: string;
   field: string;
   institution: string;
-  graduationYear: number | null;
+  graduationYear: number;
 }
 
 export interface Experience {
@@ -13,24 +13,26 @@ export interface Experience {
   endMonth: number | null;
   isCurrent: boolean;
 }
-
-export interface TutorProfileData {
+export interface UserData {
   _id: string;
+  name: string;
+  avatar: string;
+}
+export interface TutorProfileData {
+   _id: string;
   userId: string;
   headline: string;
   bio: string;
   hourlyRate: number;
   languages: string[];
+  experience: Experience[];
+  education: Education[];
   isAvailable: boolean;
   rating: number;
   totalReviews: number;
-  experience: Experience[];
-  education: Education[];
   createdAt: string;
   updatedAt: string;
   __v: number;
+  userData: UserData;
 }
 
-// export interface TutorProfileResponse {
-//   data: TutorProfileData;
-// }
