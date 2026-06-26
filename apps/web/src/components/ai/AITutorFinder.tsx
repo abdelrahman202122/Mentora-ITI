@@ -1,10 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bot, Loader2, Search, Sparkles, Star } from "lucide-react";
+import {
+  Bot,
+  ExternalLink,
+  Loader2,
+  MessageSquare,
+  Search,
+  Sparkles,
+  Star,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -25,11 +35,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFindTutorByAI } from "@/hooks/ai/use-ai-recommendations";
+import { useCreateChat } from "@/hooks/chat/use-chat";
 import { useCurricula } from "@/hooks/metadata/useCurricula";
 import { useEducationLevels } from "@/hooks/metadata/useEducationLevels";
 import { useSubjectCategories } from "@/hooks/metadata/useSubjectCategories";
 import { ApiClientError } from "@/lib/axios";
-import type { TutorRecommendation } from "@/types/ai/ai-types";
+import type {
+  TutorRecommendation,
+  TutorRecommendationInput,
+} from "@/types/ai/ai-types";
+import { getLocalePath } from "@/utils/i18n/locale-path";
 
 type Translate = ReturnType<typeof useTranslations<"aiTutorFinder">>;
 
@@ -124,10 +139,23 @@ function getStrengthClasses(strength: TutorRecommendation["matchStrength"]) {
   return "border-slate-200 bg-slate-50 text-slate-600";
 }
 
+function formatCriteriaValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  return String(value);
+}
+
 export function AITutorFinder() {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("aiTutorFinder");
   const finder = useFindTutorByAI();
+  const createChat = useCreateChat();
+  const [startingChatTutorId, setStartingChatTutorId] = useState<string | null>(
+    null
+  );
   const categoriesQuery = useSubjectCategories();
   const educationLevelsQuery = useEducationLevels();
   const curriculaQuery = useCurricula();
@@ -168,6 +196,14 @@ export function AITutorFinder() {
     () => (finder.error ? getErrorMessage(finder.error, t) : null),
     [finder.error, t]
   );
+  const actionErrorMessage = useMemo(
+    () => (createChat.error ? getErrorMessage(createChat.error, t) : null),
+    [createChat.error, t]
+  );
+  const criteriaSummary = useMemo(
+    () => getCriteriaSummary(finder.data?.criteria, t),
+    [finder.data?.criteria, t]
+  );
 
   async function handleSubmit(values: TutorFinderFormValues) {
     const maxHourlyRate =
@@ -186,6 +222,25 @@ export function AITutorFinder() {
       maxHourlyRate,
       limit: 5,
     });
+  }
+
+  async function handleStartChat(recommendation: TutorRecommendation) {
+    setStartingChatTutorId(recommendation.tutorId);
+
+    try {
+      const chat = await createChat.mutateAsync({
+        tutorId: recommendation.tutorId,
+      });
+
+      router.push(getLocalePath(locale, `/messages/${chat.id}`));
+    } catch (error) {
+      console.error("Failed to start AI recommendation chat", {
+        error,
+        tutorId: recommendation.tutorId,
+      });
+    } finally {
+      setStartingChatTutorId(null);
+    }
   }
 
   return (
@@ -350,10 +405,37 @@ export function AITutorFinder() {
                 <Badge variant="outline">{t("results.rankedByScore")}</Badge>
               </div>
 
+              {criteriaSummary.length > 0 ? (
+                <div className="flex flex-wrap gap-2 rounded-lg border border-slate-100 bg-white p-3">
+                  <span className="text-sm font-medium text-slate-700">
+                    {t("criteria.title")}
+                  </span>
+                  {criteriaSummary.map((item) => (
+                    <Badge key={item.label} variant="secondary">
+                      {item.label}: {item.value}
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
+
+              {actionErrorMessage ? (
+                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {actionErrorMessage}
+                </p>
+              ) : null}
+
               <div className="grid gap-4">
                 {recommendations.map((recommendation) => (
                   <RecommendationCard
+                    isStartingChat={
+                      startingChatTutorId === recommendation.tutorId
+                    }
                     key={recommendation.tutorProfileId}
+                    onStartChat={() => handleStartChat(recommendation)}
+                    profileHref={getLocalePath(
+                      locale,
+                      `/tutor-match/${recommendation.tutorId}`
+                    )}
                     recommendation={recommendation}
                     t={t}
                   />
@@ -365,6 +447,37 @@ export function AITutorFinder() {
       </div>
     </div>
   );
+}
+
+function getCriteriaSummary(
+  criteria: TutorRecommendationInput | undefined,
+  t: Translate
+) {
+  if (!criteria) {
+    return [];
+  }
+
+  const entries: Array<{ label: string; value: unknown }> = [
+    { label: t("fields.query"), value: criteria.query },
+    { label: t("fields.category"), value: criteria.category },
+    { label: t("fields.educationLevel"), value: criteria.educationLevel },
+    { label: t("fields.curriculum"), value: criteria.curriculum },
+    { label: t("fields.languages"), value: criteria.languages },
+    { label: t("fields.maxHourlyRate"), value: criteria.maxHourlyRate },
+  ];
+
+  return entries
+    .filter(
+      (entry) =>
+        entry.value !== undefined &&
+        entry.value !== null &&
+        entry.value !== "" &&
+        (!Array.isArray(entry.value) || entry.value.length > 0)
+    )
+    .map((entry) => ({
+      label: entry.label,
+      value: formatCriteriaValue(entry.value),
+    }));
 }
 
 function Field({
@@ -454,9 +567,15 @@ function NoResultsState({ t }: { t: Translate }) {
 }
 
 function RecommendationCard({
+  isStartingChat,
+  onStartChat,
+  profileHref,
   recommendation,
   t,
 }: {
+  isStartingChat: boolean;
+  onStartChat: () => void;
+  profileHref: string;
   recommendation: TutorRecommendation;
   t: Translate;
 }) {
@@ -524,6 +643,30 @@ function RecommendationCard({
               {reason}
             </div>
           ))}
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row">
+          <Button asChild className="h-9 flex-1" variant="outline">
+            <Link href={profileHref}>
+              <ExternalLink className="size-4" />
+              {t("actions.viewProfile")}
+            </Link>
+          </Button>
+          <Button
+            className="h-9 flex-1"
+            disabled={isStartingChat}
+            onClick={onStartChat}
+            type="button"
+          >
+            {isStartingChat ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <MessageSquare className="size-4" />
+            )}
+            {isStartingChat
+              ? t("actions.startingChat")
+              : t("actions.messageTutor")}
+          </Button>
         </div>
       </CardContent>
     </Card>
