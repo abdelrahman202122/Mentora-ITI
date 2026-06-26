@@ -1,10 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ChevronDown } from "lucide-react"
+import Link from "next/link"
+import { Search, ChevronDown, Bot } from "lucide-react"
 import { useLocale } from "next-intl"
 import TutorCard from "@/components/learner/TutorCard"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { getTutors, type TutorSummary } from "@/services/tutor/tutor-service"
+import { getLocalePath } from "@/utils/i18n/locale-path"
 
 const filters = ["Category", "Age Group", "School System", "Rating", "Level"]
 const ITEMS_PER_PAGE = 4
@@ -39,6 +43,31 @@ export default function TutorMatchPage() {
 
   return (
     <div>
+      <Card className="mb-6 border-indigo-100 bg-indigo-50">
+        <CardContent>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg bg-white p-2 text-indigo-600">
+                <Bot size={18} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">
+                  Want a faster tutor match?
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Let AI rank tutors by your subject, level, curriculum,
+                  language, and budget.
+                </p>
+              </div>
+            </div>
+            <Button asChild className="bg-indigo-600 hover:bg-indigo-700">
+              <Link href={getLocalePath(locale, "/ai-assistant")}>
+                Find with AI
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Search + Filters */}
       <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">
