@@ -233,6 +233,11 @@ export function AITutorFinder() {
       });
 
       router.push(getLocalePath(locale, `/messages/${chat.id}`));
+    } catch (error) {
+      console.error("Failed to start AI recommendation chat", {
+        error,
+        tutorId: recommendation.tutorId,
+      });
     } finally {
       setStartingChatTutorId(null);
     }

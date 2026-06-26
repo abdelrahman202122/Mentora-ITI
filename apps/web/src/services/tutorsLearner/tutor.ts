@@ -25,9 +25,12 @@ type TutorProfileWithUser = TutorProfileData & {
   }
 }
 
-function toTutorSummary(profile: TutorProfileWithUser): TutorSummary {
+function toTutorSummary(
+  profile: TutorProfileWithUser,
+  tutorId: string
+): TutorSummary {
   return {
-    id: profile.userId,
+    id: tutorId,
     name: profile.userData?.name ?? "Tutor",
     title: profile.headline,
     subjects: profile.languages.length > 0 ? profile.languages : ["Tutoring"],
@@ -67,8 +70,12 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
       `/tutors/${id}/profile`
     )
 
-    return toTutorSummary(response.data.data)
-  } catch {
+    return toTutorSummary(response.data.data, id)
+  } catch (error) {
+    console.error("Failed to fetch tutor profile; using mock fallback", {
+      error,
+      tutorId: id,
+    })
     // Keep the existing mock fallback for frontend-only tutor-match pages.
   }
 
