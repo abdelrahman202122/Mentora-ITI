@@ -6,11 +6,7 @@ import {
   GraduationCap, 
   Mail, 
   ArrowUp,
-  Heart,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin
+  Heart
 } from "lucide-react";
 import { getLocalePath } from "@/utils/i18n/locale-path";
 import { Button } from "@/components/ui/button";
@@ -23,12 +19,12 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const socialLinks = [
-    { label: "Facebook", url: "https://facebook.com", icon: Facebook },
-    { label: "Twitter", url: "https://twitter.com", icon: Twitter },
-    { label: "Instagram", url: "https://instagram.com", icon: Instagram },
-    { label: "LinkedIn", url: "https://linkedin.com", icon: Linkedin },
-  ];
+  // const socialLinks = [
+  //   { label: "Facebook", url: "https://facebook.com", icon: Facebook },
+  //   { label: "Twitter", url: "https://twitter.com", icon: Twitter },
+  //   { label: "Instagram", url: "https://instagram.com", icon: Instagram },
+  //   { label: "LinkedIn", url: "https://linkedin.com", icon: Linkedin },
+  // ];
 
   const exploreLinks = [
     { label: "Home", path: "/" },
@@ -72,7 +68,7 @@ export default function Footer() {
             </p>
             {/* Social Icons */}
             <div className="flex gap-4 pt-2 justify-center sm:justify-start">
-              {socialLinks.map(({ icon: Icon, url, label }) => (
+              {/* {socialLinks.map(({ icon: Icon, url, label }) => (
                 <a
                   key={label}
                   href={url}
@@ -83,7 +79,7 @@ export default function Footer() {
                 >
                   <Icon className="size-5 group-hover:scale-110 transition-transform duration-300" />
                 </a>
-              ))}
+              ))} */}
             </div>
           </div>
 

@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: monorepoRoot,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:4000/api/:path*",
+      },
+    ];
+  },
 };
 
 export default nextIntlPlugin(nextConfig);
