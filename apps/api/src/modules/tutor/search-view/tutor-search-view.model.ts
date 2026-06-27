@@ -103,5 +103,5 @@ export type TutorSearchView = mongoose.InferSchemaType<
 >;
 
 export const TutorSearchViewModel =
-  (mongoose.models.TutorSearchViewModel as mongoose.Model<TutorSearchView>) ||
+  (mongoose.models.TutorSearchView as mongoose.Model<TutorSearchView>) ||
   mongoose.model<TutorSearchView>('TutorSearchView', tutorSearchViewSchema);
