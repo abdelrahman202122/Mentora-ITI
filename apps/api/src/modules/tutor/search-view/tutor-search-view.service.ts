@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { UserModel } from '../../users/user.model.js';
+import { TutorSearchViewModel } from './tutor-search-view.model.js';
 
 const pipeline = [
   {
@@ -95,10 +96,11 @@ export const refreshAllTutorsSearchView = async () => {
 };
 
 /**
- * Refreshes the materialized view for a singe tutor.
+ * Refreshes the materialized view for a single tutor.
  */
 export const refreshTutorSearchView = async (tutorId: string) => {
-  return UserModel.aggregate([
+  // Run aggregation
+  const results = await UserModel.aggregate([
     // match by tutorId
     {
       $match: {
@@ -108,15 +110,19 @@ export const refreshTutorSearchView = async (tutorId: string) => {
 
     // apply aggregation
     ...pipeline,
-
-    // write materialized view collection
-    {
-      $merge: {
-        into: 'tutor_search_view',
-        on: 'userId',
-        whenMatched: 'replace',
-        whenNotMatched: 'insert',
-      },
-    },
   ]);
+
+  // If tutor not found (no longer matches aggregation condition or has been deleted)
+  // delete from materialized view. Else set the updated tutor document.
+  if (results.length > 0) {
+    await TutorSearchViewModel.updateOne(
+      { userId: new mongoose.Types.ObjectId(tutorId) },
+      { $set: results[0] },
+      { upsert: true },
+    );
+  } else {
+    await TutorSearchViewModel.deleteOne({
+      userId: new mongoose.Types.ObjectId(tutorId),
+    });
+  }
 };
