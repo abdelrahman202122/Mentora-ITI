@@ -13,7 +13,8 @@ export const findAll = async () => {
  * Find tutors based on search query
  */
 export const findTutors = async (params: TutorSearchParams) => {
-  const should = buildSearch(params.q); // text search queries
+  const { q, page, limit } = params;
+  const should = buildSearch(q); // text search queries
   const filter = buildFilter(params); // filter queries
   // const { isRelevanceSort, sortQuery } = buildSort(params); // sort condition
   const sortQuery = buildSort(params);
@@ -31,9 +32,14 @@ export const findTutors = async (params: TutorSearchParams) => {
    *         filters: [...]
    *       },
    *       // sorting by relevance
-   *       sort: {  ... }
+   *       sort: {  ... },
+   *       count: { type: 'total',},
    *     },
    *   },
+   *     $facet: {
+   *       items: [{ $skip: skip }, { $limit: limit }],
+   *       meta: [ { replaceWith: '$$SEARCH_META', },],
+    },
    * ];
    */
   const pipeline: PipelineStage[] = [];
@@ -61,10 +67,36 @@ export const findTutors = async (params: TutorSearchParams) => {
           }),
 
       sort: sortQuery,
+
+      count: {
+        type: 'total',
+      },
     },
   });
 
-  return TutorSearchViewModel.aggregate(pipeline);
+  pipeline.push({
+    $facet: {
+      items: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+
+      meta: [
+        {
+          $replaceWith: '$$SEARCH_META',
+        },
+      ],
+    },
+  });
+
+  const [result] = await TutorSearchViewModel.aggregate(pipeline);
+  const { items, meta } = result ?? { items: [], meta: [] };
+  return {
+    tutors: items,
+    pagination: {
+      page,
+      limit,
+      total: meta[0].count.total ?? 0,
+      totalPages: Math.ceil((meta[0].count.total ?? 0) / limit),
+    },
+  };
 };
 
 const buildSearch = (q: string | undefined) => {
