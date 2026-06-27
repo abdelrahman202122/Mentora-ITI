@@ -1,10 +1,8 @@
 'use client';
 
 import BookingCard from '@/components/learner/BookingCard';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Clock, CalendarDays, Bot } from 'lucide-react';
-import Link from 'next/link';
+import { AIFinderCta } from '@/components/ai/AIFinderCta';
+import { CheckCircle, Clock, CalendarDays } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { mockBooking, mockUser } from '@/mocks/mock-data';
 import { getLocalePath } from '@/utils/i18n/locale-path';
@@ -69,31 +67,13 @@ export default function LearnerDashboardPage() {
         </div>
 
       {/* AI Tutor Finder */}
-      <Card className="mb-6 border-indigo-100 bg-indigo-50">
-        <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-3">
-              <div className="rounded-lg bg-white p-2 text-indigo-600">
-                <Bot size={18} />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-800">
-                  Need help choosing the right tutor?
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  Use the AI tutor finder to match by subject, curriculum,
-                  language, and budget.
-                </p>
-              </div>
-            </div>
-            <Button asChild className="bg-indigo-600 hover:bg-indigo-700">
-              <Link href={getLocalePath(locale, '/ai-assistant')}>
-                Find with AI
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mb-6">
+        <AIFinderCta
+          href={getLocalePath(locale, '/ai-assistant')}
+          title="Need help choosing the right tutor?"
+          description="Use the AI tutor finder to match by subject, curriculum, language, and budget."
+        />
+      </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mb-6">
