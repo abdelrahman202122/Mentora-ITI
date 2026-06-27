@@ -86,3 +86,19 @@ export async function archiveChat(
     next(error);
   }
 }
+
+export async function restoreChat(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = getAuthenticatedUserId(req);
+    const { chatId } = req.params as { chatId: string };
+    const chat = await chatService.restoreChat(chatId, userId);
+
+    return sendSuccess(res, 200, 'Chat restored successfully', chat);
+  } catch (error) {
+    next(error);
+  }
+}

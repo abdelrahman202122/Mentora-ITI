@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-26T16:14:25.0715170+03:00",
+  "title": "Design System: Mentora",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Mentora Indigo",
+        "canonical": "oklch(0.457 0.24 264.376)",
+        "tonalRamp": [
+          "oklch(0.169 0.104 283.45)",
+          "oklch(0.255 0.144 283.45)",
+          "oklch(0.342 0.183 283.45)",
+          "oklch(0.428 0.222 283.45)",
+          "oklch(0.515 0.261 283.45)",
+          "oklch(0.612 0.208 283.45)",
+          "oklch(0.709 0.156 283.45)",
+          "oklch(0.903 0.052 283.45)"
+        ]
+      },
+      "primary-soft": {
+        "role": "primary",
+        "displayName": "Guidance Tint",
+        "canonical": "oklch(0.95 0.05 264.376)",
+        "tonalRamp": [
+          "oklch(0.25 0.05 264.376)",
+          "oklch(0.35 0.05 264.376)",
+          "oklch(0.45 0.05 264.376)",
+          "oklch(0.55 0.05 264.376)",
+          "oklch(0.65 0.05 264.376)",
+          "oklch(0.75 0.05 264.376)",
+          "oklch(0.85 0.05 264.376)",
+          "oklch(0.95 0.05 264.376)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Quiet Canvas",
+        "canonical": "oklch(0.97 0 0)",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.269 0 0)",
+          "oklch(0.371 0 0)",
+          "oklch(0.439 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Clean Surface",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.269 0 0)",
+          "oklch(0.371 0 0)",
+          "oklch(0.439 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Confident Ink",
+        "canonical": "oklch(0.145 0 0)",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.269 0 0)",
+          "oklch(0.371 0 0)",
+          "oklch(0.439 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.985 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing-page hero headings and rare high-impact moments only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles, dashboard section headers, and important empty states."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles, tutor names, chat headers, and compact panel headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Product copy, descriptions, messages, helper text, and data context."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, tabs, filters, form labels, and navigation labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "surface-ring",
+        "value": "0 0 0 1px color-mix(in oklch, currentColor 10%, transparent)",
+        "purpose": "Default card and panel separation without visual heaviness."
+      },
+      {
+        "name": "soft-panel-shadow",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "Light separation for message composers and floating panels."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-transition",
+        "value": "150ms-250ms ease-out",
+        "purpose": "Hover, focus, selected, loading, and small state changes."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action button for login, chat sending, booking, and tutor discovery actions.",
+      "html": "<button class=\"ds-btn-primary\">Continue</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 10px; border: 1px solid transparent; border-radius: 8px; background: var(--primary, oklch(0.457 0.24 264.376)); color: var(--primary-foreground, #fff); font: 500 14px/1.25 var(--font-sans, \"Plus Jakarta Sans\", \"Noto Sans Arabic\", system-ui, sans-serif); transition: background-color 180ms ease-out, transform 120ms ease-out, box-shadow 180ms ease-out; } .ds-btn-primary:hover { background: color-mix(in oklch, var(--primary, oklch(0.457 0.24 264.376)), white 20%); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, oklch(0.457 0.24 264.376)), transparent 50%); } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action button for archive, restore, retry, and utility actions.",
+      "html": "<button class=\"ds-btn-outline\">Archive</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 10px; border: 1px solid var(--border, oklch(0.922 0 0)); border-radius: 8px; background: var(--background, oklch(0.97 0 0)); color: var(--foreground, oklch(0.145 0 0)); font: 500 14px/1.25 var(--font-sans, \"Plus Jakarta Sans\", \"Noto Sans Arabic\", system-ui, sans-serif); transition: background-color 180ms ease-out, color 180ms ease-out, box-shadow 180ms ease-out; } .ds-btn-outline:hover { background: var(--muted, oklch(0.97 0 0)); } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, oklch(0.457 0.24 264.376)), transparent 50%); }"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Default panel for dashboard summaries, tutor cards, and grouped product content.",
+      "html": "<article class=\"ds-card\"><h3>Recommended tutor</h3><p>Clear fit signals and next steps.</p></article>",
+      "css": ".ds-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 14px; background: var(--card, #fff); color: var(--card-foreground, oklch(0.145 0 0)); box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground, oklch(0.145 0 0)) 10%, transparent); font-family: var(--font-sans, \"Plus Jakarta Sans\", \"Noto Sans Arabic\", system-ui, sans-serif); } .ds-card h3 { margin: 0; font-size: 16px; line-height: 1.375; font-weight: 600; } .ds-card p { margin: 0; color: var(--muted-foreground, oklch(0.556 0 0)); font-size: 14px; line-height: 1.5; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Compact field for auth forms, filters, chat composer, and profile data.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search tutors\" />",
+      "css": ".ds-input { width: 100%; min-width: 0; height: 32px; padding: 4px 10px; border: 1px solid var(--input, oklch(0.922 0 0)); border-radius: 8px; background: transparent; color: var(--foreground, oklch(0.145 0 0)); font: 400 14px/1.5 var(--font-sans, \"Plus Jakarta Sans\", \"Noto Sans Arabic\", system-ui, sans-serif); transition: border-color 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out; } .ds-input::placeholder { color: var(--muted-foreground, oklch(0.556 0 0)); } .ds-input:focus-visible { outline: none; border-color: var(--ring, oklch(0.457 0.24 264.376)); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, oklch(0.457 0.24 264.376)), transparent 50%); } .ds-input:disabled { cursor: not-allowed; opacity: .5; background: color-mix(in oklch, var(--input, oklch(0.922 0 0)), transparent 50%); }"
+    },
+    {
+      "name": "Top Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Simple product navigation for learner and tutor areas.",
+      "html": "<nav class=\"ds-nav\"><strong>Mentora</strong><a href=\"#\">My Dashboard</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid color-mix(in oklch, var(--border, oklch(0.922 0 0)), transparent 30%); background: var(--card, #fff); font-family: var(--font-sans, \"Plus Jakarta Sans\", \"Noto Sans Arabic\", system-ui, sans-serif); } .ds-nav strong { color: var(--primary, oklch(0.457 0.24 264.376)); font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: -0.025em; } .ds-nav a { color: var(--muted-foreground, oklch(0.556 0 0)); font-size: 14px; font-weight: 500; text-decoration: none; transition: color 180ms ease-out; } .ds-nav a:hover, .ds-nav a:focus-visible { color: var(--primary, oklch(0.457 0.24 264.376)); outline: none; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Guided Learning Workspace",
+    "overview": "Mentora should feel like a focused workspace for making good education decisions: calm enough for repeated use, clear enough for high-trust actions, and friendly enough that learners do not feel alone while comparing tutors, booking sessions, chatting, or using AI recommendations. The visual system is restrained product UI. Indigo carries the primary action and active-state vocabulary, while white and neutral surfaces keep dashboards, forms, chat, and tutor discovery easy to scan. The product should never look like a generic AI SaaS surface; AI features should feel integrated into learning workflows rather than advertised through decorative gradients or vague automation language.",
+    "keyCharacteristics": [
+      "Familiar controls with predictable hover, focus, loading, disabled, and error states.",
+      "Compact layouts that support dashboards, forms, chat, and marketplace browsing.",
+      "Indigo accents used for action, selection, and guidance rather than decoration.",
+      "Friendly copy and supportive empty states instead of ornamental visual effects.",
+      "Localization-aware spacing and hierarchy for English now and Arabic/RTL later."
+    ],
+    "rules": [
+      {
+        "name": "The Indigo Earns Attention Rule",
+        "body": "Mentora Indigo appears on primary actions, selected states, and focus feedback. It should not be scattered across icons, badges, and decorations just to make a screen feel colorful.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Generic AI Gradient Rule",
+        "body": "AI tutor matching must use the same product palette as the rest of Mentora. Decorative purple-blue gradients, glass cards, and automation-heavy visual tropes are prohibited.",
+        "section": "colors"
+      },
+      {
+        "name": "The Product Scale Rule",
+        "body": "Product surfaces use fixed, compact rem sizes. Avoid fluid hero typography inside dashboards, chat, forms, and sidebars.",
+        "section": "typography"
+      },
+      {
+        "name": "The Friendly Clarity Rule",
+        "body": "Copy should sound supportive and direct. Avoid vague AI promises, hype language, and empty marketing adjectives.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Product surfaces are not lifted unless the state or interaction needs it. If every card has a visible drop shadow, the screen is too noisy.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use Mentora Indigo for primary actions, active navigation, focus rings, and selected states.",
+      "Do keep dashboard, chat, tutor discovery, booking, and payment surfaces compact and predictable.",
+      "Do use clear loading, empty, error, and disabled states before adding visual flourish.",
+      "Do keep component states consistent across learner, tutor, and admin surfaces.",
+      "Do preserve readable contrast for helper text, placeholders, and muted metadata."
+    ],
+    "donts": [
+      "Don't make Mentora feel like a generic AI SaaS product.",
+      "Don't use decorative AI gradients, glassmorphism, or vague automation-heavy hero copy for tutor matching.",
+      "Don't decorate cards with colored side stripes, oversized shadows, or excessive rounding.",
+      "Don't invent custom controls where standard buttons, inputs, tabs, selects, and menus already solve the task.",
+      "Don't use indigo as decoration on every icon, card, and heading. Its restraint is what makes it useful."
+    ]
+  }
+}

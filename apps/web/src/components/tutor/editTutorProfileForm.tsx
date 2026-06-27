@@ -6,7 +6,14 @@ import Link from 'next/link';
 import { useTutorProfile } from '@/hooks/tutor/useTutorProfile';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import { useTutorSubjects } from '@/hooks/tutor/useTutorSubjects';
+import CardForm from '@/components/tutor/CardForm';
+import { useState } from 'react';
+import TutorProfileForm from "@/components/tutor/TutorProfileForm";
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
+const [isOpen, setIsOpen] = useState(false);
+const [editingSubjectId, setEditingSubjectId] = useState<string | undefined>(undefined);
+
+
   const { data: user } = useCurrentUser();
   const {
     data: tutorProfile,
@@ -43,66 +50,7 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
           </div>
         </div>
 
-        {/* Profile Section */}
-        <section className="bg-card border border-border rounded-xl p-6 md:p-8 space-y-6">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Avatar */}
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative group w-28 h-28">
-                <img
-                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2"
-                  alt="Tutor profile avatar"
-                  className="w-full h-full object-cover rounded-full border-4 border-border"
-                />
-
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-full flex flex-col items-center justify-center text-white transition">
-                  <Camera className="w-5 h-5" />
-                  <span className="text-xs mt-1">Change</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Fields */}
-            <div className="flex-1 space-y-5">
-              <div className="grid md:grid-cols-2 gap-5">
-                <Field label="Full Name" defaultValue={user?.name || ''} />
-
-                <Field label="Professional Title" defaultValue={headline} />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase">
-                  About Me / Bio
-                </label>
-
-                <textarea
-                  defaultValue={bio}
-                  className="w-full mt-2 min-h-[120px] rounded-lg border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div>
-                <div>
-                  <label
-                    htmlFor={rateId}
-                    className="text-xs text-muted-foreground uppercase font-bold"
-                  >
-                    Hourly Rate
-                  </label>
-                  <div className="flex items-center gap-1 text-primary font-bold text-xl">
-                    <span>$</span>
-                    <input
-                      id={rateId}
-                      defaultValue={hourlyRate != null ? hourlyRate.toString() : ''}
-                      className="w-14 bg-transparent outline-none"
-                    />
-                    <span className="text-sm text-muted-foreground">/hr</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
+        <TutorProfileForm data={tutorProfile} />
         {/* Courses */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold">Courses Offered</h2>
@@ -121,14 +69,29 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
               subjects.map((subject) => (
                 <CourseCard
                   key={subject._id}
-                  title={subject.title}
-                  tag={subject.category}
-                  idPrefix={subject._id}
+                  course={subject}
+                  onEdit={(id) => {
+                  setEditingSubjectId(id);
+                  setIsOpen(true);
+                }}
                 />
               ))}
+            {/* {isOpen && <CardForm onClose={() => setIsOpen(false)} />} */}
+            {isOpen && (
+              <CardForm
+                subjectId={editingSubjectId}
+                onClose={() => {
+                  setIsOpen(false);
+                  setEditingSubjectId(undefined);
+                }}
+              />
+            )}
 
             {/* Add New */}
-            <button className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition">
+            <button 
+              onClick={() => setIsOpen(true)}
+              className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition"
+            >
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <Plus />
               </div>
@@ -156,3 +119,6 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
     </div>
   );
 }
+
+
+

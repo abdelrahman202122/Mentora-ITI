@@ -134,3 +134,17 @@ export function archiveParticipantChat(chatId: string, userId: string) {
     { new: true },
   ).exec();
 }
+
+export function restoreParticipantChat(chatId: string, userId: string) {
+  return ChatModel.findOneAndUpdate(
+    {
+      _id: new Types.ObjectId(chatId),
+      $or: [
+        { learnerId: new Types.ObjectId(userId) },
+        { tutorId: new Types.ObjectId(userId) },
+      ],
+    },
+    { $set: { status: 'active' } },
+    { new: true },
+  ).exec();
+}

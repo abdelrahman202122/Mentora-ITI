@@ -1,38 +1,35 @@
 "use client";
-import { Button } from "../ui/button";
+
+import Link from "next/link";
+import { useLocale } from "next-intl";
+
+import { Button } from "@/components/ui/button";
+import { getLocalePath } from "@/utils/i18n/locale-path";
 
 export default function StartLearning() {
-  return (
-    <div className="w-full px-4 py-8 md:py-16 sm:px-6 lg:px-8">
-      {/* الـ Card الأساسي الكبير */}
-      <div className="relative mx-auto max-w-5xl overflow-hidden shadow-2xl rounded-2xl sm:rounded-[2.5rem] bg-gradient-to-r from-indigo-900/90 to-indigo-950/90 backdrop-blur-md text-center border border-indigo-500/10">
-        
-        {/* تأثير إضاءة خلفي ناعم للموبايل والشاشات الكبيرة */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+  const locale = useLocale();
 
-        {/* الحاوية الداخلية: تم ضبط الـ padding ليتناسب مع الموبايل تصاعدياً */}
-        <div className="relative z-10 flex flex-col items-center justify-center max-w-2xl mx-auto px-4 py-12 sm:px-12 md:py-20 space-y-6">
-          
-          {/* عنوان مرن يتصغير تلقائياً على الموبايل عشان ميعملش خطوط كتير */}
-          <h2 className="text-2xl font-bold tracking-tight text-white xs:text-3xl sm:text-4xl md:text-5xl leading-tight sm:leading-none">
-            Ready to start your <br className="xs:hidden" /> learning journey?
+  return (
+    <div className="w-full px-4 py-8 sm:px-6 md:py-16 lg:px-8">
+      <div className="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-indigo-100 bg-indigo-50 text-center">
+        <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center justify-center space-y-6 px-4 py-12 sm:px-12 md:py-20">
+          <h2 className="text-2xl font-semibold leading-tight tracking-tight text-slate-950 xs:text-3xl sm:text-4xl sm:leading-none md:text-5xl">
+            Ready to find your <br className="xs:hidden" /> tutor?
           </h2>
-          
-          {/* نص مريح للعين ومتناسق الحجم */}
-          <p className="text-xs font-light leading-relaxed text-slate-200 sm:text-base md:text-lg max-w-md sm:max-w-none">
-            Join thousands of students who are already achieving their goals with Mentora.
+
+          <p className="max-w-md text-sm leading-relaxed text-slate-700 sm:max-w-none sm:text-base md:text-lg">
+            Search verified tutors, compare your options, and book the lesson that fits your goals.
           </p>
 
-          {/* زرار مرن: يأخذ عرض كامل على الموبايلات الصغيرة جداً وشكل طبيعي على الشاشات الأكبر */}
-          <div className="pt-4 w-full sm:w-auto">
-            <Button 
+          <div className="w-full pt-4 sm:w-auto">
+            <Button
+              asChild
               size="lg"
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white text-base font-medium px-8 py-6 transition-all duration-200 cursor-pointer shadow-lg shadow-indigo-600/20 rounded-xl"
+              className="w-full cursor-pointer rounded-lg bg-indigo-600 px-8 py-6 text-base font-medium text-white transition-colors duration-200 hover:bg-indigo-700 sm:w-auto"
             >
-              Get Started Today
+              <Link href={getLocalePath(locale, "/FindTutor")}>Find tutors</Link>
             </Button>
           </div>
-
         </div>
       </div>
     </div>

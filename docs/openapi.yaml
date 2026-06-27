@@ -11,6 +11,10 @@ tags:
   - name: Metadata
   - name: Chats
     description: Authenticated learner-tutor conversations and message history
+  - name: Payment
+    description: Paymob checkout initiation, payment retrieval, and provider webhook handling for booking payments
+  - name: Earning
+    description: Tutor earnings derived from successful payments, including paginated listing and aggregated summaries
 paths:
   /api/users/register:
     post:
@@ -1957,6 +1961,255 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/payments/checkout:
+    post:
+      summary: Initiate Checkout
+      description: |-
+        Initiates a Paymob hosted-checkout session for a confirmed, unpaid booking. Accessible only by the learner who owns the booking.
+
+        The payment amount is always derived server-side from `booking.price` and is never trusted from the client. A local `Payment` record is created with status `pending`, a Paymob payment intention is requested, and the resulting hosted checkout URL is returned to the client along with the local payment ID. The booking is linked to the new payment record.
+      tags:
+        - Payment
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCheckoutRequest'
+      responses:
+        '201':
+          description: Checkout initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutSuccessResponse'
+        '400':
+          description: Bad Request (Validation error, e.g. invalid bookingId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized (User not authenticated or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can initiate checkout, or the booking does not belong to the learner)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Booking is not confirmed, payment status is not recoverable, or a payment for this booking already exists/is in progress)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error (including Paymob payment gateway errors)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/payments/{paymentId}:
+    get:
+      summary: Get Payment by ID
+      description: |-
+        Retrieves a single payment by ID. Accessible by the learner who made the payment or the tutor associated with the booking; ownership is enforced in the service layer. The `rawProviderResponse` field is stripped from the response for non-admin users.
+      tags:
+        - Payment
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4572'
+          description: The 24-character hex MongoDB ObjectId of the payment
+      responses:
+        '200':
+          description: Payment retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (User does not have permission to view this payment)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/payments/webhook:
+    post:
+      summary: Paymob Payment Webhook
+      description: |-
+        Public endpoint (no cookie authentication) that receives asynchronous payment callbacks from Paymob. Authenticity is verified internally via an HMAC-SHA512 signature computed over the Paymob transaction fields and compared against the `hmac` query parameter using a timing-safe comparison.
+
+        On a verified successful transaction, the matching `Payment` is atomically transitioned to `success`, the linked `Booking.paymentStatus` is set to `paid`, a booking confirmation code is generated, and a corresponding `Earning` record is created for the tutor. On a verified failed transaction, the payment is transitioned to `failed` and the booking's `paymentStatus` is set to `failed`. Duplicate or out-of-order callbacks are handled idempotently. This endpoint always responds `200` to acknowledge receipt, regardless of internal processing outcome, to prevent Paymob from retrying indefinitely.
+      tags:
+        - Payment
+      security: []
+      parameters:
+        - name: hmac
+          in: query
+          required: true
+          schema:
+            type: string
+          description: HMAC-SHA512 signature of the transaction payload, generated by Paymob using the shared HMAC secret
+          example: 'b7f2a1c4d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymobWebhookPayload'
+      responses:
+        '200':
+          description: |-
+            Webhook acknowledged. Returned for successfully processed callbacks, duplicate/idempotent callbacks, callbacks referencing an unknown payment, and amount-mismatch callbacks. The HTTP status is always 200 by design so Paymob does not retry; processing outcome is recorded server-side via logs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: Webhook received
+  /api/earnings/me:
+    get:
+      summary: List My Earnings
+      description: |-
+        Retrieves a paginated list of the authenticated tutor's earnings, optionally filtered by status. Earning records are created automatically by the payment webhook when a booking payment succeeds.
+      tags:
+        - Earning
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number (starts at 1)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of earnings per page
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, available, paid_out, canceled]
+          description: Filter earnings by status
+      responses:
+        '200':
+          description: Earnings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarningListSuccessResponse'
+        '400':
+          description: Bad Request (Validation error, e.g. invalid status value)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can list earnings)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/earnings/summary:
+    get:
+      summary: Get Earnings Summary
+      description: |-
+        Returns an aggregated earnings summary for the authenticated tutor, with total count and tutor amount grouped by status (`pending`, `available`, `paid_out`).
+      tags:
+        - Earning
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Earnings summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarningsSummarySuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only tutors can view an earnings summary)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
     cookieAuth:
@@ -2476,3 +2729,344 @@ components:
               - 'Invalid ID format'
             startAt:
               - 'Start time must be in the future'
+    CreateCheckoutRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingId
+      properties:
+        bookingId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          description: The 24-character hex MongoDB ObjectId of the confirmed, unpaid booking to pay for
+          example: '60c72b2f9b1d8b2a1c8b4567'
+    CheckoutSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Checkout initiated successfully'
+        data:
+          type: object
+          required:
+            - paymentId
+            - checkoutUrl
+          properties:
+            paymentId:
+              type: string
+              pattern: '^[a-fA-F0-9]{24}$'
+              description: ID of the newly created local payment record
+              example: '60c72b2f9b1d8b2a1c8b4572'
+            checkoutUrl:
+              type: string
+              format: uri
+              description: Paymob hosted Unified Checkout URL the client should redirect the learner to
+              example: 'https://accept.paymob.com/unifiedcheckout/?publicKey=pk_live_abc123&clientSecret=csec_xyz789'
+    Payment:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4572'
+        bookingId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        learnerId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4568'
+        tutorId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        amount:
+          type: number
+          minimum: 0
+          example: 250
+        currency:
+          type: string
+          enum: [EGP, USD, EUR]
+          example: EGP
+        status:
+          type: string
+          enum: [pending, success, failed, refunded]
+          example: success
+        provider:
+          type: string
+          enum: [paymob]
+          example: paymob
+        providerTransactionId:
+          type: string
+          nullable: true
+          example: '270150003'
+        providerOrderId:
+          type: string
+          nullable: true
+          example: '288512345'
+        providerCheckoutUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: 'https://accept.paymob.com/unifiedcheckout/?publicKey=pk_live_abc123&clientSecret=csec_xyz789'
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-06-20T09:15:00.000Z'
+        failedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        refundedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        failureReason:
+          type: string
+          nullable: true
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-20T09:10:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-20T09:15:00.000Z'
+      description: 'Note: `rawProviderResponse` exists on the underlying model but is stripped from API responses for non-admin users.'
+    PaymentSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Payment retrieved successfully'
+        data:
+          $ref: '#/components/schemas/Payment'
+    PaymobWebhookPayload:
+      type: object
+      description: |-
+        Raw Paymob transaction processed callback payload. Paymob may send the transaction fields directly at the top level or nested under an `obj` property; both shapes are handled server-side. The HMAC signature is verified over a fixed, ordered subset of these fields concatenated as a string, per Paymob's HMAC specification.
+      properties:
+        type:
+          type: string
+          example: TRANSACTION
+        obj:
+          type: object
+          description: Nested transaction object (alternate Paymob callback shape). When absent, the fields below are read from the top level instead.
+          properties:
+            id:
+              type: string
+              example: '270150003'
+            order:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: '288512345'
+            amount_cents:
+              type: integer
+              example: 25000
+            currency:
+              type: string
+              example: EGP
+            success:
+              type: boolean
+              example: true
+            pending:
+              type: boolean
+              example: false
+            is_refunded:
+              type: boolean
+              example: false
+            is_voided:
+              type: boolean
+              example: false
+            error_occured:
+              type: boolean
+              example: false
+            integration_id:
+              type: integer
+              example: 4837291
+            special_reference:
+              type: string
+              description: Internal payment._id passed when creating the Paymob intention
+              example: '60c72b2f9b1d8b2a1c8b4572'
+            data:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Approved'
+      example:
+        type: TRANSACTION
+        obj:
+          id: '270150003'
+          order:
+            id: '288512345'
+          amount_cents: 25000
+          currency: EGP
+          success: true
+          pending: false
+          is_refunded: false
+          is_voided: false
+          error_occured: false
+          integration_id: 4837291
+          special_reference: '60c72b2f9b1d8b2a1c8b4572'
+          data:
+            message: 'Approved'
+    Earning:
+      type: object
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4580'
+        bookingId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        paymentId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4572'
+        tutorId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        grossAmount:
+          type: number
+          minimum: 0
+          example: 250
+        commissionRate:
+          type: number
+          minimum: 0
+          maximum: 1
+          example: 0.15
+        commissionAmount:
+          type: number
+          minimum: 0
+          example: 37.5
+        tutorAmount:
+          type: number
+          minimum: 0
+          example: 212.5
+        currency:
+          type: string
+          enum: [EGP, USD, EUR]
+          example: EGP
+        status:
+          type: string
+          enum: [pending, available, paid_out, canceled]
+          example: pending
+        availableAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        paidOutAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-20T09:15:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-20T09:15:00.000Z'
+    EarningListSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Earnings retrieved successfully'
+        data:
+          type: object
+          required:
+            - earnings
+            - pagination
+          properties:
+            earnings:
+              type: array
+              items:
+                $ref: '#/components/schemas/Earning'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+    EarningsSummarySuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Earnings summary retrieved successfully'
+        data:
+          type: object
+          required:
+            - pending
+            - available
+            - paid_out
+          properties:
+            pending:
+              $ref: '#/components/schemas/EarningsSummaryBucket'
+            available:
+              $ref: '#/components/schemas/EarningsSummaryBucket'
+            paid_out:
+              $ref: '#/components/schemas/EarningsSummaryBucket'
+          example:
+            pending:
+              count: 3
+              totalAmount: 637.5
+            available:
+              count: 5
+              totalAmount: 1062.5
+            paid_out:
+              count: 12
+              totalAmount: 2550
+    EarningsSummaryBucket:
+      type: object
+      required:
+        - count
+        - totalAmount
+      properties:
+        count:
+          type: integer
+          minimum: 0
+          example: 5
+        totalAmount:
+          type: number
+          minimum: 0
+          description: Sum of `tutorAmount` for earnings in this status bucket
+          example: 1062.5

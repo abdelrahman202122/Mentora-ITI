@@ -51,7 +51,7 @@ export type PaymentWebhookInput = z.infer<typeof paymentWebhookSchema>;
  * Schema for listing tutor earnings
  */
 export const listEarningsSchema = paginationSchema.extend({
-  status: z.enum(['pending', 'available', 'paid_out', 'reversed']).optional(),
+  status: z.enum(['pending', 'available', 'paid_out', 'canceled']).optional(),
 });
 
 export type ListEarningsQuery = z.infer<typeof listEarningsSchema>;
