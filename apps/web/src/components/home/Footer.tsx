@@ -8,7 +8,6 @@ import {
   ArrowUp,
   Heart
 } from "lucide-react";
-import { getLocalePath } from "@/utils/i18n/locale-path";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getLocalePath } from "@/utils/i18n/locale-path";

@@ -1,0 +1,48 @@
+import type { ApiResponse } from "@/types/bookingProcess/booking"
+
+interface CheckoutData {
+  paymentId: string
+  checkoutUrl: string
+}
+
+function extractErrorMessage(body: ApiResponse<CheckoutData>): string {
+  if (body.errors) {
+    return Object.values(body.errors).flat().join(" ")
+  }
+  return body.message ?? "Something went wrong. Please try again."
+}
+
+export async function initiateCheckout(bookingId: string): Promise<CheckoutData> {
+  const response = await fetch("/api/payments/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ bookingId }),
+  })
+
+  const body: ApiResponse<CheckoutData> = await response.json()
+
+  if (!response.ok || !body.success) {
+    switch (response.status) {
+      case 400:
+        throw new Error(extractErrorMessage(body))
+      case 401:
+        throw new Error("You must be logged in to make a payment.")
+      case 403:
+        throw new Error("You are not authorized to pay for this booking.")
+      case 404:
+        throw new Error("Booking not found.")
+      case 409:
+        throw new Error("This booking is not ready for payment. Please check its status.")
+      case 500:
+      default:
+        throw new Error("Payment service error. Please try again later.")
+    }
+  }
+
+  if (!body.data) {
+    throw new Error("Unexpected response from server.")
+  }
+
+  return body.data
+}
