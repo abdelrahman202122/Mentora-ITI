@@ -1,4 +1,3 @@
-
 import type { CreateBookingPayload, BookingResponse, ApiResponse } from "@/types/bookingProcess/booking"
 
 function getDurationMinutes(startAt: string, endAt: string): number {
@@ -6,21 +5,13 @@ function getDurationMinutes(startAt: string, endAt: string): number {
   return Math.round(diff / 60_000)
 }
 
-//---------------Extract error from server in a readable format to the user----------------
-
-function extractErrorMessage(body: ApiResponse): string {
+function extractErrorMessage(body: ApiResponse<BookingResponse>): string {
   if (body.errors) {
     return Object.values(body.errors).flat().join(" ")
-    //i want only the values from the errors object not the keys so i used objects.values() it will return an array of the values
-    //.flat()is used to remove the inner arrays and make it into  a single array
-    //.join is used to join the array into a string within aspace between each value so the user can read it easily
   }
-  
   return body.message ?? "Something went wrong. Please try again."
 }
-//-------------------------------------------------------------------------------------------
 
-//------------------------Craete booking----------------------------------------------------
 export async function createBooking(payload: CreateBookingPayload): Promise<BookingResponse> {
   const requestBody = {
     tutorProfileId: payload.tutorProfileId,
@@ -29,7 +20,6 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Book
     endAt: payload.endTime,
     durationMinutes: getDurationMinutes(payload.startTime, payload.endTime),
     ...(payload.learnerNote ? { learnerNote: payload.learnerNote } : {}),
-    //with spread operator it will only add the learnerNode property to the requestbody object if it has avalue inside it if not have avalue will be removed
   }
 
   const response = await fetch("/api/bookings", {
@@ -41,22 +31,30 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Book
     body: JSON.stringify(requestBody),
   })
 
-  const body: ApiResponse = await response.json()
+  // ✅ generic ApiResponse with BookingResponse as the data type
+  const body: ApiResponse<BookingResponse> = await response.json()
 
-  if (!response.ok || !body.success) {
+  // True HTTP failures (4xx/5xx) — the status code drives the fallback message,
+  // but extractErrorMessage still wins when the backend included one for known
+  // client-error codes.
+  if (!response.ok) {
     switch (response.status) {
       case 400:
-        throw new Error(extractErrorMessage(body))
       case 401:
-        throw new Error(extractErrorMessage(body))
       case 403:
-        throw new Error(extractErrorMessage(body))
-      case 409:   
+      case 409:
         throw new Error(extractErrorMessage(body))
       case 500:
       default:
         throw new Error("Server error. Please try again later.")
     }
+  }
+
+  // A 2xx response with `success: false` is a valid envelope, not an HTTP
+  // error — the backend's own message/errors are the source of truth here,
+  // so they must never be replaced by the generic "Server error" fallback.
+  if (!body.success) {
+    throw new Error(extractErrorMessage(body))
   }
 
   if (!body.data) {

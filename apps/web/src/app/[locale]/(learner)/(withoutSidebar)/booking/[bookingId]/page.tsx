@@ -11,15 +11,9 @@ import { BookingDetails } from "@/types/bookingProcess/booking"
 import { getBookingById } from "@/services/booking-services/bookingDetailsService"
 import { cancelBooking } from "@/services/booking-services/cancelBooking"
 
-
-
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })
 }
-
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
@@ -49,60 +43,55 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function BookingDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const bookingId = params.bookingId as string
+  const locale = (params.locale as string) ?? "en"
 
   const [booking, setBooking] = useState<BookingDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Cancel state
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
   const [canceling, setCanceling] = useState(false)
   const [cancelError, setCancelError] = useState<string | null>(null)
 
- useEffect(() => {
-  if (!bookingId) {
-    setError("Booking ID not found in URL.")
-    setLoading(false)
-    return
+  useEffect(() => {
+    if (!bookingId) {
+      setError("Booking ID not found in URL.")
+      setLoading(false)
+      return
+    }
+
+    getBookingById(bookingId)
+      .then(setBooking)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [bookingId])
+
+  async function handleCancel() {
+    if (!cancelReason.trim()) {
+      setCancelError("Please provide a reason for cancellation.")
+      return
+    }
+
+    setCanceling(true)
+    setCancelError(null)
+
+    try {
+      await cancelBooking(bookingId, cancelReason)
+      setBooking((prev) => prev ? { ...prev, bookingStatus: "canceled", cancelReason } : prev)
+      setShowCancelModal(false)
+      setCancelReason("")
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : "Something went wrong.")
+    } finally {
+      setCanceling(false)
+    }
   }
 
-  getBookingById(bookingId)
-    .then(setBooking)
-    .catch((err) => setError(err.message))
-    .finally(() => setLoading(false))
-
-}, [bookingId])
-
-  // ── Cancel Handler ──────────────────────────────────────────────────────────
-
-async function handleCancel() {
-  if (!cancelReason.trim()) {
-    setCancelError("Please provide a reason for cancellation.")
-    return
-  }
-
-  setCanceling(true)
-  setCancelError(null)
-
-  try {
-    await cancelBooking(bookingId, cancelReason)
-    setBooking((prev) => prev ? { ...prev, bookingStatus: "canceled", cancelReason } : prev)
-    setShowCancelModal(false)
-    setCancelReason("")
-  } catch (err) {
-    setCancelError(err instanceof Error ? err.message : "Something went wrong.")
-  } finally {
-    setCanceling(false)
-  }
-}
-
-  // ── Pay Now Handler ─────────────────────────────────────────────────────────
   function handlePayNow() {
     if (!booking) return
     const queryParams = new URLSearchParams({
@@ -113,17 +102,16 @@ async function handleCancel() {
       duration: String(booking.durationMinutes),
       currency: booking.currency,
     })
-    router.push(`/en/payment?${queryParams}`)
+    router.push(`/${locale}/payment?${queryParams}`)
   }
 
   return (
     <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
       <div className="max-w-2xl mx-auto">
 
-        {/* Back */}
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
-            <Link href="/en/dashboard">
+            <Link href={`/${locale}/dashboard`}>
               <ArrowLeft size={16} /> Back to My Bookings
             </Link>
           </Button>
@@ -211,21 +199,13 @@ async function handleCancel() {
               </CardContent>
             </Card>
 
-            {/* ── Action Buttons ── */}
             {booking.bookingStatus !== "canceled" && booking.bookingStatus !== "completed" && (
               <div className="flex gap-3 mt-4">
-
-                {/* Pay Now — only when confirmed and unpaid */}
                 {booking.bookingStatus === "confirmed" && booking.paymentStatus === "unpaid" && (
-                  <Button
-                    onClick={handlePayNow}
-                    className="flex-1 h-12 rounded-xl"
-                  >
+                  <Button onClick={handlePayNow} className="flex-1 h-12 rounded-xl">
                     Pay Now
                   </Button>
                 )}
-
-                {/* Cancel — only when pending or confirmed */}
                 {(booking.bookingStatus === "pending" || booking.bookingStatus === "confirmed") && (
                   <Button
                     variant="outline"
@@ -240,12 +220,24 @@ async function handleCancel() {
           </>
         )}
 
-        {/* ── Cancel Modal ── */}
+        {/* ✅ Cancel Modal — with accessible dialog semantics */}
         {showCancelModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-              <h3 className="text-lg font-bold text-foreground mb-1">Cancel Booking</h3>
-              <p className="text-sm text-muted-foreground mb-4">Please tell us why you want to cancel.</p>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cancel-modal-title"
+              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+            >
+              <h3
+                id="cancel-modal-title"
+                className="text-lg font-bold text-foreground mb-1"
+              >
+                Cancel Booking
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Please tell us why you want to cancel.
+              </p>
 
               <textarea
                 value={cancelReason}

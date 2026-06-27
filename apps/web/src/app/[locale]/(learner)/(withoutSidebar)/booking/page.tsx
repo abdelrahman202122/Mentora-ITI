@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams, useParams } from "next/navigation"
-import { Calendar, Clock, Hourglass, Send, ArrowLeft, Loader2 } from "lucide-react"
+import { Calendar, Clock, Hourglass, Send, ArrowLeft, Loader2, AlertCircle } from "lucide-react"
 
 import Link from "next/link"
 
@@ -25,11 +25,26 @@ import { getTutorAvailability } from "@/services/booking-services/slots-service"
 
 import type { TimeSlot, AvailabilitySlots } from "@/types/bookingProcess/slots"
 
-const DEFAULT_SUBJECT_ID = "6a33efe7a0c348f1fca9873c"
-
 //used to ruturn throyght it time slots available
 const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 
+// ── timezone-safe date helpers ──────────────────────────────────────────────
+// "YYYY-MM-DD" built from LOCAL parts (not UTC), so it always matches what the
+// user sees on their calendar regardless of timezone offset
+function getLocalDateString(d: Date): string {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+// parses a "YYYY-MM-DD" string into a LOCAL Date (midnight local time), instead
+// of `new Date(dateString)` which JS treats as UTC midnight and can shift the
+// weekday by one day for users in negative UTC offsets
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
 
 function BookSessionContent() {
   const router = useRouter()
@@ -37,13 +52,19 @@ function BookSessionContent() {
   const params = useParams()
   const locale = (params.locale as string) ?? "en"
 
-  const tutorProfileId = searchParams.get("tutorProfileId") ?? ""
+  // ── required booking inputs — no silent fallback ────────────────────────
+  // these MUST come from the query string; a missing value means the learner
+  // arrived here without going through tutor selection, and we should not let
+  // them submit a booking for an unintended tutor/subject
+  const tutorProfileId = searchParams.get("tutorProfileId")
   const tutorId = searchParams.get("tutorId") ?? ""
   const tutorName = searchParams.get("tutorName") ?? "Tutor"
   const subjectParam = searchParams.get("subject") ?? "Session"
   const hourlyRate = Number(searchParams.get("hourlyRate") ?? 45)
   const currency = searchParams.get("currency") ?? "$"
-  const subjectId = searchParams.get("subjectId") ?? DEFAULT_SUBJECT_ID
+  const subjectId = searchParams.get("subjectId")
+
+  const missingRequiredParams = !tutorProfileId || !subjectId
 
   const [date, setDate] = useState("")
   const [duration, setDuration] = useState("60")
@@ -83,7 +104,9 @@ function BookSessionContent() {
       setAvailableSlots([])
       return
     }
-    const dayIndex = new Date(date).getDay()//return index of the day begin with zero
+    // build the date from LOCAL parts so the weekday lookup matches the
+    // learner's local calendar day, not a UTC-shifted one
+    const dayIndex = parseLocalDate(date).getDay() //return index of the day begin with zero
     const dayName = DAYS[dayIndex] as keyof AvailabilitySlots //like sunday 
     setAvailableSlots(slots[dayName] ?? [])//slots[sunday] return the time that availablee on sunday  startTime and endTime
   }, [date, slots])
@@ -101,7 +124,7 @@ function convertTo12Hour(time: string): string {
 
 //---------------------End of availabilty slots ---------------------
 //----------------------------Booking Request --------------------------
-  const isFormInvalid = !date || !duration || !time
+  const isFormInvalid = !date || !duration || !time || missingRequiredParams
 //this function is responsible to transfer the time into ISO string to understand by servers
 //if the user in egypt and enter the time like 3 p.m and the tutor in us there is a delay in time betwwen two states 
   function buildDates(): { startAt: string; endAt: string } | null {
@@ -117,6 +140,16 @@ function convertTo12Hour(time: string): string {
 
   async function handleBooking() {
     setError(null)
+
+    // hard guard — never assemble or send a booking payload without a real
+    // tutor profile and subject; this mirrors isFormInvalid above so the
+    // submit path stays consistent even if this function is ever called from
+    // somewhere else (e.g. a future keyboard shortcut or retry button)
+    if (!tutorProfileId || !subjectId) {
+      setError("Missing tutor or subject information. Please go back and select a tutor and subject again.")
+      return
+    }
+
     const dates = buildDates()
     if (!dates) {
       setError("Invalid date or time selected. Please try again.")
@@ -164,7 +197,7 @@ function convertTo12Hour(time: string): string {
 
       <div className="max-w-6xl mx-auto mb-6">
         <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
-          <Link href={tutorProfileId ? `/en/tutor-match/${tutorProfileId}` : "/en/learner/tutor-match"}>
+          <Link href={tutorProfileId ? `/${locale}/tutor-match/${tutorProfileId}` : `/${locale}/learner/tutor-match`}>
             <ArrowLeft size={16} /> Back to Teacher Profile
           </Link>
         </Button>
@@ -181,6 +214,17 @@ function convertTo12Hour(time: string): string {
 
           <CardContent className="space-y-6">
 
+            {/* Missing required params — block the form entirely */}
+            {missingRequiredParams && (
+              <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
+                <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                <span>
+                  We couldn't find the tutor or subject for this booking. Please go back and pick a tutor and
+                  subject before booking a session.
+                </span>
+              </div>
+            )}
+
             {/* 1. Date */}
             <div>
               <label htmlFor="session-date" className="block text-sm font-medium text-muted-foreground mb-2">
@@ -191,9 +235,10 @@ function convertTo12Hour(time: string): string {
                 <input
                   id="session-date"
                   type="date"
-                  min={new Date().toISOString().split("T")[0]}
+                  min={getLocalDateString(new Date())}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  disabled={missingRequiredParams}
                   className={inputClass}
                 />
               </div>
@@ -210,6 +255,7 @@ function convertTo12Hour(time: string): string {
                   id="session-duration"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
+                  disabled={missingRequiredParams}
                   className="w-full h-12 bg-blue-50 border border-blue-200 rounded-lg pl-12 pr-4 text-foreground focus:outline-none focus:border-blue-400 text-sm appearance-none cursor-pointer"
                 >
                   <option value="30">30 minutes session</option>
@@ -232,6 +278,7 @@ function convertTo12Hour(time: string): string {
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
+                  disabled={missingRequiredParams}
                   className={inputClass}
                 />
               </div>

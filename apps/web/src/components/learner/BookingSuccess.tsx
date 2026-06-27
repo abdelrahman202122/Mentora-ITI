@@ -27,6 +27,14 @@ export default function BookingSuccess({
   const params = useParams()
   const locale = (params.locale as string) ?? "en"
 
+  // The session might be 30/60/90 minutes, so the amount the learner actually
+  // owes is the hourly rate scaled by the booked duration — not the raw
+  // hourly rate itself, which would misrepresent the total for anything
+  // other than a full hour.
+  const sessionPrice = (hourlyRate * Number(duration)) / 60
+  // round to 2 decimals without leaving trailing zeros like "45.00"
+  const displayPrice = Math.round(sessionPrice * 100) / 100
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F5FF] text-[#1E2240]">
     
@@ -124,10 +132,18 @@ export default function BookingSuccess({
 
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 text-[#68718B]">
-                    <CreditCard size={14} />
-                    <span>Price</span>
+                    <Tag size={14} />
+                    <span>Hourly Rate</span>
                   </div>
-                  <span className="font-semibold text-[#11142D]">{hourlyRate} {currency}</span>
+                  <span className="font-semibold text-[#11142D]">{hourlyRate} {currency}/hr</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-[#68718B]">
+                    <CreditCard size={14} />
+                    <span>Total Price</span>
+                  </div>
+                  <span className="font-semibold text-[#11142D]">{displayPrice} {currency}</span>
                 </div>
               </div>
 

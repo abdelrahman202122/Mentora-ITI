@@ -5,11 +5,12 @@ export interface CreateBookingPayload {
   endTime: string
   learnerNote?: string
 }
- export interface Booking {
+
+export interface Booking {
   _id: string
-  tutorId: string 
+  tutorId: string
   tutorProfileId: string
-  subjectId: string 
+  subjectId: string
   startAt: string
   endAt: string
   durationMinutes: number
@@ -38,13 +39,14 @@ export interface BookingResponse {
   updatedAt: string
 }
 
-export interface ApiResponse {
+export interface ApiResponse<T = unknown> {
   success: boolean
   message: string
-  data?: BookingResponse
+  data?: T
   errors?: Record<string, string[]>
 }
- export interface BookingDetails {
+
+export interface BookingDetails {
   _id: string
   learnerId: string
   tutorId: string

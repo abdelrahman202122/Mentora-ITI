@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { CheckCircle2, Clock, Calendar, Video, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import{ Booking } from "@/types/bookingProcess/booking"
@@ -33,9 +33,23 @@ function formatDisplayTime(iso: string, duration: number) {
   return `${datePrefix}, ${timeString} (${durationText} session)`
 }
 
+// a session is "live" only if we're actually inside its [startAt, endAt] window —
+// being "confirmed" just means approved, it says nothing about timing, so a
+// confirmed session next week must not show up as joinable right now
+function isSessionLive(booking: Booking): boolean {
+  if (booking.bookingStatus !== "confirmed") return false
+  const now = Date.now()
+  const start = new Date(booking.startAt).getTime()
+  const end = new Date(booking.endAt).getTime()
+  return now >= start && now <= end
+}
+
 
 export default function LearnerDashboardPage() {
   const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) ?? "en"
+
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -96,14 +110,17 @@ export default function LearnerDashboardPage() {
     (b) => b.bookingStatus === "pending" || b.bookingStatus === "confirmed"
   )
 
-  const totalCompleted = bookings.filter((b) => b.bookingStatus === "completed").length || 24
-  const totalHours =
-    bookings
-      .filter((b) => b.bookingStatus === "completed")
-      .reduce((acc, curr) => acc + curr.durationMinutes / 60, 0) || 36
+  // real values only — 0 completed sessions or 0 hours learned are legitimate
+  // states for a new learner, not bugs to be masked with placeholder numbers
+  const totalCompleted = bookings.filter((b) => b.bookingStatus === "completed").length
+  const totalHours = bookings
+    .filter((b) => b.bookingStatus === "completed")
+    .reduce((acc, curr) => acc + curr.durationMinutes / 60, 0)
   const upcomingCount = upcomingBookings.length
 
-  const currentActiveSession = upcomingBookings.find((b) => b.bookingStatus === "confirmed")
+  // only a session that's actually happening right now qualifies for the
+  // "Join Now" banner — not merely the next confirmed booking on the calendar
+  const currentActiveSession = upcomingBookings.find(isSessionLive)
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#1E2240] p-4 md:p-8">
@@ -173,13 +190,17 @@ export default function LearnerDashboardPage() {
                   <h3 className="text-xl font-bold">{getDisplaySubject(currentActiveSession.subjectId)}</h3>
                   <p className="text-sm text-white/80">with {getDisplayTutor(currentActiveSession.tutorId)}</p>
                 </div>
-                <div className="inline-block bg-black/20 rounded-lg px-3 py-1.5 text-xs font-mono tracking-wide">
-                  SESSION CODE: <span className="font-bold text-lg ml-1">M-7829</span>
-                </div>
+                {/* Only render the session code row when the booking actually has one */}
+                {currentActiveSession.confirmationCode && (
+                  <div className="inline-block bg-black/20 rounded-lg px-3 py-1.5 text-xs font-mono tracking-wide">
+                    SESSION CODE:{" "}
+                    <span className="font-bold text-lg ml-1">{currentActiveSession.confirmationCode}</span>
+                  </div>
+                )}
               </div>
               <div>
                 <Button
-                  onClick={() => router.push(`/en/booking/${currentActiveSession._id}`)}
+                  onClick={() => router.push(`/${locale}/booking/${currentActiveSession._id}`)}
                   className="bg-white text-[#5051F9] hover:bg-white/90 font-bold px-8 py-6 rounded-xl shadow-md text-sm transition-all w-full md:w-auto"
                 >
                   Join Now
@@ -222,7 +243,7 @@ export default function LearnerDashboardPage() {
                 return (
                   <div
                     key={booking._id}
-                    onClick={() => router.push(`/en/booking/${booking._id}`)}
+                    onClick={() => router.push(`/${locale}/booking/${booking._id}`)}
                     className="bg-white hover:bg-gray-50/50 rounded-2xl p-4 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer transition-all duration-200"
                   >
                     {/* Left Side: Avatar Placeholder & Class Info */}
@@ -256,7 +277,7 @@ export default function LearnerDashboardPage() {
                         <Button
                           onClick={(e) => {
                             e.stopPropagation()
-                            router.push(`/en/checkout/${booking._id}`)
+                            router.push(`/${locale}/checkout/${booking._id}`)
                           }}
                           className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0"
                         >
