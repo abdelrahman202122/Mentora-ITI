@@ -85,8 +85,12 @@ export function startTutorSearchViewWatchers() {
           change.operationType === 'update'
         ) {
           const user = change.fullDocument;
-          if (user && user.role === 'tutor') {
-            await refreshTutorSearchView(user._id.toString());
+          if (user) {
+            if (user.role === 'tutor') {
+              await refreshTutorSearchView(user._id.toString());
+            } else {
+              await TutorSearchViewModel.deleteOne({ userId: user._id });
+            }
           }
         } else if (change.operationType === 'delete') {
           const userId = change.documentKey._id;
