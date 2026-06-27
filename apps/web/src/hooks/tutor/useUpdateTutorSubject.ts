@@ -22,14 +22,6 @@ export function useUpdateTutorSubject(
           ? ["tutorSubjects", tutorId]
           : ["tutorSubjects"],
       });
-
-    //   queryClient.invalidateQueries({
-    //     queryKey: [
-    //       "tutor-subject",
-    //       tutorId,
-    //       variables.subjectId,
-    //     ],
-    //   });
     },
   });
 }
