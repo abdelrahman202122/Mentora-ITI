@@ -15,6 +15,8 @@ export const findAll = async () => {
 export const findTutors = async (params: TutorSearchParams) => {
   const should = buildSearch(params.q); // text search queries
   const filter = buildFilter(params); // filter queries
+  // const { isRelevanceSort, sortQuery } = buildSort(params); // sort condition
+  const sortQuery = buildSort(params);
 
   /**
    * Pipeline shape:
@@ -28,34 +30,38 @@ export const findTutors = async (params: TutorSearchParams) => {
    *         minimumShouldMatch: 1,
    *         filters: [...]
    *       },
+   *       // sorting by relevance
+   *       sort: {  ... }
    *     },
    *   },
-   *   { $sort: { 'profile.rating': -1 } },
    * ];
    */
   const pipeline: PipelineStage[] = [];
 
-  // only add $search if there are valid parameters
-  if (should.length || filter.length) {
-    pipeline.push({
-      $search: {
-        index: 'tutor_search',
-        compound: {
-          ...(should.length && {
-            should,
-            minimumShouldMatch: 1,
-          }),
-          ...(filter.length && {
-            filter,
-          }),
-        },
-      },
-    });
-  }
-
-  // always runs
   pipeline.push({
-    $sort: { 'profile.rating': -1 },
+    $search: {
+      index: 'tutor_search',
+
+      ...(should.length || filter.length
+        ? {
+            compound: {
+              ...(should.length && {
+                should,
+                minimumShouldMatch: 1,
+              }),
+              ...(filter.length && {
+                filter,
+              }),
+            },
+          }
+        : {
+            exists: {
+              path: '_id',
+            },
+          }),
+
+      sort: sortQuery,
+    },
   });
 
   return TutorSearchViewModel.aggregate(pipeline);
@@ -196,4 +202,37 @@ const buildFilter = (params: TutorSearchParams) => {
   }
 
   return filter;
+};
+
+const buildSort = (params: TutorSearchParams) => {
+  // if no query and sortBy set to relevance, sort by rating instead
+  const sortBy =
+    !params.q && params.sortBy === 'relevance' ? 'rating' : params.sortBy;
+
+  switch (sortBy) {
+    case 'price_asc':
+      return {
+        'profile.hourlyRate': 1,
+        _id: 1,
+      };
+
+    case 'price_desc':
+      return {
+        'profile.hourlyRate': -1,
+        _id: 1,
+      };
+
+    case 'rating':
+      return {
+        'profile.rating': -1,
+        _id: 1,
+      };
+
+    case 'relevance':
+      return {
+        score: { $meta: 'searchScore' },
+        'profile.rating': -1,
+        _id: 1,
+      };
+  }
 };

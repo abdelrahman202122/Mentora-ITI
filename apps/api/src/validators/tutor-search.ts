@@ -5,24 +5,33 @@ import { CURRICULA_VALUES } from '../constants/curricula.js';
 
 export const tutorSearchParamsSchema = z
   .object({
-    q: z.string().trim().min(2).max(50),
-    category: z.enum(CATEGORY_VALUES as [string, ...string[]]),
-    educationLevel: z.enum(EDUCATION_LEVEL_VALUES as [string, ...string[]]),
-    curriculum: z.enum(CURRICULA_VALUES as [string, ...string[]]),
-    minRating: z.coerce.number().min(0).max(5),
-    minHourlyRate: z.coerce.number().positive(),
-    maxHourlyRate: z.coerce.number().positive(),
-    languages: z.preprocess(
-      // always format as an array
-      (val) => {
-        if (!val) return [];
-        if (Array.isArray(val)) return val;
-        return [val];
-      },
-      z.array(z.string().trim().min(2)),
-    ),
+    // search query
+    q: z.string().trim().min(2).max(50).optional(),
+    // filters
+    category: z.enum(CATEGORY_VALUES as [string, ...string[]]).optional(),
+    educationLevel: z
+      .enum(EDUCATION_LEVEL_VALUES as [string, ...string[]])
+      .optional(),
+    curriculum: z.enum(CURRICULA_VALUES as [string, ...string[]]).optional(),
+    minRating: z.coerce.number().min(0).max(5).optional(),
+    minHourlyRate: z.coerce.number().positive().optional(),
+    maxHourlyRate: z.coerce.number().positive().optional(),
+    languages: z
+      .preprocess(
+        // always format as an array
+        (val) => {
+          if (!val) return [];
+          if (Array.isArray(val)) return val;
+          return [val];
+        },
+        z.array(z.string().trim().min(2)),
+      )
+      .optional(),
+    // sort by
+    sortBy: z
+      .enum(['relevance', 'rating', 'price_asc', 'price_desc'])
+      .default('relevance'),
   })
-  .partial()
   .refine(
     (data) => {
       if (data.minHourlyRate && data.maxHourlyRate) {

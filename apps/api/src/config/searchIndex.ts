@@ -3,6 +3,9 @@ export const definition = {
   mappings: {
     dynamic: false,
     fields: {
+      _id: {
+        type: 'objectId',
+      }, // for sorting
       name: {
         type: 'string',
         analyzer: 'lucene.english',
