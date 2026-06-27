@@ -1,5 +1,8 @@
 "use client"
 
+import { initiateCheckout } from "@/services/payment/paymentService"
+
+
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Calendar, Clock, Hourglass, ArrowLeft, AlertCircle, Loader2, BadgeCheck, XCircle } from "lucide-react"
@@ -92,18 +95,15 @@ export default function BookingDetailsPage() {
     }
   }
 
-  function handlePayNow() {
-    if (!booking) return
-    const queryParams = new URLSearchParams({
-      tutorProfileId: booking.tutorProfileId,
-      date: booking.startAt.split("T")[0],
-      time: formatTime(booking.startAt),
-      hourlyRate: String(booking.price),
-      duration: String(booking.durationMinutes),
-      currency: booking.currency,
-    })
-    router.push(`/${locale}/payment?${queryParams}`)
+async function handlePayNow() {
+  if (!booking) return
+  try {
+    const { checkoutUrl } = await initiateCheckout(booking._id)
+    window.location.href = checkoutUrl // ✅ redirect to Paymob
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Payment failed. Please try again.")
   }
+}
 
   return (
     <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
