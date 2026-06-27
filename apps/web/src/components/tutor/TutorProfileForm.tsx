@@ -2,6 +2,7 @@
 
 import { TutorProfileData, Experience, Education } from '@/types/tutor/tutor-profile';
 import { Camera, GraduationCap, Briefcase, Languages, Plus, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 const MONTHS = [
@@ -95,16 +96,18 @@ export default function TutorProfileForm({ data }: { data: TutorProfileData }) {
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <div className="relative group w-32 h-32">
-            <img
-              src={
-                data?.userData?.avatar
-                  ? `/uploads/${data.userData.avatar}`
-                  : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2'
-              }
-              className="w-full h-full rounded-full object-cover border-4 border-border"
-              alt="Avatar"
-            />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center text-white cursor-pointer">
+<div className="relative group w-32 h-32">
+        {/* <Image
+            src={
+            data?.userData?.avatar
+                ? `/uploads/${data.userData.avatar}`
+                : "https://images.unsplash.com/photo-1544005313-94ddf0286df2"
+            }
+            alt="Avatar"
+            fill
+            className="rounded-full object-cover border-4 border-border"
+        /> */}
+</div>            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 rounded-full flex items-center justify-center text-white cursor-pointer">
               <Camera />
             </div>
           </div>

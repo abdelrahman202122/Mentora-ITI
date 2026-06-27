@@ -48,6 +48,10 @@
     "criteria": {
       "title": "Search criteria"
     },
+    "assistant": {
+      "title": "AI assistant reply",
+      "provider": "Provider: {provider}"
+    },
     "empty": {
       "title": "Your matches will appear here",
       "description": "The backend will score tutors by subject, curriculum, language, price, and quality."
