@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 import { env } from '../config/env.js';
-import { hashPassword } from '../utils/hashPassword.js';
 import { UserRole } from '../modules/users/user.interface.js';
 import { UserModel } from '../modules/users/user.model.js';
 import { TutorProfileModel } from '../modules/tutor/profile/tutor-profile.model.js';
@@ -1042,8 +1041,6 @@ async function upsertUser(seed: {
   email: string;
   role: UserRole;
 }) {
-  const password = await hashPassword(seedPassword);
-
   return UserModel.findOneAndUpdate(
     { email: seed.email },
     {
@@ -1055,7 +1052,7 @@ async function upsertUser(seed: {
         isActive: true,
       },
       $setOnInsert: {
-        password,
+        password: seedPassword,
       },
     },
     {
@@ -1133,6 +1130,13 @@ async function seedTutors() {
 
     await UserModel.findByIdAndUpdate(tutor._id, { role: UserRole.TUTOR });
 
+    // Remove any existing subjects for this tutor to ensure idempotency
+    // Remove only the seed subjects for this tutor (matching titles)
+    const seedSubjectTitles = tutorSeed.subjects.map((s) => s.title);
+    await TutorSubjectModel.deleteMany({
+      tutorId: tutor._id,
+      title: { $in: seedSubjectTitles },
+    });
     const subjects = await TutorSubjectModel.insertMany(
       tutorSeed.subjects.map((subject) => ({ tutorId: tutor._id, ...subject })),
       { ordered: true },
@@ -1187,24 +1191,31 @@ async function seedBookings(
         startAt.getTime() + bookingSeed.durationMinutes * 60 * 1000,
       );
 
-      await Booking.create({
-        learnerId: learner._id,
-        tutorId: tutor.user._id,
-        tutorProfileId: tutor.profileId,
-        subjectId: subject._id,
-        startAt,
-        endAt,
-        durationMinutes: bookingSeed.durationMinutes,
-        price: Math.max(
-          (bookingSeed.durationMinutes / 60) *
-            tutorSeeds[bookingSeed.tutorIndex].hourlyRate,
-          1,
-        ),
-        currency: 'EGP',
-        bookingStatus: bookingSeed.bookingStatus,
-        paymentStatus: bookingSeed.paymentStatus,
-        learnerNote: bookingSeed.learnerNote,
-      });
+      await Booking.findOneAndUpdate(
+        {
+          learnerId: learner._id,
+          tutorId: tutor.user._id,
+          startAt,
+        },
+        {
+          $set: {
+            tutorProfileId: tutor.profileId,
+            subjectId: subject._id,
+            endAt,
+            durationMinutes: bookingSeed.durationMinutes,
+            price: Math.max(
+              (bookingSeed.durationMinutes / 60) *
+                tutorSeeds[bookingSeed.tutorIndex].hourlyRate,
+              1,
+            ),
+            currency: 'EGP',
+            bookingStatus: bookingSeed.bookingStatus,
+            paymentStatus: bookingSeed.paymentStatus,
+            learnerNote: bookingSeed.learnerNote,
+          },
+        },
+        { upsert: true, new: true },
+      );
     }),
   );
 }
