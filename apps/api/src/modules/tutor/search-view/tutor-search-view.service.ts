@@ -44,6 +44,7 @@ const pipeline = [
 
       // profile
       profile: {
+        id: '$profile._id',
         bio: '$profile.bio',
         headline: '$profile.headline',
         hourlyRate: '$profile.hourlyRate',
