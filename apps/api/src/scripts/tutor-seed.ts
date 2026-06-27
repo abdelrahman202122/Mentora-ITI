@@ -1130,16 +1130,15 @@ async function seedTutors() {
 
     await UserModel.findByIdAndUpdate(tutor._id, { role: UserRole.TUTOR });
 
-    // Remove any existing subjects for this tutor to ensure idempotency
-    // Remove only the seed subjects for this tutor (matching titles)
-    const seedSubjectTitles = tutorSeed.subjects.map((s) => s.title);
-    await TutorSubjectModel.deleteMany({
-      tutorId: tutor._id,
-      title: { $in: seedSubjectTitles },
-    });
-    const subjects = await TutorSubjectModel.insertMany(
-      tutorSeed.subjects.map((subject) => ({ tutorId: tutor._id, ...subject })),
-      { ordered: true },
+    // Upsert seed subjects for this tutor, preserving IDs
+    const subjects = await Promise.all(
+      tutorSeed.subjects.map((subject) =>
+        TutorSubjectModel.findOneAndUpdate(
+          { tutorId: tutor._id, title: subject.title },
+          { $set: { tutorId: tutor._id, ...subject } },
+          { upsert: true, new: true, setDefaultsOnInsert: true },
+        ),
+      ),
     );
 
     await TutorAvailabilityModel.findOneAndUpdate(
