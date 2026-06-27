@@ -3,6 +3,8 @@ import { CATEGORY_VALUES } from '../constants/categories.js';
 import { EDUCATION_LEVEL_VALUES } from '../constants/educationLevels.js';
 import { CURRICULA_VALUES } from '../constants/curricula.js';
 
+const emptyToUndefined = (val: unknown) => (val === '' ? undefined : val);
+
 export const tutorSearchParamsSchema = z
   .object({
     // search query
@@ -13,9 +15,18 @@ export const tutorSearchParamsSchema = z
       .enum(EDUCATION_LEVEL_VALUES as [string, ...string[]])
       .optional(),
     curriculum: z.enum(CURRICULA_VALUES as [string, ...string[]]).optional(),
-    minRating: z.coerce.number().min(0).max(5).optional(),
-    minHourlyRate: z.coerce.number().positive().optional(),
-    maxHourlyRate: z.coerce.number().positive().optional(),
+    minHourlyRate: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number().positive().optional(),
+    ),
+    maxHourlyRate: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number().positive().optional(),
+    ),
+    minRating: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number().min(0).max(5).optional(),
+    ),
     languages: z
       .preprocess(
         // always format as an array
@@ -32,13 +43,19 @@ export const tutorSearchParamsSchema = z
       .enum(['relevance', 'rating', 'price_asc', 'price_desc'])
       .default('relevance'),
     // pagination
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(50).default(20),
+    page: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number().int().min(1).default(1),
+    ),
+    limit: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number().int().min(1).max(50).default(20),
+    ),
   })
   .refine(
     (data) => {
       if (data.minHourlyRate && data.maxHourlyRate) {
-        return data.minHourlyRate < data.maxHourlyRate;
+        return data.minHourlyRate <= data.maxHourlyRate;
       }
       return true;
     },

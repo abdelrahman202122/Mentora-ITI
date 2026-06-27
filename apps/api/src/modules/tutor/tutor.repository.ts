@@ -93,8 +93,8 @@ export const findTutors = async (params: TutorSearchParams) => {
     pagination: {
       page,
       limit,
-      total: meta[0].count.total ?? 0,
-      totalPages: Math.ceil((meta[0].count.total ?? 0) / limit),
+      total: meta[0]?.count?.total ?? 0,
+      totalPages: Math.ceil((meta[0]?.count?.total ?? 0) / limit),
     },
   };
 };
@@ -219,7 +219,7 @@ const buildFilter = (params: TutorSearchParams) => {
     filter.push({ range: { path: 'profile.rating', gte: minRating } });
   }
 
-  if (languages) {
+  if (languages && languages.length > 0) {
     filter.push({
       compound: {
         should: languages?.map((language) => ({
