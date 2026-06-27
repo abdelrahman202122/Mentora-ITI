@@ -3,11 +3,8 @@ import { getTutors } from './tutor.service.js';
 import { sendSuccess } from '../../utils/api-response.js';
 import type { TutorSearchParams } from '../../validators/tutor-search.js';
 
-export const getTutorsController = async (
-  req: Request<unknown, unknown, unknown, TutorSearchParams>,
-  res: Response,
-) => {
-  const tutors = await getTutors(req.query);
+export const getTutorsController = async (req: Request, res: Response) => {
+  const result = await getTutors(req.query as unknown as TutorSearchParams);
 
-  return sendSuccess(res, 200, 'Tutors fetched successfully', tutors);
+  return sendSuccess(res, 200, 'Tutors fetched successfully', result);
 };
