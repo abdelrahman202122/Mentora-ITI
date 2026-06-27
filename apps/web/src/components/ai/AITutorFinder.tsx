@@ -34,6 +34,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useFindTutorByAI } from "@/hooks/ai/use-ai-recommendations";
 import { useCreateChat } from "@/hooks/chat/use-chat";
 import { useCurricula } from "@/hooks/metadata/useCurricula";
@@ -277,8 +279,7 @@ export function AITutorFinder() {
                 label={t("fields.goal")}
                 error={form.formState.errors.goal?.message}
               >
-                <textarea
-                  className="min-h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                <Textarea
                   placeholder={t("placeholders.goal")}
                   {...form.register("goal")}
                 />
@@ -288,8 +289,8 @@ export function AITutorFinder() {
                 label={t("fields.query")}
                 error={form.formState.errors.query?.message}
               >
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                <Input
+                  className="h-10"
                   placeholder={t("placeholders.query")}
                   {...form.register("query")}
                 />
@@ -344,8 +345,8 @@ export function AITutorFinder() {
                 label={t("fields.languages")}
                 error={form.formState.errors.languages?.message}
               >
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                <Input
+                  className="h-10"
                   placeholder={t("placeholders.languages")}
                   {...form.register("languages")}
                 />
@@ -355,8 +356,8 @@ export function AITutorFinder() {
                 label={t("fields.maxHourlyRate")}
                 error={form.formState.errors.maxHourlyRate?.message}
               >
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                <Input
+                  className="h-10"
                   min={1}
                   placeholder={t("placeholders.maxHourlyRate")}
                   type="number"
@@ -392,22 +393,11 @@ export function AITutorFinder() {
           ) : (
             <>
               {assistantMessage ? (
-                <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-indigo-700">
-                    <Bot className="size-4" />
-                    {t("assistant.title")}
-                  </div>
-                  <p className="text-sm leading-6 text-slate-700">
-                    {assistantMessage.content}
-                  </p>
-                  {assistantMessage.metadata?.provider ? (
-                    <p className="mt-2 text-xs text-slate-500">
-                      {t("assistant.provider", {
-                        provider: String(assistantMessage.metadata.provider),
-                      })}
-                    </p>
-                  ) : null}
-                </div>
+                <AssistantReply
+                  content={assistantMessage.content}
+                  provider={assistantMessage.metadata?.provider}
+                  t={t}
+                />
               ) : null}
 
               {recommendations.length === 0 ? (
@@ -525,6 +515,35 @@ function Field({
   );
 }
 
+function AssistantReply({
+  content,
+  provider,
+  t,
+}: {
+  content: string;
+  provider: unknown;
+  t: Translate;
+}) {
+  return (
+    <Card className="border-indigo-100 bg-indigo-50">
+      <CardContent>
+        <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-indigo-700">
+          <Bot className="size-4" />
+          {t("assistant.title")}
+        </div>
+        <p className="text-sm leading-6 text-slate-700">{content}</p>
+        {provider ? (
+          <p className="mt-2 text-xs text-slate-500">
+            {t("assistant.provider", {
+              provider: String(provider),
+            })}
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 function SelectField({
   anyLabel,
   label,
@@ -566,30 +585,34 @@ function SelectField({
 
 function EmptyState({ t }: { t: Translate }) {
   return (
-    <div className="flex min-h-[520px] flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white p-8 text-center">
-      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-        <Sparkles className="size-6" />
-      </div>
-      <h2 className="text-lg font-semibold text-slate-950">
-        {t("empty.title")}
-      </h2>
-      <p className="mt-2 max-w-md text-sm text-slate-500">
-        {t("empty.description")}
-      </p>
-    </div>
+    <Card className="min-h-[520px] border-dashed">
+      <CardContent className="flex min-h-[520px] flex-col items-center justify-center p-8 text-center">
+        <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+          <Sparkles className="size-6" />
+        </div>
+        <h2 className="text-lg font-semibold text-slate-950">
+          {t("empty.title")}
+        </h2>
+        <p className="mt-2 max-w-md text-sm text-slate-500">
+          {t("empty.description")}
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
 function NoResultsState({ t }: { t: Translate }) {
   return (
-    <div className="flex min-h-[520px] flex-col items-center justify-center rounded-lg border border-slate-200 bg-white p-8 text-center">
-      <h2 className="text-lg font-semibold text-slate-950">
-        {t("noResults.title")}
-      </h2>
-      <p className="mt-2 max-w-md text-sm text-slate-500">
-        {t("noResults.description")}
-      </p>
-    </div>
+    <Card className="min-h-[520px]">
+      <CardContent className="flex min-h-[520px] flex-col items-center justify-center p-8 text-center">
+        <h2 className="text-lg font-semibold text-slate-950">
+          {t("noResults.title")}
+        </h2>
+        <p className="mt-2 max-w-md text-sm text-slate-500">
+          {t("noResults.description")}
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
