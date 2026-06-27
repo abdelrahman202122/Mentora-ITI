@@ -6,6 +6,7 @@ import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { logger } from './config/logger.js';
 import { connectRedis, disconnectRedis } from './config/redis.js';
 import { closeSocketServer, initializeSocketServer } from './config/socket.js';
+import { startTutorSearchViewWatchers } from './modules/tutor/search-view/tutor-search-view.watcher.js';
 
 function listen(server: Server, port: number) {
   return new Promise<void>((resolve, reject) => {
@@ -19,6 +20,7 @@ function listen(server: Server, port: number) {
 
 async function bootstrap() {
   await connectDatabase();
+  startTutorSearchViewWatchers();
 
   if (env.REDIS_ENABLED) {
     await connectRedis();
