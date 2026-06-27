@@ -12,8 +12,6 @@ import TutorProfileForm from "@/components/tutor/TutorProfileForm";
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
 const [isOpen, setIsOpen] = useState(false);
 const [editingSubjectId, setEditingSubjectId] = useState<string | undefined>(undefined);
-
-
   const { data: user } = useCurrentUser();
   const {
     data: tutorProfile,
@@ -50,7 +48,7 @@ const [editingSubjectId, setEditingSubjectId] = useState<string | undefined>(und
           </div>
         </div>
 
-        <TutorProfileForm data={tutorProfile} />
+        <TutorProfileForm mode="update" data={tutorProfile} tutorId={tutorId} />
         {/* Courses */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold">Courses Offered</h2>
