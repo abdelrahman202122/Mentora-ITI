@@ -56,16 +56,17 @@ export default function LearnerDashboardPage() {
   const locale = useLocale();
 
   return (
-    <>
-      {/* Welcome */}
-      <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-          Welcome back, {mockUser.firstName}
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          You&apos;re making great progress. Ready for your next challenge?
-        </p>
-      </div>
+    <div className="min-h-screen bg-[#F8FAFC] text-[#1E2240] p-4 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Header Section */}
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#11142D]">
+            Welcome back, Alex
+          </h1>
+          <p className="text-sm text-[#68718B] mt-1">
+            You're making great progress. Ready for your next challenge?
+          </p>
+        </div>
 
       {/* AI Tutor Finder */}
       <Card className="mb-6 border-indigo-100 bg-indigo-50">
@@ -111,12 +112,7 @@ export default function LearnerDashboardPage() {
                 <stat.icon size={14} className={stat.color} />
               </div>
             </div>
-            <p className="text-xl md:text-2xl font-bold text-gray-800">
-              {stat.value}
-            </p>
           </div>
-        ))}
-      </div>
 
       {/* Session Banner */}
       <div className="bg-indigo-600 rounded-xl p-4 md:p-5 mb-6 text-white">
@@ -140,7 +136,6 @@ export default function LearnerDashboardPage() {
             Join Now
           </button>
         </div>
-      </div>
 
       {/* Upcoming Bookings */}
       <div>
