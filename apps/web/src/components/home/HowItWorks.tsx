@@ -5,28 +5,28 @@ import { Search, MessageSquare, Calendar } from "lucide-react";
 
 const steps = [
   {
-    title: "1. Search",
-    description: "Browse through thousands of verified teachers by subject, price, and availability.",
+    title: "1. Find a tutor",
+    description: "Search verified tutors by subject, level, price, language, and availability.",
     icon: Search,
   },
   {
-    title: "2. Chat",
-    description: "Send a message to your preferred teacher to discuss your specific learning needs.",
+    title: "2. Message your match",
+    description: "Ask questions, share your learning goals, and confirm the tutor is the right fit.",
     icon: MessageSquare,
   },
   {
-    title: "3. Book",
-    description: "Schedule your session at a time that works for you and pay securely on the platform.",
+    title: "3. Book a session",
+    description: "Choose a time, confirm your lesson, and pay securely through Mentora.",
     icon: Calendar,
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="py-20 px-6 bg-white">
+    <section id="how-it-works" className="py-20 px-6 bg-white">
       <div className="max-w-5xl mx-auto text-center">
-        <h2 className="text-3xl font-bold text-slate-900 mb-4">How it Works</h2>
-        <p className="text-slate-600 mb-16">Start your learning journey in three simple steps.</p>
+        <h2 className="text-3xl font-bold text-slate-900 mb-4">How Mentora works</h2>
+        <p className="text-slate-600 mb-16">Go from tutor search to booked lesson in three clear steps.</p>
 
         <div className="grid md:grid-cols-3 gap-12 relative">
           {/* خط وهمي يصل بين الأيقونات في الشاشات الكبيرة */}
@@ -38,11 +38,11 @@ export default function HowItWorks() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
+              transition={{ delay: index * 0.08, duration: 0.3 }}
               className="flex flex-col items-center"
             >
-              <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-sm">
-                <step.icon className="w-8 h-8 text-indigo-600" />
+              <div className="w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center mb-6 border border-indigo-100">
+                <step.icon className="w-7 h-7 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
               <p className="text-slate-600 leading-relaxed max-w-xs">{step.description}</p>

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { objectIdSchema, paginationSchema } from './common.js';
+import { PaymentStatus } from '../modules/payments/payment.types.js';
 
 /**
  * Payment validation schemas for BE3 payment management.
@@ -29,9 +30,7 @@ export type PaymentIdParam = z.infer<typeof paymentIdSchema>;
  * Schema for listing payments with filters
  */
 export const listPaymentsSchema = paginationSchema.extend({
-  status: z
-    .enum(['created', 'pending', 'paid', 'failed', 'canceled', 'refunded'])
-    .optional(),
+  status: z.enum(Object.values(PaymentStatus) as [PaymentStatus, ...PaymentStatus[]]).optional(),
 });
 
 export type ListPaymentsQuery = z.infer<typeof listPaymentsSchema>;
@@ -51,7 +50,7 @@ export type PaymentWebhookInput = z.infer<typeof paymentWebhookSchema>;
  * Schema for listing tutor earnings
  */
 export const listEarningsSchema = paginationSchema.extend({
-  status: z.enum(['pending', 'available', 'paid_out', 'reversed']).optional(),
+  status: z.enum(['pending', 'available', 'paid_out', 'canceled']).optional(),
 });
 
 export type ListEarningsQuery = z.infer<typeof listEarningsSchema>;

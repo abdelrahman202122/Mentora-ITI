@@ -4,6 +4,8 @@ coverage/
 .env
 *.tsbuildinfo
 npm-debug.log*
+*.log
+logs/
 
 # AI stuff
 docs/

@@ -1,70 +1,97 @@
 "use client";
 
 import * as React from "react";
+import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Users, BookOpen, Triangle, Atom, FlaskConical, Pill } from "lucide-react";
+import { Atom, BookOpen, FlaskConical, Pill, Triangle, Users } from "lucide-react";
 
-// التنسيقات الحركية
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
+  hidden: { y: 12, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.3 } },
 };
 
+const subjects = [
+  { name: "Sociology", icon: Users },
+  { name: "English", icon: BookOpen },
+  { name: "History", icon: Triangle },
+  { name: "Mathematics", icon: Atom },
+  { name: "Chemistry", icon: FlaskConical },
+  { name: "Biology", icon: Pill },
+];
+
 export default function ProfessionalSubjectsSection() {
+  const autoplay = React.useMemo(
+    () =>
+      Autoplay({
+        delay: 3500,
+        stopOnInteraction: true,
+        stopOnMouseEnter: true,
+      }),
+    [],
+  );
+
   return (
-    <motion.section 
+    <motion.section
+      id="subjects"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
       variants={containerVariants}
-      className="py-20 px-6 bg-white"
+      className="overflow-hidden bg-white px-6 py-20"
     >
-      <div className="max-w-6xl mx-auto">
-        <motion.h2 variants={itemVariants} className="text-4xl font-extrabold text-center mb-16 text-slate-900 tracking-tight">
-          Get tutor support in <span className="text-indigo-600">all school subjects</span>
+      <div className="mx-auto max-w-6xl">
+        <motion.h2
+          variants={itemVariants}
+          className="mb-14 text-center text-3xl font-semibold tracking-tight text-slate-900"
+        >
+          Find tutors by <span className="text-indigo-600">subject</span>
         </motion.h2>
-        
-        {/* Carousel مع تأثير Hover انسيابي */}
-        <motion.div variants={itemVariants} className="relative px-4 mb-20">
-          <Carousel opts={{ align: "start", loop: true }} className="w-full">
+
+        <motion.div variants={itemVariants} className="relative mb-20 px-4">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            plugins={[autoplay]}
+            className="w-full"
+          >
             <CarouselContent>
-              {[
-                { name: "Sociology", icon: Users },
-                { name: "English", icon: BookOpen },
-                { name: "History", icon: Triangle },
-                { name: "Maths", icon: Atom },
-                { name: "Chemistry", icon: FlaskConical },
-                { name: "Biology", icon: Pill },
-              ].map((sub, i) => (
-                <CarouselItem key={i} className="basis-1/2 md:basis-1/4 lg:basis-1/6">
-                  <motion.div 
-                    whileHover={{ y: -10 }}
-                    className="flex flex-col items-center gap-4 cursor-pointer"
+              {subjects.map((subject) => (
+                <CarouselItem
+                  key={subject.name}
+                  className="basis-1/2 md:basis-1/4 lg:basis-1/6"
+                >
+                  <motion.div
+                    whileHover={{ y: -3 }}
+                    className="flex flex-col items-center gap-4"
                   >
-                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all duration-300">
-                      <sub.icon className="w-10 h-10 text-indigo-600" />
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 transition-colors duration-200 hover:border-indigo-200 hover:bg-indigo-50">
+                      <subject.icon className="size-8 text-indigo-600" />
                     </div>
-                    <span className="font-semibold text-slate-700">{sub.name}</span>
+                    <span className="text-center font-semibold text-slate-700">
+                      {subject.name}
+                    </span>
                   </motion.div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="-left-3 bg-white/95" />
+            <CarouselNext className="-right-3 bg-white/95" />
           </Carousel>
-        </motion.div>
-
-        {/* زر الاستكشاف مع تأثير ضغط احترافي */}
-        <motion.div variants={itemVariants} className="flex justify-center">
-          <motion.div whileTap={{ scale: 0.95 }}>
-          
-          </motion.div>
         </motion.div>
       </div>
     </motion.section>

@@ -18,6 +18,10 @@ const envSchema = z
     PORT: z.coerce.number().int().positive().default(4000),
     CLIENT_ORIGIN: z.string().url().default('http://localhost:3000'),
     MONGO_URI: z.string().min(1, 'MONGO_URI is required'),
+    TRANSACTIONS_ENABLED: z
+      .enum(['true', 'false'])
+      .default('true')
+      .transform((value) => value === 'true'),
     REDIS_ENABLED: z
       .enum(['true', 'false'])
       .transform((value) => value === 'true')
@@ -30,6 +34,8 @@ const envSchema = z
     PAYMOB_SECRET_KEY: z.string().min(1, 'PAYMOB_SECRET_KEY is required'),
     PAYMOB_HMAC_SECRET: z.string().min(1, 'PAYMOB_HMAC_SECRET is required'),
     PAYMOB_INTEGRATION_ID: z.coerce.number().int().positive(),
+    PAYMOB_NOTIFICATION_URL: z.string().url().optional(),
+    PAYMOB_REDIRECT_URL: z.string().url().optional(),
     EMAIL_USER: z.string().email().optional(),
     EMAIL_PASS: z.string().min(6).optional(),
   })
@@ -39,6 +45,17 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ['REDIS_ENABLED'],
         message: 'REDIS_ENABLED cannot be false in production',
+      });
+    }
+
+    if (
+      values.NODE_ENV === 'production' &&
+      values.TRANSACTIONS_ENABLED === false
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['TRANSACTIONS_ENABLED'],
+        message: 'TRANSACTIONS_ENABLED cannot be false in production',
       });
     }
 

@@ -1,16 +1,28 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import {
+  Geist_Mono,
+  Noto_Sans_Arabic,
+  Plus_Jakarta_Sans,
+} from 'next/font/google';
 import { QueryProvider } from '@/providers/QueryProvider';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: '--font-plus-jakarta-sans',
   subsets: ['latin'],
+  display: 'swap',
+});
+
+const notoSansArabic = Noto_Sans_Arabic({
+  variable: '--font-noto-sans-arabic',
+  subsets: ['arabic'],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -26,7 +38,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${plusJakartaSans.variable} ${notoSansArabic.variable} ${geistMono.variable}`}
     >
       <body>
         <QueryProvider>{children}</QueryProvider>

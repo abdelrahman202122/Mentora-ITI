@@ -91,8 +91,12 @@ export async function findPaymentsByLearnerId(
   learnerId: Types.ObjectId,
   skip: number,
   limit: number,
+  status?: string,
 ): Promise<IPayment[]> {
-  return Payment.find({ learnerId })
+  const filter: Record<string, unknown> = { learnerId };
+  if (status) filter.status = status;
+
+  return Payment.find(filter)
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 })
@@ -104,8 +108,11 @@ export async function findPaymentsByLearnerId(
  */
 export async function countPaymentsByLearnerId(
   learnerId: Types.ObjectId,
+  status?: string,
 ): Promise<number> {
-  return Payment.countDocuments({ learnerId });
+  const filter: Record<string, unknown> = { learnerId };
+  if (status) filter.status = status;
+  return Payment.countDocuments(filter);
 }
 
 /**
