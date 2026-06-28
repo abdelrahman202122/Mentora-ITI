@@ -1,7 +1,12 @@
+import type { ClientSession } from 'mongoose';
 import { TutorProfileModel } from './tutor-profile.model.js';
 
-export const create = async (data: Record<string, unknown>) => {
-  return TutorProfileModel.create(data);
+export const create = async (
+  data: Record<string, unknown>,
+  session?: ClientSession,
+) => {
+  const [profile] = await TutorProfileModel.create([data], { session });
+  return profile.toObject();
 };
 
 // get tutorprofile by userId field
@@ -33,10 +38,26 @@ export const getProfileWithUser = async (userId: string) => {
 export const updateByUserId = async (
   userId: string,
   data: Record<string, unknown>,
+  session?: ClientSession,
 ) => {
-  return TutorProfileModel.findOneAndUpdate(
+  const profile = await TutorProfileModel.findOneAndUpdate(
     { userId },
     { $set: data },
-    { new: true, runValidators: true }, // return the updated document, run schema validation
-  ).lean();
+    { new: true, runValidators: true, session }, // return the updated document, run schema validation
+  )
+    .populate({
+      path: 'userId',
+      select: 'name avatar',
+    })
+    .lean();
+
+  if (!profile) return null;
+
+  // rename userId to userData
+  const { userId: userData, ...profileData } = profile;
+
+  return {
+    ...profileData,
+    userData,
+  };
 };

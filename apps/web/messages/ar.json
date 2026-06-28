@@ -28,7 +28,10 @@
     },
     "goalFallback": "البحث عن معلم لـ {query}",
     "actions": {
-      "findTutors": "ابحث عن معلمين"
+      "findTutors": "ابحث عن معلمين",
+      "messageTutor": "راسل المعلم",
+      "startingChat": "جار بدء المحادثة",
+      "viewProfile": "عرض الملف الشخصي"
     },
     "errors": {
       "recommendationsFailed": "تعذر العثور على توصيات للمعلمين."
@@ -41,6 +44,13 @@
       "hourlyRate": "السعر بالساعة",
       "rating": "التقييم",
       "languages": "اللغات"
+    },
+    "criteria": {
+      "title": "معايير البحث"
+    },
+    "assistant": {
+      "title": "رد المساعد الذكي",
+      "provider": "المزود: {provider}"
     },
     "empty": {
       "title": "ستظهر النتائج هنا",

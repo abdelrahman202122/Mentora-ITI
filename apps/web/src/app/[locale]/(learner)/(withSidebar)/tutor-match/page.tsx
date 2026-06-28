@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react"
 import { Search, ChevronDown } from "lucide-react"
 import { useLocale } from "next-intl"
+import { AIFinderCta } from "@/components/ai/AIFinderCta"
 import TutorCard from "@/components/learner/TutorCard"
 import { getTutors, type TutorSummary } from "@/services/tutor/tutor-service"
+import { getLocalePath } from "@/utils/i18n/locale-path"
 
 const filters = ["Category", "Age Group", "School System", "Rating", "Level"]
 const ITEMS_PER_PAGE = 4
@@ -39,6 +41,13 @@ export default function TutorMatchPage() {
 
   return (
     <div>
+      <div className="mb-6">
+        <AIFinderCta
+          href={getLocalePath(locale, "/ai-assistant")}
+          title="Want a faster tutor match?"
+          description="Let AI rank tutors by your subject, level, curriculum, language, and budget."
+        />
+      </div>
 
       {/* Search + Filters */}
       <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">

@@ -18,6 +18,28 @@ export interface StartAIConversationInput {
   extractedPreferences?: Record<string, unknown>;
 }
 
+export type AIConversationMessageRole = "user" | "assistant" | "system";
+
+export interface AIConversationMessage {
+  _id: string;
+  conversationId: string;
+  role: AIConversationMessageRole;
+  content: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SendAIConversationMessageInput {
+  content: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface SendAIConversationMessageResult {
+  userMessage: AIConversationMessage;
+  assistantMessage: AIConversationMessage;
+}
+
 export type TutorMatchStrength = "strong" | "good" | "partial" | "weak";
 
 export interface TutorRecommendationInput {
@@ -66,4 +88,11 @@ export interface TutorRecommendation {
 export interface TutorRecommendationResult {
   recommendations: TutorRecommendation[];
   criteria: TutorRecommendationInput;
+}
+
+export interface TutorRecommendationFlowResult
+  extends TutorRecommendationResult {
+  conversation: AIConversation;
+  userMessage?: AIConversationMessage;
+  assistantMessage?: AIConversationMessage;
 }

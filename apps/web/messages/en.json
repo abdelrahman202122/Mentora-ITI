@@ -28,7 +28,10 @@
     },
     "goalFallback": "Find a tutor for {query}",
     "actions": {
-      "findTutors": "Find tutors"
+      "findTutors": "Find tutors",
+      "messageTutor": "Message tutor",
+      "startingChat": "Starting chat",
+      "viewProfile": "View profile"
     },
     "errors": {
       "recommendationsFailed": "Could not find tutor recommendations."
@@ -41,6 +44,13 @@
       "hourlyRate": "Hourly rate",
       "rating": "Rating",
       "languages": "Languages"
+    },
+    "criteria": {
+      "title": "Search criteria"
+    },
+    "assistant": {
+      "title": "AI assistant reply",
+      "provider": "Provider: {provider}"
     },
     "empty": {
       "title": "Your matches will appear here",
