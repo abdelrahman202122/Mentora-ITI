@@ -90,13 +90,7 @@ export const adminUpdateTutorProfileSchema = updateTutorProfileSchema
   .omit({ name: true })
   .extend({
     status: z.enum(['pending', 'approved', 'rejected']).optional(),
-    moderatorNotes: z
-      .string()
-      .trim()
-      .max(200)
-      .optional()
-      .nullable()
-      .default(null),
+    moderatorNotes: z.string().trim().max(200).optional().nullable(),
   })
   .strict();
 

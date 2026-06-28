@@ -86,6 +86,6 @@ export const setStatusByUserId = async (
   return TutorProfileModel.findOneAndUpdate(
     { userId },
     { $set: { status } },
-    { runValidators: true },
+    { new: true, runValidators: true },
   ).lean();
 };
