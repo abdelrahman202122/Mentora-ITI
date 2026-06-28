@@ -100,8 +100,6 @@ const tutorProfileSchema = new mongoose.Schema(
   },
 );
 
-tutorProfileSchema.index({ rating: -1 });
-
 // Raw schema type
 export type TutorProfile = mongoose.InferSchemaType<typeof tutorProfileSchema>;
 
