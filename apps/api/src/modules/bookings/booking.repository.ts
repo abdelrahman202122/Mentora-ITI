@@ -265,6 +265,23 @@ export async function completeConfirmedBooking(
 }
 
 /**
+ * Atomically link a review to a booking only when the booking has no review yet.
+ * Returns the updated booking, or null if the booking was not found or already
+ * had a reviewId set (i.e. a concurrent request already claimed it).
+ */
+export async function linkReviewToBooking(
+  bookingId: Types.ObjectId,
+  reviewId: Types.ObjectId,
+  session?: ClientSession,
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, reviewId: { $exists: false } },
+    { $set: { reviewId } },
+    { new: true, session },
+  ).exec();
+}
+
+/**
  * Count total bookings by learner
  */
 export async function countLearnerBookings(

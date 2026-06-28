@@ -44,37 +44,52 @@ export async function createReview(
     throw new ConflictError('A review already exists for this booking');
   }
 
-  const existingReview = await reviewRepository.findReviewByBookingId(
-    input.bookingId,
-  );
-
-  if (existingReview) {
-    throw new ConflictError('A review already exists for this booking');
-  }
+  // The pre-transaction findReviewByBookingId check has been removed — it was
+  // racy under concurrent requests. Uniqueness is now enforced inside the
+  // transaction by two complementary mechanisms:
+  //   1. The unique index on Review.bookingId causes a duplicate insert to
+  //      throw an E11000 error, which is caught and re-raised as ConflictError.
+  //   2. linkReviewToBooking uses a conditional findOneAndUpdate that only
+  //      matches bookings where reviewId is unset, returning null when a
+  //      concurrent request has already claimed the slot.
 
   const review = await withTransaction(async (session) => {
-    const createdReview = await reviewRepository.createReview(
-      {
-        bookingId: input.bookingId,
-        learnerId,
-        tutorId: booking.tutorId,
-        tutorProfileId: booking.tutorProfileId,
-        rating: input.rating,
-        comment: input.comment,
-      },
-      session,
-    );
+    let createdReview: ReviewResponse;
 
-    const updatedBooking = await bookingRepository.updateBooking(
+    try {
+      createdReview = await reviewRepository.createReview(
+        {
+          bookingId: input.bookingId,
+          learnerId,
+          tutorId: booking.tutorId,
+          tutorProfileId: booking.tutorProfileId,
+          rating: input.rating,
+          comment: input.comment,
+        },
+        session,
+      );
+    } catch (err: unknown) {
+      // MongoDB duplicate key on the Review.bookingId unique index.
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        (err as { code?: number }).code === 11000
+      ) {
+        throw new ConflictError('A review already exists for this booking');
+      }
+      throw err;
+    }
+
+    const updatedBooking = await bookingRepository.linkReviewToBooking(
       input.bookingId,
-      {
-        reviewId: createdReview._id,
-      },
+      createdReview._id,
       session,
     );
 
     if (!updatedBooking) {
-      throw new NotFoundError('Booking not found');
+      // Booking was not found, or its reviewId was already set by a concurrent
+      // request that beat us to the conditional update.
+      throw new ConflictError('A review already exists for this booking');
     }
 
     await reviewRepository.calculateTutorRatingAggregate(
