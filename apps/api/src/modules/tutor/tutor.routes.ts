@@ -5,13 +5,11 @@ import tutorSubjectsRouter from './subject/tutor-subject.routes.js';
 import { getTutorsController } from './tutor.controller.js';
 import { validate } from '../../middleware/validation.middleware.js';
 import { tutorSearchParamsSchema } from '../../validators/tutor-search.js';
-import { optionalAuthMiddleware } from '../../middleware/auth.middleware.js';
 
 const router = Router();
 
 router.get(
   '/',
-  optionalAuthMiddleware,
   validate({ query: tutorSearchParamsSchema }),
   getTutorsController,
 );

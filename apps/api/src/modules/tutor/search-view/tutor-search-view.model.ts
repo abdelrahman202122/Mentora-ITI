@@ -73,6 +73,7 @@ const tutorSearchViewSchema = new mongoose.Schema(
     name: { type: String, required: true },
     avatar: String,
     isEmailVerified: Boolean,
+    isActive: Boolean,
 
     profile: {
       type: profileViewSchema,

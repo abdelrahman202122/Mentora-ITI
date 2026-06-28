@@ -6,7 +6,6 @@ const pipeline = [
   {
     $match: {
       role: 'tutor', // tutor accounts only
-      isActive: true, // active only
     },
   },
 
@@ -41,6 +40,7 @@ const pipeline = [
       name: 1,
       avatar: 1,
       isEmailVerified: 1, // for filters?
+      isActive: 1,
 
       // profile
       profile: {

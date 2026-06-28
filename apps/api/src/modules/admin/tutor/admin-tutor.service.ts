@@ -1,10 +1,12 @@
 import { NotFoundError } from '../../../common/errors/AppError.js';
 import type { AdminUpdateTutorProfileInput } from '../../../validators/tutor-profile.js';
+import { AdminTutorSearchParams } from '../../../validators/tutor-search.js';
 import {
   getStats,
   setStatusByUserId,
   updateByUserId,
 } from '../../tutor/profile/tutor-profile.repository.js';
+import { findTutors } from '../../tutor/tutor.repository.js';
 
 export const getTutorStats = async () => {
   return await getStats();
@@ -35,4 +37,9 @@ export const patchTutor = async (
     throw new NotFoundError('Tutor profile not found');
   }
   return updated;
+};
+
+export const getTutors = async (params: AdminTutorSearchParams) => {
+  const { tutors, pagination } = await findTutors({ ...params });
+  return { tutors, pagination };
 };

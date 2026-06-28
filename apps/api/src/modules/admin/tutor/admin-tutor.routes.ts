@@ -8,6 +8,7 @@ import {
   adminUpdateTutorProfileSchema,
   getProfileParamsSchema,
 } from '../../../validators/tutor-profile.js';
+import { adminTutorSearchParamsSchema } from '../../../validators/tutor-search.js';
 
 const router = Router();
 
@@ -40,5 +41,12 @@ router
     validate(adminUpdateTutorProfileSchema),
     adminController.patchTutor,
   );
+
+// Admin tutor search
+router.get(
+  '/',
+  validate({ query: adminTutorSearchParamsSchema }),
+  adminController.getTutors,
+);
 
 export default router;

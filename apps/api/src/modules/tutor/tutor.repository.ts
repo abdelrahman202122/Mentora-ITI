@@ -1,5 +1,5 @@
 import type { PipelineStage } from 'mongoose';
-import type { TutorSearchParams } from '../../validators/tutor-search.js';
+import type { AdminTutorSearchParams } from '../../validators/tutor-search.js';
 import { TutorSearchViewModel } from './search-view/tutor-search-view.model.js';
 
 /**
@@ -12,13 +12,10 @@ export const findAll = async () => {
 /**
  * Find tutors based on search query
  */
-export const findTutors = async (
-  params: TutorSearchParams,
-  approvedOnly: boolean,
-) => {
+export const findTutors = async (params: AdminTutorSearchParams) => {
   const { q, page, limit } = params;
   const should = buildSearch(q); // text search queries
-  const filter = buildFilter(params, approvedOnly); // filter queries
+  const filter = buildFilter(params); // filter queries
   // const { isRelevanceSort, sortQuery } = buildSort(params); // sort condition
   const sortQuery = buildSort(params);
 
@@ -172,8 +169,10 @@ const buildSearch = (q: string | undefined) => {
   ];
 };
 
-const buildFilter = (params: TutorSearchParams, approvedOnly: boolean) => {
+const buildFilter = (params: AdminTutorSearchParams) => {
   const {
+    profileStatus,
+    activeStatus,
     category,
     educationLevel,
     curriculum,
@@ -185,8 +184,32 @@ const buildFilter = (params: TutorSearchParams, approvedOnly: boolean) => {
 
   const filter = [];
 
-  if (approvedOnly) {
-    filter.push({ equals: { path: 'profile.status', value: 'approved' } });
+  if (profileStatus && profileStatus.length > 0) {
+    filter.push({
+      compound: {
+        should: profileStatus?.map((status) => ({
+          equals: {
+            path: 'profile.status',
+            value: status,
+          },
+        })),
+        minimumShouldMatch: 1,
+      },
+    });
+  }
+
+  if (activeStatus && activeStatus.length > 0) {
+    filter.push({
+      compound: {
+        should: activeStatus?.map((status) => ({
+          equals: {
+            path: 'isActive',
+            value: status === 'active' ? true : false,
+          },
+        })),
+        minimumShouldMatch: 1,
+      },
+    });
   }
 
   if (category) {
@@ -243,7 +266,7 @@ const buildFilter = (params: TutorSearchParams, approvedOnly: boolean) => {
   return filter;
 };
 
-const buildSort = (params: TutorSearchParams) => {
+const buildSort = (params: AdminTutorSearchParams) => {
   // if no query and sortBy set to relevance, sort by rating instead
   const sortBy =
     !params.q && params.sortBy === 'relevance' ? 'rating' : params.sortBy;

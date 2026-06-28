@@ -16,6 +16,9 @@ export const definition = {
           },
         },
       },
+      isActive: {
+        type: 'boolean',
+      },
       profile: {
         fields: {
           bio: {
