@@ -4,7 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-
+import adminUserRoutes from '../src/modules/admin/users/admin-user.routes.js';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { notFoundHandler } from './middleware/not-found.middleware.js';
@@ -66,6 +66,7 @@ export function createApp() {
   app.use('/api/files', filesRouter);
   app.use('/api/chats', chatRoutes);
   app.use('/api/notifications', notificationRoutes);
+  app.use('/api/admin/users', adminUserRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

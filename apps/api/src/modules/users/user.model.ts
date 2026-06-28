@@ -11,64 +11,76 @@ User schema
 */
 const userSchema = new Schema(
   {
-  name: {
-    type: String,
-    required: true,
-    minlength: 2,
-    trim: true,
-  },
+    name: {
+      type: String,
+      required: true,
+      minlength: 2,
+      trim: true,
+    },
 
-  email: {
-    type: String,
-    required: true,
-    lowercase: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-    select: false,
-  },
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false,
+    },
 
-  role: {
-    type: String,
-    enum: Object.values(UserRole),
-    default: UserRole.LEARNER,
-    required: true
-  },
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.LEARNER,
+      required: true
+    },
 
-  isEmailVerified: {
-    type: Boolean,
-    default: false,
-  },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
 
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
 
-  avatar: {
-    type: String,
-  },
+    avatar: {
+      type: String,
+    },
 
-  tutorProfile: {
-    type: Schema.Types.ObjectId,
-    ref: 'TutorProfile',
-    default: null,
-  },
-  passwordResetToken: {
-    type: String,
-    default: null,
-  },
+    tutorProfile: {
+      type: Schema.Types.ObjectId,
+      ref: 'TutorProfile',
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
 
-  passwordResetExpires: {
-    type: Date,
-    default: null,
-  },
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
+    adminStatus: {
+      type: String,
+      enum: ['Active', 'Pending', 'Suspended'],
+      default: 'Active',
+    },
+
+    roleLabel: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
   },
   {
-    timestamps: true,
+      timestamps: true,
   }
 );
 
@@ -78,6 +90,7 @@ Indexes for scalability
 */
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1 });
+userSchema.index({ adminStatus: 1 });
 
 userSchema.pre('save', async function (next) {
 if (!this.isModified('password')) return next();
