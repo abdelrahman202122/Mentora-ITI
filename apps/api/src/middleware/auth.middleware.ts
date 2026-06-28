@@ -6,10 +6,10 @@ import { type UserRole } from '../modules/users/user.interface.js';
 export const authMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const token = req.cookies.accessToken;  
+    const token = req.cookies.accessToken;
 
     if (!token) {
       return res.status(401).json({
@@ -34,5 +34,34 @@ export const authMiddleware = (
       success: false,
       message: `Invalid or expired token ${error}`,
     });
+  }
+};
+
+// this middleware is used for public endpoints that return different data based on user role
+export const optionalAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const token = req.cookies.accessToken;
+
+    if (token) {
+      const decoded = verifyAccessToken(token) as {
+        userId: string;
+        role: UserRole;
+      };
+
+      req.user = {
+        userId: decoded.userId,
+        role: decoded.role,
+      };
+    }
+
+    next();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    // invalid token, just continue as unauthenticated
+    next();
   }
 };

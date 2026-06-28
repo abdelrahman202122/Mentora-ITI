@@ -55,6 +55,7 @@ const profileViewSchema = new mongoose.Schema(
     education: [educationViewSchema],
     experience: [experienceViewSchema],
     isAvailable: Boolean,
+    status: String,
   },
   {
     _id: false,
@@ -72,6 +73,7 @@ const tutorSearchViewSchema = new mongoose.Schema(
     name: { type: String, required: true },
     avatar: String,
     isEmailVerified: Boolean,
+    isActive: Boolean,
 
     profile: {
       type: profileViewSchema,
