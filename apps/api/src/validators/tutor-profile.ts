@@ -83,3 +83,13 @@ export const getProfileParamsSchema = z.object({
 });
 
 export type GetProfileParams = z.infer<typeof getProfileParamsSchema>;
+
+export const adminUpdateTutorProfileSchema = updateTutorProfileSchema
+  .omit({ name: true })
+  .extend({
+    status: z.enum(['pending', 'approved', 'rejected']).optional(),
+  });
+
+export type AdminUpdateTutorProfileInput = z.infer<
+  typeof adminUpdateTutorProfileSchema
+>;

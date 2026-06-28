@@ -1,5 +1,6 @@
 import type { ClientSession } from 'mongoose';
 import { TutorProfileModel } from './tutor-profile.model.js';
+import { UserModel } from '../../users/user.model.js'; // adjust import path as needed
 
 export const create = async (
   data: Record<string, unknown>,
@@ -43,21 +44,48 @@ export const updateByUserId = async (
   const profile = await TutorProfileModel.findOneAndUpdate(
     { userId },
     { $set: data },
-    { new: true, runValidators: true, session }, // return the updated document, run schema validation
+    { new: true, runValidators: true, session },
   )
     .populate({
       path: 'userId',
-      select: 'name avatar',
+      select: 'name avatar isActive',
     })
     .lean();
 
   if (!profile) return null;
 
-  // rename userId to userData
   const { userId: userData, ...profileData } = profile;
 
   return {
     ...profileData,
     userData,
   };
+};
+
+// get statistics for admin dashboard
+export const getStats = async () => {
+  const [totalTutors, activeTutors, pendingApproval, ratingAgg] =
+    await Promise.all([
+      TutorProfileModel.countDocuments(),
+      UserModel.countDocuments({ isActive: true, role: 'tutor' }),
+      TutorProfileModel.countDocuments({ status: 'pending' }),
+      TutorProfileModel.aggregate([
+        { $group: { _id: null, avgRating: { $avg: '$rating' } } },
+      ]),
+    ]);
+
+  const avgRating = ratingAgg[0]?.avgRating ?? 0;
+  return { totalTutors, activeTutors, pendingApproval, avgRating };
+};
+
+// set status (approved/rejected) by userId
+export const setStatusByUserId = async (
+  userId: string,
+  status: 'approved' | 'rejected',
+) => {
+  return TutorProfileModel.findOneAndUpdate(
+    { userId },
+    { $set: { status } },
+    { runValidators: true },
+  ).lean();
 };
