@@ -88,5 +88,39 @@
       "british": "British",
       "none": "Not Applicable"
     }
+  },
+  "auth": {
+    "brandName": "Mentora",
+    "login": {
+      "title": "Log In to Mentora",
+      "description": "Welcome back! Please enter your details.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@company.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Log In",
+      "submitting": "Checking account",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign Up",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "helpCenter": "Help Center"
+    },
+    "register": {
+      "title": "Join Mentora",
+      "description": "Start your learning journey today.",
+      "nameLabel": "Full name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@company.com",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "01012345678",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Sign Up",
+      "submitting": "Creating account",
+      "hasAccount": "Already have an account?",
+      "logInLink": "Log In"
+    }
   }
 }
