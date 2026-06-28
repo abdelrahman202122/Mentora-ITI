@@ -77,7 +77,8 @@ export const getAvailabilityController = async (
     return sendError(res, 400, 'Tutor ID is required');
   }
 
-  const availability = await getAvailability(tutorId);
+  const approvedOnly = !req.user?.userId || req.user.role === 'learner';
+  const availability = await getAvailability(tutorId, approvedOnly);
 
   return sendSuccess(
     res,
@@ -99,10 +100,12 @@ export const getAvailabilitySlotsController = async (
 
   const { startDate, endDate } = req.query;
 
+  const approvedOnly = !req.user?.userId || req.user.role === 'learner';
   const slots = await getFilteredAvailabilityForDateRange(
     tutorId,
     startDate as string,
     endDate as string,
+    approvedOnly,
   );
 
   if (!slots) {

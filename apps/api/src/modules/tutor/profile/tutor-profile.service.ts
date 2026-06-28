@@ -20,11 +20,15 @@ import {
 import { withTransaction } from '../../../common/transactionHelper.js';
 
 // get full tutor profile
-export const getProfile = async (tutorId: string) => {
+export const getProfile = async (tutorId: string, approvedOnly: boolean) => {
   const tutor = await getProfileWithUser(tutorId);
 
   if (!tutor) {
     throw new NotFoundError('Tutor profile not found');
+  }
+
+  if (approvedOnly && tutor.status !== 'approved') {
+    throw new NotFoundError('Tutor not found');
   }
 
   return tutor;

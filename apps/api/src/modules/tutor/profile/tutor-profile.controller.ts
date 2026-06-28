@@ -16,7 +16,8 @@ export const getProfileController = async (req: Request, res: Response) => {
     return sendError(res, 400, 'Tutor ID is required');
   }
 
-  const profile = await getProfile(tutorId);
+  const approvedOnly = !req.user?.userId || req.user.role === 'learner';
+  const profile = await getProfile(tutorId, approvedOnly);
 
   return sendSuccess(res, 200, 'Tutor profile fetched successfully', profile);
 };
