@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { GraduationCap, Loader2, Phone } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ export default function RegisterPage() {
     defaultValues: {
       name: "",
       email: "",
+      phoneNumber: "",
       password: "",
     },
   });
@@ -101,6 +102,24 @@ export default function RegisterPage() {
                     type="email"
                     {...form.register("email")}
                   />
+                </FieldError>
+
+                <FieldError message={form.formState.errors.phoneNumber?.message}>
+                  <label className="text-xs font-semibold text-slate-700" htmlFor="phoneNumber">
+                    Phone number
+                  </label>
+                  <div className="relative mt-2">
+                    <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      className="h-12 rounded-lg border-slate-300 bg-white pl-11 pr-4 text-sm"
+                      id="phoneNumber"
+                      autoComplete="tel"
+                      placeholder="01012345678"
+                      type="tel"
+                      inputMode="numeric"
+                      {...form.register("phoneNumber")}
+                    />
+                  </div>
                 </FieldError>
 
                 <FieldError message={form.formState.errors.password?.message}>
