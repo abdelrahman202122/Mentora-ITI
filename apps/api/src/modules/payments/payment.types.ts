@@ -22,7 +22,7 @@ export interface IPayment extends Document {
   failedAt?: Date | null;
   refundedAt?: Date | null;
   failureReason?: string | null;
-  rawProviderResponse?: Record<string, any> | null;
+  rawProviderResponse?: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,5 +45,29 @@ export interface UpdatePaymentInput {
   failedAt?: Date | null;
   refundedAt?: Date | null;
   failureReason?: string | null;
-  rawProviderResponse?: Record<string, any> | null;
+  rawProviderResponse?: Record<string, unknown> | null;
+}
+
+export interface PaymentResponseDTO {
+  _id: Types.ObjectId;
+  bookingId: Types.ObjectId;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  paidAt?: Date | null;
+  failedAt?: Date | null;
+  refundedAt?: Date | null;
+  failureReason?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PaginatedPaymentsResponse {
+  payments: PaymentResponseDTO[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }

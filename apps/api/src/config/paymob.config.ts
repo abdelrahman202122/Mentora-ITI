@@ -16,5 +16,11 @@ export const paymobConfig = {
         env.PAYMOB_INTEGRATION_ID,
 
     baseUrl:
-        "https://accept.paymob.com"
+        "https://accept.paymob.com",
+
+    notificationUrl:
+        env.PAYMOB_NOTIFICATION_URL ?? '',
+
+    redirectUrl:
+        env.PAYMOB_REDIRECT_URL ?? '',
 };

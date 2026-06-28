@@ -12,12 +12,12 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Expose the pathname to server components via a request header.
-  // Setting it on request.headers (not response.headers) ensures
-  // it is readable by `headers()` in server components.
-  request.headers.set("x-pathname", request.nextUrl.pathname);
+  const response = intlMiddleware(request);
 
-  return intlMiddleware(request);
+  // Expose the pathname to server components via a custom header
+  response.headers.set("x-pathname", request.nextUrl.pathname);
+
+  return response;
 }
 
 export const config = {

@@ -6,6 +6,7 @@ import { roleMiddleware } from '../../middleware/role.moddleware.js';
 import { UserRole } from '../users/user.interface.js';
 import {
     createCheckoutSchema,
+    listPaymentsSchema,
     paymentIdSchema,
 } from '../../validators/payment.js';
 import * as paymentController from './payment.controller.js';
@@ -25,6 +26,21 @@ router.post(
     validate({ body: createCheckoutSchema }),
     roleMiddleware(UserRole.LEARNER),
     paymentController.initiateCheckout,
+);
+
+/**
+ * GET /api/payments/me
+ * List the authenticated learner's payments.
+ * Query: listPaymentsSchema { page, limit, status }
+ * Auth: learner only
+ */
+router.get(
+    '/me',
+    authMiddleware,
+    authRateLimit,
+    validate({ query: listPaymentsSchema }),
+    roleMiddleware(UserRole.LEARNER),
+    paymentController.listMyPayments,
 );
 
 /**

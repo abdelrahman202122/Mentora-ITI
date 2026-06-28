@@ -20,8 +20,6 @@ export default function CourseCard({ course,
   const deleteSubject = useDeleteTutorSubject(user.data?.id);
   const [showConfirm, setShowConfirm] = useState(false);
   const isOwner = user.data?.id === course.tutorId;
-  const level = course.gradeNote || course.educationLevel;
-  const category = course.category.charAt(0).toUpperCase() + course.category.slice(1);
 
   const  handleDelete = async () => {
     // await deleteTutorSubject(course._id);
@@ -65,7 +63,7 @@ export default function CourseCard({ course,
       <span className={`self-start text-xs font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 transition-all ${
         showConfirm ? "opacity-40 blur-[1px]" : ""
       }`}>
-        {category}
+        {course.category[locale]}
       </span>
 
       {/* Title + Description */}
@@ -111,14 +109,14 @@ export default function CourseCard({ course,
             <GraduationCap className="w-4 h-4 mt-1 text-primary shrink-0" />
             <div>
               <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Level</p>
-              <p className="text-sm font-medium">{level}</p>
+              <p className="text-sm font-medium">{course.educationLevel[locale]}</p>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-xl bg-muted/40 p-3">
             <Layers className="w-4 h-4 mt-1 text-primary shrink-0" />
             <div>
               <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Curriculum</p>
-              <p className="text-sm font-medium">{course.curriculum}</p>
+              <p className="text-sm font-medium">{course.curriculum[locale]}</p>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-xl bg-muted/40 p-3 col-span-2">
