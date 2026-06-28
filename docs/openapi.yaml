@@ -258,6 +258,131 @@ paths:
               schema:
                 type: string
                 format: binary
+  /api/tutors/:
+    get:
+      tags:
+        - Tutor
+      summary: List tutors
+      description: |
+        Returns a paginated list of tutors.
+
+        Supports searching, filtering, sorting, and pagination.
+
+      operationId: listTutors
+
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 50
+          description: Search by tutor name, headline, bio, or subject.
+
+        - in: query
+          name: category
+          schema:
+            type: string
+
+        - in: query
+          name: educationLevel
+          schema:
+            type: string
+
+        - in: query
+          name: curriculum
+          schema:
+            type: string
+
+        - in: query
+          name: minHourlyRate
+          schema:
+            type: number
+            minimum: 0
+          description: Minimum hourly rate.
+
+        - in: query
+          name: maxHourlyRate
+          schema:
+            type: number
+            minimum: 0
+          description: Maximum hourly rate. Must be greater than or equal to minHourlyRate.
+
+        - in: query
+          name: minRating
+          schema:
+            type: number
+            minimum: 0
+            maximum: 5
+          description: Minimum tutor rating (0-5).
+
+        - in: query
+          name: languages
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+          description: |
+            Filter by teaching languages.
+
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum:
+              - relevance
+              - rating
+              - price_asc
+              - price_desc
+            default: relevance
+          description: Sorting method.
+
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+
+      responses:
+        '200':
+          description: Tutors fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+
+                  message:
+                    type: string
+                    example: Tutors fetched successfully
+
+                  data:
+                    type: object
+                    properties:
+                      tutors:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Tutor'
+
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+        '400':
+          description: Invalid query parameters
   /api/tutors/{tutorId}/profile:
     get:
       tags:
@@ -3070,3 +3195,25 @@ components:
           minimum: 0
           description: Sum of `tutorAmount` for earnings in this status bucket
           example: 1062.5
+    Tutor:
+      type: object
+      properties:
+        _id:
+          type: string
+
+        userId:
+          type: string
+
+        name:
+          type: string
+
+        isEmailVerified:
+          type: boolean
+
+        profile:
+          type: object
+
+        subjects:
+          type: array
+          items:
+            type: object

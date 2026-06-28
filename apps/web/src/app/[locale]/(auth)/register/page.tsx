@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { GraduationCap, Loader2, Phone } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -26,12 +26,14 @@ import { getLocalePath } from "@/utils/i18n/locale-path";
 export default function RegisterPage() {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("auth");
   const registerMutation = useRegister();
   const form = useForm<BackendRegisterPayload>({
     resolver: zodResolver(backendRegisterSchema),
     defaultValues: {
       name: "",
       email: "",
+      phoneNumber: "",
       password: "",
     },
   });
@@ -54,15 +56,15 @@ export default function RegisterPage() {
               <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                 <GraduationCap className="size-5" />
               </div>
-              <span className="text-lg font-semibold">Mentora</span>
+              <span className="text-lg font-semibold">{t("brandName")}</span>
             </div>
 
             <div className="pt-2">
               <CardTitle className="text-2xl font-semibold tracking-normal">
-                Join Mentora
+                {t("register.title")}
               </CardTitle>
               <CardDescription className="mt-2 text-sm text-slate-600">
-                Start your learning journey today.
+                {t("register.description")}
               </CardDescription>
             </div>
           </CardHeader>
@@ -78,29 +80,47 @@ export default function RegisterPage() {
               <div className="space-y-4">
                 <FieldError message={form.formState.errors.name?.message}>
                   <label className="text-xs font-semibold text-slate-700" htmlFor="name">
-                    Full name
+                    {t("register.nameLabel")}
                   </label>
                   <Input
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="name"
                     autoComplete="name"
-                    placeholder="John Doe"
+                    placeholder={t("register.namePlaceholder")}
                     {...form.register("name")}
                   />
                 </FieldError>
 
                 <FieldError message={form.formState.errors.email?.message}>
                   <label className="text-xs font-semibold text-slate-700" htmlFor="email">
-                    Email address
+                    {t("register.emailLabel")}
                   </label>
                   <Input
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="email"
                     autoComplete="email"
-                    placeholder="name@company.com"
+                    placeholder={t("register.emailPlaceholder")}
                     type="email"
                     {...form.register("email")}
                   />
+                </FieldError>
+
+                <FieldError message={form.formState.errors.phoneNumber?.message}>
+                  <label className="text-xs font-semibold text-slate-700" htmlFor="phoneNumber">
+                    {t("register.phoneLabel")}
+                  </label>
+                  <div className="relative mt-2">
+                    <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      className="h-12 rounded-lg border-slate-300 bg-white pl-11 pr-4 text-sm"
+                      id="phoneNumber"
+                      autoComplete="tel"
+                      placeholder={t("register.phonePlaceholder")}
+                      type="tel"
+                      inputMode="numeric"
+                      {...form.register("phoneNumber")}
+                    />
+                  </div>
                 </FieldError>
 
                 <FieldError message={form.formState.errors.password?.message}>
@@ -108,13 +128,13 @@ export default function RegisterPage() {
                     className="text-xs font-semibold text-slate-700"
                     htmlFor="password"
                   >
-                    Password
+                    {t("register.passwordLabel")}
                   </label>
                   <Input
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="password"
                     autoComplete="new-password"
-                    placeholder="Enter your password"
+                    placeholder={t("register.passwordPlaceholder")}
                     type="password"
                     {...form.register("password")}
                   />
@@ -129,20 +149,20 @@ export default function RegisterPage() {
                 {registerMutation.isPending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    Creating account
+                    {t("register.submitting")}
                   </>
                 ) : (
-                  "Sign Up"
+                  t("register.submit")
                 )}
               </Button>
 
               <p className="text-center text-sm text-slate-600">
-                Already have an account?{" "}
+                {t("register.hasAccount")}{" "}
                 <Link
                   className="font-semibold text-indigo-600 hover:text-indigo-700"
                   href={getLocalePath(locale, "/login")}
                 >
-                  Log In
+                  {t("register.logInLink")}
                 </Link>
               </p>
             </form>

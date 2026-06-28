@@ -18,6 +18,7 @@ export type RegisterInput = {
   name: string;
   email: string;
   password: string;
+  phoneNumber: string;
 };
 
 export type ApiSuccess<T> = {
