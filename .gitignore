@@ -6,3 +6,6 @@ dist/
 *.log
 logs/
 apps/api/logs/
+
+# Local team-lead planning notes
+docs/concrete-team-tasks.md

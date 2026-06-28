@@ -12,7 +12,12 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return intlMiddleware(request);
+  const response = intlMiddleware(request);
+
+  // Expose the pathname to server components via a custom header
+  response.headers.set("x-pathname", request.nextUrl.pathname);
+
+  return response;
 }
 
 export const config = {
