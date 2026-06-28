@@ -1,36 +1,41 @@
+
+
+
+
 "use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useLocale } from "next-intl"
-import {
-  LayoutDashboard,
-  Users,
-  MessageSquare,
-  CreditCard,
-  Settings,
-  LogOut,
-  Bot,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
-import { mockUser } from "@/mocks/mock-data"
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { useCurrentUser } from "@/hooks/auth/use-auth"
+import { useQueryClient } from "@tanstack/react-query"
 import { getLocalePath } from "@/utils/i18n/locale-path"
+import { navLinksByRole,resolveRole } from "../sidebar/Sidebarnavlinks"
+import type { SidebarRole } from "../sidebar/Sidebarnavlinks"
 
-const learnerNavLinks = [
-  { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/ai-assistant", icon: Bot, label: "AI Assistant" },
-  { path: "/tutor-match", icon: Users, label: "Tutor Match" },
-  { path: "/messages", icon: MessageSquare, label: "Messages" },
-  { path: "/paymentHistory", icon: CreditCard, label: "Payments" },
-  { path: "/settings", icon: Settings, label: "Settings" },
-]
+interface SidebarProps {
+  role?: SidebarRole
+}
 
-export default function Sidebar() {
+export default function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname()
   const locale = useLocale()
+  const queryClient = useQueryClient()
   const [collapsed, setCollapsed] = useState(false)
+  const { data: currentUser } = useCurrentUser()
+
+  const effectiveRole = resolveRole(role, currentUser?.role)
+  const navLinks = navLinksByRole[effectiveRole]
+
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false)
+  const [cacheVersion, setCacheVersion] = useState("")
+
+  useEffect(() => {
+    setCacheVersion(Date.now().toString())
+    setAvatarLoadFailed(false)
+  }, [currentUser?.avatar])
 
   useEffect(() => {
     function handleResize() {
@@ -42,6 +47,16 @@ export default function Sidebar() {
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
+
+  const avatarSrc =
+    currentUser?.avatar && !avatarLoadFailed
+      ? `/api/files/avatars/${currentUser.avatar}${cacheVersion ? `?v=${cacheVersion}` : ""}`
+      : null
+
+  function handleLogout() {
+    queryClient.clear()
+    window.location.href = getLocalePath(locale, "/login")
+  }
 
   return (
     <aside className={`
@@ -67,19 +82,33 @@ export default function Sidebar() {
 
       {/* User Info */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-full bg-gray-300 flex-shrink-0" />
+        <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 flex items-center justify-center">
+          {avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt={currentUser?.name || "User Avatar"}
+              className="w-full h-full object-cover"
+              onError={() => setAvatarLoadFailed(true)}
+            />
+          ) : (
+            <span className="text-sm font-bold text-gray-500 uppercase">
+              {currentUser?.name?.[0] || "?"}
+            </span>
+          )}
+        </div>
+
         {!collapsed && (
-          <span className="text-sm font-medium text-gray-700">
-            {mockUser.firstName} {mockUser.lastName}
+          <span className="text-sm font-medium text-gray-700 truncate max-w-[120px]">
+            {currentUser?.name ?? ""}
           </span>
         )}
       </div>
 
       {/* Nav Links */}
       <nav className="flex flex-col gap-1">
-        {learnerNavLinks.map((navLink) => {
+        {navLinks.map((navLink) => {
           const href = getLocalePath(locale, navLink.path)
-          const isActive = pathname.startsWith(href)
+          const isActive = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <Link
               key={navLink.path}
@@ -102,9 +131,7 @@ export default function Sidebar() {
       {/* Logout */}
       <div className="mt-auto">
         <button
-          onClick={() => {
-            window.location.href = getLocalePath(locale, "/login")
-          }}
+          onClick={handleLogout}
           className={`flex items-center gap-3 px-2 py-2 rounded-lg text-gray-500 hover:text-red-500 text-sm w-full ${
             collapsed ? "justify-center" : "justify-start"
           }`}

@@ -7,7 +7,12 @@ import {
   BookingStatus,
   PaymentStatus as BookingPaymentStatus,
 } from '../bookings/booking.types.js';
-import { PaymentStatus, type IPayment } from './payment.types.js';
+import {
+  PaymentStatus,
+  type IPayment,
+  type PaginatedPaymentsResponse,
+  type PaymentResponseDTO,
+} from './payment.types.js';
 import {
   NotFoundError,
   ForbiddenError,
@@ -54,10 +59,14 @@ async function createPaymobIntention(
     currency,
     payment_methods: [paymobConfig.integrationId],
     items: [],
-    billing_data: {},
+    billing_data: {
+      first_name: 'Ahmed',
+      last_name: 'Tarek',
+      phone_number: '01553616035',
+    },
     special_reference: internalOrderId,
-    notification_url: '', // Configured in the Paymob dashboard
-    redirection_url: '', // Configured in the Paymob dashboard
+    notification_url: paymobConfig.notificationUrl,
+    redirection_url: paymobConfig.redirectUrl,
   };
 
   const controller = new AbortController();
@@ -308,7 +317,6 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
   };
 }
 
-
 function getCommissionRate(): number {
   const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
   if (rawRate) {
@@ -324,9 +332,26 @@ function getCommissionRate(): number {
   return DEFAULT_COMMISSION_RATE;
 }
 
-
 function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function formatPaymentForResponse(payment: IPayment): PaymentResponseDTO {
+  const paymentObj = payment.toObject();
+
+  return {
+    _id: paymentObj._id,
+    bookingId: paymentObj.bookingId,
+    amount: paymentObj.amount,
+    currency: paymentObj.currency,
+    status: paymentObj.status,
+    paidAt: paymentObj.paidAt ?? null,
+    failedAt: paymentObj.failedAt ?? null,
+    refundedAt: paymentObj.refundedAt ?? null,
+    failureReason: paymentObj.failureReason ?? null,
+    createdAt: paymentObj.createdAt,
+    updatedAt: paymentObj.updatedAt,
+  };
 }
 
 function sanitizeProviderResponse(payload: JsonRecord): JsonRecord {
@@ -450,7 +475,7 @@ export async function initiateCheckout(
     if (existingPayment.status !== PaymentStatus.FAILED) {
       throw new ConflictError(
         `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-        'Please wait for it to complete or contact support.',
+          'Please wait for it to complete or contact support.',
       );
     }
   }
@@ -526,7 +551,7 @@ export async function getPaymentById(
   paymentId: Types.ObjectId,
   userId: string,
   role: string,
-): Promise<unknown> {
+): Promise<PaymentResponseDTO> {
   // Step 1: Fetch the payment
   const payment = await paymentRepository.findPaymentById(paymentId);
 
@@ -538,13 +563,17 @@ export async function getPaymentById(
   // Step 3: If the requesting user is a learner, verify payment.learnerId matches userId.
   if (role === 'learner') {
     if (payment.learnerId.toString() !== userId) {
-      throw new ForbiddenError('You do not have permission to view this payment');
+      throw new ForbiddenError(
+        'You do not have permission to view this payment',
+      );
     }
   }
   // Step 4: If the requesting user is a tutor, verify payment.tutorId matches userId.
   else if (role === 'tutor') {
     if (payment.tutorId.toString() !== userId) {
-      throw new ForbiddenError('You do not have permission to view this payment');
+      throw new ForbiddenError(
+        'You do not have permission to view this payment',
+      );
     }
   }
   // If the user has a role other than learner or tutor, deny access.
@@ -552,12 +581,49 @@ export async function getPaymentById(
     throw new ForbiddenError('You do not have permission to view this payment');
   }
 
-  // Step 5: Strip rawProviderResponse before returning to non-admin users.
-  const paymentObj = payment.toObject();
-  delete paymentObj.rawProviderResponse;
+  // Step 5: Return only the learner-safe payment fields.
+  return formatPaymentForResponse(payment);
+}
 
-  // Step 6: Return the sanitized payment document.
-  return paymentObj;
+/**
+ * GET /api/payments/me
+ * Return paginated payments for the authenticated learner.
+ *
+ * Steps:
+ * 1. Convert userId string to Types.ObjectId.
+ * 2. Parse pagination values and optional status filter.
+ * 3. Fetch learner payments from the repository.
+ * 4. Count matching payments for pagination metadata.
+ * 5. Return a safe payment summary list with pagination.
+ */
+export async function listMyPayments(
+  learnerId: Types.ObjectId,
+  page: number,
+  limit: number,
+  status?: string,
+): Promise<PaginatedPaymentsResponse> {
+  const learnerObjectId = new mongoose.Types.ObjectId(learnerId.toString());
+  const skip = (page - 1) * limit;
+
+  const [payments, total] = await Promise.all([
+    paymentRepository.findPaymentsByLearnerId(
+      learnerObjectId,
+      skip,
+      limit,
+      status,
+    ),
+    paymentRepository.countPaymentsByLearnerId(learnerObjectId, status),
+  ]);
+
+  return {
+    payments: payments.map(formatPaymentForResponse),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
+    },
+  };
 }
 
 /**

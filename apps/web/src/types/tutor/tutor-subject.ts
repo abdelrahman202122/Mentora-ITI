@@ -1,11 +1,15 @@
+import { Category } from "../metaData/category";
+import { Curriculum } from "../metaData/curriculum";
+import { EducationLevel } from "../metaData/educationLevel";
+
 export interface TutorSubject {
  __v: number;
     _id: string;
-    category: string;
+    category: Category;
     createdAt: string;
-    curriculum: string;
+    curriculum: Curriculum;
     description: string;
-    educationLevel: string;
+    educationLevel: EducationLevel;
     gradeNote: string | null;
     title: string;
     tutorId: string;

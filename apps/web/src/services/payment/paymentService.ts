@@ -27,16 +27,16 @@ export async function initiateCheckout(bookingId: string): Promise<CheckoutData>
       case 400:
         throw new Error(extractErrorMessage(body))
       case 401:
-        throw new Error("You must be logged in to make a payment.")
+        throw new Error(extractErrorMessage(body))
       case 403:
-        throw new Error("You are not authorized to pay for this booking.")
+        throw new Error(extractErrorMessage(body))
       case 404:
-        throw new Error("Booking not found.")
+        throw new Error(extractErrorMessage(body))
       case 409:
-        throw new Error("This booking is not ready for payment. Please check its status.")
+        throw new Error(extractErrorMessage(body))
       case 500:
       default:
-        throw new Error("Payment service error. Please try again later.")
+        throw new Error(extractErrorMessage(body))
     }
   }
 

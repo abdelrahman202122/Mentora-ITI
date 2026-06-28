@@ -34,6 +34,8 @@ const envSchema = z
     PAYMOB_SECRET_KEY: z.string().min(1, 'PAYMOB_SECRET_KEY is required'),
     PAYMOB_HMAC_SECRET: z.string().min(1, 'PAYMOB_HMAC_SECRET is required'),
     PAYMOB_INTEGRATION_ID: z.coerce.number().int().positive(),
+    PAYMOB_NOTIFICATION_URL: z.string().url().optional(),
+    PAYMOB_REDIRECT_URL: z.string().url().optional(),
     EMAIL_USER: z.string().email().optional(),
     EMAIL_PASS: z.string().min(6).optional(),
   })
