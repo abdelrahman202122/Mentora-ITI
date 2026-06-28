@@ -19,12 +19,16 @@ export interface TutorProfileData {
   userId: string;
   headline: string;
   bio: string;
+  hourlyRate: number;
   languages: string[];
-  education: Education[];
   isAvailable: boolean;
   rating: number;
   totalReviews: number;
   experience: Experience[];
+  education: Education[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 // export interface TutorProfileResponse {

@@ -1,25 +1,33 @@
-'use client'
-
-import { Plus, Camera } from "lucide-react";
-import CourseCard from "@/components/tutor/CourseCard";
-import Field from "@/components/tutor/Field";
-import Link from "next/link";
-import { useTutorProfile } from "@/hooks/tutor/useTutorProfile";
-import { useCurrentUser } from "@/hooks/auth/use-auth";
+'use client';
+import { Plus, Camera } from 'lucide-react';
+import CourseCard from '@/components/tutor/CourseCard';
+import Field from '@/components/tutor/Field';
+import Link from 'next/link';
+import { useTutorProfile } from '@/hooks/tutor/useTutorProfile';
+import { useCurrentUser } from '@/hooks/auth/use-auth';
+import { useTutorSubjects } from '@/hooks/tutor/useTutorSubjects';
 export default function EditProfileForm({ tutorId }: { tutorId: string }) {
   const { data: user } = useCurrentUser();
-  console.log("Current user:", user);
-  const { data: tutorProfile, isLoading, error } = useTutorProfile(tutorId);
+  const {
+    data: tutorProfile,
+    isLoading: isProfileLoading,
+    error: profileError,
+  } = useTutorProfile(tutorId);
+  const {
+    data: tutorSubjects,
+    isLoading: isSubjectsLoading,
+    error: subjectsError,
+  } = useTutorSubjects(tutorId);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error || !tutorProfile) return <p>Something went wrong.</p>;
-
-  const { headline, bio } = tutorProfile;
+  if (isProfileLoading) return <p>Loading...</p>;
+  if (profileError || !tutorProfile) return <p>Something went wrong.</p>;
+  const { headline, bio, hourlyRate } = tutorProfile;
+  const subjects = tutorSubjects || [];
+  const rateId = `${tutorId}-hourly-rate`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between gap-6">
           <div>
@@ -38,7 +46,6 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
         {/* Profile Section */}
         <section className="bg-card border border-border rounded-xl p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row gap-8">
-
             {/* Avatar */}
             <div className="flex flex-col items-center gap-3">
               <div className="relative group w-28 h-28">
@@ -58,17 +65,9 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
             {/* Fields */}
             <div className="flex-1 space-y-5">
               <div className="grid md:grid-cols-2 gap-5">
+                <Field label="Full Name" defaultValue={user?.name || ''} />
 
-                <Field
-                  label="Full Name"
-                  defaultValue={user?.name || ""}
-                />
-
-                <Field
-                  label="Professional Title"
-                  defaultValue={headline}
-                />
-
+                <Field label="Professional Title" defaultValue={headline} />
               </div>
 
               <div>
@@ -81,6 +80,25 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
                   className="w-full mt-2 min-h-[120px] rounded-lg border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
+              <div>
+                <div>
+                  <label
+                    htmlFor={rateId}
+                    className="text-xs text-muted-foreground uppercase font-bold"
+                  >
+                    Hourly Rate
+                  </label>
+                  <div className="flex items-center gap-1 text-primary font-bold text-xl">
+                    <span>$</span>
+                    <input
+                      id={rateId}
+                      defaultValue={hourlyRate != null ? hourlyRate.toString() : ''}
+                      className="w-14 bg-transparent outline-none"
+                    />
+                    <span className="text-sm text-muted-foreground">/hr</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -88,16 +106,26 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
         {/* Courses */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold">Courses Offered</h2>
-
           <div className="grid md:grid-cols-2 gap-6">
+            {isSubjectsLoading && <p>Loading courses...</p>}
 
-            <CourseCard
-              key="course-1"
-              title="Advanced Cognitive Linguistics"
-              rate="85"
-              tag="Experience"
-              idPrefix="1"
-            />
+            {subjectsError && (
+              <p className="text-red-500">
+                {' '}
+                couldn`t load courses. Try again later.
+              </p>
+            )}
+
+            {!isSubjectsLoading &&
+              !subjectsError &&
+              subjects.map((subject) => (
+                <CourseCard
+                  key={subject._id}
+                  title={subject.title}
+                  tag={subject.category}
+                  idPrefix={subject._id}
+                />
+              ))}
 
             {/* Add New */}
             <button className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition">
@@ -111,7 +139,6 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
                 </p>
               </div>
             </button>
-
           </div>
         </section>
 
@@ -125,7 +152,6 @@ export default function EditProfileForm({ tutorId }: { tutorId: string }) {
             <Link href="/help">Help</Link>
           </div>
         </footer>
-
       </div>
     </div>
   );
