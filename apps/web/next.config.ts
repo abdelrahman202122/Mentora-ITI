@@ -40,6 +40,7 @@ images: {
     },
   ],
 },
+  
 };
 
 export default nextIntlPlugin(nextConfig);
