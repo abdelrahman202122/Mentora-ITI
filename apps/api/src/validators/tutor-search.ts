@@ -61,7 +61,7 @@ export const tutorSearchParamsSchema = baseTutorFiltersSchema.refine(
   },
   {
     message: 'minHourlyRate must be less than maxHourlyRate',
-    path: ['minHourlyRate', 'maxHourlyRate'],
+    path: ['maxHourlyRate'],
   },
 );
 
@@ -101,7 +101,7 @@ export const adminTutorSearchParamsSchema = baseTutorFiltersSchema
     },
     {
       message: 'minHourlyRate must be less than maxHourlyRate',
-      path: ['minHourlyRate', 'maxHourlyRate'],
+      path: ['maxHourlyRate'],
     },
   );
 
