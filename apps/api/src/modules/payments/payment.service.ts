@@ -448,7 +448,7 @@ export async function initiateCheckout(
     if (existingPayment.status !== PaymentStatus.FAILED) {
       throw new ConflictError(
         `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-          'Please wait for it to complete or contact support.',
+        'Please wait for it to complete or contact support.',
       );
     }
   }
