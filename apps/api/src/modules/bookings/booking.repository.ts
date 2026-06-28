@@ -1,4 +1,4 @@
-import mongoose, { type Types } from 'mongoose';
+import mongoose, { type ClientSession, type Types } from 'mongoose';
 import Booking from './booking.model.js';
 import { TutorAvailabilityModel } from '../tutor/availability/tutor-availability.model.js';
 import { TutorProfileModel } from '../tutor/profile/tutor-profile.model.js';
@@ -174,6 +174,7 @@ export async function countAllBookings(
 export async function updateBooking(
   bookingId: Types.ObjectId,
   updates: UpdateBookingInput,
+  session?: ClientSession,
 ): Promise<IBooking | null> {
   const booking = await Booking.findById(bookingId).exec();
 
@@ -182,7 +183,7 @@ export async function updateBooking(
   }
 
   Object.assign(booking, updates);
-  return booking.save();
+  return booking.save({ session });
 }
 
 /**
