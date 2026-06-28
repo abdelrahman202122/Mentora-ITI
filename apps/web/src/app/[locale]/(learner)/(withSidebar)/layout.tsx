@@ -1,5 +1,5 @@
 import { ServerAuthGuard } from "@/components/auth/ServerAuthGuard"
-import Sidebar from "@/components/learner/Sidebar"
+import Sidebar from "@/components/ui/Sidebar"
 
 export default async function LearnerLayout({
   children,
@@ -13,7 +13,7 @@ export default async function LearnerLayout({
   return (
     <ServerAuthGuard allowedRoles={["learner"]} locale={locale}>
       <div className="flex h-screen bg-gray-50 overflow-hidden">
-        <Sidebar />
+        <Sidebar  role="learner"/>
         <main className="flex-1 p-8 overflow-y-auto overflow-x-hidden">
           {children}
         </main>

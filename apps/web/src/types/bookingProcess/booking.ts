@@ -18,6 +18,7 @@ export interface Booking {
   currency: string
   bookingStatus: "pending" | "confirmed" | "completed" | "canceled"
   paymentStatus: "unpaid" | "paid"
+  confirmationCode?: string
 }
 
 export interface BookingResponse {
@@ -57,14 +58,14 @@ export interface BookingDetails {
   durationMinutes: number
   price: number
   currency: string
-  bookingStatus: "pending" | "confirmed" | "completed" | "canceled"
-  paymentStatus: "unpaid" | "paid"
+  bookingStatus: "pending" | "confirmed" | "completed" | "canceled" |"rejected"|"expired"
+  paymentStatus: "unpaid" | "paid" |"pending"|"failed"|"refunded"
   confirmationCode?: string
-  learnerNote?: string
-  cancelReason?: string
-  canceledBy?: string
-  canceledAt?: string
-  completedAt?: string
+  learnerNote?: string|null
+  cancelReason?: string|null
+  canceledBy?: string|null
+  canceledAt?: string|null
+  completedAt?: string |null
   createdAt: string
   updatedAt: string
 }

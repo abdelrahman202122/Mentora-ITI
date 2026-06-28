@@ -1,21 +1,18 @@
-import{ BookingDetails } from "@/types/bookingProcess/booking"
+
+import api from "@/lib/axios"
+import { BookingDetails } from "@/types/bookingProcess/booking"
 
 export async function getBookingById(bookingId: string): Promise<BookingDetails> {
-  const response = await fetch(`/api/bookings/${bookingId}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-  })
+  // 4xx/5xx are thrown automatically by the shared client's interceptor
+  const response = await api.get(`/bookings/${bookingId}`)
+  const body = response.data
 
-  const body = await response.json()
-
-  if (!response.ok || !body.success) {
+  if (!body.success) {
     throw new Error(body.message ?? "Failed to load booking details.")
   }
 
   // success === true should always come with data — if it doesn't, the API
-  // broke its own contract, and silently returning undefined here would let
-  // bad data flow downstream typed as a valid BookingDetails
+  // broke its own contract
   if (!body.data) {
     throw new Error("Unexpected response from server: booking details are missing.")
   }

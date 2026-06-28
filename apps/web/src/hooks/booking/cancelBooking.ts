@@ -1,3 +1,24 @@
+// 'use client'
+
+// import { useMutation, useQueryClient } from '@tanstack/react-query'
+// import { cancelBooking } from '@/services/booking-services/cancelBooking'
+
+// export function useCancelBooking() {
+//   const queryClient = useQueryClient()
+
+//   return useMutation({
+//     mutationFn: (bookingId: string) =>
+//       cancelBooking(bookingId),
+
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: ['myBookings'],
+//       })
+//     },
+//   })
+// }
+
+
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -7,8 +28,8 @@ export function useCancelBooking() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (bookingId: string) =>
-      cancelBooking(bookingId),
+    mutationFn: ({ bookingId, cancelReason }: { bookingId: string; cancelReason: string }) =>
+      cancelBooking(bookingId, cancelReason),
 
     onSuccess: () => {
       queryClient.invalidateQueries({

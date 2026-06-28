@@ -1,3 +1,6 @@
+
+
+import api from "@/lib/axios"
 import type { CreateBookingPayload, BookingResponse, ApiResponse } from "@/types/bookingProcess/booking"
 
 function getDurationMinutes(startAt: string, endAt: string): number {
@@ -22,37 +25,11 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Book
     ...(payload.learnerNote ? { learnerNote: payload.learnerNote } : {}),
   }
 
-  const response = await fetch("/api/bookings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify(requestBody),
-  })
+  
+  const response = await api.post<ApiResponse<BookingResponse>>("/bookings", requestBody)
+  const body = response.data
 
-  // ✅ generic ApiResponse with BookingResponse as the data type
-  const body: ApiResponse<BookingResponse> = await response.json()
-
-  // True HTTP failures (4xx/5xx) — the status code drives the fallback message,
-  // but extractErrorMessage still wins when the backend included one for known
-  // client-error codes.
-  if (!response.ok) {
-    switch (response.status) {
-      case 400:
-      case 401:
-      case 403:
-      case 409:
-        throw new Error(extractErrorMessage(body))
-      case 500:
-      default:
-        throw new Error("Server error. Please try again later.")
-    }
-  }
-
-  // A 2xx response with `success: false` is a valid envelope, not an HTTP
-  // error — the backend's own message/errors are the source of truth here,
-  // so they must never be replaced by the generic "Server error" fallback.
+  
   if (!body.success) {
     throw new Error(extractErrorMessage(body))
   }

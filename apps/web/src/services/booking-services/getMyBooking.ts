@@ -17,3 +17,4 @@ export async function getMyBookings(): Promise<BookingsData> {
     throw error;
   }
 }
+

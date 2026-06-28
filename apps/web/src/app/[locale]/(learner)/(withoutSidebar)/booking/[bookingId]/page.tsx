@@ -1,8 +1,6 @@
 "use client"
 
 import { initiateCheckout } from "@/services/payment/paymentService"
-
-
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Calendar, Clock, Hourglass, ArrowLeft, AlertCircle, Loader2, BadgeCheck, XCircle } from "lucide-react"
@@ -10,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { BookingDetails } from "@/types/bookingProcess/booking"
-
 import { getBookingById } from "@/services/booking-services/bookingDetailsService"
 import { cancelBooking } from "@/services/booking-services/cancelBooking"
 
@@ -84,8 +81,9 @@ export default function BookingDetailsPage() {
     setCancelError(null)
 
     try {
-      await cancelBooking(bookingId, cancelReason)
-      setBooking((prev) => prev ? { ...prev, bookingStatus: "canceled", cancelReason } : prev)
+      const updatedBooking = await cancelBooking(bookingId, cancelReason)
+      
+      setBooking(updatedBooking)
       setShowCancelModal(false)
       setCancelReason("")
     } catch (err) {
@@ -95,15 +93,15 @@ export default function BookingDetailsPage() {
     }
   }
 
-async function handlePayNow() {
-  if (!booking) return
-  try {
-    const { checkoutUrl } = await initiateCheckout(booking._id)
-    window.location.href = checkoutUrl // ✅ redirect to Paymob
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+  async function handlePayNow() {
+    if (!booking) return
+    try {
+      const { checkoutUrl } = await initiateCheckout(booking._id)
+      window.location.href = checkoutUrl // التوجيه لبوابة الدفع الإلكتروني
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+    }
   }
-}
 
   return (
     <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
@@ -220,7 +218,7 @@ async function handlePayNow() {
           </>
         )}
 
-        {/* ✅ Cancel Modal — with accessible dialog semantics */}
+        {/* Modal الإلغاء */}
         {showCancelModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div
