@@ -55,6 +55,7 @@ const profileViewSchema = new mongoose.Schema(
     education: [educationViewSchema],
     experience: [experienceViewSchema],
     isAvailable: Boolean,
+    status: String,
   },
   {
     _id: false,

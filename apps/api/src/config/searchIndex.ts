@@ -50,6 +50,9 @@ export const definition = {
           rating: {
             type: 'number',
           },
+          status: {
+            type: 'token',
+          },
         },
         type: 'document',
       },

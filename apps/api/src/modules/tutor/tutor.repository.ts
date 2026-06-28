@@ -12,10 +12,13 @@ export const findAll = async () => {
 /**
  * Find tutors based on search query
  */
-export const findTutors = async (params: TutorSearchParams) => {
+export const findTutors = async (
+  params: TutorSearchParams,
+  approvedOnly: boolean,
+) => {
   const { q, page, limit } = params;
   const should = buildSearch(q); // text search queries
-  const filter = buildFilter(params); // filter queries
+  const filter = buildFilter(params, approvedOnly); // filter queries
   // const { isRelevanceSort, sortQuery } = buildSort(params); // sort condition
   const sortQuery = buildSort(params);
 
@@ -169,7 +172,7 @@ const buildSearch = (q: string | undefined) => {
   ];
 };
 
-const buildFilter = (params: TutorSearchParams) => {
+const buildFilter = (params: TutorSearchParams, approvedOnly: boolean) => {
   const {
     category,
     educationLevel,
@@ -181,6 +184,10 @@ const buildFilter = (params: TutorSearchParams) => {
   } = params;
 
   const filter = [];
+
+  if (approvedOnly) {
+    filter.push({ equals: { path: 'profile.status', value: 'approved' } });
+  }
 
   if (category) {
     filter.push({ equals: { path: 'subjects.category', value: category } });

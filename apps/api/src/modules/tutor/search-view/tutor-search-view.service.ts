@@ -54,6 +54,7 @@ const pipeline = [
         education: '$profile.education',
         experience: '$profile.experience',
         isAvailable: '$profile.isAvailable',
+        status: '$profile.status',
       },
 
       // subjects array
