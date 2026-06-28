@@ -11,17 +11,21 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: monorepoRoot,
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "4000", 
-        pathname: "/**",
-      },
-    ],
-  },
-
+images: {
+  remotePatterns: [
+    {
+      protocol: "http",
+      hostname: "localhost",
+      port: "4000",
+      pathname: "/**",
+    },
+    {
+      protocol: "https",
+      hostname: "api.mywebsite.com",
+      pathname: "/**",
+    },
+  ],
+},
 };
 
 export default nextIntlPlugin(nextConfig);

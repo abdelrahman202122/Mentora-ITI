@@ -63,9 +63,9 @@ useEffect(() => {
       form.reset({
         title: data.title,
         description: data.description,
-        category: data.category[locale],
-        educationLevel: data.educationLevel[locale],
-        curriculum: data.curriculum[locale],
+        category: data.category.value,
+        educationLevel: data.educationLevel.value,
+        curriculum: data.curriculum.value,
         gradeNote: data.gradeNote || "",
       });
     })

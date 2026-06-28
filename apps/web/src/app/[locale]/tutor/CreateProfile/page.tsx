@@ -2,9 +2,21 @@
 
 import TutorProfileForm from '@/components/tutor/TutorProfileForm';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
+import {  useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function CreateProfilePage() {
   const { data: user, isLoading } = useCurrentUser();
+const router = useRouter();
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [isLoading, user]);
+
+//  if (!user) {
+//     redirect("/login");
+//   }==> if it server component
 
   if (isLoading) return <p>Loading...</p>;
 

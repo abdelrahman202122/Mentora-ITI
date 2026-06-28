@@ -334,7 +334,7 @@ export default function TransactionsTable() {
               </TableRow>
             )}
 
-            {earnings.map((earning) => (
+            {!isLoading && !isError && earnings.map((earning) => (
               <TransactionRow key={earning._id} earning={earning} />
             ))}
           </TableBody>

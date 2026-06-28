@@ -11,10 +11,10 @@ export async function getMyEarnings(): Promise<EarningsData> {
     return response.data.data;
   } catch (error) {
     if (error instanceof ApiClientError) {
-          console.error("getMyEarnings error:", error); // what does this print?
-
-      console.error(error.message);
-    }
+console.error("getMyEarnings error:", {
+        message: error.message,
+        status: error.status,
+      });    }
 
     throw error;
   }

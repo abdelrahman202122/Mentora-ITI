@@ -9,12 +9,16 @@ export function useUpdateTutorProfile(tutorId: string | undefined) {
   return useMutation({
     mutationFn: updateTutorProfile,
 
-    onSuccess: () => {
-      if (!tutorId) return;
+onSuccess: () => {
+  if (!tutorId) return;
 
-      queryClient.invalidateQueries({
-        queryKey: ["tutorProfile", tutorId],
-      });
-    },
+  queryClient.invalidateQueries({
+    queryKey: ["tutorProfile", tutorId],
+  });
+
+  queryClient.invalidateQueries({
+    queryKey: ["auth", "current-user"],
+  });
+},
   });
 }
