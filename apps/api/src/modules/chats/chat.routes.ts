@@ -31,6 +31,13 @@ router.get(
 );
 
 router.get(
+  '/:chatId',
+  roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
+  validate({ params: chatIdParamsSchema }),
+  chatController.getChat,
+);
+
+router.get(
   '/:chatId/messages',
   roleMiddleware(UserRole.LEARNER, UserRole.TUTOR),
   validate({ params: chatIdParamsSchema, query: listMessagesSchema }),

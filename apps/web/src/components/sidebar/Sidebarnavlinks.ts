@@ -31,11 +31,11 @@ const learnerNavLinks: NavLink[] = [
 
 // adjust these paths/labels to match your real tutor routes once they exist
 const tutorNavLinks: NavLink[] = [
-  { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/bookings", icon: CalendarClock, label: "Bookings" },
-  { path: "/messages", icon: MessageSquare, label: "Messages" },
-  { path: "/earnings", icon: Wallet, label: "Earnings" },
-  { path: "/settings", icon: Settings, label: "Settings" },
+  { path: "/tutor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { path: "/tutor/messages", icon: MessageSquare, label: "Messages" },
+  { path: "/tutor/payment", icon: Wallet, label: "Earnings" },
+  { path: "/tutor/profile/edit", icon: Settings, label: "Profile" },
+  { path: "/tutor/reviews", icon: CalendarClock, label: "Reviews" },
 ]
 
 // adjust these paths/labels to match your real admin routes once they exist

@@ -51,6 +51,22 @@ export async function listChats(
   }
 }
 
+export async function getChat(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = getAuthenticatedUserId(req);
+    const { chatId } = req.params as { chatId: string };
+    const chat = await chatService.getChat(chatId, userId);
+
+    return sendSuccess(res, 200, 'Chat retrieved successfully', chat);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function listMessages(
   req: Request,
   res: Response,
