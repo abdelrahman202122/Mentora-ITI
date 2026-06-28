@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { GraduationCap, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
@@ -27,6 +27,7 @@ import { getLocalePath } from '@/utils/i18n/locale-path';
 export default function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('auth');
   const loginMutation = useLogin();
   const form = useForm<LoginPayload>({
     resolver: zodResolver(loginSchema),
@@ -61,15 +62,15 @@ export default function LoginPage() {
               <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                 <GraduationCap className="size-5" />
               </div>
-              <span className="text-lg font-semibold">Mentora</span>
+              <span className="text-lg font-semibold">{t('brandName')}</span>
             </div>
 
             <div className="pt-2">
               <CardTitle className="text-2xl font-semibold tracking-normal">
-                Log In to Mentora
+                {t('login.title')}
               </CardTitle>
               <CardDescription className="mt-2 text-sm text-slate-600">
-                Welcome back! Please enter your details.
+                {t('login.description')}
               </CardDescription>
             </div>
           </CardHeader>
@@ -88,13 +89,13 @@ export default function LoginPage() {
                     className="text-xs font-semibold text-slate-700"
                     htmlFor="email"
                   >
-                    Email address
+                    {t('login.emailLabel')}
                   </label>
                   <Input
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="email"
                     autoComplete="email"
-                    placeholder="name@company.com"
+                    placeholder={t('login.emailPlaceholder')}
                     type="email"
                     {...form.register('email')}
                   />
@@ -105,13 +106,13 @@ export default function LoginPage() {
                     className="text-xs font-semibold text-slate-700"
                     htmlFor="password"
                   >
-                    Password
+                    {t('login.passwordLabel')}
                   </label>
                   <Input
                     className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
                     id="password"
                     autoComplete="current-password"
-                    placeholder="Enter your password"
+                    placeholder={t('login.passwordPlaceholder')}
                     type="password"
                     {...form.register('password')}
                   />
@@ -126,28 +127,28 @@ export default function LoginPage() {
                 {loginMutation.isPending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    Checking account
+                    {t('login.submitting')}
                   </>
                 ) : (
-                  'Log In'
+                  t('login.submit')
                 )}
               </Button>
 
               <p className="text-center text-sm text-slate-600">
-                Don&apos;t have an account?{' '}
+                {t('login.noAccount')}{' '}
                 <Link
                   className="font-semibold text-indigo-600 hover:text-indigo-700"
                   href={getLocalePath(locale, '/register')}
                 >
-                  Sign Up
+                  {t('login.signUpLink')}
                 </Link>
               </p>
 
               <div className="border-t border-slate-200 pt-7">
                 <div className="flex items-center justify-center gap-5 text-xs font-medium text-slate-700">
-                  <Link href={getLocalePath(locale, '/privacy')}>Privacy Policy</Link>
-                  <Link href={getLocalePath(locale, '/terms')}>Terms of Service</Link>
-                  <Link href={getLocalePath(locale, '/help')}>Help Center</Link>
+                  <Link href={getLocalePath(locale, '/privacy')}>{t('login.privacyPolicy')}</Link>
+                  <Link href={getLocalePath(locale, '/terms')}>{t('login.termsOfService')}</Link>
+                  <Link href={getLocalePath(locale, '/help')}>{t('login.helpCenter')}</Link>
                 </div>
               </div>
             </form>
