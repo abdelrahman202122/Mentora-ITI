@@ -7,6 +7,7 @@ export default function CreateProfilePage() {
   const { data: user, isLoading } = useCurrentUser();
 
   if (isLoading) return <p>Loading...</p>;
+  if (!user) return <p>Unable to load user. Please sign in.</p>;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
