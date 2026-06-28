@@ -56,6 +56,7 @@ export const createProfile = async (
         isAvailable: data.isAvailable ?? true,
         rating: 0,
         totalReviews: 0,
+        status: 'pending',
       },
       session,
     );
@@ -82,6 +83,8 @@ export const updateOwnProfile = async (
     throw new NotFoundError('Tutor profile not found');
   }
 
+  const status = tutor.status === 'rejected' ? 'pending' : tutor.status;
+
   const { name, ...profileData } = data;
 
   // start transaction for: update profile and user name
@@ -90,12 +93,16 @@ export const updateOwnProfile = async (
       await updateUserName(userId, name, session);
     }
 
-    // only update name if profileData is empty
-    if (Object.keys(profileData).length === 0) {
+    // if no new profile data, skip update and return existing profile data,
+    if (Object.keys(profileData).length === 0 && status === tutor.status) {
       return getProfileWithUser(userId);
     }
 
-    const updated = await updateByUserId(userId, profileData, session);
+    const updated = await updateByUserId(
+      userId,
+      { ...profileData, status },
+      session,
+    );
 
     if (!updated) {
       throw new NotFoundError('Tutor profile not found');
@@ -105,4 +112,19 @@ export const updateOwnProfile = async (
   });
 
   return updated;
+};
+
+export const getTutorStatus = async (tutorId: string) => {
+  const tutor = await findByUserId(tutorId);
+
+  if (!tutor) {
+    throw new NotFoundError('Tutor profile not found');
+  }
+
+  return tutor.status;
+};
+
+export const isApprovedTutor = async (tutorId: string) => {
+  const status = await getTutorStatus(tutorId);
+  return status === 'approved';
 };
