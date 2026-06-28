@@ -60,9 +60,8 @@ async function createPaymobIntention(
       phone_number: '01553616035',
     },
     special_reference: internalOrderId,
-    notification_url:
-      'https://pointless-python-uncured.ngrok-free.dev/api/payments/webhook',
-    redirection_url: 'https://google.com', //for testing
+    notification_url: paymobConfig.notificationUrl,
+    redirection_url: paymobConfig.redirectUrl,
   };
 
   const controller = new AbortController();
