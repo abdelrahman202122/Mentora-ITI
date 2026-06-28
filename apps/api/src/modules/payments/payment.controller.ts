@@ -5,6 +5,7 @@ import { UnauthorizedError } from '../../common/errors/AppError.js';
 import * as paymentService from './payment.service.js';
 import type {
   CreateCheckoutInput,
+  ListPaymentsQuery,
   PaymentIdParam,
 } from '../../validators/payment.js';
 import { logger } from '../../config/logger.js';
@@ -81,6 +82,36 @@ export async function getPaymentById(
     );
 
     sendSuccess(res, 200, 'Payment retrieved successfully', payment);
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/payments/me
+ * List payments for the authenticated learner.
+ */
+export async function listMyPayments(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('Authentication required');
+    }
+
+    const { page, limit, status } = req.query as unknown as ListPaymentsQuery;
+    const learnerObjectId = new Types.ObjectId(req.user.userId);
+
+    const result = await paymentService.listMyPayments(
+      learnerObjectId,
+      page,
+      limit,
+      status,
+    );
+
+    sendSuccess(res, 200, 'Payments retrieved successfully', result);
   } catch (error) {
     next(error);
   }

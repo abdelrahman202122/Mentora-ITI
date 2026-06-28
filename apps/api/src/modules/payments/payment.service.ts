@@ -7,7 +7,12 @@ import {
   BookingStatus,
   PaymentStatus as BookingPaymentStatus,
 } from '../bookings/booking.types.js';
-import { PaymentStatus, type IPayment } from './payment.types.js';
+import {
+  PaymentStatus,
+  type IPayment,
+  type PaginatedPaymentsResponse,
+  type PaymentResponseDTO,
+} from './payment.types.js';
 import {
   NotFoundError,
   ForbiddenError,
@@ -331,6 +336,24 @@ function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+function formatPaymentForResponse(payment: IPayment): PaymentResponseDTO {
+  const paymentObj = payment.toObject();
+
+  return {
+    _id: paymentObj._id,
+    bookingId: paymentObj.bookingId,
+    amount: paymentObj.amount,
+    currency: paymentObj.currency,
+    status: paymentObj.status,
+    paidAt: paymentObj.paidAt ?? null,
+    failedAt: paymentObj.failedAt ?? null,
+    refundedAt: paymentObj.refundedAt ?? null,
+    failureReason: paymentObj.failureReason ?? null,
+    createdAt: paymentObj.createdAt,
+    updatedAt: paymentObj.updatedAt,
+  };
+}
+
 function sanitizeProviderResponse(payload: JsonRecord): JsonRecord {
   const sanitized = JSON.parse(JSON.stringify(payload)) as JsonRecord;
   const webhookObject = getWebhookObject(sanitized);
@@ -504,7 +527,7 @@ export async function initiateCheckout(
       paymentId: (payment._id as Types.ObjectId).toString(),
       checkoutUrl,
     };
-  } catch (error) {
+  } catch {
     await session.abortTransaction();
     throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
   } finally {
@@ -528,7 +551,7 @@ export async function getPaymentById(
   paymentId: Types.ObjectId,
   userId: string,
   role: string,
-): Promise<unknown> {
+): Promise<PaymentResponseDTO> {
   // Step 1: Fetch the payment
   const payment = await paymentRepository.findPaymentById(paymentId);
 
@@ -558,12 +581,49 @@ export async function getPaymentById(
     throw new ForbiddenError('You do not have permission to view this payment');
   }
 
-  // Step 5: Strip rawProviderResponse before returning to non-admin users.
-  const paymentObj = payment.toObject();
-  delete paymentObj.rawProviderResponse;
+  // Step 5: Return only the learner-safe payment fields.
+  return formatPaymentForResponse(payment);
+}
 
-  // Step 6: Return the sanitized payment document.
-  return paymentObj;
+/**
+ * GET /api/payments/me
+ * Return paginated payments for the authenticated learner.
+ *
+ * Steps:
+ * 1. Convert userId string to Types.ObjectId.
+ * 2. Parse pagination values and optional status filter.
+ * 3. Fetch learner payments from the repository.
+ * 4. Count matching payments for pagination metadata.
+ * 5. Return a safe payment summary list with pagination.
+ */
+export async function listMyPayments(
+  learnerId: Types.ObjectId,
+  page: number,
+  limit: number,
+  status?: string,
+): Promise<PaginatedPaymentsResponse> {
+  const learnerObjectId = new mongoose.Types.ObjectId(learnerId.toString());
+  const skip = (page - 1) * limit;
+
+  const [payments, total] = await Promise.all([
+    paymentRepository.findPaymentsByLearnerId(
+      learnerObjectId,
+      skip,
+      limit,
+      status,
+    ),
+    paymentRepository.countPaymentsByLearnerId(learnerObjectId, status),
+  ]);
+
+  return {
+    payments: payments.map(formatPaymentForResponse),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
+    },
+  };
 }
 
 /**
