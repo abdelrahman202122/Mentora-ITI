@@ -54,10 +54,14 @@ async function createPaymobIntention(
     currency,
     payment_methods: [paymobConfig.integrationId],
     items: [],
-    billing_data: {},
+    billing_data: {
+      first_name: 'Ahmed',
+      last_name: 'Tarek',
+      phone_number: '01553616035',
+    },
     special_reference: internalOrderId,
-    notification_url: '', // Configured in the Paymob dashboard
-    redirection_url: '', // Configured in the Paymob dashboard
+    notification_url: paymobConfig.notificationUrl,
+    redirection_url: paymobConfig.redirectUrl,
   };
 
   const controller = new AbortController();
@@ -308,7 +312,6 @@ function parsePaymobWebhookData(payload: JsonRecord): PaymobWebhookData {
   };
 }
 
-
 function getCommissionRate(): number {
   const rawRate = process.env.MENTORA_COMMISSION_RATE?.trim();
   if (rawRate) {
@@ -323,7 +326,6 @@ function getCommissionRate(): number {
   }
   return DEFAULT_COMMISSION_RATE;
 }
-
 
 function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -450,7 +452,7 @@ export async function initiateCheckout(
     if (existingPayment.status !== PaymentStatus.FAILED) {
       throw new ConflictError(
         `A payment for this booking is already in progress (status: ${existingPayment.status}). ` +
-        'Please wait for it to complete or contact support.',
+          'Please wait for it to complete or contact support.',
       );
     }
   }
@@ -502,7 +504,7 @@ export async function initiateCheckout(
       paymentId: (payment._id as Types.ObjectId).toString(),
       checkoutUrl,
     };
-  } catch {
+  } catch (error) {
     await session.abortTransaction();
     throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
   } finally {
@@ -538,13 +540,17 @@ export async function getPaymentById(
   // Step 3: If the requesting user is a learner, verify payment.learnerId matches userId.
   if (role === 'learner') {
     if (payment.learnerId.toString() !== userId) {
-      throw new ForbiddenError('You do not have permission to view this payment');
+      throw new ForbiddenError(
+        'You do not have permission to view this payment',
+      );
     }
   }
   // Step 4: If the requesting user is a tutor, verify payment.tutorId matches userId.
   else if (role === 'tutor') {
     if (payment.tutorId.toString() !== userId) {
-      throw new ForbiddenError('You do not have permission to view this payment');
+      throw new ForbiddenError(
+        'You do not have permission to view this payment',
+      );
     }
   }
   // If the user has a role other than learner or tutor, deny access.
