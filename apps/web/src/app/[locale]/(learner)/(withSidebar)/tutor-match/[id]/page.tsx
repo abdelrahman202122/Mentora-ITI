@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar } from "lucide-react"
 import { getTutorById, type TutorSummary } from "@/services/tutorsLearner/tutor"
-import { startConversation } from "@/services/message/message-service"
 
 export default function TutorProfilePage() {
   const params = useParams()
@@ -91,9 +90,9 @@ export default function TutorProfilePage() {
         {/* Chat Button */}
         <button
           onClick={async () => {
-            const chatId = await startConversation(tutor.id, tutor.name)
+            // const chatId = await startConversation(tutor.id, tutor.name)
             const qs = new URLSearchParams({ tutorName: tutor.name }).toString()
-            router.push(`/${locale}/learner/messages/${chatId}?${qs}`)
+            // router.push(`/${locale}/learner/messages/${chatId}?${qs}`)
           }}
           className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer"
         >
