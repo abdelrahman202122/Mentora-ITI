@@ -4,6 +4,7 @@ import {
   type InfiniteData,
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 
@@ -11,6 +12,7 @@ import type { ApiClientError } from "@/lib/axios";
 import {
   archiveChat,
   createChat,
+  getChat,
   listChats,
   listMessages,
   restoreChat,
@@ -31,6 +33,8 @@ export const chatKeys = {
   lists: () => [...chatKeys.all, "list"] as const,
   list: (status: ChatStatus) =>
     [...chatKeys.lists(), { status }] as const,
+  details: () => [...chatKeys.all, "detail"] as const,
+  detail: (chatId: string) => [...chatKeys.details(), chatId] as const,
   messages: () => [...chatKeys.all, "messages"] as const,
   messageList: (chatId: string) =>
     [...chatKeys.messages(), chatId] as const,
@@ -52,6 +56,14 @@ export function useChats(status: ChatStatus = "active") {
       const { page, totalPages } = lastPage.pagination;
       return page < totalPages ? page + 1 : undefined;
     },
+  });
+}
+
+export function useChat(chatId: string) {
+  return useQuery<Chat, ApiClientError>({
+    queryKey: chatKeys.detail(chatId),
+    queryFn: () => getChat(chatId),
+    enabled: Boolean(chatId),
   });
 }
 
