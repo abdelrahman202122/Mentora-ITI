@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { ArrowUp, GraduationCap, Heart, Mail } from "lucide-react";
-
+import { 
+  GraduationCap, 
+  Mail, 
+  ArrowUp,
+  Heart
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getLocalePath } from "@/utils/i18n/locale-path";
@@ -99,6 +103,26 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // const socialLinks = [
+  //   { label: "Facebook", url: "https://facebook.com", icon: Facebook },
+  //   { label: "Twitter", url: "https://twitter.com", icon: Twitter },
+  //   { label: "Instagram", url: "https://instagram.com", icon: Instagram },
+  //   { label: "LinkedIn", url: "https://linkedin.com", icon: Linkedin },
+  // ];
+
+  const exploreLinks = [
+    { label: "Home", path: "/" },
+    { label: "Subjects", path: "/#subjects" },
+    { label: "How It Works", path: "/#how-it-works" },
+    { label: "Testimonials", path: "/#testimonials" }
+  ];
+
+  const legalLinks = [
+    { label: "Privacy Policy", path: "/privacy" },
+    { label: "Terms of Service", path: "/terms" },
+    { label: "Help Center", path: "/help" }
+  ];
+
   return (
     <footer className="overflow-hidden border-t border-slate-900 bg-slate-950 pb-8 pt-16 text-slate-400 md:pt-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -120,8 +144,9 @@ export default function Footer() {
               lessons, secure booking, and clear communication before every
               session.
             </p>
-            <div className="flex justify-center gap-4 pt-2 sm:justify-start">
-              {socialLinks.map(({ icon: Icon, url, label }) => (
+            {/* Social Icons */}
+            <div className="flex gap-4 pt-2 justify-center sm:justify-start">
+              {/* {socialLinks.map(({ icon: Icon, url, label }) => (
                 <a
                   key={label}
                   href={url}
@@ -132,7 +157,7 @@ export default function Footer() {
                 >
                   <Icon className="size-5" />
                 </a>
-              ))}
+              ))} */}
             </div>
           </div>
 
