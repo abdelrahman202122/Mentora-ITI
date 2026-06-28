@@ -1,17 +1,91 @@
-/**
- * Review service handles review business rules.
- */
+import { type Types } from 'mongoose';
+import {
+  AppError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../common/errors/AppError.js';
+import { withTransaction } from '../../common/transactionHelper.js';
+import { BookingStatus } from '../bookings/booking.types.js';
+import * as bookingRepository from '../bookings/booking.repository.js';
+import * as reviewRepository from './review.repository.js';
+import type { ReviewResponse } from './review.types.js';
+
+function createReviewError(message: string, statusCode: number): AppError {
+  return new AppError(message, statusCode, 'REVIEW_ERROR');
+}
 
 /**
  * Create a verified review for a completed booking.
  */
-export async function createReview(): Promise<void> {
-  // TODO: Confirm the learner is authenticated and authorized to review.
-  // TODO: Load the booking and ensure it belongs to the learner.
-  // TODO: Ensure the booking is completed before review creation.
-  // TODO: Prevent duplicate reviews for the same booking.
-  // TODO: Persist the review through reviewRepository.createReview.
-  // TODO: Recalculate tutor aggregate rating and total review count.
+export async function createReview(
+  learnerId: Types.ObjectId,
+  input: {
+    bookingId: Types.ObjectId;
+    rating: number;
+    comment?: string;
+  },
+): Promise<ReviewResponse> {
+  const booking = await bookingRepository.findBookingById(input.bookingId);
+
+  if (!booking) {
+    throw new NotFoundError('Booking not found');
+  }
+
+  if (!booking.learnerId.equals(learnerId)) {
+    throw new ForbiddenError('You can only review your own bookings');
+  }
+
+  if (booking.bookingStatus !== BookingStatus.COMPLETED) {
+    throw createReviewError('Only completed bookings can be reviewed', 409);
+  }
+
+  if (booking.reviewId) {
+    throw new ConflictError('A review already exists for this booking');
+  }
+
+  const existingReview = await reviewRepository.findReviewByBookingId(
+    input.bookingId,
+  );
+
+  if (existingReview) {
+    throw new ConflictError('A review already exists for this booking');
+  }
+
+  const review = await withTransaction(async (session) => {
+    const createdReview = await reviewRepository.createReview(
+      {
+        bookingId: input.bookingId,
+        learnerId,
+        tutorId: booking.tutorId,
+        tutorProfileId: booking.tutorProfileId,
+        rating: input.rating,
+        comment: input.comment,
+      },
+      session,
+    );
+
+    const updatedBooking = await bookingRepository.updateBooking(
+      input.bookingId,
+      {
+        reviewId: createdReview._id,
+      },
+      session,
+    );
+
+    if (!updatedBooking) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    await reviewRepository.calculateTutorRatingAggregate(
+      booking.tutorProfileId,
+      session,
+    );
+
+    return createdReview;
+  });
+
+  return review;
 }
 
 /**
