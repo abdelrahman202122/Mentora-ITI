@@ -6,6 +6,10 @@ export interface CreateBookingPayload {
   learnerNote?: string
 }
 
+// ✅ shared status types — single source of truth for both Booking and BookingDetails
+export type BookingStatus = "pending" | "confirmed" | "completed" | "canceled" | "rejected" | "expired"
+export type PaymentStatus = "unpaid" | "paid" | "pending" | "failed" | "refunded"
+
 export interface Booking {
   _id: string
   tutorId: string
@@ -16,8 +20,8 @@ export interface Booking {
   durationMinutes: number
   price: number
   currency: string
-  bookingStatus: "pending" | "confirmed" | "completed" | "canceled"
-  paymentStatus: "unpaid" | "paid"
+  bookingStatus: BookingStatus 
+  paymentStatus: PaymentStatus 
   confirmationCode?: string
 }
 
@@ -32,8 +36,8 @@ export interface BookingResponse {
   durationMinutes: number
   price: number
   currency: string
-  bookingStatus: "pending" | "confirmed" | "completed" | "canceled"
-  paymentStatus: "unpaid" | "paid"
+  bookingStatus: BookingStatus
+  paymentStatus: PaymentStatus
   confirmationCode: string
   learnerNote?: string
   createdAt: string
@@ -58,14 +62,14 @@ export interface BookingDetails {
   durationMinutes: number
   price: number
   currency: string
-  bookingStatus: "pending" | "confirmed" | "completed" | "canceled" |"rejected"|"expired"
-  paymentStatus: "unpaid" | "paid" |"pending"|"failed"|"refunded"
+  bookingStatus: BookingStatus
+  paymentStatus: PaymentStatus
   confirmationCode?: string
-  learnerNote?: string|null
-  cancelReason?: string|null
-  canceledBy?: string|null
-  canceledAt?: string|null
-  completedAt?: string |null
+  learnerNote?: string | null
+  cancelReason?: string | null
+  canceledBy?: string | null
+  canceledAt?: string | null
+  completedAt?: string | null
   createdAt: string
   updatedAt: string
 }

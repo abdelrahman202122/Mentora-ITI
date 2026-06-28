@@ -19,6 +19,7 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
 }
 
+// ... StatusBadge and Row helper components remain exactly as they were ...
 function StatusBadge({ status }: { status: BookingDetails["bookingStatus"] }) {
   const map: Record<string, { label: string; className: string }> = {
     pending:   { label: "Pending",   className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
@@ -58,6 +59,9 @@ export default function BookingDetailsPage() {
   const [canceling, setCanceling] = useState(false)
   const [cancelError, setCancelError] = useState<string | null>(null)
 
+  const [isPaying, setIsPaying] = useState(false)
+  const [payError, setPayError] = useState<string | null>(null)
+
   useEffect(() => {
     if (!bookingId) {
       setError("Booking ID not found in URL.")
@@ -81,9 +85,22 @@ export default function BookingDetailsPage() {
     setCancelError(null)
 
     try {
-      const updatedBooking = await cancelBooking(bookingId, cancelReason)
+      const updatedData = await cancelBooking(bookingId, cancelReason)
       
-      setBooking(updatedBooking)
+      // FIX: Functional state update to cleanly merge payload and preserve the legacy shape fields
+      setBooking((prevBooking) => {
+        if (!prevBooking) return null
+        return {
+          ...prevBooking,
+          ...updatedData,
+          // Explicitly ensuring core metadata fields match the incoming payload fallback to current state
+          bookingStatus: updatedData?.bookingStatus ?? "canceled",
+          canceledBy: updatedData?.canceledBy ?? prevBooking.canceledBy,
+          cancelReason: updatedData?.cancelReason ?? cancelReason,
+          canceledAt: updatedData?.canceledAt ?? new Date().toISOString(),
+        }
+      })
+
       setShowCancelModal(false)
       setCancelReason("")
     } catch (err) {
@@ -95,11 +112,14 @@ export default function BookingDetailsPage() {
 
   async function handlePayNow() {
     if (!booking) return
+    setIsPaying(true)
+    setPayError(null)
     try {
       const { checkoutUrl } = await initiateCheckout(booking._id)
-      window.location.href = checkoutUrl // التوجيه لبوابة الدفع الإلكتروني
+      window.location.href = checkoutUrl
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+      setPayError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+      setIsPaying(false)
     }
   }
 
@@ -197,11 +217,22 @@ export default function BookingDetailsPage() {
               </CardContent>
             </Card>
 
+            {payError && (
+              <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm mt-4">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{payError}</span>
+              </div>
+            )}
+
             {booking.bookingStatus !== "canceled" && booking.bookingStatus !== "completed" && (
               <div className="flex gap-3 mt-4">
                 {booking.bookingStatus === "confirmed" && booking.paymentStatus === "unpaid" && (
-                  <Button onClick={handlePayNow} className="flex-1 h-12 rounded-xl">
-                    Pay Now
+                  <Button onClick={handlePayNow} disabled={isPaying} className="flex-1 h-12 rounded-xl">
+                    {isPaying ? (
+                      <><Loader2 size={16} className="animate-spin mr-2" /> Processing...</>
+                    ) : (
+                      "Pay Now"
+                    )}
                   </Button>
                 )}
                 {(booking.bookingStatus === "pending" || booking.bookingStatus === "confirmed") && (
@@ -209,6 +240,7 @@ export default function BookingDetailsPage() {
                     variant="outline"
                     onClick={() => setShowCancelModal(true)}
                     className="flex-1 h-12 rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+                    disabled={isPaying}
                   >
                     Cancel Booking
                   </Button>

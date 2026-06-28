@@ -9,8 +9,18 @@ export async function cancelBooking(
   try {
     const response = await api.patch<ApiSuccess<Booking>>(
       `/bookings/${bookingId}/cancel`,
-      { cancelReason } 
+      { cancelReason }
     );
+
+    // ✅ validate success envelope before reading data
+    if (!response.data.success) {
+      throw new Error(response.data.message ?? "Failed to cancel booking.")
+    }
+
+    // ✅ confirm data exists before accessing bookingStatus
+    if (!response.data.data) {
+      throw new Error("Unexpected response from server.")
+    }
 
     console.log("Booking ID:", bookingId);
     console.log("New Status:", response.data.data.bookingStatus);

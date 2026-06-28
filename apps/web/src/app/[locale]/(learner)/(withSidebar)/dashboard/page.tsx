@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useEffect, useState } from "react"
@@ -42,7 +41,6 @@ function isSessionLive(booking: Booking): boolean {
   return now >= start && now <= end
 }
 
-// ✅ compact badge with colored dot
 function BookingStatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; dot: string; className: string }> = {
     pending:   { label: "Pending",   dot: "bg-amber-400",  className: "bg-amber-50 text-amber-700 border-amber-200" },
@@ -74,6 +72,8 @@ export default function LearnerDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [payError, setPayError] = useState<string | null>(null)
+  // ✅ tracks which booking is currently being checked out to prevent duplicate requests
+  const [pendingCheckoutId, setPendingCheckoutId] = useState<string | null>(null)
 
   const [subjectTitles, setSubjectTitles] = useState<Record<string, string>>({})
   const [tutorNames, setTutorNames] = useState<Record<string, string>>({})
@@ -244,6 +244,8 @@ export default function LearnerDashboardPage() {
             <div className="flex flex-col gap-3">
               {allBookings.map((booking) => {
                 const showPayNow = booking.paymentStatus === "unpaid" && booking.bookingStatus === "confirmed"
+                // ✅ button is disabled while this specific booking is being checked out
+                const isCheckingOut = pendingCheckoutId === booking._id
 
                 return (
                   <div
@@ -260,7 +262,6 @@ export default function LearnerDashboardPage() {
                           {getDisplaySubject(booking.subjectId)}
                         </h4>
                         <p className="text-xs text-[#68718B]">with {getDisplayTutor(booking.tutorId)}</p>
-                        {/* ✅ compact badge */}
                         <BookingStatusBadge status={booking.bookingStatus} />
                       </div>
                     </div>
@@ -273,19 +274,30 @@ export default function LearnerDashboardPage() {
 
                       {showPayNow && (
                         <Button
+                          // ✅ disabled while checkout is in flight for this booking
+                          disabled={isCheckingOut}
                           onClick={async (e) => {
                             e.stopPropagation()
                             setPayError(null)
+                            // ✅ set pending before async request starts
+                            setPendingCheckoutId(booking._id)
                             try {
                               const { checkoutUrl } = await initiateCheckout(booking._id)
                               window.location.href = checkoutUrl
                             } catch (err) {
                               setPayError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+                              // ✅ clear pending on failure so user can retry
+                              setPendingCheckoutId(null)
                             }
+                            // note: no finally clear on success — we're navigating away
                           }}
-                          className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0"
+                          className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          Pay Now
+                          {isCheckingOut ? (
+                            <><Loader2 size={12} className="animate-spin mr-1" /> Processing...</>
+                          ) : (
+                            "Pay Now"
+                          )}
                         </Button>
                       )}
                     </div>

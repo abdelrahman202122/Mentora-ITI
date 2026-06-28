@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useRef, useState, useEffect } from "react"
@@ -9,25 +8,20 @@ import { uploadAvatar, deleteAvatar } from "@/services/setting/avatarservice"
 import { updateProfileName } from "@/services/setting/editName"
 import { useCurrentUser, authKeys } from "@/hooks/auth/use-auth"
 import { useQueryClient } from "@tanstack/react-query"
-  
 
-//this function is used in case the user removed his image instead of the image is empty replace with the first letter from the first name and the first letter from the second name
 function getInitials(name: string): string {
   return name
-    .trim() 
-    .split(/\s+/) //in case the user enter more than space
-    .map((p) => p[0]) //map on every name on the array and take the first letter from it 
+    .trim()
+    .split(/\s+/)
+    .map((p) => p[0])
     .join("")
-    .slice(0, 2)//take from string only the first and the second letter
+    .slice(0, 2)
     .toUpperCase()
 }
 
 export default function SettingsPage() {
-  const fileInputRef = useRef<HTMLInputElement>(null) 
-  //i used here to remove old design of input type file and make another design 
-
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
-
   const { data: currentUser } = useCurrentUser()
 
   const [fullName, setFullName] = useState("")
@@ -39,8 +33,6 @@ export default function SettingsPage() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
-// Seed the fullName state with the currentUser's name only ONCE on initial load
-// Prevents overwriting if user manually changes the input later
   const hasSeededRef = useRef(false)
   useEffect(() => {
     if (currentUser && !hasSeededRef.current) {
@@ -50,25 +42,12 @@ export default function SettingsPage() {
   }, [currentUser])
 
   const savedAvatarUrl = currentUser?.avatar ?? null
-//Show the user the new image they just selected (previewUrl).
-// If there isn't one, check if they clicked delete—if so
-// show it as empty (null). If they didn't click delete,
-// leave their old saved image (savedAvatarUrl) as it is.
   const displayedAvatarUrl =
     previewUrl ?? (avatarRemoved ? null : savedAvatarUrl)
 
-
-// Updates the local query cache for the current user.
-// This ensures that any changes (like the new avatar or name) 
-// reflect instantly across the UI  in the Sidebar without a page refresh.
   function updateCache(updater: (old: typeof currentUser) => typeof currentUser) {
     queryClient.setQueryData(authKeys.currentUser, updater)
   }
-
-
-// Handles the selection of a new avatar image file.
-// Generates a temporary preview URL for instant UI updates, manages browser memory 
-// by revoking the old preview, and resets relevant upload states.
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -85,27 +64,28 @@ export default function SettingsPage() {
     e.target.value = ""
   }
 
-
- // Handles removing the user's avatar.
-// Cleans up any temporary preview URLs from memory, resets the selected file,
-// and flags that the avatar has been removed to instantly update the UI with initails(the function that take the first letter from the first and second name)
-
   function handleRemove() {
-    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    // ✅ only set avatarRemoved if there is actually something to remove
+    const hasExistingAvatar = !!savedAvatarUrl
+    const hasSelectedFile = !!selectedFile
 
+    if (!hasExistingAvatar && !hasSelectedFile) {
+      // nothing to remove — just clear local UI state, no-op on save
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+      setSelectedFile(null)
+      setPreviewUrl(null)
+      return
+    }
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
     setSelectedFile(null)
     setPreviewUrl(null)
-    setAvatarRemoved(true)
+    // ✅ only mark removed if there's a real server avatar to delete
+    setAvatarRemoved(hasExistingAvatar)
     setSaveError(null)
     setSaveSuccess(false)
   }
 
-
-
-// Handles saving profile changes (name and/or avatar) to the server.
-// Executes pending operations in parallel using Promise.allSettled,
-// updates the local query cache instantly for components like the Sidebar,
-// and manages error reporting and state cleanup.
   async function handleSaveChanges() {
     const trimmedName = fullName.trim()
 
@@ -115,7 +95,6 @@ export default function SettingsPage() {
 
     if (!nameChanged && !avatarUploadPending && !avatarRemovePending) return
 
-   
     if (nameChanged && trimmedName.length === 0) {
       setSaveError("Name cannot be empty.")
       return
@@ -125,14 +104,14 @@ export default function SettingsPage() {
     setSaveError(null)
     setSaveSuccess(false)
 
-  
-    const tasks: Promise<{ kind: "avatar" | "name" }>[] = []
+    // ✅ track each task with its kind so we can reconcile individually
+    const tasks: Promise<{ kind: "avatarUpload" | "avatarRemove" | "name" }>[] = []
 
     if (avatarUploadPending && selectedFile) {
       tasks.push(
         uploadAvatar(selectedFile).then((res) => {
           updateCache((old) => (old ? { ...old, avatar: res.avatar } : old))
-          return { kind: "avatar" as const }
+          return { kind: "avatarUpload" as const }
         })
       )
     }
@@ -141,7 +120,7 @@ export default function SettingsPage() {
       tasks.push(
         deleteAvatar().then(() => {
           updateCache((old) => (old ? { ...old, avatar: undefined } : old))
-          return { kind: "avatar" as const }
+          return { kind: "avatarRemove" as const }
         })
       )
     }
@@ -158,6 +137,25 @@ export default function SettingsPage() {
 
     const results = await Promise.allSettled(tasks)
 
+    // ✅ reconcile individually — clear state only for succeeded operations
+    const succeededKinds = new Set(
+      results
+        .filter((r): r is PromiseFulfilledResult<{ kind: "avatarUpload" | "avatarRemove" | "name" }> => r.status === "fulfilled")
+        .map((r) => r.value.kind)
+    )
+
+    if (succeededKinds.has("avatarUpload")) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+      setSelectedFile(null)
+      setPreviewUrl(null)
+    }
+
+    if (succeededKinds.has("avatarRemove")) {
+      setAvatarRemoved(false)
+    }
+
+    // name state is updated inside the task via setFullName(res.name)
+
     const failures = results.filter(
       (r): r is PromiseRejectedResult => r.status === "rejected"
     )
@@ -166,14 +164,8 @@ export default function SettingsPage() {
       const messages = failures.map((f) =>
         f.reason instanceof Error ? f.reason.message : "Something went wrong."
       )
-      // de-duplicate in case both failed with the same generic message
       setSaveError(Array.from(new Set(messages)).join(" "))
     } else {
-      // everything that needed to be sent succeeded
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
-      setSelectedFile(null)
-      setPreviewUrl(null)
-      setAvatarRemoved(false)
       setSaveSuccess(true)
     }
 
@@ -181,158 +173,139 @@ export default function SettingsPage() {
   }
 
   return (
-  <div className="p-4 sm:p-6 md:p-10">
-  <div className="max-w-3xl mx-auto"> {/* إضافة mx-auto لتوسط الصفحة بشكل شيك */}
-    <h1 className="text-2xl sm:text-3xl font-bold text-[#11142D]">Settings</h1>
-    <p className="text-sm text-[#68718B] mt-1 mb-6 sm:mb-8">
-      Manage your account preferences and personal information.
-    </p>
+    <div className="p-4 sm:p-6 md:p-10">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#11142D]">Settings</h1>
+        <p className="text-sm text-[#68718B] mt-1 mb-6 sm:mb-8">
+          Manage your account preferences and personal information.
+        </p>
 
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8">
-      <h2 className="text-lg font-bold text-[#11142D]">
-        Profile Information
-      </h2>
-      <p className="text-sm text-[#68718B] mt-1 mb-6">
-        Update your photo and personal details.
-      </p>
-
-      {/* Avatar Section */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 mb-4">
-        {/* Label and description */}
-        <div className="w-full sm:w-40 shrink-0">
-          <p className="text-sm font-semibold text-[#11142D] mb-1">
-            Profile Picture
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8">
+          <h2 className="text-lg font-bold text-[#11142D]">Profile Information</h2>
+          <p className="text-sm text-[#68718B] mt-1 mb-6">
+            Update your photo and personal details.
           </p>
-          <p className="text-xs text-[#68718B] mb-2 sm:mb-0">
-            This will be displayed on your profile and can be seen by tutors.
-          </p>
-        </div>
 
-        {/* Avatar Image + Controls */}
-        <div className="flex flex-wrap items-center gap-4 w-full">
-          {/* Circular Image Container */}
-          <div className="w-14 h-14 rounded-full bg-[#E0E7FF] overflow-hidden flex items-center justify-center shrink-0">
-            {displayedAvatarUrl ? (
-              <img
-                src={
-                  displayedAvatarUrl.startsWith("http") ||
-                  displayedAvatarUrl.startsWith("blob:")
-                    ? displayedAvatarUrl
-                    : `/api/files/avatars/${displayedAvatarUrl}`
-                }
-                className="w-full h-full object-cover"
-                alt="avatar"
-              />
-            ) : (
-              <span className="text-[#5051F9] font-bold text-sm">
-                {getInitials(fullName)}
-              </span>
-            )}
+          {/* Avatar Section */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 mb-4">
+            <div className="w-full sm:w-40 shrink-0">
+              <p className="text-sm font-semibold text-[#11142D] mb-1">Profile Picture</p>
+              <p className="text-xs text-[#68718B] mb-2 sm:mb-0">
+                This will be displayed on your profile and can be seen by tutors.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 w-full">
+              <div className="w-14 h-14 rounded-full bg-[#E0E7FF] overflow-hidden flex items-center justify-center shrink-0">
+                {displayedAvatarUrl ? (
+                  <img
+                    src={
+                      displayedAvatarUrl.startsWith("http") ||
+                      displayedAvatarUrl.startsWith("blob:")
+                        ? displayedAvatarUrl
+                        : `/api/files/avatars/${displayedAvatarUrl}`
+                    }
+                    className="w-full h-full object-cover"
+                    alt="avatar"
+                  />
+                ) : (
+                  <span className="text-[#5051F9] font-bold text-sm">
+                    {getInitials(fullName)}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 grow">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-[#5051F9] hover:bg-[#4041DB] text-sm py-2 px-3 sm:px-4 h-9 flex items-center gap-2"
+                >
+                  <Upload size={14} /> Upload New
+                </Button>
+
+                <button
+                  onClick={handleRemove}
+                  className="text-sm font-semibold px-3 sm:px-4 h-9 rounded-lg bg-[#EEF2FF] text-[#5051F9] hover:bg-[#E0E7FF] transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Buttons Group (Responsive Wrapping) */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 grow">
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
+          {selectedFile && (
+            <p className="text-xs text-[#5051F9] mb-4 sm:pl-46">
+              New photo selected — click Save Changes to upload it.
+            </p>
+          )}
+          {!selectedFile && avatarRemoved && (
+            <p className="text-xs text-[#5051F9] mb-4 sm:pl-46">
+              Photo will be removed — click Save Changes to confirm.
+            </p>
+          )}
+
+          {/* Name Section */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 mt-6 pt-4 border-t border-gray-50">
+            <div className="w-full sm:w-40 shrink-0">
+              <p className="text-sm font-semibold text-[#11142D] mb-1">Full Name</p>
+              <p className="text-xs text-[#68718B] mb-2 sm:mb-0">Please use your real name.</p>
+            </div>
+
+            <div className="w-full max-w-md">
+              <Input
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value)
+                  setSaveError(null)
+                  setSaveSuccess(false)
+                }}
+                className="w-full h-11 bg-[#F8FAFC] border-gray-200"
+              />
+            </div>
+          </div>
+
+          {saveError && (
+            <p className="text-red-600 text-xs mt-4 text-left sm:text-right">{saveError}</p>
+          )}
+          {saveSuccess && (
+            <p className="text-green-600 text-xs mt-4 text-left sm:text-right">Changes saved.</p>
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8 pt-4 border-t border-gray-50">
+            <button
+              className="text-sm font-semibold text-[#5051F9] h-10 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => {
+                if (previewUrl) URL.revokeObjectURL(previewUrl)
+                setFullName(currentUser?.name ?? "")
+                setSelectedFile(null)
+                setPreviewUrl(null)
+                setAvatarRemoved(false)
+                setSaveError(null)
+                setSaveSuccess(false)
+              }}
+            >
+              Cancel
+            </button>
 
             <Button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-[#5051F9] hover:bg-[#4041DB] text-sm py-2 px-3 sm:px-4 h-9 flex items-center gap-2"
+              onClick={handleSaveChanges}
+              disabled={saving}
+              className="bg-[#5051F9] hover:bg-[#4041DB] h-10 px-6 text-sm"
             >
-              <Upload size={14} /> Upload New
+              {saving ? "Saving..." : "Save Changes"}
             </Button>
-
-            <button
-              onClick={handleRemove}
-              className="text-sm font-semibold px-3 sm:px-4 h-9 rounded-lg bg-[#EEF2FF] text-[#5051F9] hover:bg-[#E0E7FF] transition-colors"
-            >
-              Remove
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Dynamic Info Messages */}
-      {selectedFile && (
-        <p className="text-xs text-[#5051F9] mb-4 sm:pl-46">
-          New photo selected — click Save Changes to upload it.
-        </p>
-      )}
-      {!selectedFile && avatarRemoved && (
-        <p className="text-xs text-[#5051F9] mb-4 sm:pl-46">
-          Photo will be removed — click Save Changes to confirm.
-        </p>
-      )}
-
-      {/* Name Section */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 mt-6 pt-4 border-t border-gray-50">
-        <div className="w-full sm:w-40 shrink-0">
-          <p className="text-sm font-semibold text-[#11142D] mb-1">
-            Full Name
-          </p>
-          <p className="text-xs text-[#68718B] mb-2 sm:mb-0">
-            Please use your real name.
-          </p>
-        </div>
-
-        <div className="w-full max-w-md">
-          <Input
-            value={fullName}
-            onChange={(e) => {
-              setFullName(e.target.value)
-              setSaveError(null)
-              setSaveSuccess(false)
-            }}
-            className="w-full h-11 bg-[#F8FAFC] border-gray-200"
-          />
-        </div>
-      </div>
-
-      {/* Messages */}
-      {saveError && (
-        <p className="text-red-600 text-xs mt-4 text-left sm:text-right">
-          {saveError}
-        </p>
-      )}
-
-      {saveSuccess && (
-        <p className="text-green-600 text-xs mt-4 text-left sm:text-right">
-          Changes saved.
-        </p>
-      )}
-
-      {/* Actions Footer */}
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8 pt-4 border-t border-gray-50">
-        <button
-          className="text-sm font-semibold text-[#5051F9] h-10 px-4 rounded-lg hover:bg-gray-50 transition-colors"
-          onClick={() => {
-            if (previewUrl) URL.revokeObjectURL(previewUrl)
-            setFullName(currentUser?.name ?? "")
-            setSelectedFile(null)
-            setPreviewUrl(null)
-            setAvatarRemoved(false)
-            setSaveError(null)
-            setSaveSuccess(false)
-          }}
-        >
-          Cancel
-        </button>
-
-        <Button
-          onClick={handleSaveChanges}
-          disabled={saving}
-          className="bg-[#5051F9] hover:bg-[#4041DB] h-10 px-6 text-sm"
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
     </div>
-  </div>
-</div>
   )
 }
