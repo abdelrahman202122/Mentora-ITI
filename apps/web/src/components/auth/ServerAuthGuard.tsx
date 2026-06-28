@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getCurrentUserServer } from "@/services/auth/auth-server-service";
@@ -18,7 +19,16 @@ export async function ServerAuthGuard({
   const user = await getCurrentUserServer();
 
   if (!user) {
-    redirect(getLocalePath(locale, "/login"));
+    const requestHeaders = await headers();
+    const pathname = requestHeaders.get("x-pathname") ?? "";
+    const loginPath = getLocalePath(locale, "/login");
+
+    if (pathname) {
+      const params = new URLSearchParams({ next: pathname });
+      redirect(`${loginPath}?${params.toString()}`);
+    }
+
+    redirect(loginPath);
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
