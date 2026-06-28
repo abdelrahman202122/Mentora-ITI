@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { LayoutDashboard, Loader2, LogOut } from "lucide-react";
@@ -16,7 +15,7 @@ export default function Header() {
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogout();
 
   const loginPath = getLocalePath(locale, "/login");
-  const tutorProfilePath = getLocalePath(locale, "/tutor/CreateProfile");
+  const tutorProfilePath = getLocalePath(locale, "/tutor/profile/create");
   const becomeTutorHref = `${loginPath}?next=${encodeURIComponent(tutorProfilePath)}`;
 
   const handleLogout = async () => {
