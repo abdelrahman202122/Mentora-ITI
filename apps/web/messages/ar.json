@@ -88,5 +88,39 @@
       "british": "المنهج البريطاني",
       "none": "غير محدد"
     }
+  },
+  "auth": {
+    "brandName": "منتورا",
+    "login": {
+      "title": "تسجيل الدخول إلى منتورا",
+      "description": "مرحبًا بعودتك! أدخل بياناتك من فضلك.",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "name@company.com",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "submitting": "جارٍ التحقق من الحساب",
+      "noAccount": "ليس لديك حساب؟",
+      "signUpLink": "إنشاء حساب",
+      "privacyPolicy": "سياسة الخصوصية",
+      "termsOfService": "شروط الخدمة",
+      "helpCenter": "مركز المساعدة"
+    },
+    "register": {
+      "title": "انضم إلى منتورا",
+      "description": "ابدأ رحلتك التعليمية اليوم.",
+      "nameLabel": "الاسم الكامل",
+      "namePlaceholder": "محمد أحمد",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "name@company.com",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "01012345678",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "submit": "إنشاء حساب",
+      "submitting": "جارٍ إنشاء الحساب",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "logInLink": "تسجيل الدخول"
+    }
   }
 }
