@@ -1,4 +1,4 @@
-import mongoose, { type Types } from 'mongoose';
+import mongoose, { type ClientSession, type Types } from 'mongoose';
 import Booking from './booking.model.js';
 import { TutorAvailabilityModel } from '../tutor/availability/tutor-availability.model.js';
 import { TutorProfileModel } from '../tutor/profile/tutor-profile.model.js';
@@ -174,6 +174,7 @@ export async function countAllBookings(
 export async function updateBooking(
   bookingId: Types.ObjectId,
   updates: UpdateBookingInput,
+  session?: ClientSession,
 ): Promise<IBooking | null> {
   const booking = await Booking.findById(bookingId).exec();
 
@@ -182,7 +183,7 @@ export async function updateBooking(
   }
 
   Object.assign(booking, updates);
-  return booking.save();
+  return booking.save({ session });
 }
 
 /**
@@ -260,6 +261,23 @@ export async function completeConfirmedBooking(
       },
     },
     { new: true },
+  ).exec();
+}
+
+/**
+ * Atomically link a review to a booking only when the booking has no review yet.
+ * Returns the updated booking, or null if the booking was not found or already
+ * had a reviewId set (i.e. a concurrent request already claimed it).
+ */
+export async function linkReviewToBooking(
+  bookingId: Types.ObjectId,
+  reviewId: Types.ObjectId,
+  session?: ClientSession,
+): Promise<IBooking | null> {
+  return Booking.findOneAndUpdate(
+    { _id: bookingId, reviewId: { $exists: false } },
+    { $set: { reviewId } },
+    { new: true, session },
   ).exec();
 }
 

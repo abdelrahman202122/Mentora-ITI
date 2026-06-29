@@ -1,6 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
-
+import mongoose from 'mongoose';
+import { sendSuccess } from '../../utils/api-response.js';
+import { UnauthorizedError } from '../../common/errors/AppError.js';
+import type {
+  CreateReviewInput,
+  ListReviewsQuery,
+  TutorIdParam,
+} from '../../validators/review.js';
 import * as reviewService from './review.service.js';
+
+const { Types } = mongoose;
 
 /**
  * Review controller handles HTTP requests for review operations.
@@ -15,11 +24,26 @@ export async function createReview(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  // TODO: Verify the authenticated learner exists on req.user.
-  // TODO: Read bookingId, rating, and optional comment from the validated body.
-  // TODO: Call reviewService.createReview with learner identity and review input.
-  // TODO: Return the created review with sendSuccess.
-  await reviewService.createReview();
+  try {
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const { bookingId, rating, comment } = req.body as CreateReviewInput;
+
+    const review = await reviewService.createReview(
+      new Types.ObjectId(req.user.userId),
+      {
+        bookingId: new Types.ObjectId(bookingId),
+        rating,
+        comment,
+      },
+    );
+
+    sendSuccess(res, 201, 'Review created successfully', review);
+  } catch (error) {
+    next(error);
+  }
 }
 
 /**
@@ -31,11 +55,24 @@ export async function listTutorReviews(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  // TODO: Read tutorProfileId from validated params.
-  // TODO: Read pagination and sorting values from validated query.
-  // TODO: Call reviewService.listTutorReviews.
-  // TODO: Return reviews and pagination metadata with sendSuccess.
-  await reviewService.listTutorReviews();
+  try {
+    const { tutorProfileId } = req.params as TutorIdParam;
+    const query = req.query as unknown as ListReviewsQuery;
+
+    const result = await reviewService.listTutorReviews(
+      new Types.ObjectId(tutorProfileId),
+      {
+        page: query.page,
+        limit: query.limit,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
+      },
+    );
+
+    sendSuccess(res, 200, 'Reviews retrieved successfully', result);
+  } catch (error) {
+    next(error);
+  }
 }
 
 /**
@@ -47,11 +84,15 @@ export async function listMyReviews(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  // TODO: Verify the authenticated learner exists on req.user.
-  // TODO: Read pagination and filtering values from validated query.
-  // TODO: Call reviewService.listMyReviews with learner identity.
-  // TODO: Return reviews and pagination metadata with sendSuccess.
-  await reviewService.listMyReviews();
+  try {
+    // TODO: Verify the authenticated learner exists on req.user.
+    // TODO: Read pagination and filtering values from validated query.
+    // TODO: Call reviewService.listMyReviews with learner identity.
+    // TODO: Return reviews and pagination metadata with sendSuccess.
+    await reviewService.listMyReviews();
+  } catch (error) {
+    next(error);
+  }
 }
 
 /**
@@ -63,12 +104,16 @@ export async function updateReview(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  // TODO: Verify the authenticated learner exists on req.user.
-  // TODO: Read reviewId from validated params.
-  // TODO: Read rating/comment updates from validated body.
-  // TODO: Call reviewService.updateReview with learner identity.
-  // TODO: Return the updated review with sendSuccess.
-  await reviewService.updateReview();
+  try {
+    // TODO: Verify the authenticated learner exists on req.user.
+    // TODO: Read reviewId from validated params.
+    // TODO: Read rating/comment updates from validated body.
+    // TODO: Call reviewService.updateReview with learner identity.
+    // TODO: Return the updated review with sendSuccess.
+    await reviewService.updateReview();
+  } catch (error) {
+    next(error);
+  }
 }
 
 /**
@@ -80,9 +125,13 @@ export async function deleteReview(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  // TODO: Verify the authenticated learner exists on req.user.
-  // TODO: Read reviewId from validated params.
-  // TODO: Call reviewService.deleteReview with learner identity.
-  // TODO: Return a success response with sendSuccess.
-  await reviewService.deleteReview();
+  try {
+    // TODO: Verify the authenticated learner exists on req.user.
+    // TODO: Read reviewId from validated params.
+    // TODO: Call reviewService.deleteReview with learner identity.
+    // TODO: Return a success response with sendSuccess.
+    await reviewService.deleteReview();
+  } catch (error) {
+    next(error);
+  }
 }
