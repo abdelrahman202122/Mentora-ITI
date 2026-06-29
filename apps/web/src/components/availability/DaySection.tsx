@@ -23,20 +23,23 @@ export default function DaySection({ day, control, register }: DaySectionProps) 
       {fields.map((field, index) => (
         <div key={field.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
           <Clock className="w-4 h-4 text-primary shrink-0" />
-          <input
+        <input
             type="time"
+            aria-label={`${day} slot ${index + 1} start time`}
             className="flex-1 bg-transparent text-sm border-none outline-none"
             {...register(`${day}.${index}.startTime`)}
           />
           <span className="text-muted-foreground text-xs">to</span>
           <input
             type="time"
+            aria-label={`${day} slot ${index + 1} end time`}
             className="flex-1 bg-transparent text-sm border-none outline-none"
             {...register(`${day}.${index}.endTime`)}
           />
           <button
             type="button"
             onClick={() => remove(index)}
+            aria-label={`Remove ${day} slot ${index + 1}`}
             className="h-7 w-7 rounded-lg border border-red-200 flex items-center justify-center hover:bg-red-50 transition shrink-0"
           >
             <Trash2 className="w-3.5 h-3.5 text-red-500" />
