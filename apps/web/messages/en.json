@@ -247,6 +247,20 @@
       "submitting": "Creating account",
       "hasAccount": "Already have an account?",
       "logInLink": "Log In"
+    },
+    "validation": {
+      "emailInvalid": "Email not valid",
+      "passwordMin": "Password must be at least 6 characters",
+      "nameMin": "Name must be at least 2 characters",
+      "phoneInvalid": "Enter a valid Egyptian phone number (e.g. 01012345678)",
+      "roleInvalid": "Please choose a valid account type",
+      "passwordRequired": "Password is required"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailAlreadyExists": "An account with this email already exists",
+      "unauthorized": "You are not authorized to perform this action",
+      "generic": "Something went wrong. Please try again."
     }
   }
 }
