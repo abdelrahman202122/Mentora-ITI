@@ -1,5 +1,5 @@
-import { AITutorFinder } from "@/components/ai/AITutorFinder";
+import { AIChatAssistant } from "@/components/ai/AIChatAssistant";
 
 export default function AIAssistantPage() {
-  return <AITutorFinder />;
+  return <AIChatAssistant />;
 }
