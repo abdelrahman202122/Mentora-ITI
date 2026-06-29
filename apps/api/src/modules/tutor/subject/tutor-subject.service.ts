@@ -3,6 +3,7 @@ import { CATEGORIES } from '../../../constants/categories.js';
 import { CURRICULA } from '../../../constants/curricula.js';
 import { EDUCATION_LEVELS } from '../../../constants/educationLevels.js';
 import type { tutorSubjectInput } from '../../../validators/tutor-subject.js';
+import { isApprovedTutor } from '../profile/tutor-profile.service.js';
 import { TutorSubject } from './tutor-subject.model.js';
 import {
   create,
@@ -31,7 +32,18 @@ const enrichSubject = (subject: TutorSubject) => {
   };
 };
 
-export const getTutorSubjects = async (tutorId: string) => {
+export const getTutorSubjects = async (
+  tutorId: string,
+  approvedOnly: boolean,
+) => {
+  if (approvedOnly) {
+    const isTutorApproved = await isApprovedTutor(tutorId);
+
+    if (!isTutorApproved) {
+      throw new NotFoundError('Tutor not found');
+    }
+  }
+
   const subjects = await findByTutorId(tutorId);
   if (!subjects.length) {
     return [];
@@ -40,7 +52,19 @@ export const getTutorSubjects = async (tutorId: string) => {
   return subjects.map((subject) => enrichSubject(subject));
 };
 
-export const getTutorSubject = async (tutorId: string, subjectId: string) => {
+export const getTutorSubject = async (
+  tutorId: string,
+  subjectId: string,
+  approvedOnly: boolean,
+) => {
+  if (approvedOnly) {
+    const isTutorApproved = await isApprovedTutor(tutorId);
+
+    if (!isTutorApproved) {
+      throw new NotFoundError('Tutor not found');
+    }
+  }
+
   const subject = await findById(subjectId);
 
   if (!subject || subject.tutorId.toString() !== tutorId) {
