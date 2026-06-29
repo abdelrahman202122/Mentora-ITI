@@ -11,6 +11,8 @@ tags:
   - name: Metadata
   - name: Chats
     description: Authenticated learner-tutor conversations and message history
+  - name: Reviews
+    description: Verified tutor feedback for completed bookings, including learner-owned review management and public tutor listings
   - name: Payment
     description: Paymob checkout initiation, payment retrieval, and provider webhook handling for booking payments
   - name: Earning
@@ -2086,6 +2088,329 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/reviews:
+    post:
+      summary: Create Review
+      description: Creates a verified review for a completed booking. Accessible only by learners.
+      tags:
+        - Reviews
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewSuccessResponse'
+        '400':
+          description: Bad Request (Validation or business rule error)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can create reviews or the booking does not belong to the authenticated user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (Only completed bookings can be reviewed or a review already exists for the booking)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/reviews/tutors/{tutorProfileId}:
+    get:
+      summary: List Tutor Reviews
+      description: Retrieves paginated public reviews for an approved tutor profile.
+      tags:
+        - Reviews
+      parameters:
+        - name: tutorProfileId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+          description: The 24-character hex MongoDB ObjectId of the tutor profile
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number (starts at 1)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of reviews per page
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Field to sort by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sorting direction
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format or invalid query parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Tutor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/reviews/me:
+    get:
+      summary: List My Reviews
+      description: Retrieves paginated reviews created by the authenticated learner.
+      tags:
+        - Reviews
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number (starts at 1)
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of reviews per page
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Field to sort by
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sorting direction
+        - name: tutorProfileId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          description: Filter reviews by tutor profile ID
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListSuccessResponse'
+        '400':
+          description: Bad Request (Validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can list their reviews)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/reviews/{reviewId}:
+    patch:
+      summary: Update Review
+      description: Updates a review owned by the authenticated learner. At least one field must be provided.
+      tags:
+        - Reviews
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4573'
+          description: The 24-character hex MongoDB ObjectId of the review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReviewRequest'
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewSuccessResponse'
+        '400':
+          description: Bad Request (Validation error or no fields provided)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can update their reviews or the review does not belong to the authenticated user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Review
+      description: Soft-deletes a review owned by the authenticated learner.
+      tags:
+        - Reviews
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4573'
+          description: The 24-character hex MongoDB ObjectId of the review
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewSuccessResponse'
+        '400':
+          description: Bad Request (Invalid MongoDB ObjectId format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Only learners can delete their reviews or the review does not belong to the authenticated user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/payments/checkout:
     post:
       summary: Initiate Checkout
@@ -2877,6 +3202,143 @@ components:
                 totalPages:
                   type: integer
                   example: 2
+    Review:
+      type: object
+      required:
+        - _id
+        - bookingId
+        - learnerId
+        - tutorId
+        - tutorProfileId
+        - rating
+        - isVisible
+        - createdAt
+        - updatedAt
+      properties:
+        _id:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4573'
+        bookingId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        learnerId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4568'
+        tutorId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4569'
+        tutorProfileId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          example: '60c72b2f9b1d8b2a1c8b4570'
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          maxLength: 1000
+          nullable: true
+          example: 'Very clear and helpful explanations.'
+        isVisible:
+          type: boolean
+          example: true
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-27T10:00:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-06-27T10:15:00.000Z'
+    CreateReviewRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - bookingId
+        - rating
+      properties:
+        bookingId:
+          type: string
+          pattern: '^[a-fA-F0-9]{24}$'
+          description: The 24-character hex MongoDB ObjectId of the completed booking
+          example: '60c72b2f9b1d8b2a1c8b4567'
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating from 1 to 5
+          example: 5
+        comment:
+          type: string
+          maxLength: 1000
+          description: Optional review comment
+          example: 'Very clear and helpful explanations.'
+    UpdateReviewRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Updated rating from 1 to 5
+          example: 4
+        comment:
+          type: string
+          maxLength: 1000
+          description: Updated review comment
+          example: 'Still great, but slightly less detailed than before.'
+    ReviewSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Review created successfully'
+        data:
+          $ref: '#/components/schemas/Review'
+    ReviewListSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Reviews retrieved successfully'
+        data:
+          type: object
+          required:
+            - reviews
+            - pagination
+          properties:
+            reviews:
+              type: array
+              items:
+                $ref: '#/components/schemas/Review'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
     ErrorResponse:
       type: object
       required:
