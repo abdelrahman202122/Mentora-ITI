@@ -1118,6 +1118,7 @@ async function seedTutors() {
           isAvailable: true,
           rating: tutorSeed.rating,
           totalReviews: tutorSeed.totalReviews,
+          status: 'approved',
         },
       },
       {

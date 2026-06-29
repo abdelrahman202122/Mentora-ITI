@@ -11,8 +11,20 @@ import {
 } from './tutor-availability.repository.js';
 import type { TimeSlot, Weekday } from './tutor-availability.model.js';
 import { findConfirmedBookingsByTutorAndRange } from '../../bookings/booking.repository.js';
+import { isApprovedTutor } from '../profile/tutor-profile.service.js';
 
-export const getAvailability = async (tutorId: string) => {
+export const getAvailability = async (
+  tutorId: string,
+  approvedOnly: boolean,
+) => {
+  if (approvedOnly) {
+    const isTutorApproved = await isApprovedTutor(tutorId);
+
+    if (!isTutorApproved) {
+      throw new NotFoundError('Tutor not found');
+    }
+  }
+
   const availability = await findByTutorId(tutorId);
 
   if (!availability) {
@@ -155,7 +167,16 @@ export const getFilteredAvailabilityForDateRange = async (
   tutorId: string,
   startDate: string,
   endDate: string,
+  approvedOnly: boolean,
 ) => {
+  if (approvedOnly) {
+    const isTutorApproved = await isApprovedTutor(tutorId);
+
+    if (!isTutorApproved) {
+      throw new NotFoundError('Tutor not found');
+    }
+  }
+
   // get tutor availability, normalized to UTC ISO strings
   const availability = await getAvailabilityForDateRange(
     tutorId,

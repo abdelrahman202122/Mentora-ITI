@@ -74,6 +74,10 @@ async function getPopulatedChat(chatId: string, viewerId: string) {
   return formatChat(chat as unknown as PopulatedChat, viewerId);
 }
 
+export async function getChat(chatId: string, userId: string) {
+  return getPopulatedChat(chatId, userId);
+}
+
 export async function createOrGetChat(learnerId: string, tutorId: string) {
   const tutor = await chatRepository.findActiveTutor(tutorId);
 

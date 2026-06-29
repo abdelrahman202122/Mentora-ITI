@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { authMiddleware } from '../../../middleware/auth.middleware.js';
+import {
+  authMiddleware,
+  optionalAuthMiddleware,
+} from '../../../middleware/auth.middleware.js';
 import { roleMiddleware } from '../../../middleware/role.moddleware.js';
 import { validate } from '../../../middleware/validation.middleware.js';
 import {
@@ -34,11 +37,13 @@ router
 router
   .route('/:tutorId/availability')
   .get(
+    optionalAuthMiddleware,
     validate({ params: getTutorAvailabilityParamsSchema }),
     getAvailabilityController,
   );
 
 router.route('/:tutorId/availability/slots').get(
+  optionalAuthMiddleware,
   validate({
     params: getTutorAvailabilityParamsSchema,
     query: getTutorAvailabilitySlotsQuerySchema,

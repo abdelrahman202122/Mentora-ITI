@@ -74,7 +74,11 @@ export const getTutorSubjectsController = async (
     return sendError(res, 400, 'Tutor ID is required');
   }
 
-  const subjects = await getTutorSubjects(tutorId);
+  const canViewUnapproved =
+    req.user?.role === 'admin' ||
+    (req.user?.role === 'tutor' && req.user.userId === tutorId);
+  const approvedOnly = !canViewUnapproved;
+  const subjects = await getTutorSubjects(tutorId, approvedOnly);
 
   return sendSuccess(res, 200, 'Tutor subjects fetched successfully', subjects);
 };
@@ -94,7 +98,11 @@ export const getTutorSubjectController = async (
     return sendError(res, 400, 'Subject ID is required');
   }
 
-  const subject = await getTutorSubject(tutorId, subjectId);
+  const canViewUnapproved =
+    req.user?.role === 'admin' ||
+    (req.user?.role === 'tutor' && req.user.userId === tutorId);
+  const approvedOnly = !canViewUnapproved;
+  const subject = await getTutorSubject(tutorId, subjectId, approvedOnly);
 
   return sendSuccess(res, 200, 'Tutor subject fetched successfully', subject);
 };
