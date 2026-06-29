@@ -2,7 +2,11 @@ import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { sendSuccess } from '../../utils/api-response.js';
 import { UnauthorizedError } from '../../common/errors/AppError.js';
-import type { CreateReviewInput } from '../../validators/review.js';
+import type {
+  CreateReviewInput,
+  ListReviewsQuery,
+  TutorIdParam,
+} from '../../validators/review.js';
 import * as reviewService from './review.service.js';
 
 const { Types } = mongoose;
@@ -52,11 +56,20 @@ export async function listTutorReviews(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Read tutorProfileId from validated params.
-    // TODO: Read pagination and sorting values from validated query.
-    // TODO: Call reviewService.listTutorReviews.
-    // TODO: Return reviews and pagination metadata with sendSuccess.
-    await reviewService.listTutorReviews();
+    const { tutorProfileId } = req.params as TutorIdParam;
+    const query = req.query as unknown as ListReviewsQuery;
+
+    const result = await reviewService.listTutorReviews(
+      new Types.ObjectId(tutorProfileId),
+      {
+        page: query.page,
+        limit: query.limit,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
+      },
+    );
+
+    sendSuccess(res, 200, 'Reviews retrieved successfully', result);
   } catch (error) {
     next(error);
   }

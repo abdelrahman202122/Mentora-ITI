@@ -9,7 +9,10 @@ import { withTransaction } from '../../common/transactionHelper.js';
 import { BookingStatus } from '../bookings/booking.types.js';
 import * as bookingRepository from '../bookings/booking.repository.js';
 import * as reviewRepository from './review.repository.js';
-import type { ReviewResponse } from './review.types.js';
+import type {
+  PaginatedReviewsResponse,
+  ReviewResponse,
+} from './review.types.js';
 
 function createReviewError(message: string, statusCode: number): AppError {
   return new AppError(message, statusCode, 'REVIEW_ERROR');
@@ -106,10 +109,46 @@ export async function createReview(
 /**
  * List public visible reviews for a tutor profile.
  */
-export async function listTutorReviews(): Promise<void> {
-  // TODO: Validate tutor profile access/display requirements.
-  // TODO: Delegate pagination and filtering to reviewRepository.findReviewsByTutorProfileId.
-  // TODO: Return public-safe review data and pagination metadata.
+export async function listTutorReviews(
+  tutorProfileId: Types.ObjectId,
+  query: {
+    page: number;
+    limit: number;
+    sortBy?: string;
+    sortOrder: 'asc' | 'desc';
+  },
+): Promise<PaginatedReviewsResponse> {
+  const tutorProfile = await reviewRepository.findTutorProfileById(
+    tutorProfileId,
+  );
+
+  if (!tutorProfile || tutorProfile.status !== 'approved') {
+    throw new NotFoundError('Tutor not found');
+  }
+
+  const skip = (query.page - 1) * query.limit;
+  const sortBy = query.sortBy ?? 'createdAt';
+
+  const [reviews, total] = await Promise.all([
+    reviewRepository.findReviewsByTutorProfileId(
+      tutorProfileId,
+      skip,
+      query.limit,
+      sortBy,
+      query.sortOrder,
+    ),
+    reviewRepository.countReviewsByTutorProfileId(tutorProfileId),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+    },
+  };
 }
 
 /**
