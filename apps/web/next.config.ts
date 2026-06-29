@@ -25,21 +25,26 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-images: {
-  remotePatterns: [
-    {
-      protocol: "http",
-      hostname: "localhost",
-      port: "4000",
-      pathname: "/**",
-    },
-    {
-      protocol: "https",
-      hostname: "api.mywebsite.com",
-      pathname: "/**",
-    },
-  ],
-},
+  images: {
+    localPatterns: [
+      {
+        pathname: "/api/files/avatars/**",
+      },
+    ],
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "4000",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.mywebsite.com",
+        pathname: "/**",
+      },
+    ],
+  },
   
 };
 
