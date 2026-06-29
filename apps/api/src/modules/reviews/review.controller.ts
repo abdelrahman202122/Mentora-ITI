@@ -85,11 +85,25 @@ export async function listMyReviews(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify the authenticated learner exists on req.user.
-    // TODO: Read pagination and filtering values from validated query.
-    // TODO: Call reviewService.listMyReviews with learner identity.
-    // TODO: Return reviews and pagination metadata with sendSuccess.
-    await reviewService.listMyReviews();
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const query = req.query as unknown as ListReviewsQuery;
+    const learnerId = new Types.ObjectId(req.user.userId);
+    const tutorProfileId = query.tutorProfileId
+      ? new Types.ObjectId(query.tutorProfileId)
+      : undefined;
+
+    const result = await reviewService.listMyReviews(learnerId, {
+      page: query.page,
+      limit: query.limit,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+      tutorProfileId,
+    });
+
+    sendSuccess(res, 200, 'Reviews retrieved successfully', result);
   } catch (error) {
     next(error);
   }

@@ -154,10 +154,43 @@ export async function listTutorReviews(
 /**
  * List reviews created by a learner.
  */
-export async function listMyReviews(): Promise<void> {
-  // TODO: Confirm the learner is authenticated.
-  // TODO: Delegate pagination and filtering to reviewRepository.findReviewsByLearnerId.
-  // TODO: Return learner-owned review data and pagination metadata.
+export async function listMyReviews(
+  learnerId: Types.ObjectId,
+  query: {
+    page: number;
+    limit: number;
+    sortBy?: string;
+    sortOrder: 'asc' | 'desc';
+    tutorProfileId?: Types.ObjectId;
+  },
+): Promise<PaginatedReviewsResponse> {
+  const skip = (query.page - 1) * query.limit;
+  const sortBy = query.sortBy ?? 'createdAt';
+
+  const [reviews, total] = await Promise.all([
+    reviewRepository.findReviewsByLearnerId(
+      learnerId,
+      skip,
+      query.limit,
+      sortBy,
+      query.sortOrder,
+      query.tutorProfileId,
+    ),
+    reviewRepository.countReviewsByLearnerId(
+      learnerId,
+      query.tutorProfileId,
+    ),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+    },
+  };
 }
 
 /**

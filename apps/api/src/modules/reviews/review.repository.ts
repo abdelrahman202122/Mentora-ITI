@@ -97,8 +97,15 @@ export async function findReviewsByLearnerId(
   limit: number,
   sortBy = 'createdAt',
   sortOrder: 'asc' | 'desc' = 'desc',
+  tutorProfileId?: Types.ObjectId,
 ): Promise<ReviewResponse[]> {
-  return ReviewModel.find({ learnerId })
+  const query: Record<string, unknown> = { learnerId };
+
+  if (tutorProfileId) {
+    query.tutorProfileId = tutorProfileId;
+  }
+
+  return ReviewModel.find(query)
     .skip(skip)
     .limit(limit)
     .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
@@ -111,8 +118,15 @@ export async function findReviewsByLearnerId(
  */
 export async function countReviewsByLearnerId(
   learnerId: Types.ObjectId,
+  tutorProfileId?: Types.ObjectId,
 ): Promise<number> {
-  return ReviewModel.countDocuments({ learnerId }).exec();
+  const query: Record<string, unknown> = { learnerId };
+
+  if (tutorProfileId) {
+    query.tutorProfileId = tutorProfileId;
+  }
+
+  return ReviewModel.countDocuments(query).exec();
 }
 
 /**
