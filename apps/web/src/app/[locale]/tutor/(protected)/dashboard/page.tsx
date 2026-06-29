@@ -126,7 +126,6 @@
 
 'use client'
 
-import { useState } from "react";
 import { CreditCard, School, Timer, Video } from "lucide-react";
 import StatCard from "@/components/tutor/StatCard";
 import BookingCard from "@/components/tutor/BookingCard";
@@ -136,6 +135,7 @@ import { useRejectBooking } from "@/hooks/booking/rejectBooking";
 import { useCancelBooking } from "@/hooks/booking/cancelBooking";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
 import type { BookingStatus } from "@/services/booking-services/getMyBooking";
+import { useEffect, useState } from "react";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -213,9 +213,18 @@ export default function InstructorDashboard() {
     variables: cancelingVariables,
   } = useCancelBooking();
 
-  const bookings          = data?.bookings ?? [];
-  const totalPages        = data?.pagination?.totalPages ?? 1;
-  const completedBookings = completedData?.bookings ?? [];
+  // const bookings          = data?.bookings ?? [];
+  // const totalPages        = data?.pagination?.totalPages ?? 1;
+  // const completedBookings = completedData?.bookings ?? [];
+   const bookings          = data?.bookings ?? [];
+  //  const totalPages        = data?.pagination?.totalPages ?? 1;
+    const totalPages = Math.max(data?.pagination?.totalPages ?? 1, 1);
+   const completedBookings = completedData?.bookings ?? [];
+// useEffect(() => {
+//   if (currentPage > totalPages) {
+//     setCurrentPage(totalPages);
+//   }
+// }, [currentPage, totalPages]);
 
   // ── stats ────────────────────────────────────────────────────────────────
   const totalMinutes  = completedBookings.reduce((sum, b) => sum + b.durationMinutes, 0);

@@ -604,3 +604,6 @@
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-29T20:21:33.233Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-29T20:21:33.380Z"}
 {"level":"info","message":"::1 - - [29/Jun/2026:20:22:02 +0000] \"GET /api/users/me HTTP/1.1\" 200 138 \"-\" \"node\"","timestamp":"2026-06-29T20:22:02.400Z"}
+{"level":"info","message":"::1 - - [29/Jun/2026:20:24:27 +0000] \"GET /api/earnings/summary HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-29T20:24:27.470Z"}
+{"level":"info","message":"::1 - - [29/Jun/2026:20:24:27 +0000] \"GET /api/earnings/me?page=1&limit=10 HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-29T20:24:27.564Z"}
+{"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-29T22:21:28.614Z"}
