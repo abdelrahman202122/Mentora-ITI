@@ -262,5 +262,93 @@
       "unauthorized": "You are not authorized to perform this action",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "home": {
+    "header": {
+      "becomeTutor": "Become a Tutor",
+      "dashboard": "My dashboard",
+      "logOut": "Log out",
+      "loggingOut": "Logging out...",
+      "logIn": "Log in",
+      "loadingAccount": "Loading account"
+    },
+    "hero": {
+      "badge": "Tutoring that fits",
+      "title": "Find the right tutor for your learning goals",
+      "description": "Browse verified tutors or ask Mentora AI to suggest matches based on your subject, level, language, and budget.",
+      "findTutors": "Find tutors",
+      "socialProof": "1,200+ tutors ready to help",
+      "verifiedBadge": "Verified tutors",
+      "verifiedDescription": "Compare subjects, levels, prices, and availability.",
+      "heroImageAlt": "Learner studying with tutor support"
+    },
+    "subjects": {
+      "title": "Find tutors by",
+      "titleHighlight": "subject",
+      "sociology": "Sociology",
+      "english": "English",
+      "history": "History",
+      "mathematics": "Mathematics",
+      "chemistry": "Chemistry",
+      "biology": "Biology"
+    },
+    "grades": {
+      "title": "Find support for every level",
+      "preschool": "Preschool",
+      "primary": "Primary School",
+      "middle": "Middle School",
+      "secondary": "Secondary School",
+      "university": "University"
+    },
+    "howItWorks": {
+      "title": "How Mentora works",
+      "subtitle": "Go from tutor search to booked lesson in three clear steps.",
+      "step1Title": "1. Find a tutor",
+      "step1Description": "Search verified tutors by subject, level, price, language, and availability.",
+      "step2Title": "2. Message your match",
+      "step2Description": "Ask questions, share your learning goals, and confirm the tutor is the right fit.",
+      "step3Title": "3. Book a session",
+      "step3Description": "Choose a time, confirm your lesson, and pay securely through Mentora."
+    },
+    "reviews": {
+      "title": "What learners and families say",
+      "review1Name": "Mr. Moataz",
+      "review1Subject": "Physics",
+      "review1Text": "My son improved in both chemistry and physics after a few focused lessons.",
+      "review2Name": "Ms. Ghada",
+      "review2Subject": "German",
+      "review2Text": "Ms. Ghada explained German clearly and helped us choose a learning plan that made sense.",
+      "review3Name": "Ms. Marihan",
+      "review3Subject": "Arabic",
+      "review3Text": "My child is more confident in Arabic and looks forward to every lesson.",
+      "review4Name": "Ms. Farida",
+      "review4Subject": "French",
+      "review4Text": "Supportive, patient, and easy to communicate with before booking."
+    },
+    "startLearning": {
+      "title": "Ready to find your tutor?",
+      "description": "Search verified tutors, compare your options, and book the lesson that fits your goals.",
+      "cta": "Find tutors"
+    },
+    "footer": {
+      "description": "Mentora connects learners with verified tutors for personalized lessons, secure booking, and clear communication before every session.",
+      "explore": "Explore",
+      "home": "Home",
+      "subjects": "Subjects",
+      "howItWorks": "How It Works",
+      "testimonials": "Testimonials",
+      "contactLegal": "Contact & Legal",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "helpCenter": "Help Center",
+      "newsletter": "Newsletter",
+      "newsletterDescription": "Get tutor-search tips, platform updates, and learning resources in your inbox.",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "Subscribe to updates",
+      "copyright": "© {year} Mentora. All rights reserved.",
+      "madeWith": "Made with",
+      "madeAt": "at ITI Lab",
+      "backToTop": "Back to top"
+    }
   }
 }
