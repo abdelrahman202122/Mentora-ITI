@@ -33,7 +33,14 @@ export default function Header() {
       )
     : "";
   const tutorProfilePath = getLocalePath(locale, "/tutor/profile/create");
-  const becomeTutorHref = `${loginPath}?next=${encodeURIComponent(tutorProfilePath)}`;
+
+  const registerPath = getLocalePath(locale, "/register");
+
+  /** Guest: register first, then login, then redirect to tutor profile creation */
+  const becomeTutorRegisterHref = `${registerPath}?next=${encodeURIComponent(tutorProfilePath)}`;
+
+  /** Whether user can see the "Become a Tutor" CTA */
+  const showBecomeTutor = !isPending && (!user || user.role === "learner");
 
   const handleLogout = async () => {
     try {
@@ -43,17 +50,6 @@ export default function Header() {
     } finally {
       setIsMenuOpen(false);
       router.push(loginPath);
-    }
-  };
-
-  const handleBecomeTutor = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Failed to log out before becoming a tutor:", error);
-    } finally {
-      setIsMenuOpen(false);
-      router.push(becomeTutorHref);
     }
   };
 
@@ -71,23 +67,18 @@ export default function Header() {
           <span className="truncate">Mentora</span>
         </Link>
 
+        {/* ── Desktop nav ── */}
         <div className="hidden items-center gap-2 md:flex">
           {isPending ? (
             <Loader2 className="size-5 animate-spin text-indigo-600" />
           ) : user ? (
             <>
-              {user.role === "learner" && (
-                <Button
-                  onClick={handleBecomeTutor}
-                  disabled={isLoggingOut}
-                  variant="outline"
-                >
-                  {isLoggingOut ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
+              {showBecomeTutor && (
+                <Button asChild variant="outline">
+                  <Link href={tutorProfilePath}>
                     <GraduationCap className="size-4" />
-                  )}
-                  Become a Tutor
+                    Become a Tutor
+                  </Link>
                 </Button>
               )}
 
@@ -113,12 +104,14 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Button asChild variant="outline">
-                <Link href={becomeTutorHref}>
-                  <GraduationCap className="size-4" />
-                  Become a Tutor
-                </Link>
-              </Button>
+              {showBecomeTutor && (
+                <Button asChild variant="outline">
+                  <Link href={becomeTutorRegisterHref}>
+                    <GraduationCap className="size-4" />
+                    Become a Tutor
+                  </Link>
+                </Button>
+              )}
 
               <Button asChild>
                 <Link href={loginPath}>
@@ -143,6 +136,7 @@ export default function Header() {
         </Button>
       </nav>
 
+      {/* ── Mobile nav ── */}
       {isMenuOpen ? (
         <div className="border-t border-gray-100 bg-white px-4 py-3 shadow-sm md:hidden">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-2">
@@ -153,20 +147,15 @@ export default function Header() {
               </div>
             ) : user ? (
               <>
-                {user.role === "learner" && (
-                  <Button
-                    className="justify-start"
-                    disabled={isLoggingOut}
-                    onClick={handleBecomeTutor}
-                    type="button"
-                    variant="outline"
-                  >
-                    {isLoggingOut ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
+                {showBecomeTutor && (
+                  <Button asChild className="justify-start" variant="outline">
+                    <Link
+                      href={tutorProfilePath}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       <GraduationCap className="size-4" />
-                    )}
-                    Become a Tutor
+                      Become a Tutor
+                    </Link>
                   </Button>
                 )}
 
@@ -194,15 +183,17 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Button asChild className="justify-start" variant="outline">
-                  <Link
-                    href={becomeTutorHref}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <GraduationCap className="size-4" />
-                    Become a Tutor
-                  </Link>
-                </Button>
+                {showBecomeTutor && (
+                  <Button asChild className="justify-start" variant="outline">
+                    <Link
+                      href={becomeTutorRegisterHref}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <GraduationCap className="size-4" />
+                      Become a Tutor
+                    </Link>
+                  </Button>
+                )}
 
                 <Button asChild className="justify-start">
                   <Link href={loginPath} onClick={() => setIsMenuOpen(false)}>
