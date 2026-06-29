@@ -1,6 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { routing } from '../../i18n/routing';
-import { HtmlLang } from '@/components/i18n/HtmlLang';
 import Footer from '@/components/home/Footer';
 
 function isSupportedLocale(
@@ -23,7 +22,6 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale}>
-      <HtmlLang locale={locale} />
       {children}
       {/* <Footer /> */}
     </NextIntlClientProvider>

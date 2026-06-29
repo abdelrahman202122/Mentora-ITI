@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
@@ -190,20 +190,6 @@ export default function ResultsStep({
     queryFn: () => searchTutors(queryParams),
   });
 
-  useEffect(() => {
-    setPage(1);
-  }, [
-    languageQuery,
-    maxHourlyRate,
-    minHourlyRate,
-    minRating,
-    searchQuery,
-    selectedCurriculum,
-    selectedLevel,
-    selectedSubject,
-    sortBy,
-  ]);
-
   const tutors = data?.tutors ?? [];
   const pagination = data?.pagination;
 
@@ -230,6 +216,7 @@ export default function ResultsStep({
         href={getLocalePath(locale, "/ai-assistant")}
         title={t("aiCta.title")}
         description={t("aiCta.description")}
+        actionLabel={t("aiCta.actionLabel")}
       />
 
       <Card>
@@ -253,7 +240,10 @@ export default function ResultsStep({
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
               <Input
                 className="h-9 bg-white pl-9"
-                onChange={(event) => setSearchQuery(event.target.value)}
+                onChange={(event) => {
+                  setPage(1);
+                  setSearchQuery(event.target.value);
+                }}
                 placeholder={t("filters.searchPlaceholder")}
                 type="search"
                 value={searchQuery}
@@ -263,6 +253,7 @@ export default function ResultsStep({
             <Select
               value={selectedCurriculum}
               onValueChange={(value) => {
+                setPage(1);
                 setSelectedCurriculum(value);
                 setCurriculum?.(value === ALL_VALUE ? null : value);
               }}
@@ -285,6 +276,7 @@ export default function ResultsStep({
             <Select
               value={selectedLevel}
               onValueChange={(value) => {
+                setPage(1);
                 setSelectedLevel(value);
                 setLevel?.(value === ALL_VALUE ? null : value);
               }}
@@ -307,6 +299,7 @@ export default function ResultsStep({
             <Select
               value={selectedSubject}
               onValueChange={(value) => {
+                setPage(1);
                 setSelectedSubject(value);
                 setSubject?.(value === ALL_VALUE ? null : value);
               }}
@@ -328,7 +321,10 @@ export default function ResultsStep({
 
             <Select
               value={sortBy}
-              onValueChange={(value) => setSortBy(value as TutorSearchSort)}
+              onValueChange={(value) => {
+                setPage(1);
+                setSortBy(value as TutorSearchSort);
+              }}
             >
               <SelectTrigger className="h-9 w-full">
                 <SelectValue placeholder={t("filters.sortBy")} />
@@ -357,14 +353,20 @@ export default function ResultsStep({
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <Input
                 className="h-9 bg-white"
-                onChange={(event) => setLanguageQuery(event.target.value)}
+                onChange={(event) => {
+                  setPage(1);
+                  setLanguageQuery(event.target.value);
+                }}
                 placeholder={t("filters.languagesPlaceholder")}
                 value={languageQuery}
               />
               <Input
                 className="h-9 bg-white"
                 min={0}
-                onChange={(event) => setMinHourlyRate(event.target.value)}
+                onChange={(event) => {
+                  setPage(1);
+                  setMinHourlyRate(event.target.value);
+                }}
                 placeholder={t("filters.minRatePlaceholder")}
                 type="number"
                 value={minHourlyRate}
@@ -372,12 +374,21 @@ export default function ResultsStep({
               <Input
                 className="h-9 bg-white"
                 min={0}
-                onChange={(event) => setMaxHourlyRate(event.target.value)}
+                onChange={(event) => {
+                  setPage(1);
+                  setMaxHourlyRate(event.target.value);
+                }}
                 placeholder={t("filters.maxRatePlaceholder")}
                 type="number"
                 value={maxHourlyRate}
               />
-              <Select value={minRating} onValueChange={setMinRating}>
+              <Select
+                value={minRating}
+                onValueChange={(value) => {
+                  setPage(1);
+                  setMinRating(value);
+                }}
+              >
                 <SelectTrigger className="h-9 bg-white">
                   <SelectValue placeholder={t("filters.minimumRating")} />
                 </SelectTrigger>

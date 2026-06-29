@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import {
   Geist_Mono,
   Plus_Jakarta_Sans,
   Rubik,
 } from 'next/font/google';
 import { QueryProvider } from '@/providers/QueryProvider';
+import { routing } from '@/i18n/routing';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -35,10 +37,21 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') ?? '';
+  const pathLocale = pathname.split('/').filter(Boolean)[0];
+  const locale = routing.locales.includes(
+    pathLocale as (typeof routing.locales)[number],
+  )
+    ? pathLocale
+    : routing.defaultLocale;
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
+
   return (
     <html
       data-scroll-behavior="smooth"
-      lang="en"
+      lang={locale}
+      dir={dir}
       className={`${plusJakartaSans.variable} ${rubik.variable} ${geistMono.variable}`}
     >
       <body>

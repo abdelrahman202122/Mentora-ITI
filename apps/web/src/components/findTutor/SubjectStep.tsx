@@ -19,6 +19,7 @@ export default function SubjectStep({
 }: SubjectStepProps) {
   const locale = useLocale();
   const t = useTranslations("findTutor.subject");
+  const isRtl = locale === "ar";
   const { data: categories, isLoading, error } = useSubjectCategories();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -77,13 +78,19 @@ export default function SubjectStep({
 
       {/* Search Input */}
       <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-outline" />
+        <Search
+          className={`absolute top-1/2 -translate-y-1/2 size-5 text-outline ${
+            isRtl ? "right-4" : "left-4"
+          }`}
+        />
         <input
           type="text"
           placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-12 pr-4 py-4 bg-surface-container-low border border-outline-variant rounded-xl font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm"
+          className={`w-full py-4 bg-surface-container-low border border-outline-variant rounded-xl font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm ${
+            isRtl ? "pr-12 pl-4 text-right" : "pl-12 pr-4 text-left"
+          }`}
         />
       </div>
 
