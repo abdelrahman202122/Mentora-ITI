@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { GraduationCap, Loader2, Phone } from "lucide-react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -18,18 +19,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRegister } from "@/hooks/auth/use-auth";
 import {
-  backendRegisterSchema,
+  createBackendRegisterSchema,
   type BackendRegisterPayload,
 } from "@/schemas/auth/auth-schema";
 import { getLocalePath } from "@/utils/i18n/locale-path";
+import { getLocalizedAuthError } from "@/utils/auth/localized-auth-error";
 
 export default function RegisterPage() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("auth");
+  const tValidation = useTranslations("auth.validation");
+  const tErrors = useTranslations("auth.errors");
   const registerMutation = useRegister();
+
+  const registerSchema = useMemo(
+    () => createBackendRegisterSchema(tValidation),
+    [tValidation],
+  );
+
   const form = useForm<BackendRegisterPayload>({
-    resolver: zodResolver(backendRegisterSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -73,7 +83,7 @@ export default function RegisterPage() {
             <form className="space-y-6" onSubmit={form.handleSubmit(handleRegister)}>
               {registerMutation.error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-                  {registerMutation.error.message}
+                  {getLocalizedAuthError(registerMutation.error.message, tErrors)}
                 </div>
               )}
 
