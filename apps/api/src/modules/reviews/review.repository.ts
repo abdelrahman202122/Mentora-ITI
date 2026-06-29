@@ -50,6 +50,18 @@ export async function findReviewByBookingId(
 }
 
 /**
+ * Find a tutor profile by its ID with review visibility metadata.
+ */
+export async function findTutorProfileById(
+  tutorProfileId: Types.ObjectId,
+): Promise<{ _id: Types.ObjectId; status: string } | null> {
+  return TutorProfileModel.findById(tutorProfileId)
+    .select('_id status')
+    .lean<{ _id: Types.ObjectId; status: string }>()
+    .exec();
+}
+
+/**
  * Find paginated visible reviews for a tutor profile.
  */
 export async function findReviewsByTutorProfileId(
