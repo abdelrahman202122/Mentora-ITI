@@ -4,49 +4,14 @@
 import { X, Trash2, Loader2, Clock, Plus } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { useTutorAvailability } from '@/hooks/availability/useGetAvailability';
 import { useUpdateTutorAvailability } from '@/hooks/availability/usePutAvailability';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import { FormValues , schema} from '@/schemas/availability/availability-schema';
+import DaySection from '@/components/availability/DaySection'
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as const;
 type Day = typeof DAYS[number];
-
-
-function DaySection({ day, control, register }: { day: Day; control: any; register: any }) {
-  const { fields, remove } = useFieldArray({ control, name: day });
-  if (fields.length === 0) return null;
-
-  return (
-    <div className="space-y-2">
-      <p className="text-sm font-semibold capitalize text-primary">{day}</p>
-      {fields.map((field, index) => (
-        <div key={field.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
-          <Clock className="w-4 h-4 text-primary shrink-0" />
-          <input
-            type="time"
-            className="flex-1 bg-transparent text-sm border-none outline-none"
-            {...register(`${day}.${index}.startTime`)}
-          />
-          <span className="text-muted-foreground text-xs">to</span>
-          <input
-            type="time"
-            className="flex-1 bg-transparent text-sm border-none outline-none"
-            {...register(`${day}.${index}.endTime`)}
-          />
-          <button
-            type="button"
-            onClick={() => remove(index)}
-            className="h-7 w-7 rounded-lg border border-red-200 flex items-center justify-center hover:bg-red-50 transition shrink-0"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function EditAvailabilityForm({
   tutorId,
@@ -88,14 +53,6 @@ const [slotError, setSlotError] = useState('');
     });
   }, [availability]);
 
-//   function handleAddSlot() {
-//     if (!newSlotStart || !newSlotEnd) return;
-//     const current = form.getValues(newSlotDay) ?? [];
-//     form.setValue(newSlotDay, [...current, { startTime: newSlotStart, endTime: newSlotEnd }]);
-//     setNewSlotStart('');
-//     setNewSlotEnd('');
-//     setShowAddSlot(false);
-//   }
 
 function handleAddSlot() {
   if (!newSlotStart || !newSlotEnd) {

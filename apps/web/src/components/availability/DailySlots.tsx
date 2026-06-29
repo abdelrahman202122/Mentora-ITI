@@ -25,12 +25,19 @@ export default function DailySlots({ data, locale }: { data: TutorAvailabilitySl
             {day.slots.map((slot, i) => (
               <div key={i} className="flex items-center gap-2 bg-muted/40 rounded-lg px-3 py-2">
                 <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                {/* <span className="text-sm font-medium">{slot.startTime}</span>
+                <span className="text-sm font-medium">
+                  {new Date(slot.startAt).toLocaleTimeString(
+                    locale === 'ar' ? 'ar-EG' : 'en-US',
+                    { hour: '2-digit', minute: '2-digit' }
+                  )}
+                </span>
                 <span className="text-xs text-muted-foreground">→</span>
-                <span className="text-sm font-medium">{slot.endTime}</span> */}
-                <span className="text-sm font-medium">{new Date(slot.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                <span className="text-xs text-muted-foreground">→</span>
-                <span className="text-sm font-medium">{new Date(slot.endAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-sm font-medium">
+                  {new Date(slot.endAt).toLocaleTimeString(
+                    locale === 'ar' ? 'ar-EG' : 'en-US',
+                    { hour: '2-digit', minute: '2-digit' }
+                  )}
+                </span>
 
               </div>
             ))}

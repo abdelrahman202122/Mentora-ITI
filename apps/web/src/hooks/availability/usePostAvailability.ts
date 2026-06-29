@@ -14,6 +14,9 @@ export function useCreateTutorAvailability(tutorId: string | undefined) {
       queryClient.invalidateQueries({
         queryKey: ['tutorAvailabilitySlots', tutorId],
       })
+        queryClient.invalidateQueries({
+        queryKey: ['tutorAvailability', tutorId],
+  })
     },
   })
 }

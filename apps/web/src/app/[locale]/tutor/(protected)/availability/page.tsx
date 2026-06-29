@@ -14,17 +14,22 @@ import CreateAvailabilityForm from '@/components/availability/CreateAvailability
 
 export default function AvailabilityPage() {
   const locale = useLocale();
-  const { data: user } = useCurrentUser();
+const { data: user, isLoading: isUserLoading } = useCurrentUser();
 //   console.log('user object:', user);
 
   const tutorId = user?.id ?? '';
+function toLocalYmd(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
   const today = new Date();
-const startDate = today.toISOString().split('T')[0]; // e.g. "2026-06-29"
-const endOfWeek = new Date(today);
-endOfWeek.setDate(today.getDate() + 6);
-const endDate = endOfWeek.toISOString().split('T')[0]; // e.g. "2026-07-05"
-
-const { data: slots, isLoading: isSlotsLoading } = useTutorAvailabilitySlots(tutorId, startDate, endDate);
+  const startDate = toLocalYmd(today); // e.g. "2026-06-29"
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + 6);
+  const endDate = toLocalYmd(endOfWeek); // e.g. "2026-07-05"
+  const { data: slots, isLoading: isSlotsLoading } = useTutorAvailabilitySlots(tutorId, startDate, endDate);
 
 //   const { data: availability, isLoading: isAvailabilityLoading } = useTutorAvailability(tutorId);
 const { data: availability, isLoading: isAvailabilityLoading, error: availabilityError } = useTutorAvailability(tutorId);
@@ -68,7 +73,7 @@ const [showCreateForm, setShowCreateForm] = useState(false);
         </section> */}
 <section className="space-y-4">
   <h2 className="text-xl font-bold">Schedule Actions</h2>
-  {!isAvailabilityLoading && (
+  {!isUserLoading && !isAvailabilityLoading && (
     <div className="flex flex-wrap gap-3">
       {!hasAvailability ? (
         <button

@@ -1,7 +1,15 @@
 import { z } from "zod";
 
 
-const slotSchema = z.object({ startTime: z.string(), endTime: z.string() });
+const slotSchema = z
+  .object({
+    startTime: z.string().min(1, "Start time is required"),
+    endTime: z.string().min(1, "End time is required"),
+  })
+  .refine(({ startTime, endTime }) => endTime > startTime, {
+    path: ["endTime"],
+    message: "End time must be after start time",
+  });
 export const schema = z.object({
   timezone: z.string(),
   monday: z.array(slotSchema),

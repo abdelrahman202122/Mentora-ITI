@@ -9,14 +9,16 @@ import { useCurrentUser } from '@/hooks/auth/use-auth';
 
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as const;
 type Day = typeof DAYS[number];
-
+//--------------------------------------------------
 const schema = z.object({
   day: z.enum(DAYS),
   startTime: z.string().min(1, 'Required'),
   endTime: z.string().min(1, 'Required'),
   timezone: z.string().min(1, 'Required'),
+}).refine((data) => data.endTime > data.startTime, {
+  message: 'End time must be after start time',
+  path: ['endTime'],
 });
-
 type FormValues = z.infer<typeof schema>;
 
 export default function AddSlotForm({ onClose }: { onClose: () => void }) {
