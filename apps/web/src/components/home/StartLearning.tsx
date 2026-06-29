@@ -27,7 +27,7 @@ export default function StartLearning() {
               size="lg"
               className="w-full cursor-pointer rounded-lg bg-indigo-600 px-8 py-6 text-base font-medium text-white transition-colors duration-200 hover:bg-indigo-700 sm:w-auto"
             >
-              <Link href={getLocalePath(locale, "/FindTutor")}>Find tutors</Link>
+              <Link href={getLocalePath(locale, "/find-tutor")}>Find tutors</Link>
             </Button>
           </div>
         </div>

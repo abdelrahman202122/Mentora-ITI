@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { GraduationCap, Loader2 } from 'lucide-react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -19,16 +20,25 @@ import { Input } from '@/components/ui/input';
 import { useLogin } from '@/hooks/auth/use-auth';
 import { getSafeRedirectPath } from '@/utils/auth/safe-redirect';
 import {
-  loginSchema,
+  createLoginSchema,
   type LoginPayload,
 } from '@/schemas/auth/auth-schema';
 import { getLocalePath } from '@/utils/i18n/locale-path';
+import { getLocalizedAuthError } from '@/utils/auth/localized-auth-error';
 
 export default function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations('auth');
+  const tValidation = useTranslations('auth.validation');
+  const tErrors = useTranslations('auth.errors');
   const loginMutation = useLogin();
+
+  const loginSchema = useMemo(
+    () => createLoginSchema(tValidation),
+    [tValidation],
+  );
+
   const form = useForm<LoginPayload>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -79,7 +89,7 @@ export default function LoginPage() {
             <form className="space-y-6" onSubmit={form.handleSubmit(handleLogin)}>
               {loginMutation.error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-                  {loginMutation.error.message}
+                  {getLocalizedAuthError(loginMutation.error.message, tErrors)}
                 </div>
               )}
 
