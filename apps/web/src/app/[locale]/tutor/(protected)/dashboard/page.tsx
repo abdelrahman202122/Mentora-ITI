@@ -190,7 +190,7 @@ export default function InstructorDashboard() {
   // completed bookings for stats (fetch all at once)
   const { data: completedData } = useMyBookings({
     bookingStatus: "completed",
-    limit: 1000,
+    limit: 80,
   });
 
   const { data: currentUser } = useCurrentUser();

@@ -15,7 +15,7 @@ export default function PageHeader() {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      {/* <div className="flex flex-wrap items-center gap-3">
         <button className="btn-outline gap-2">
           <CalendarDays className="h-4 w-4" />
           Oct 2023
@@ -25,7 +25,7 @@ export default function PageHeader() {
           <Download className="h-4 w-4" />
           Export
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }
