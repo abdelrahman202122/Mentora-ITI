@@ -34,8 +34,15 @@ export async function createReview(
  */
 export async function findReviewById(
   reviewId: Types.ObjectId,
+  session?: ClientSession,
 ): Promise<ReviewResponse | null> {
-  const review = await ReviewModel.findById(reviewId).exec();
+  const query = ReviewModel.findById(reviewId);
+
+  if (session) {
+    query.session(session);
+  }
+
+  const review = await query.exec();
   return review ? toReviewResponse(review) : null;
 }
 
