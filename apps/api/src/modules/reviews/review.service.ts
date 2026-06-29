@@ -12,6 +12,7 @@ import * as reviewRepository from './review.repository.js';
 import type {
   PaginatedReviewsResponse,
   ReviewResponse,
+  UpdateReviewInput,
 } from './review.types.js';
 
 function createReviewError(message: string, statusCode: number): AppError {
@@ -196,19 +197,90 @@ export async function listMyReviews(
 /**
  * Update a learner-owned review.
  */
-export async function updateReview(): Promise<void> {
-  // TODO: Load the review by ID.
-  // TODO: Ensure the review belongs to the authenticated learner.
-  // TODO: Apply rating/comment updates through reviewRepository.updateReviewById.
-  // TODO: Recalculate tutor aggregate rating and total review count.
+export async function updateReview(
+  learnerId: Types.ObjectId,
+  reviewId: Types.ObjectId,
+  updates: UpdateReviewInput,
+): Promise<ReviewResponse> {
+  const sanitizedUpdates: UpdateReviewInput = {};
+
+  if (updates.rating !== undefined) {
+    sanitizedUpdates.rating = updates.rating;
+  }
+
+  if (updates.comment !== undefined) {
+    sanitizedUpdates.comment = updates.comment;
+  }
+
+  if (
+    sanitizedUpdates.rating === undefined &&
+    sanitizedUpdates.comment === undefined
+  ) {
+    throw createReviewError('At least one field must be provided', 400);
+  }
+
+  const review = await reviewRepository.findReviewById(reviewId);
+
+  if (!review) {
+    throw new NotFoundError('Review not found');
+  }
+
+  if (!review.learnerId.equals(learnerId)) {
+    throw new ForbiddenError('You can only update your own reviews');
+  }
+
+  return withTransaction(async (session) => {
+    const updatedReview = await reviewRepository.updateReviewById(
+      reviewId,
+      sanitizedUpdates,
+      session,
+    );
+
+    if (!updatedReview) {
+      throw new NotFoundError('Review not found');
+    }
+
+    await reviewRepository.calculateTutorRatingAggregate(
+      review.tutorProfileId,
+      session,
+    );
+
+    return updatedReview;
+  });
 }
 
 /**
  * Delete a learner-owned review.
  */
-export async function deleteReview(): Promise<void> {
-  // TODO: Load the review by ID.
-  // TODO: Ensure the review belongs to the authenticated learner.
-  // TODO: Delete or hide the review through reviewRepository.deleteReviewById.
-  // TODO: Recalculate tutor aggregate rating and total review count.
+export async function deleteReview(
+  learnerId: Types.ObjectId,
+  reviewId: Types.ObjectId,
+): Promise<ReviewResponse> {
+  const review = await reviewRepository.findReviewById(reviewId);
+
+  if (!review) {
+    throw new NotFoundError('Review not found');
+  }
+
+  if (!review.learnerId.equals(learnerId)) {
+    throw new ForbiddenError('You can only delete your own reviews');
+  }
+
+  return withTransaction(async (session) => {
+    const deletedReview = await reviewRepository.deleteReviewById(
+      reviewId,
+      session,
+    );
+
+    if (!deletedReview) {
+      throw new NotFoundError('Review not found');
+    }
+
+    await reviewRepository.calculateTutorRatingAggregate(
+      review.tutorProfileId,
+      session,
+    );
+
+    return deletedReview;
+  });
 }
