@@ -27,6 +27,7 @@ import { useUploadAvatar } from "@/hooks/tutor/useUploadeAvatar";
 import { Experience, TutorProfileData } from "@/types/tutor/tutor-profile";
 import { UserData } from "@/services/tutor/patchProfile";
 import { createTutorProfile } from "@/services/tutor/postProfile";
+import { useLocale } from "next-intl";
 
 const MONTHS = [
   { value: 1, label: "January" },
@@ -61,7 +62,7 @@ function FieldError({ message }: { message?: string }) {
 export default function TutorProfileForm({ mode, data, tutorId }: Props) {
   const isUpdate = mode === "update";
   const router = useRouter();
-
+  const locale = useLocale()
   // ── switched to useUpdateTutorProfile so UI only refreshes after server confirms ──
   const updateProfile = useUpdateTutorProfile(tutorId);
   const uploadAvatar = useUploadAvatar(tutorId);
@@ -181,8 +182,7 @@ const onSubmit = async (values: TutorProfilePayload) => {
       await updateProfile.mutateAsync(payload);
     } else {
       await createTutorProfile(payload);
-      router.push("tutor/dashboard");
-    }
+      router.push(`/${locale}/tutor/dashboard`);    }
   } catch {
     // error handled by your toast setup
   }
