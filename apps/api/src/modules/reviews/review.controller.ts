@@ -5,7 +5,9 @@ import { UnauthorizedError } from '../../common/errors/AppError.js';
 import type {
   CreateReviewInput,
   ListReviewsQuery,
+  ReviewIdParam,
   TutorIdParam,
+  UpdateReviewInput,
 } from '../../validators/review.js';
 import * as reviewService from './review.service.js';
 
@@ -119,12 +121,20 @@ export async function updateReview(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify the authenticated learner exists on req.user.
-    // TODO: Read reviewId from validated params.
-    // TODO: Read rating/comment updates from validated body.
-    // TODO: Call reviewService.updateReview with learner identity.
-    // TODO: Return the updated review with sendSuccess.
-    await reviewService.updateReview();
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const { reviewId } = req.params as ReviewIdParam;
+    const updates = req.body as UpdateReviewInput;
+
+    const review = await reviewService.updateReview(
+      new Types.ObjectId(req.user.userId),
+      new Types.ObjectId(reviewId),
+      updates,
+    );
+
+    sendSuccess(res, 200, 'Review updated successfully', review);
   } catch (error) {
     next(error);
   }
@@ -140,11 +150,18 @@ export async function deleteReview(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify the authenticated learner exists on req.user.
-    // TODO: Read reviewId from validated params.
-    // TODO: Call reviewService.deleteReview with learner identity.
-    // TODO: Return a success response with sendSuccess.
-    await reviewService.deleteReview();
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const { reviewId } = req.params as ReviewIdParam;
+
+    await reviewService.deleteReview(
+      new Types.ObjectId(req.user.userId),
+      new Types.ObjectId(reviewId),
+    );
+
+    sendSuccess(res, 200, 'Review deleted successfully');
   } catch (error) {
     next(error);
   }
