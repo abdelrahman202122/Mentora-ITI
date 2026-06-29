@@ -1,98 +1,73 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, RefreshCcw, User, Star } from "lucide-react";
-import { TutorCard } from "./TutorCard";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Calendar,
+  Eye,
+  RefreshCcw,
+  Search,
+  SlidersHorizontal,
+  Star,
+  User,
+} from "lucide-react";
 
-interface MockTutor {
-  id: number;
-  name: string;
-  title: string;
-  bio: string;
-  subjects: string[];
-  levels: string[];
-  curricula: string[];
-  hourlyRate: number;
-  currency: string;
-  avatarGradient: string;
-  rating: number;
-  totalReviews: number;
-}
+import { AIFinderCta } from "@/components/ai/AIFinderCta";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  searchTutors,
+  type TutorSearchItem,
+  type TutorSearchSort,
+} from "@/services/tutorsLearner/tutor-search";
+import { getLocalePath } from "@/utils/i18n/locale-path";
 
-const STATIC_TUTORS: MockTutor[] = [
-  {
-    id: 1,
-    name: "Dr. Mona Hassan",
-    title: "Mathematics Professor & Researcher",
-    bio: "Helping high school and university students master Algebra, Calculus, and Statistics. Specializes in simplified math proofs and test preparation.",
-    subjects: ["Mathematics", "Algebra", "Calculus"],
-    levels: ["secondary", "university"],
-    curricula: ["british", "national"],
-    hourlyRate: 250,
-    currency: "EGP",
-    avatarGradient: "from-blue-500 to-indigo-600",
-    rating: 4.8,
-    totalReviews: 34,
-  },
-  {
-    id: 2,
-    name: "Sarah Jenkins",
-    title: "Software Engineer & Coding Tutor",
-    bio: "Teaching Python, JavaScript, and Computer Science fundamentals. Interactive lessons with practical coding projects suitable for all levels.",
-    subjects: ["Computer Science", "Programming"],
-    levels: ["preparatory", "secondary", "university"],
-    curricula: ["american", "international"],
-    hourlyRate: 400,
-    currency: "EGP",
-    avatarGradient: "from-emerald-400 to-teal-600",
-    rating: 4.9,
-    totalReviews: 57,
-  },
-  {
-    id: 3,
-    name: "Marcus Thorne",
-    title: "Senior Physics & Chemistry Educator",
-    bio: "Simplifying thermodynamics, mechanics, and organic chemistry. Dedicated to making science intuitive and fun through visual models.",
-    subjects: ["Physics", "Chemistry", "Science"],
-    levels: ["secondary", "university"],
-    curricula: ["british", "american"],
-    hourlyRate: 350,
-    currency: "EGP",
-    avatarGradient: "from-rose-400 to-pink-600",
-    rating: 4.7,
-    totalReviews: 28,
-  },
-  {
-    id: 4,
-    name: "Elena Rodriguez",
-    title: "Bilingual Language & Literature Instructor",
-    bio: "Native Spanish and English speaker focusing on conversational fluency, creative writing, and Cambridge English exam preparation.",
-    subjects: ["English", "Spanish", "Languages"],
-    levels: ["primary", "preparatory", "secondary"],
-    curricula: ["international", "british"],
-    hourlyRate: 300,
-    currency: "EGP",
-    avatarGradient: "from-amber-400 to-orange-500",
-    rating: 5.0,
-    totalReviews: 42,
-  },
-  {
-    id: 5,
-    name: "David Chen",
-    title: "High School Biology Specialist",
-    bio: "Passionate about genetics, anatomy, and environmental science. Experienced in national and international curriculum delivery.",
-    subjects: ["Biology", "Science"],
-    levels: ["primary", "preparatory", "secondary"],
-    curricula: ["national", "american"],
-    hourlyRate: 280,
-    currency: "EGP",
-    avatarGradient: "from-purple-500 to-fuchsia-600",
-    rating: 4.6,
-    totalReviews: 19,
-  }
-];
+const ALL_VALUE = "all";
+const RESULTS_PAGE_SIZE = 10;
 
-interface ResultsStepProps {
+const curriculumOptions = [
+  { value: "national_new", labelKey: "national" },
+  { value: "igcse", labelKey: "igcse" },
+  { value: "british", labelKey: "british" },
+  { value: "american", labelKey: "american" },
+  { value: "ib", labelKey: "ib" },
+  { value: "none", labelKey: "noCurriculum" },
+] as const;
+
+const levelOptions = [
+  { value: "primary", labelKey: "primary" },
+  { value: "preparatory", labelKey: "preparatory" },
+  { value: "secondary", labelKey: "secondary" },
+  { value: "university", labelKey: "university" },
+  { value: "professional", labelKey: "professional" },
+] as const;
+
+const subjectOptions = [
+  { value: "mathematics", labelKey: "mathematics" },
+  { value: "sciences", labelKey: "sciences" },
+  { value: "languages", labelKey: "languages" },
+  { value: "technology", labelKey: "technology" },
+] as const;
+
+type ResultsStepProps = {
   curriculum: string | null;
   level: string | null;
   subject: string | null;
@@ -101,6 +76,59 @@ interface ResultsStepProps {
   setCurriculum?: (value: string | null) => void;
   setLevel?: (value: string | null) => void;
   setSubject?: (value: string | null) => void;
+};
+
+function normalizeFilterValue(value: string | null | undefined) {
+  return value && value !== ALL_VALUE ? value : undefined;
+}
+
+function parseOptionalNumber(value: string) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+function splitLanguages(value: string) {
+  return value
+    .split(",")
+    .map((language) => language.trim())
+    .filter(Boolean);
+}
+
+function getTutorInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function getPrimarySubject(tutor: TutorSearchItem) {
+  return tutor.subjects[0]?.title ?? "General tutoring";
+}
+
+function TutorResultsSkeleton() {
+  return (
+    <div className="grid gap-4">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Card key={index}>
+          <CardContent className="flex flex-col gap-4 md:flex-row">
+            <div className="h-14 w-14 shrink-0 rounded-lg bg-muted" />
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="h-4 w-40 rounded bg-muted" />
+              <div className="h-3 w-64 max-w-full rounded bg-muted" />
+              <div className="h-3 w-full rounded bg-muted" />
+              <div className="flex gap-2">
+                <div className="h-6 w-20 rounded-full bg-muted" />
+                <div className="h-6 w-24 rounded-full bg-muted" />
+              </div>
+            </div>
+            <div className="h-20 w-full shrink-0 rounded-lg bg-muted md:w-40" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }
 
 export default function ResultsStep({
@@ -112,200 +140,449 @@ export default function ResultsStep({
   setLevel,
   setSubject,
 }: ResultsStepProps) {
-  // Static state filters initialized with the selections from the previous steps
+  const locale = useLocale();
+  const t = useTranslations("findTutor");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCurriculum, setSelectedCurriculum] = useState(curriculum || "");
-  const [selectedLevel, setSelectedLevel] = useState(level || "");
-  const [selectedSubject, setSelectedSubject] = useState(subject || "");
-  const [bookingMessage, setBookingMessage] = useState<string | null>(null);
+  const [selectedCurriculum, setSelectedCurriculum] = useState(
+    curriculum || ALL_VALUE,
+  );
+  const [selectedLevel, setSelectedLevel] = useState(level || ALL_VALUE);
+  const [selectedSubject, setSelectedSubject] = useState(subject || ALL_VALUE);
+  const [sortBy, setSortBy] = useState<TutorSearchSort>("relevance");
+  const [languageQuery, setLanguageQuery] = useState("");
+  const [minHourlyRate, setMinHourlyRate] = useState("");
+  const [maxHourlyRate, setMaxHourlyRate] = useState("");
+  const [minRating, setMinRating] = useState(ALL_VALUE);
+  const [page, setPage] = useState(1);
 
-  // Filter logic
-  const filteredTutors = useMemo(() => {
-    return STATIC_TUTORS.filter((tutor) => {
-      // 1. Text Search Filter
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matchesQuery =
-          tutor.name.toLowerCase().includes(query) ||
-          tutor.title.toLowerCase().includes(query) ||
-          tutor.bio.toLowerCase().includes(query) ||
-          tutor.subjects.some((sub) => sub.toLowerCase().includes(query));
-        if (!matchesQuery) return false;
-      }
+  const queryParams = useMemo(() => {
+    const trimmedSearch = searchQuery.trim();
+    const languages = splitLanguages(languageQuery);
 
-      // 2. Curriculum Filter
-      if (selectedCurriculum) {
-        const matchesCurriculum = tutor.curricula.includes(selectedCurriculum.toLowerCase());
-        if (!matchesCurriculum) return false;
-      }
+    return {
+      q: trimmedSearch.length >= 2 ? trimmedSearch : undefined,
+      category: normalizeFilterValue(selectedSubject),
+      educationLevel: normalizeFilterValue(selectedLevel),
+      curriculum: normalizeFilterValue(selectedCurriculum),
+      languages: languages.length > 0 ? languages : undefined,
+      minHourlyRate: parseOptionalNumber(minHourlyRate),
+      maxHourlyRate: parseOptionalNumber(maxHourlyRate),
+      minRating: parseOptionalNumber(minRating),
+      sortBy,
+      page,
+      limit: RESULTS_PAGE_SIZE,
+    };
+  }, [
+    languageQuery,
+    maxHourlyRate,
+    minHourlyRate,
+    minRating,
+    page,
+    searchQuery,
+    selectedCurriculum,
+    selectedLevel,
+    selectedSubject,
+    sortBy,
+  ]);
 
-      // 3. Level Filter
-      if (selectedLevel) {
-        const matchesLevel = tutor.levels.includes(selectedLevel.toLowerCase());
-        if (!matchesLevel) return false;
-      }
+  const { data, error, isError, isFetching, isPending, refetch } = useQuery({
+    queryKey: ["tutor-search", queryParams],
+    queryFn: () => searchTutors(queryParams),
+  });
 
-      // 4. Subject Filter
-      if (selectedSubject) {
-        const querySub = selectedSubject.toLowerCase();
-        const matchesSubject = tutor.subjects.some((sub) => {
-          const sLower = sub.toLowerCase();
-          if (querySub === "math" && (sLower.includes("math") || sLower.includes("calculus") || sLower.includes("algebra"))) return true;
-          if (querySub === "science" && (sLower.includes("science") || sLower.includes("phys") || sLower.includes("chem") || sLower.includes("bio"))) return true;
-          if (querySub === "languages" && (sLower.includes("english") || sLower.includes("spanish"))) return true;
-          return sLower.includes(querySub);
-        });
-        if (!matchesSubject) return false;
-      }
+  const tutors = data?.tutors ?? [];
+  const pagination = data?.pagination;
 
-      return true;
-    });
-  }, [searchQuery, selectedCurriculum, selectedLevel, selectedSubject]);
-
-  const handleReset = () => {
+  function handleReset() {
     setSearchQuery("");
-    setSelectedCurriculum("");
-    setSelectedLevel("");
-    setSelectedSubject("");
+    setSelectedCurriculum(ALL_VALUE);
+    setSelectedLevel(ALL_VALUE);
+    setSelectedSubject(ALL_VALUE);
+    setSortBy("relevance");
+    setLanguageQuery("");
+    setMinHourlyRate("");
+    setMaxHourlyRate("");
+    setMinRating(ALL_VALUE);
+    setPage(1);
     setCurriculum?.(null);
-   setLevel?.(null);
-  setSubject?.(null);
-  };
-
-  const handleBook = (name: string) => {
-    setBookingMessage(`Booking request sent successfully to ${name}!`);
-    setTimeout(() => setBookingMessage(null), 4000);
-  };
+    setLevel?.(null);
+    setSubject?.(null);
+    onReset();
+  }
 
   return (
     <div className="space-y-6">
-      {/* Dynamic Toast Message */}
-      {bookingMessage && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-sm font-semibold shadow-sm transition-all animate-in fade-in slide-in-from-top-4 duration-300">
-          {bookingMessage}
-        </div>
-      )}
+      <AIFinderCta
+        href={getLocalePath(locale, "/ai-assistant")}
+        title={t("aiCta.title")}
+        description={t("aiCta.description")}
+        actionLabel={t("aiCta.actionLabel")}
+      />
 
-      {/* Static Interactive Filter Bar */}
-      <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 md:p-5 space-y-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-800">Static Filter Sandbox</h3>
-          <button
-            onClick={handleReset}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 transition-colors cursor-pointer"
-          >
-            <RefreshCcw className="size-3" />
-            Reset Filters
-          </button>
-        </div>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <CardTitle>{t("filters.title")}</CardTitle>
+              <CardDescription>{t("filters.description")}</CardDescription>
+            </div>
 
-        <div className="flex flex-col md:flex-row gap-3">
-          {/* Search Box */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by name, title, or keywords..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-xl text-xs font-semibold text-slate-700 placeholder:text-slate-400 outline-none transition-all shadow-sm"
-            />
+            <Button onClick={handleReset} type="button" variant="outline">
+              <RefreshCcw className="size-4" />
+              {t("filters.startOver")}
+            </Button>
           </div>
+        </CardHeader>
 
-          {/* Dropdown Filters */}
-          <div className="flex flex-wrap gap-2.5 md:flex-shrink-0">
-            {/* Curriculum Filter */}
-            <select
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(4,minmax(150px,auto))]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                className="h-9 bg-white pl-9"
+                onChange={(event) => {
+                  setPage(1);
+                  setSearchQuery(event.target.value);
+                }}
+                placeholder={t("filters.searchPlaceholder")}
+                type="search"
+                value={searchQuery}
+              />
+            </div>
+
+            <Select
               value={selectedCurriculum}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedCurriculum(val);
-                setCurriculum?.(val || null);
+              onValueChange={(value) => {
+                setPage(1);
+                setSelectedCurriculum(value);
+                setCurriculum?.(value === ALL_VALUE ? null : value);
               }}
-              className="px-4 py-2.5 bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all shadow-sm cursor-pointer"
             >
-              <option value="">All Curricula</option>
-              <option value="british">British System</option>
-              <option value="american">American System</option>
-              <option value="international">International System</option>
-              <option value="national">National System</option>
-            </select>
+              <SelectTrigger className="h-9 w-full">
+                <SelectValue placeholder={t("filters.allCurricula")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VALUE}>
+                  {t("filters.allCurricula")}
+                </SelectItem>
+                {curriculumOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {t(`options.${option.labelKey}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            {/* Level Filter */}
-            <select
+            <Select
               value={selectedLevel}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedLevel(val);
-                setLevel?.(val || null);
+              onValueChange={(value) => {
+                setPage(1);
+                setSelectedLevel(value);
+                setLevel?.(value === ALL_VALUE ? null : value);
               }}
-              className="px-4 py-2.5 bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all shadow-sm cursor-pointer"
             >
-              <option value="">All Levels</option>
-              <option value="primary">Primary</option>
-              <option value="preparatory">Preparatory</option>
-              <option value="secondary">Secondary</option>
-              <option value="university">University</option>
-            </select>
+              <SelectTrigger className="h-9 w-full">
+                <SelectValue placeholder={t("filters.allLevels")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VALUE}>
+                  {t("filters.allLevels")}
+                </SelectItem>
+                {levelOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {t(`options.${option.labelKey}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            {/* Subject Filter */}
-            <select
+            <Select
               value={selectedSubject}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedSubject(val);
-                setSubject?.(val || null);
+              onValueChange={(value) => {
+                setPage(1);
+                setSelectedSubject(value);
+                setSubject?.(value === ALL_VALUE ? null : value);
               }}
-              className="px-4 py-2.5 bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all shadow-sm cursor-pointer"
             >
-              <option value="">All Subjects</option>
-              <option value="math">Mathematics</option>
-              <option value="science">Sciences (Phys/Chem/Bio)</option>
-              <option value="languages">Languages</option>
-              <option value="programming">Computer Science</option>
-            </select>
+              <SelectTrigger className="h-9 w-full">
+                <SelectValue placeholder={t("filters.allSubjects")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_VALUE}>
+                  {t("filters.allSubjects")}
+                </SelectItem>
+                {subjectOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {t(`options.${option.labelKey}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sortBy}
+              onValueChange={(value) => {
+                setPage(1);
+                setSortBy(value as TutorSearchSort);
+              }}
+            >
+              <SelectTrigger className="h-9 w-full">
+                <SelectValue placeholder={t("filters.sortBy")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="relevance">
+                  {t("options.relevance")}
+                </SelectItem>
+                <SelectItem value="rating">{t("options.rating")}</SelectItem>
+                <SelectItem value="price_asc">
+                  {t("options.priceAsc")}
+                </SelectItem>
+                <SelectItem value="price_desc">
+                  {t("options.priceDesc")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          <div className="rounded-lg border bg-muted/40 p-3">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
+              <SlidersHorizontal className="size-4 text-slate-500" />
+              {t("filters.advanced")}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <Input
+                className="h-9 bg-white"
+                onChange={(event) => {
+                  setPage(1);
+                  setLanguageQuery(event.target.value);
+                }}
+                placeholder={t("filters.languagesPlaceholder")}
+                value={languageQuery}
+              />
+              <Input
+                className="h-9 bg-white"
+                min={0}
+                onChange={(event) => {
+                  setPage(1);
+                  setMinHourlyRate(event.target.value);
+                }}
+                placeholder={t("filters.minRatePlaceholder")}
+                type="number"
+                value={minHourlyRate}
+              />
+              <Input
+                className="h-9 bg-white"
+                min={0}
+                onChange={(event) => {
+                  setPage(1);
+                  setMaxHourlyRate(event.target.value);
+                }}
+                placeholder={t("filters.maxRatePlaceholder")}
+                type="number"
+                value={maxHourlyRate}
+              />
+              <Select
+                value={minRating}
+                onValueChange={(value) => {
+                  setPage(1);
+                  setMinRating(value);
+                }}
+              >
+                <SelectTrigger className="h-9 bg-white">
+                  <SelectValue placeholder={t("filters.minimumRating")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_VALUE}>
+                    {t("filters.anyRating")}
+                  </SelectItem>
+                  <SelectItem value="4">4.0+</SelectItem>
+                  <SelectItem value="4.5">4.5+</SelectItem>
+                  <SelectItem value="4.8">4.8+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {t("results.count", { count: pagination?.total ?? 0 })}
+          </h2>
+          <p className="text-sm text-slate-600">
+            {isFetching ? t("results.updating") : t("results.approvedOnly")}
+          </p>
         </div>
       </div>
 
-      {/* Tutors Listing */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-slate-900">
-            Matching Tutors ({filteredTutors.length})
-          </h2>
+      {isPending ? <TutorResultsSkeleton /> : null}
+
+      {isError ? (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardHeader>
+            <CardTitle className="text-destructive">
+              {t("results.loadErrorTitle")}
+            </CardTitle>
+            <CardDescription>{error.message}</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button
+              onClick={() => void refetch()}
+              type="button"
+              variant="outline"
+            >
+              {t("results.tryAgain")}
+            </Button>
+          </CardFooter>
+        </Card>
+      ) : null}
+
+      {!isPending && !isError && tutors.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+              <User className="size-7" />
+            </div>
+            <h3 className="mt-4 text-base font-semibold text-slate-900">
+              {t("results.emptyTitle")}
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
+              {t("results.emptyDescription")}
+            </p>
+            <Button className="mt-5" onClick={handleReset} type="button">
+              {t("results.clearFilters")}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {tutors.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4">
+          {tutors.map((tutor) => (
+            <TutorResultCard key={tutor.userId} locale={locale} tutor={tutor} />
+          ))}
+        </div>
+      ) : null}
+
+      {pagination && pagination.totalPages > 1 ? (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            disabled={page <= 1 || isFetching}
+            onClick={() =>
+              setPage((currentPage) => Math.max(1, currentPage - 1))
+            }
+            type="button"
+            variant="outline"
+          >
+            {t("results.previous")}
+          </Button>
+          <span className="text-sm text-slate-600">
+            {t("results.pageOf", {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+            })}
+          </span>
+          <Button
+            disabled={page >= pagination.totalPages || isFetching}
+            onClick={() =>
+              setPage((currentPage) =>
+                Math.min(pagination.totalPages, currentPage + 1),
+              )
+            }
+            type="button"
+            variant="outline"
+          >
+            {t("results.next")}
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function TutorResultCard({
+  locale,
+  tutor,
+}: {
+  locale: string;
+  tutor: TutorSearchItem;
+}) {
+  const t = useTranslations("findTutor.results");
+  const primarySubject = getPrimarySubject(tutor);
+  const bookingHref =
+    getLocalePath(locale, "/booking") +
+    `?tutorId=${tutor.userId}` +
+    `&tutorName=${encodeURIComponent(tutor.name)}` +
+    `&hourlyRate=${tutor.profile.hourlyRate}` +
+    "&currency=EGP" +
+    `&subject=${encodeURIComponent(primarySubject)}`;
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-4 md:flex-row">
+        <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-secondary text-base font-semibold text-primary">
+          {getTutorInitials(tutor.name) || <User className="size-6" />}
         </div>
 
-        {filteredTutors.length === 0 ? (
-          <div className="text-center py-16 bg-white border border-slate-100 rounded-2xl p-8 space-y-4 shadow-sm">
-            <div className="h-16 w-16 bg-slate-50 border border-slate-200/50 rounded-full flex items-center justify-center mx-auto text-slate-400">
-              <User className="size-8" />
-            </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h3 className="text-base font-bold text-slate-850">No Results Found</h3>
-              <p className="text-xs text-slate-550 mt-1 max-w-sm mx-auto">
-                No tutors matched your selected filter criteria. Try resetting or selecting a broader filter.
+              <h3 className="text-base font-semibold text-slate-900">
+                {tutor.name}
+              </h3>
+              <p className="mt-1 text-sm text-slate-600">
+                {tutor.profile.headline}
               </p>
             </div>
-            <button
-              onClick={handleReset}
-              className="px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs border border-indigo-100 transition-all cursor-pointer shadow-sm"
-            >
-              Clear All Filters
-            </button>
+
+            <div className="text-left sm:text-right">
+              <p className="text-lg font-semibold text-slate-950">
+                {tutor.profile.hourlyRate} EGP
+              </p>
+              <p className="text-xs text-slate-500">{t("perHour")}</p>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {filteredTutors.map((tutor) => (
-              <TutorCard
-                key={tutor.id}
-                tutor={tutor}
-                onBook={handleBook}
-              />
+
+          <p className="mt-3 line-clamp-2 text-sm text-slate-600">
+            {tutor.profile.bio}
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {tutor.subjects.slice(0, 4).map((subject) => (
+              <Badge key={subject.id} variant="secondary">
+                {subject.title}
+              </Badge>
             ))}
           </div>
-        )}
-      </div>
-    </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+            <span className="flex items-center gap-1">
+              <Star className="size-4 fill-yellow-400 text-yellow-400" />
+              {tutor.profile.rating ?? 0} ({tutor.profile.totalReviews ?? 0})
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar className="size-4 text-slate-400" />
+              {tutor.profile.isAvailable
+                ? t("available")
+                : t("availabilityVaries")}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid shrink-0 grid-cols-2 gap-2 md:w-40 md:grid-cols-1">
+          <Button asChild variant="outline">
+            <Link href={getLocalePath(locale, `/tutor-match/${tutor.userId}`)}>
+              <Eye className="size-4" />
+              {t("viewProfile")}
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href={bookingHref}>{t("bookSession")}</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

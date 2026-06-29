@@ -23,7 +23,7 @@ export interface NavLink {
 const learnerNavLinks: NavLink[] = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/ai-assistant", icon: Bot, label: "AI Assistant" },
-  { path: "/tutor-match", icon: Users, label: "Tutor Match" },
+  { path: "/find-tutor?mode=browse", icon: Users, label: "Find Tutor" },
   { path: "/messages", icon: MessageSquare, label: "Messages" },
   { path: "/paymentHistory", icon: CreditCard, label: "Payments" },
   { path: "/settings", icon: Settings, label: "Settings" },
