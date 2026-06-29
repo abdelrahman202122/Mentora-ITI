@@ -1,4 +1,35 @@
 {
+  "aiAssistant": {
+    "badge": "AI Assistant",
+    "title": "Talk through your learning goals",
+    "description": "Ask for help clarifying what you need, planning your next study step, or deciding what kind of tutor would fit.",
+    "chatTitle": "Assistant chat",
+    "provider": "Provider: {provider}",
+    "status": {
+      "starting": "Starting",
+      "ready": "Ready",
+      "thinking": "Mentora AI is thinking..."
+    },
+    "composer": {
+      "label": "Message Mentora AI",
+      "placeholder": "Ask about a subject, study goal, curriculum, or tutor fit...",
+      "startingPlaceholder": "Preparing your assistant...",
+      "hint": "Press Enter to send. Use Shift + Enter for a new line."
+    },
+    "actions": {
+      "send": "Send message",
+      "findTutor": "Find tutors"
+    },
+    "empty": {
+      "title": "Start with what you are trying to learn",
+      "description": "The assistant can help you describe your goals, compare study paths, and prepare better criteria before you search for tutors."
+    },
+    "examples": {
+      "algebra": "I need help improving my algebra.",
+      "tutorLevel": "I don't know what tutor level I need.",
+      "igcse": "Can you help me prepare for IGCSE math?"
+    }
+  },
   "aiTutorFinder": {
     "badge": "AI Tutor Finder",
     "title": "Find a tutor that matches your learning needs",
