@@ -3,6 +3,7 @@
 import * as React from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Star } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,32 +15,16 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-const testimonials = [
-  {
-    name: "Mr. Moataz",
-    subject: "Physics",
-    review:
-      "My son improved in both chemistry and physics after a few focused lessons.",
-  },
-  {
-    name: "Ms. Ghada",
-    subject: "German",
-    review:
-      "Ms. Ghada explained German clearly and helped us choose a learning plan that made sense.",
-  },
-  {
-    name: "Ms. Marihan",
-    subject: "Arabic",
-    review: "My child is more confident in Arabic and looks forward to every lesson.",
-  },
-  {
-    name: "Ms. Farida",
-    subject: "French",
-    review: "Supportive, patient, and easy to communicate with before booking.",
-  },
-];
+const testimonialKeys = [
+  { nameKey: "review1Name", subjectKey: "review1Subject", textKey: "review1Text" },
+  { nameKey: "review2Name", subjectKey: "review2Subject", textKey: "review2Text" },
+  { nameKey: "review3Name", subjectKey: "review3Subject", textKey: "review3Text" },
+  { nameKey: "review4Name", subjectKey: "review4Subject", textKey: "review4Text" },
+] as const;
 
 export default function Reviews() {
+  const t = useTranslations("home.reviews");
+
   const autoplay = React.useMemo(
     () =>
       Autoplay({
@@ -54,13 +39,13 @@ export default function Reviews() {
     <section id="testimonials" className="bg-indigo-50 px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <h2 className="mb-14 text-center text-3xl font-semibold text-slate-900">
-          What learners and families say
+          {t("title")}
         </h2>
 
         <Carousel opts={{ align: "start", loop: true }} plugins={[autoplay]} className="w-full">
           <CarouselContent>
-            {testimonials.map((item) => (
-              <CarouselItem key={`${item.subject}-${item.name}`} className="p-4 md:basis-1/2 lg:basis-1/3">
+            {testimonialKeys.map((item) => (
+              <CarouselItem key={item.nameKey} className="p-4 md:basis-1/2 lg:basis-1/3">
                 <motion.div whileHover={{ y: -3 }}>
                   <Card className="flex min-h-[220px] flex-col justify-center rounded-xl border border-indigo-100 shadow-none sm:min-h-[200px]">
                     <CardContent className="flex flex-col items-center p-8 text-center">
@@ -74,10 +59,10 @@ export default function Reviews() {
                         ))}
                       </div>
                       <h3 className="mb-2 text-lg font-bold">
-                        {item.subject} - {item.name}
+                        {t(item.subjectKey)} - {t(item.nameKey)}
                       </h3>
                       <p className="text-sm leading-relaxed text-slate-600">
-                        {item.review}
+                        {t(item.textKey)}
                       </p>
                     </CardContent>
                   </Card>

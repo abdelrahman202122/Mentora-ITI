@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Globe,
   GraduationCap,
@@ -24,7 +24,6 @@ function switchLocalePath(
   currentLocale: string,
   targetLocale: string,
 ): string {
-  // Remove the current locale prefix (e.g. /en/find-tutor → /find-tutor)
   const withoutLocale = pathname.replace(
     new RegExp(`^/${currentLocale}(?=/|$)`),
     "",
@@ -35,6 +34,7 @@ function switchLocalePath(
 
 export default function Header() {
   const locale = useLocale();
+  const t = useTranslations("home.header");
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,18 +52,13 @@ export default function Header() {
   const tutorProfilePath = getLocalePath(locale, "/tutor/profile/create");
   const registerPath = getLocalePath(locale, "/register");
 
-  /** Guest: register first, then login, then redirect to tutor profile creation */
   const becomeTutorRegisterHref = `${registerPath}?next=${encodeURIComponent(tutorProfilePath)}`;
-
-  /** Whether user can see the "Become a Tutor" CTA */
   const showBecomeTutor = !isPending && (!user || user.role === "learner");
 
-  /** Language switcher */
   const targetLocale = locale === "en" ? "ar" : "en";
   const targetLabel = locale === "en" ? "العربية" : "English";
 
   function handleSwitchLocale() {
-    // Build the target path, preserving query params
     const targetPath = switchLocalePath(pathname, locale, targetLocale);
     const search = typeof window !== "undefined" ? window.location.search : "";
     router.push(`${targetPath}${search}`);
@@ -115,7 +110,7 @@ export default function Header() {
                 <Button asChild variant="outline">
                   <Link href={tutorProfilePath}>
                     <GraduationCap className="size-4" />
-                    Become a Tutor
+                    {t("becomeTutor")}
                   </Link>
                 </Button>
               )}
@@ -123,7 +118,7 @@ export default function Header() {
               <Button asChild variant="outline">
                 <Link href={dashboardPath}>
                   <LayoutDashboard className="size-4" />
-                  My dashboard
+                  {t("dashboard")}
                 </Link>
               </Button>
 
@@ -137,7 +132,7 @@ export default function Header() {
                 ) : (
                   <LogOut className="size-4" />
                 )}
-                {isLoggingOut ? "Logging out..." : "Log out"}
+                {isLoggingOut ? t("loggingOut") : t("logOut")}
               </Button>
             </>
           ) : (
@@ -146,7 +141,7 @@ export default function Header() {
                 <Button asChild variant="outline">
                   <Link href={becomeTutorRegisterHref}>
                     <GraduationCap className="size-4" />
-                    Become a Tutor
+                    {t("becomeTutor")}
                   </Link>
                 </Button>
               )}
@@ -154,7 +149,7 @@ export default function Header() {
               <Button asChild>
                 <Link href={loginPath}>
                   <LogIn className="size-4" />
-                  Log in
+                  {t("logIn")}
                 </Link>
               </Button>
             </>
@@ -190,7 +185,7 @@ export default function Header() {
             {isPending ? (
               <div className="flex items-center gap-2 px-2 py-2 text-sm text-gray-600">
                 <Loader2 className="size-4 animate-spin text-indigo-600" />
-                Loading account
+                {t("loadingAccount")}
               </div>
             ) : user ? (
               <>
@@ -201,7 +196,7 @@ export default function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <GraduationCap className="size-4" />
-                      Become a Tutor
+                      {t("becomeTutor")}
                     </Link>
                   </Button>
                 )}
@@ -209,7 +204,7 @@ export default function Header() {
                 <Button asChild className="justify-start" variant="outline">
                   <Link href={dashboardPath} onClick={() => setIsMenuOpen(false)}>
                     <LayoutDashboard className="size-4" />
-                    My dashboard
+                    {t("dashboard")}
                   </Link>
                 </Button>
 
@@ -225,7 +220,7 @@ export default function Header() {
                   ) : (
                     <LogOut className="size-4" />
                   )}
-                  {isLoggingOut ? "Logging out..." : "Log out"}
+                  {isLoggingOut ? t("loggingOut") : t("logOut")}
                 </Button>
               </>
             ) : (
@@ -237,7 +232,7 @@ export default function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <GraduationCap className="size-4" />
-                      Become a Tutor
+                      {t("becomeTutor")}
                     </Link>
                   </Button>
                 )}
@@ -245,7 +240,7 @@ export default function Header() {
                 <Button asChild className="justify-start">
                   <Link href={loginPath} onClick={() => setIsMenuOpen(false)}>
                     <LogIn className="size-4" />
-                    Log in
+                    {t("logIn")}
                   </Link>
                 </Button>
               </>
