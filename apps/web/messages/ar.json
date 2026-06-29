@@ -89,6 +89,100 @@
       "none": "غير محدد"
     }
   },
+  "findTutor": {
+    "page": {
+      "title": "اعثر على معلمك",
+      "description": "ابدأ بمطابقة إرشادية، ثم حسّن النتائج باستخدام البحث واللغة والسعر والتقييم والمنهج."
+    },
+    "steps": {
+      "title": "خطوات البحث",
+      "curriculum": "المنهج",
+      "level": "المرحلة",
+      "subject": "المادة",
+      "results": "النتائج",
+      "back": "رجوع",
+      "next": "الخطوة التالية"
+    },
+    "curriculum": {
+      "title": "اختر المنهج",
+      "description": "اختر النظام التعليمي الذي تريد الدراسة من خلاله.",
+      "loadErrorTitle": "تعذر تحميل المناهج",
+      "loadErrorDescription": "يرجى المحاولة مرة أخرى لاحقًا",
+      "fallbackDescription": "مسارات دراسية ودورات مخصصة تناسب احتياجاتك الأكاديمية."
+    },
+    "level": {
+      "title": "اختر المرحلة التعليمية",
+      "description": "اختر مرحلتك أو مستواك الدراسي الحالي.",
+      "loadErrorTitle": "تعذر تحميل المراحل التعليمية",
+      "loadErrorDescription": "يرجى المحاولة مرة أخرى لاحقًا"
+    },
+    "subject": {
+      "title": "اختر المادة",
+      "description": "اختر المجال الذي تحتاج مساعدة فيه للوصول إلى أنسب المعلمين.",
+      "searchPlaceholder": "ابحث عن المواد...",
+      "loadErrorTitle": "تعذر تحميل المواد",
+      "loadErrorDescription": "يرجى المحاولة مرة أخرى لاحقًا"
+    },
+    "aiCta": {
+      "title": "تريد مطابقة أسرع؟",
+      "description": "دع الذكاء الاصطناعي يرتب المعلمين حسب المادة والمرحلة والمنهج واللغة والميزانية."
+    },
+    "filters": {
+      "title": "ابحث وفلتر المعلمين",
+      "description": "تم تطبيق اختياراتك الإرشادية بالفعل. يمكنك تحسين النتائج حسب السعر أو اللغة أو التقييم أو الكلمات المفتاحية.",
+      "searchPlaceholder": "ابحث بالاسم أو المادة أو كلمة مفتاحية",
+      "allCurricula": "كل المناهج",
+      "allLevels": "كل المراحل",
+      "allSubjects": "كل المواد",
+      "sortBy": "ترتيب حسب",
+      "advanced": "فلاتر متقدمة",
+      "languagesPlaceholder": "اللغات، مثل: الإنجليزية، العربية",
+      "minRatePlaceholder": "أقل سعر بالجنيه/ساعة",
+      "maxRatePlaceholder": "أعلى سعر بالجنيه/ساعة",
+      "minimumRating": "أقل تقييم",
+      "anyRating": "أي تقييم",
+      "startOver": "ابدأ من جديد"
+    },
+    "options": {
+      "national": "المنهج الوطني",
+      "igcse": "IGCSE",
+      "british": "البريطاني",
+      "american": "الأمريكي",
+      "ib": "البكالوريا الدولية",
+      "noCurriculum": "بدون منهج محدد",
+      "primary": "ابتدائي",
+      "preparatory": "إعدادي",
+      "secondary": "ثانوي",
+      "university": "جامعي",
+      "professional": "مهني",
+      "mathematics": "الرياضيات",
+      "sciences": "العلوم",
+      "languages": "اللغات",
+      "technology": "التكنولوجيا",
+      "relevance": "الأكثر صلة",
+      "rating": "التقييم",
+      "priceAsc": "السعر: من الأقل إلى الأعلى",
+      "priceDesc": "السعر: من الأعلى إلى الأقل"
+    },
+    "results": {
+      "count": "تم العثور على {count} معلم",
+      "updating": "جاري تحديث النتائج...",
+      "approvedOnly": "معلمون موثقون فقط",
+      "loadErrorTitle": "تعذر تحميل المعلمين",
+      "tryAgain": "حاول مرة أخرى",
+      "emptyTitle": "لا يوجد معلمون مطابقون لهذا البحث",
+      "emptyDescription": "جرّب مادة أوسع أو منهجًا آخر أو امسح الفلاتر لتصفح المزيد من المعلمين.",
+      "clearFilters": "مسح الفلاتر",
+      "perHour": "في الساعة",
+      "available": "متاح",
+      "availabilityVaries": "المواعيد تختلف",
+      "viewProfile": "عرض الملف",
+      "bookSession": "احجز جلسة",
+      "previous": "السابق",
+      "next": "التالي",
+      "pageOf": "صفحة {page} من {totalPages}"
+    }
+  },
   "auth": {
     "brandName": "منتورا",
     "login": {

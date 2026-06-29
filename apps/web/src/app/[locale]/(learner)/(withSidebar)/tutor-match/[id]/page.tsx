@@ -46,7 +46,7 @@ export default function TutorProfilePage() {
 
       {/* Back */}
       <Link
-        href={`/${locale}/tutor-match`}
+        href={`/${locale}/find-tutor`}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4"
       >
         <ArrowLeft size={16} />

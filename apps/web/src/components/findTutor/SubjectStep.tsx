@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Calculator, FlaskConical, Languages, Binary, Book, Loader2, Search } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useSubjectCategories } from "@/hooks/metadata/useSubjectCategories";
 import SelectorCard from "./SelectorCard";
 
@@ -16,6 +17,8 @@ export default function SubjectStep({
   onSelect,
   onNext,
 }: SubjectStepProps) {
+  const locale = useLocale();
+  const t = useTranslations("findTutor.subject");
   const { data: categories, isLoading, error } = useSubjectCategories();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -47,21 +50,29 @@ export default function SubjectStep({
   if (error || !categories) {
     return (
       <div className="text-center py-20 text-error">
-        <p className="font-headline-sm text-headline-sm">Failed to load subjects</p>
-        <p className="font-body-sm text-on-surface-variant mt-1">Please try again later</p>
+        <p className="font-headline-sm text-headline-sm">
+          {t("loadErrorTitle")}
+        </p>
+        <p className="font-body-sm text-on-surface-variant mt-1">
+          {t("loadErrorDescription")}
+        </p>
       </div>
     );
   }
 
   const filteredCategories = categories.filter((cat) =>
-    cat.en.toLowerCase().includes(searchQuery.toLowerCase())
+    `${cat.en} ${cat.ar}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Select Subject</h2>
-        <p className="font-body-lg text-on-surface-variant">Choose the area you need help with to connect with the best experts.</p>
+        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">
+          {t("title")}
+        </h2>
+        <p className="font-body-lg text-on-surface-variant">
+          {t("description")}
+        </p>
       </div>
 
       {/* Search Input */}
@@ -69,7 +80,7 @@ export default function SubjectStep({
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-outline" />
         <input
           type="text"
-          placeholder="Search subjects..."
+          placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-12 pr-4 py-4 bg-surface-container-low border border-outline-variant rounded-xl font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm"
@@ -86,7 +97,7 @@ export default function SubjectStep({
             onNext={onNext}
             icon={getIcon(cat.value)}
             iconBgClass={getIconBg(cat.value)}
-            title={cat.en}
+            title={locale === "ar" ? cat.ar : cat.en}
           />
         ))}
       </div>

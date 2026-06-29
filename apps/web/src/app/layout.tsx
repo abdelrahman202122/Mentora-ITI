@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import {
   Geist_Mono,
-  Noto_Sans_Arabic,
   Plus_Jakarta_Sans,
+  Rubik,
 } from 'next/font/google';
 import { QueryProvider } from '@/providers/QueryProvider';
 import './globals.css';
@@ -13,9 +13,9 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-const notoSansArabic = Noto_Sans_Arabic({
-  variable: '--font-noto-sans-arabic',
-  subsets: ['arabic'],
+const rubik = Rubik({
+  variable: '--font-rubik',
+  subsets: ['arabic', 'latin'],
   display: 'swap',
 });
 
@@ -37,8 +37,9 @@ export default async function RootLayout({
 }) {
   return (
     <html
+      data-scroll-behavior="smooth"
       lang="en"
-      className={`${plusJakartaSans.variable} ${notoSansArabic.variable} ${geistMono.variable}`}
+      className={`${plusJakartaSans.variable} ${rubik.variable} ${geistMono.variable}`}
     >
       <body>
         <QueryProvider>{children}</QueryProvider>
