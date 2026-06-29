@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import {
+  Globe,
   GraduationCap,
   LayoutDashboard,
   Loader2,
@@ -11,15 +12,31 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { useCurrentUser, useLogout } from "@/hooks/auth/use-auth";
 import { getLocalePath } from "@/utils/i18n/locale-path";
 
+/** Swap the locale prefix in a full pathname, preserving the rest of the path. */
+function switchLocalePath(
+  pathname: string,
+  currentLocale: string,
+  targetLocale: string,
+): string {
+  // Remove the current locale prefix (e.g. /en/find-tutor → /find-tutor)
+  const withoutLocale = pathname.replace(
+    new RegExp(`^/${currentLocale}(?=/|$)`),
+    "",
+  );
+  const rest = withoutLocale || "/";
+  return getLocalePath(targetLocale, rest);
+}
+
 export default function Header() {
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: user, isPending } = useCurrentUser();
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogout();
@@ -33,7 +50,6 @@ export default function Header() {
       )
     : "";
   const tutorProfilePath = getLocalePath(locale, "/tutor/profile/create");
-
   const registerPath = getLocalePath(locale, "/register");
 
   /** Guest: register first, then login, then redirect to tutor profile creation */
@@ -41,6 +57,18 @@ export default function Header() {
 
   /** Whether user can see the "Become a Tutor" CTA */
   const showBecomeTutor = !isPending && (!user || user.role === "learner");
+
+  /** Language switcher */
+  const targetLocale = locale === "en" ? "ar" : "en";
+  const targetLabel = locale === "en" ? "العربية" : "English";
+
+  function handleSwitchLocale() {
+    // Build the target path, preserving query params
+    const targetPath = switchLocalePath(pathname, locale, targetLocale);
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    router.push(`${targetPath}${search}`);
+    setIsMenuOpen(false);
+  }
 
   const handleLogout = async () => {
     try {
@@ -69,6 +97,16 @@ export default function Header() {
 
         {/* ── Desktop nav ── */}
         <div className="hidden items-center gap-2 md:flex">
+          <Button
+            onClick={handleSwitchLocale}
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600"
+          >
+            <Globe className="size-4" />
+            {targetLabel}
+          </Button>
+
           {isPending ? (
             <Loader2 className="size-5 animate-spin text-indigo-600" />
           ) : user ? (
@@ -140,6 +178,15 @@ export default function Header() {
       {isMenuOpen ? (
         <div className="border-t border-gray-100 bg-white px-4 py-3 shadow-sm md:hidden">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-2">
+            <Button
+              onClick={handleSwitchLocale}
+              variant="ghost"
+              className="justify-start gap-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600"
+            >
+              <Globe className="size-4" />
+              {targetLabel}
+            </Button>
+
             {isPending ? (
               <div className="flex items-center gap-2 px-2 py-2 text-sm text-gray-600">
                 <Loader2 className="size-4 animate-spin text-indigo-600" />
