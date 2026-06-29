@@ -58,7 +58,10 @@ function formatAmount(amount: number) {
 }
 
 export default function PaymentsPage() {
-  const { data, isLoading } = useEarningsSummary();
+const { data, isLoading, isError } = useEarningsSummary();
+
+const hasSummary = !isLoading && !isError && !!data;
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,21 +73,22 @@ export default function PaymentsPage() {
           <StatCard
             title="Available Balance"
             icon={Wallet}
-            value={isLoading ? "—" : formatAmount(data?.available.totalAmount ?? 0)}
-            description={`${data?.available.count ?? 0} sessions`}
+            value={isLoading ? "—" : hasSummary ? formatAmount(data.available.totalAmount) : "Unavailable"}
+            description={hasSummary ? `${data.available.count} sessions` : "—"}
           />
 
           <StatCard
             title="Paid Out"
             icon={CreditCard}
-            value={isLoading ? "—" : formatAmount(data?.paid_out.totalAmount ?? 0)}
-            description={`${data?.paid_out.count ?? 0} sessions`}
+            value={isLoading ? "—" : hasSummary ? formatAmount(data.paid_out.totalAmount) : "Unavailable"}
+            description={hasSummary ? `${data.paid_out.count} sessions` : "—"}
           />
 
           <PendingPayoutCard
-            amount={isLoading ? "—" : formatAmount(data?.pending.totalAmount ?? 0)}
-            count={data?.pending.count ?? 0}
+            amount={isLoading ? "—" : hasSummary ? formatAmount(data.pending.totalAmount) : "Unavailable"}
+            count={hasSummary ? data.pending.count : 0}
           />
+
         </section>
 
         <TransactionsTable />
