@@ -16,6 +16,9 @@ export const definition = {
           },
         },
       },
+      isActive: {
+        type: 'boolean',
+      },
       profile: {
         fields: {
           bio: {
@@ -49,6 +52,9 @@ export const definition = {
           },
           rating: {
             type: 'number',
+          },
+          status: {
+            type: 'token',
           },
         },
         type: 'document',

@@ -16,6 +16,7 @@ let socketRedisSubscriber: RedisClientType | undefined;
 
 export async function initializeSocketServer(server: HttpServer) {
   const socketServer = new SocketServer(server, {
+    path: '/api/socket.io',
     cors: {
       origin: env.CLIENT_ORIGIN,
       credentials: true,

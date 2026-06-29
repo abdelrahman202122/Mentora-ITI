@@ -23,6 +23,11 @@ export async function listChats(
   return response.data.data;
 }
 
+export async function getChat(chatId: string): Promise<Chat> {
+  const response = await api.get<ApiSuccess<Chat>>(`/chats/${chatId}`);
+  return response.data.data;
+}
+
 export async function listMessages(
   chatId: string,
   params: ListMessagesParams = {}

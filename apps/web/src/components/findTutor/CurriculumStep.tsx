@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Compass, Globe, Award, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useCurricula } from "@/hooks/metadata/useCurricula";
 import { motion } from "framer-motion";
 import SelectorCard from "./SelectorCard";
@@ -16,6 +17,8 @@ export default function CurriculumStep({
   onSelect,
   onNext,
 }: CurriculumStepProps) {
+  const locale = useLocale();
+  const t = useTranslations("findTutor.curriculum");
   const { data: curricula, isLoading, error } = useCurricula();
 
   // Helper to assign icons to different curricula
@@ -52,8 +55,12 @@ export default function CurriculumStep({
   if (error || !curricula) {
     return (
       <div className="text-center py-20 text-error">
-        <p className="font-headline-sm text-headline-sm">Failed to load curricula</p>
-        <p className="font-body-sm text-on-surface-variant mt-1">Please try again later</p>
+        <p className="font-headline-sm text-headline-sm">
+          {t("loadErrorTitle")}
+        </p>
+        <p className="font-body-sm text-on-surface-variant mt-1">
+          {t("loadErrorDescription")}
+        </p>
       </div>
     );
   }
@@ -67,9 +74,9 @@ export default function CurriculumStep({
       className="space-y-8"
     >
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Select Curriculum</h2>
+        <h2 className="text-2xl font-semibold mb-2">{t("title")}</h2>
         <p className="text-slate-600">
-          Choose the educational system you want to study under.
+          {t("description")}
         </p>
       </div>
 
@@ -91,8 +98,11 @@ export default function CurriculumStep({
                 onNext={onNext}
                 icon={getIcon(curr.value)}
                 iconBgClass={getIconBg(curr.value)}
-                title={curr.en}
-                description={curr.description?.en || "Custom study tracks and courses tailored to your academic needs."}
+                title={locale === "ar" ? curr.ar : curr.en}
+                description={
+                  (locale === "ar" ? curr.description?.ar : curr.description?.en) ||
+                  t("fallbackDescription")
+                }
               />
             </motion.div>
           );
