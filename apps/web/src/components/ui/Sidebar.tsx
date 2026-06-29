@@ -118,7 +118,9 @@ export default function Sidebar({ role }: SidebarProps) {
       <nav className="flex flex-col gap-1">
         {navLinks.map((navLink) => {
           const href = getLocalePath(locale, navLink.path);
-          const isActive = pathname === href || pathname.startsWith(`${href}/`);
+          const activePath = href.split(/[?#]/)[0];
+          const isActive =
+            pathname === activePath || pathname.startsWith(`${activePath}/`);
           return (
             <Link
               key={navLink.path}
