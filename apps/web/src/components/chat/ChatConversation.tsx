@@ -3,7 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import Link from 'next/link';
-import { Archive, ArrowLeft, Loader2, RotateCcw, Send } from 'lucide-react';
+import {
+  Archive,
+  ArrowLeft,
+  Check,
+  CheckCheck,
+  Loader2,
+  RotateCcw,
+  Send,
+  SmilePlus,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import {
   useArchiveChat,
+  useChat,
   useChatMessages,
   useRestoreChat,
 } from '@/hooks/chat/use-chat';
@@ -33,6 +43,25 @@ const messageTimeFormatter = new Intl.DateTimeFormat('en', {
   minute: '2-digit',
 });
 
+const QUICK_REACTION_EMOJIS = [
+  '😀',
+  '😂',
+  '😊',
+  '😍',
+  '👍',
+  '👏',
+  '🙏',
+  '💪',
+  '🎉',
+  '🔥',
+  '✅',
+  '💡',
+  '📚',
+  '✍️',
+  '⭐',
+  '❤️',
+];
+
 function formatMessageTime(value: string) {
   const date = new Date(value);
 
@@ -51,7 +80,16 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
   );
 }
 
-function formatMessageStatus(status: ChatMessage['status']) {
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+}
+
+function getMessageStatusLabel(status: ChatMessage['status']) {
   if (status === 'read') {
     return 'Read';
   }
@@ -61,6 +99,31 @@ function formatMessageStatus(status: ChatMessage['status']) {
   }
 
   return 'Sent';
+}
+
+function MessageStatusIcon({ status }: { status: ChatMessage['status'] }) {
+  const label = getMessageStatusLabel(status);
+
+  if (status === 'sent') {
+    return (
+      <Check
+        aria-label={label}
+        className="size-3.5"
+        role="img"
+      />
+    );
+  }
+
+  return (
+    <CheckCheck
+      aria-label={label}
+      className={cn(
+        'size-3.5',
+        status === 'read' ? 'text-sky-200' : 'text-indigo-100',
+      )}
+      role="img"
+    />
+  );
 }
 
 export function ChatConversation({
@@ -74,9 +137,11 @@ export function ChatConversation({
 }: ChatConversationProps) {
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const [messageInput, setMessageInput] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
   const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const {
     data,
@@ -90,6 +155,7 @@ export function ChatConversation({
   } = useChatMessages(chatId);
   const archiveChatMutation = useArchiveChat();
   const restoreChatMutation = useRestoreChat();
+  const { data: chat } = useChat(chatId);
   const { data: currentUser } = useCurrentUser();
   const {
     connectionStatus,
@@ -107,6 +173,16 @@ export function ChatConversation({
     [data],
   );
   const isArchived = status === 'archived';
+  const participantName = chat?.participant.name;
+  const participantInitials = participantName
+    ? getInitials(participantName)
+    : 'M';
+  const headerTitle = participantName ?? title;
+  const headerSubtitle = chat?.participant.role
+    ? chat.participant.role === 'tutor'
+      ? 'Tutor'
+      : 'Learner'
+    : subtitle;
   const messagePlaceholder = isArchived
     ? 'Restore this chat to send messages'
     : connectionStatus === 'connecting'
@@ -149,6 +225,7 @@ export function ChatConversation({
     try {
       await sendMessage(messageInput);
       setMessageInput('');
+      setIsEmojiPickerOpen(false);
     } catch (sendMessageError) {
       setSendError(
         sendMessageError instanceof Error
@@ -158,6 +235,27 @@ export function ChatConversation({
     } finally {
       setIsSending(false);
     }
+  }
+
+  function handleEmojiSelect(emoji: string) {
+    const input = messageInputRef.current;
+    const selectionStart = input?.selectionStart ?? messageInput.length;
+    const selectionEnd = input?.selectionEnd ?? messageInput.length;
+    const nextMessage =
+      messageInput.slice(0, selectionStart) +
+      emoji +
+      messageInput.slice(selectionEnd);
+    const nextCursorPosition = selectionStart + emoji.length;
+
+    setMessageInput(nextMessage);
+
+    requestAnimationFrame(() => {
+      messageInputRef.current?.focus();
+      messageInputRef.current?.setSelectionRange(
+        nextCursorPosition,
+        nextCursorPosition,
+      );
+    });
   }
 
   async function handleArchiveChat() {
@@ -196,12 +294,14 @@ export function ChatConversation({
         </Button>
 
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-sm font-semibold text-indigo-700">
-          M
+          {participantInitials}
         </div>
 
         <div className="min-w-0 flex-1">
-          <h1 className="text-sm font-semibold text-gray-900">{title}</h1>
-          <p className="text-xs text-gray-500">{subtitle}</p>
+          <h1 className="truncate text-sm font-semibold text-gray-900">
+            {headerTitle}
+          </h1>
+          <p className="text-xs text-gray-500">{headerSubtitle}</p>
         </div>
 
         {isArchived ? (
@@ -319,16 +419,46 @@ export function ChatConversation({
           </p>
         ) : null}
 
+        {isEmojiPickerOpen && !isArchived ? (
+          <div className="grid grid-cols-8 gap-1 rounded-lg bg-white p-2 shadow-sm ring-1 ring-gray-100">
+            {QUICK_REACTION_EMOJIS.map((emoji) => (
+              <Button
+                aria-label={`Add ${emoji}`}
+                className="h-9 text-lg"
+                disabled={!isConnected || isSending}
+                key={emoji}
+                onClick={() => handleEmojiSelect(emoji)}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <span aria-hidden="true">{emoji}</span>
+              </Button>
+            ))}
+          </div>
+        ) : null}
+
         <form
           className="flex items-center gap-2 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-gray-100"
           onSubmit={handleSendMessage}
         >
+          <Button
+            aria-label={isEmojiPickerOpen ? 'Close emoji picker' : 'Open emoji picker'}
+            disabled={isArchived || !isConnected || isSending}
+            onClick={() => setIsEmojiPickerOpen((isOpen) => !isOpen)}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <SmilePlus className="size-4" />
+          </Button>
           <Input
             aria-label="Message"
             className="h-10 flex-1"
             disabled={isArchived || !isConnected || isSending}
             onChange={(event) => setMessageInput(event.target.value)}
             placeholder={messagePlaceholder}
+            ref={messageInputRef}
             type="text"
             value={messageInput}
           />
@@ -380,9 +510,7 @@ function MessageBubble({
           {messageTime ? (
             <time dateTime={message.createdAt}>{messageTime}</time>
           ) : null}
-          {isOwnMessage ? (
-            <span>{formatMessageStatus(message.status)}</span>
-          ) : null}
+          {isOwnMessage ? <MessageStatusIcon status={message.status} /> : null}
         </div>
       </div>
     </div>

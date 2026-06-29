@@ -1,4 +1,35 @@
 {
+  "aiAssistant": {
+    "badge": "AI Assistant",
+    "title": "Talk through your learning goals",
+    "description": "Ask for help clarifying what you need, planning your next study step, or deciding what kind of tutor would fit.",
+    "chatTitle": "Assistant chat",
+    "provider": "Provider: {provider}",
+    "status": {
+      "starting": "Starting",
+      "ready": "Ready",
+      "thinking": "Mentora AI is thinking..."
+    },
+    "composer": {
+      "label": "Message Mentora AI",
+      "placeholder": "Ask about a subject, study goal, curriculum, or tutor fit...",
+      "startingPlaceholder": "Preparing your assistant...",
+      "hint": "Press Enter to send. Use Shift + Enter for a new line."
+    },
+    "actions": {
+      "send": "Send message",
+      "findTutor": "Find tutors"
+    },
+    "empty": {
+      "title": "Start with what you are trying to learn",
+      "description": "The assistant can help you describe your goals, compare study paths, and prepare better criteria before you search for tutors."
+    },
+    "examples": {
+      "algebra": "I need help improving my algebra.",
+      "tutorLevel": "I don't know what tutor level I need.",
+      "igcse": "Can you help me prepare for IGCSE math?"
+    }
+  },
   "aiTutorFinder": {
     "badge": "AI Tutor Finder",
     "title": "Find a tutor that matches your learning needs",
@@ -87,6 +118,101 @@
       "american": "American",
       "british": "British",
       "none": "Not Applicable"
+    }
+  },
+  "findTutor": {
+    "page": {
+      "title": "Find your tutor",
+      "description": "Start with a guided match, then refine the results with search, language, price, rating, and curriculum filters."
+    },
+    "steps": {
+      "title": "Search steps",
+      "curriculum": "Curriculum",
+      "level": "Level",
+      "subject": "Subject",
+      "results": "Results",
+      "back": "Back",
+      "next": "Next Step"
+    },
+    "curriculum": {
+      "title": "Select Curriculum",
+      "description": "Choose the educational system you want to study under.",
+      "loadErrorTitle": "Failed to load curricula",
+      "loadErrorDescription": "Please try again later",
+      "fallbackDescription": "Custom study tracks and courses tailored to your academic needs."
+    },
+    "level": {
+      "title": "Select Education Level",
+      "description": "Choose your current academic grade level.",
+      "loadErrorTitle": "Failed to load education levels",
+      "loadErrorDescription": "Please try again later"
+    },
+    "subject": {
+      "title": "Select Subject",
+      "description": "Choose the area you need help with to connect with the best experts.",
+      "searchPlaceholder": "Search subjects...",
+      "loadErrorTitle": "Failed to load subjects",
+      "loadErrorDescription": "Please try again later"
+    },
+    "aiCta": {
+      "title": "Want a faster tutor match?",
+      "description": "Let AI rank tutors by your subject, level, curriculum, language, and budget.",
+      "actionLabel": "Find with AI"
+    },
+    "filters": {
+      "title": "Search and filter tutors",
+      "description": "Your guided choices are already applied. Refine the list by price, language, rating, or keywords.",
+      "searchPlaceholder": "Search by name, subject, or keyword",
+      "allCurricula": "All curricula",
+      "allLevels": "All levels",
+      "allSubjects": "All subjects",
+      "sortBy": "Sort by",
+      "advanced": "Advanced filters",
+      "languagesPlaceholder": "Languages, e.g. English, Arabic",
+      "minRatePlaceholder": "Min EGP/hour",
+      "maxRatePlaceholder": "Max EGP/hour",
+      "minimumRating": "Minimum rating",
+      "anyRating": "Any rating",
+      "startOver": "Start over"
+    },
+    "options": {
+      "national": "National",
+      "igcse": "IGCSE",
+      "british": "British",
+      "american": "American",
+      "ib": "IB",
+      "noCurriculum": "No curriculum",
+      "primary": "Primary",
+      "preparatory": "Preparatory",
+      "secondary": "Secondary",
+      "university": "University",
+      "professional": "Professional",
+      "mathematics": "Mathematics",
+      "sciences": "Sciences",
+      "languages": "Languages",
+      "technology": "Technology",
+      "relevance": "Relevance",
+      "rating": "Rating",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low"
+    },
+    "results": {
+      "count": "{count, plural, one {# tutor found} other {# tutors found}}",
+      "updating": "Updating results...",
+      "approvedOnly": "Approved tutors only",
+      "loadErrorTitle": "Could not load tutors",
+      "tryAgain": "Try again",
+      "emptyTitle": "No tutors matched this search",
+      "emptyDescription": "Try a broader subject, another curriculum, or clear the filters to browse more tutors.",
+      "clearFilters": "Clear filters",
+      "perHour": "per hour",
+      "available": "Available",
+      "availabilityVaries": "Availability varies",
+      "viewProfile": "View profile",
+      "bookSession": "Book session",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
     }
   },
   "auth": {

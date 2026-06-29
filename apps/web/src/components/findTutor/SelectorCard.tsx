@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Check } from "lucide-react";
+import React from 'react';
+import { Check } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 interface SelectorCardProps {
   isSelected: boolean;
@@ -24,6 +25,9 @@ export default function SelectorCard({
   title,
   description,
 }: SelectorCardProps) {
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
+
   const handleClick = () => {
     onSelect(value);
     if (onNext) {
@@ -36,21 +40,23 @@ export default function SelectorCard({
       onClick={handleClick}
       type="button"
       className={`relative flex ${
-        description ? "items-start p-4" : "items-center p-2"
-      } gap-4 rounded-2xl border text-left transition-all duration-300 w-full cursor-pointer ${
+        isRtl ? 'flex-row-reverse text-right' : 'text-left'
+      } ${
+        description ? 'items-start p-4' : 'items-center p-2'
+      } gap-3 rounded-2xl border transition-all duration-300 w-full cursor-pointer ${
         isSelected
-          ? "border-primary bg-primary-container/10 ring-1 ring-primary shadow-sm"
-          : "border-outline-variant bg-surface-container-lowest hover:border-primary/50 hover:shadow-md"
+          ? 'border-primary bg-primary-container/10 ring-1 ring-primary shadow-sm'
+          : 'border-outline-variant bg-surface-container-lowest hover:border-primary/50 hover:shadow-md'
       }`}
     >
       <div
-        className={`rounded-full flex-shrink-0 flex items-center justify-center ${
-          description ? "p-3" : "p-4"
+        className={`rounded-full shrink-0 flex items-center justify-center ${
+          description ? 'p-3' : 'p-4'
         } ${iconBgClass}`}
       >
         {icon}
       </div>
-      <div className="flex-1 min-w-0 pr-6">
+      <div className={`min-w-0 ${isRtl ? 'pl-6' : 'pr-6'}`}>
         <span className="font-label-md text-on-surface block font-medium truncate">
           {title}
         </span>
@@ -62,11 +68,14 @@ export default function SelectorCard({
       </div>
 
       {isSelected && (
-        <div className="absolute top-3 right-3 bg-primary text-on-primary rounded-full p-0.5 shadow-sm">
+        <div
+          className={`absolute top-3 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm ${
+            isRtl ? 'left-3' : 'right-3'
+          }`}
+        >
           <Check className="size-4" />
         </div>
       )}
     </button>
   );
 }
-

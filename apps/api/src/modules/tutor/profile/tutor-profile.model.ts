@@ -94,6 +94,18 @@ const tutorProfileSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+
+    moderatorNotes: {
+      type: String,
+      maxlength: 200,
+      default: null,
+    },
   },
   {
     timestamps: true,

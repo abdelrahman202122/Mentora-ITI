@@ -197,7 +197,7 @@ function convertTo12Hour(time: string): string {
 
       <div className="max-w-6xl mx-auto mb-6">
         <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
-          <Link href={tutorProfileId ? `/${locale}/tutor-match/${tutorProfileId}` : `/${locale}/learner/tutor-match`}>
+          <Link href={tutorProfileId ? `/${locale}/tutor-match/${tutorProfileId}` : `/${locale}/find-tutor?mode=browse`}>
             <ArrowLeft size={16} /> Back to Teacher Profile
           </Link>
         </Button>

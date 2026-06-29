@@ -1,13 +1,21 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import CurriculumStep from "./CurriculumStep";
-import LevelStep from "./LevelStep";
-import SubjectStep from "./SubjectStep";
-import ResultsStep from "./ResultsStep";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react';
+import { Check } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import CurriculumStep from './CurriculumStep';
+import LevelStep from './LevelStep';
+import SubjectStep from './SubjectStep';
+import ResultsStep from './ResultsStep';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface StepperSidebarProps {
   currentStep: number;
@@ -17,6 +25,28 @@ interface StepperSidebarProps {
   selectedSubject: string | null;
 }
 
+const selectedValueTranslationKeys: Record<string, string> = {
+  american: 'options.american',
+  british: 'options.british',
+  ib: 'options.ib',
+  igcse: 'options.igcse',
+  languages: 'options.languages',
+  mathematics: 'options.mathematics',
+  national_new: 'options.national',
+  none: 'options.noCurriculum',
+  preparatory: 'options.preparatory',
+  primary: 'options.primary',
+  professional: 'options.professional',
+  sciences: 'options.sciences',
+  secondary: 'options.secondary',
+  technology: 'options.technology',
+  university: 'options.university',
+};
+
+function normalizeSelectedValue(value: string) {
+  return value.trim().toLowerCase().replaceAll(' ', '_');
+}
+
 function StepperSidebar({
   currentStep,
   onStepClick,
@@ -24,75 +54,106 @@ function StepperSidebar({
   selectedLevel,
   selectedSubject,
 }: StepperSidebarProps) {
+  const locale = useLocale();
+  const t = useTranslations('findTutor.steps');
+  const tFindTutor = useTranslations('findTutor');
+  const isRtl = locale === 'ar';
+  const getSelectedValueLabel = (value: string) => {
+    const normalizedValue = normalizeSelectedValue(value);
+    const key = selectedValueTranslationKeys[normalizedValue];
+
+    return key ? tFindTutor(key) : value.replaceAll('_', ' ');
+  };
+
   const steps = [
-    { number: 1, label: "Curriculum", value: selectedCurriculum },
-    { number: 2, label: "Level", value: selectedLevel },
-    { number: 3, label: "Subject", value: selectedSubject },
-    { number: 4, label: "Results", value: null },
+    { number: 1, label: t('curriculum'), value: selectedCurriculum },
+    { number: 2, label: t('level'), value: selectedLevel },
+    { number: 3, label: t('subject'), value: selectedSubject },
+    { number: 4, label: t('results'), value: null },
   ];
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-surface-container-low border border-outline-variant rounded-2xl shadow-sm">
-      <h3 className="text-xs font-bold text-outline uppercase tracking-wider mb-2">
-        Search Steps
-      </h3>
-      
-      <div className="space-y-6 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant/30">
-        {steps.map((step) => {
-          const isActive = step.number === currentStep;
-          const isCompleted = step.number < currentStep && step.value !== null;
-          const isClickable = step.number < currentStep || (step.value !== null && step.number !== 4);
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-sm">{t('title')}</CardTitle>
+      </CardHeader>
 
-          return (
-            <button
-              key={step.number}
-              onClick={() => isClickable && onStepClick(step.number)}
-              disabled={!isClickable}
-              type="button"
-              className={`flex items-center gap-4 text-left w-full transition-all group ${
-                isClickable ? "cursor-pointer" : "cursor-default"
-              }`}
-            >
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition-all z-10 ${
-                  isActive
-                    ? "border-primary bg-primary text-on-primary ring-4 ring-primary-container/35 scale-105"
-                    : isCompleted
-                    ? "border-primary bg-primary-container/20 text-primary"
-                    : "border-outline-variant bg-surface-container-lowest text-outline group-hover:border-outline"
-                }`}
+      <CardContent>
+        <div
+          className={`grid grid-cols-4 gap-2 lg:relative lg:block lg:space-y-5 lg:before:absolute lg:before:bottom-2 lg:before:top-2 lg:before:w-px lg:before:bg-border ${
+            isRtl ? 'lg:before:right-[15px]' : 'lg:before:left-[15px]'
+          }`}
+        >
+          {steps.map((step) => {
+            const isActive = step.number === currentStep;
+            const isCompleted =
+              step.number < currentStep && step.value !== null;
+            const isClickable =
+              step.number < currentStep ||
+              (step.value !== null && step.number !== 4);
+
+            return (
+              <button
+                key={step.number}
+                onClick={() => isClickable && onStepClick(step.number)}
+                disabled={!isClickable}
+                type="button"
+                className={`group flex min-w-0 flex-col items-center gap-2 rounded-lg p-2 text-center transition-colors lg:flex-row lg:items-center lg:gap-4 lg:p-0 ${
+                  isRtl ? 'lg:text-right' : 'lg:text-left'
+                } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
               >
-                {isCompleted ? <Check className="size-4 stroke-[3]" /> : step.number}
-              </div>
-              <div className="space-y-0.5">
-                <p
-                  className={`text-sm font-semibold transition-colors ${
+                <div
+                  className={`z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-all ${
                     isActive
-                      ? "text-primary"
+                      ? 'border-primary bg-primary text-primary-foreground ring-4 ring-primary/10'
                       : isCompleted
-                      ? "text-on-surface"
-                      : "text-outline"
+                        ? 'border-primary bg-secondary text-primary'
+                        : 'border-border bg-card text-muted-foreground group-hover:border-primary/40'
                   }`}
                 >
-                  {step.label}
-                </p>
-                {step.value && (
-                  <p className="text-[11px] text-primary font-medium capitalize">
-                    {step.value.replace("_", " ")}
+                  {isCompleted ? (
+                    <Check className="size-4 stroke-[3]" />
+                  ) : (
+                    step.number
+                  )}
+                </div>
+                <div className="min-w-0 space-y-0.5">
+                  <p
+                    className={`truncate text-xs font-medium transition-colors sm:text-sm ${
+                      isActive
+                        ? 'text-primary'
+                        : isCompleted
+                          ? 'text-foreground'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
+                    {step.label}
                   </p>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+                  {step.value && (
+                    <p className="hidden max-w-36 truncate text-xs font-medium capitalize text-muted-foreground lg:block">
+                      {getSelectedValueLabel(step.value)}
+                    </p>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-export default function FindTutor() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedCurriculum, setSelectedCurriculum] = useState<string | null>(null);
+type FindTutorProps = {
+  initialStep?: number;
+};
+
+export default function FindTutor({ initialStep = 1 }: FindTutorProps) {
+  const t = useTranslations('findTutor.steps');
+  const [currentStep, setCurrentStep] = useState(initialStep);
+  const [selectedCurriculum, setSelectedCurriculum] = useState<string | null>(
+    null,
+  );
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
@@ -153,7 +214,7 @@ export default function FindTutor() {
           <SubjectStep
             selected={selectedSubject}
             onSelect={setSelectedSubject}
-            onNext={  handleAutoAdvance}
+            onNext={handleAutoAdvance}
           />
         );
       case 4:
@@ -170,14 +231,20 @@ export default function FindTutor() {
           />
         );
       default:
-        return <CurriculumStep selected={selectedCurriculum} onSelect={setSelectedCurriculum} onNext={handleNext} />;
+        return (
+          <CurriculumStep
+            selected={selectedCurriculum}
+            onSelect={setSelectedCurriculum}
+            onNext={handleNext}
+          />
+        );
     }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start mx-auto py-4">
+    <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 py-4 lg:flex-row lg:gap-6">
       {/* Sidebar - Visual Stepper Indicator */}
-      <aside className="w-full lg:w-72 lg:sticky lg:top-6 flex-shrink-0">
+      <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-72">
         <StepperSidebar
           currentStep={currentStep}
           onStepClick={handleStepClick}
@@ -188,44 +255,41 @@ export default function FindTutor() {
       </aside>
 
       {/* Main Panel - Dynamic Stage Rendering */}
-      <main className="flex-1 w-full bg-surface-container-lowest border border-outline-variant rounded-3xl p-6 shadow-sm min-h-[500px] flex flex-col justify-between overflow-hidden">
-        <div className="flex-1 pb-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.25 }}
-              className="w-full"
-            >
-              {renderStep()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-        
+      <Card className="min-h-[500px] w-full flex-1">
+        <CardContent className="flex flex-1 flex-col">
+          <div className="flex-1 pb-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: 15 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -15 }}
+                transition={{ duration: 0.25 }}
+                className="w-full"
+              >
+                {renderStep()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </CardContent>
+
         {/* Persistent Navigation Controls */}
-        <div className="flex items-center justify-between border-t border-outline-variant pt-5 mt-4 flex-shrink-0">
+        <CardFooter className="justify-between">
           <Button
             onClick={handleBack}
             disabled={currentStep === 1}
             variant="outline"
-            className="border-outline-variant text-on-surface-variant hover:bg-surface-dim font-bold text-xs px-5 py-3 rounded-xl transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Back
+            {t('back')}
           </Button>
 
           {currentStep < 4 && (
-            <Button
-              onClick={handleNext}
-              disabled={!isStepComplete()}
-              className="bg-primary hover:bg-primary/90 text-on-primary font-bold text-xs px-6 py-3 rounded-xl transition-all cursor-pointer shadow-sm shadow-primary/10 disabled:bg-surface-variant disabled:text-outline-variant disabled:cursor-not-allowed disabled:shadow-none"
-            >
-              Next Step
+            <Button onClick={handleNext} disabled={!isStepComplete()}>
+              {t('next')}
             </Button>
           )}
-        </div>
-      </main>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

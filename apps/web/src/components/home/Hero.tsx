@@ -29,7 +29,7 @@ export default function Hero() {
             asChild
             className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-md"
           >
-            <Link href={getLocalePath(locale, "/FindTutor")}>
+            <Link href={getLocalePath(locale, "/find-tutor")}>
               <Search className="w-5 h-5 mr-2" />
               Find tutors
             </Link>

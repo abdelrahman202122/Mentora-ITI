@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { authMiddleware } from '../../../middleware/auth.middleware.js';
+import {
+  authMiddleware,
+  optionalAuthMiddleware,
+} from '../../../middleware/auth.middleware.js';
 import { roleMiddleware } from '../../../middleware/role.moddleware.js';
 import { validate } from '../../../middleware/validation.middleware.js';
 import {
@@ -48,6 +51,7 @@ router
 router
   .route('/:tutorId/subjects')
   .get(
+    optionalAuthMiddleware,
     validate({ params: getTutorSubjectsParamsSchema }),
     getTutorSubjectsController,
   );
@@ -55,6 +59,7 @@ router
 router
   .route('/:tutorId/subjects/:subjectId')
   .get(
+    optionalAuthMiddleware,
     validate({ params: getTutorSubjectParamsSchema }),
     getTutorSubjectController,
   );
