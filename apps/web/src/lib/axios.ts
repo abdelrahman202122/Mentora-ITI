@@ -65,7 +65,6 @@ function shouldAttemptRefresh(error: AxiosError, request?: RetryableRequest): bo
     "/users/login",
     "/users/register",
     "/users/refresh-token",
-    "/users/me",
   ].some((endpoint) => url.includes(endpoint));
 }
 
