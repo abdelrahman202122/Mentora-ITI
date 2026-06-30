@@ -9,6 +9,9 @@ import type { TutorProfileData } from "@/types/tutor/tutor-profile"
 
 export type TutorSummary = {
   id: string
+  profileId?: string
+  primarySubjectId?: string
+  primarySubjectTitle?: string
   name: string
   title: string
   subjects: string[]
@@ -50,8 +53,13 @@ function toTutorSummary(
 }
 
 function toTutorSummaryFromSearch(tutor: TutorSearchItem): TutorSummary {
+  const primarySubject = tutor.subjects[0]
+
   return {
     id: tutor.userId,
+    profileId: tutor.profile.id,
+    primarySubjectId: primarySubject?.id,
+    primarySubjectTitle: primarySubject?.title,
     name: tutor.name || "Tutor",
     title: tutor.profile.headline,
     subjects: tutor.subjects.map((subject) => subject.title),
@@ -93,19 +101,6 @@ export async function getTutors(): Promise<TutorSummary[]> {
 
 export async function getTutorById(id: string): Promise<TutorSummary | null> {
   try {
-    const response = await api.get<ApiSuccess<TutorProfileWithUser>>(
-      `/tutors/${id}/profile`
-    )
-
-    return toTutorSummary(response.data.data, id)
-  } catch (error) {
-    console.error("Failed to fetch tutor profile by user id", {
-      error,
-      tutorId: id,
-    })
-  }
-
-  try {
     const result = await searchTutors({ limit: 100, sortBy: "rating" })
     const matchedTutor = result.tutors.find(
       (tutor) =>
@@ -117,6 +112,19 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
     }
   } catch (error) {
     console.error("Failed to resolve tutor profile from tutor search", {
+      error,
+      tutorId: id,
+    })
+  }
+
+  try {
+    const response = await api.get<ApiSuccess<TutorProfileWithUser>>(
+      `/tutors/${id}/profile`
+    )
+
+    return toTutorSummary(response.data.data, id)
+  } catch (error) {
+    console.error("Failed to fetch tutor profile by user id", {
       error,
       tutorId: id,
     })

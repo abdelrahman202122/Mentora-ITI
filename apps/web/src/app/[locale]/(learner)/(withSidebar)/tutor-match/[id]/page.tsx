@@ -60,6 +60,18 @@ export default function TutorProfilePage() {
     }
   }
 
+  const primarySubjectTitle =
+    tutor.primarySubjectTitle || tutor.subjects[0] || "General Session"
+  const bookingHref =
+    `/${locale}/booking` +
+    `?tutorProfileId=${tutor.profileId ?? ""}` +
+    `&tutorId=${tutor.id}` +
+    `&tutorName=${encodeURIComponent(tutor.name)}` +
+    `&hourlyRate=${tutor.hourlyRate}` +
+    `&currency=${encodeURIComponent(tutor.currency)}` +
+    `&subject=${encodeURIComponent(primarySubjectTitle)}` +
+    `&subjectId=${tutor.primarySubjectId ?? ""}`
+
   return (
     <div className="max-w-3xl mx-auto">
 
@@ -194,14 +206,7 @@ export default function TutorProfilePage() {
  
 <div className="fixed bottom-6 right-6 z-50 animate-fade-in">
   <Link
-    href={
-      `/${locale}/booking` +
-      `?tutorId=${tutor.id}` +
-      `&tutorName=${encodeURIComponent(tutor.name)}` +
-      `&hourlyRate=${tutor.hourlyRate}` +
-      `&currency=${encodeURIComponent(tutor.currency)}` +
-      `&subject=${encodeURIComponent(tutor.subjects[0] || "General Session")}`
-    }
+    href={bookingHref}
     className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
   >
     <span>Book a Session — {tutor.hourlyRate} {tutor.currency}/hr</span>
