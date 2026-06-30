@@ -235,6 +235,14 @@ export default function BookingDetailsPage() {
                     )}
                   </Button>
                 )}
+
+                  {/* <Link
+            box-target
+            href={`/${locale}/dashboard`}
+            className="text-indigo-600 hover:text-indigo-800 font-semibold text-sm transition-colors"
+          >
+            Back to Dashboard
+          </Link> */}
                 {(booking.bookingStatus === "pending" || booking.bookingStatus === "confirmed") && (
                   <Button
                     variant="outline"

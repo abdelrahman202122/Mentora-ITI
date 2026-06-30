@@ -1,29 +1,147 @@
+
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { Filter, Download, X } from "lucide-react"
-import { getTransactions, type Transaction } from "@/services/paymentHistory/payment-history-service"
-import TransactionRow from "@/components/learner/TransactionRow"
-import TransactionCard from "@/components/learner/TransactionCard"
+import { useRouter, useParams } from "next/navigation"
+import { Download, Loader2, AlertCircle } from "lucide-react"
+import { getMyPayments, type Payment } from "@/services/payment/paymentHistory"
+import { getMyBookings } from "@/services/booking-services/getMyBookingService"
+import { getSubjectTitle } from "@/services/booking-services/getSubjectTitleService"
+import { getTutorName } from "@/services/booking-services/getTutorNameService"
+import PaymentFilter from "@/components/learner/PaymentFilter"
+import PaymentTable from "@/components/learner/paymentTable"
+import PaymentMobileList from "@/components/learner/PaymentMobileList"
 import { exportCSV, exportInvoicePDF } from "@/utils/learner/exportUtils"
+import { type Transaction } from "@/services/paymentHistory/payment-history-service"
 
 const ITEMS_PER_PAGE = 4
 
+function formatDate(iso: string | null): string {
+  if (!iso) return "—"
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+}
+
+const statusLabelMap: Record<Payment["status"], string> = {
+  success: "Completed",
+  failed: "Failed",
+  refunded: "Refunded",
+  pending: "Pending",
+}
+
+function StatusBadge({ status }: { status: Payment["status"] }) {
+  const map: Record<string, { label: string; color: string }> = {
+    success:  { label: "Completed", color: "text-green-600" },
+    failed:   { label: "Failed",    color: "text-red-500" },
+    refunded: { label: "Refunded",  color: "text-yellow-600" },
+    pending:  { label: "Pending",   color: "text-yellow-400" },
+  }
+  const s = map[status] ?? map.pending
+  return (
+    <span className={`flex items-center gap-1 font-semibold text-sm ${s.color}`}>
+      <span className="w-2 h-2 rounded-full bg-current" />
+      {s.label}
+    </span>
+  )
+}
+
 export default function PaymentsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const router = useRouter()
+  const params = useParams()
+  const locale = (params.locale as string) ?? "en"
+
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // ── Filter state ─────────────────────────────────────────────────────────
+  const [subjectTitles, setSubjectTitles] = useState<Record<string, string>>({})
+  const [tutorNames, setTutorNames] = useState<Record<string, string>>({})
+  const [durations, setDurations] = useState<Record<string, number>>({})
+
   const [showFilter, setShowFilter] = useState(false)
-  const [fromDate, setFromDate]     = useState("")
-  const [toDate, setToDate]         = useState("")
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
   const [appliedFrom, setAppliedFrom] = useState("")
-  const [appliedTo, setAppliedTo]     = useState("")
+  const [appliedTo, setAppliedTo] = useState("")
   const filterRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => { setTransactions(getTransactions()) }, [])
+  useEffect(() => {
+    async function load() {
+      try {
+        const [paymentsData, bookingsData] = await Promise.all([
+          getMyPayments(),
+          getMyBookings(),
+        ])
 
-  // Close dropdown when clicking outside
+        const bookingMap = new Map(bookingsData.map((b) => [b._id, b]))
+
+        // ✅ deduplicate — only fetch each unique tutorId once
+        const uniqueTutorIds = [...new Set(bookingsData.map((b) => b.tutorId))]
+
+        // ✅ deduplicate — only fetch each unique tutorId/subjectId pair once
+        const uniquePairs = [
+          ...new Map(bookingsData.map((b) => [`${b.tutorId}_${b.subjectId}`, b])).values()
+        ]
+
+        // ✅ fetch all tutor names and subject titles in parallel
+        const [tutorResults, subjectResults] = await Promise.all([
+          Promise.allSettled(
+            uniqueTutorIds.map((id) => getTutorName(id).then((name) => ({ id, name })))
+          ),
+          Promise.allSettled(
+            uniquePairs.map((b) =>
+              getSubjectTitle(b.tutorId, b.subjectId).then((title) => ({
+                subjectId: b.subjectId,
+                title,
+              }))
+            )
+          ),
+        ])
+
+        // build lookup maps
+        const tutorNameMap: Record<string, string> = {}
+        tutorResults.forEach((r) => {
+          if (r.status === "fulfilled") tutorNameMap[r.value.id] = r.value.name
+        })
+
+        const subjectTitleMap: Record<string, string> = {}
+        subjectResults.forEach((r) => {
+          if (r.status === "fulfilled") subjectTitleMap[r.value.subjectId] = r.value.title
+        })
+
+        // build per-payment enrichment maps
+        const newTutorNames: Record<string, string> = {}
+        const newSubjectTitles: Record<string, string> = {}
+        const newDurations: Record<string, number> = {}
+
+        paymentsData.forEach((payment) => {
+          const booking = bookingMap.get(payment.bookingId)
+          if (!booking) return
+          newDurations[payment._id] = booking.durationMinutes
+          if (tutorNameMap[booking.tutorId]) newTutorNames[payment._id] = tutorNameMap[booking.tutorId]
+          if (subjectTitleMap[booking.subjectId]) newSubjectTitles[payment._id] = subjectTitleMap[booking.subjectId]
+        })
+
+        // ✅ set all state at once — renders everything together
+        setTutorNames(newTutorNames)
+        setSubjectTitles(newSubjectTitles)
+        setDurations(newDurations)
+        setPayments(paymentsData)
+
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load payments.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  // Close filter on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
@@ -34,11 +152,11 @@ export default function PaymentsPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // ── Filtering logic ───────────────────────────────────────────────────────
-  const filtered = transactions.filter((tx) => {
-    const txDate = new Date(tx.date)
-    if (appliedFrom && txDate < new Date(appliedFrom)) return false
-    if (appliedTo   && txDate > new Date(appliedTo))   return false
+  // Filtering
+  const filtered = payments.filter((p) => {
+    const date = new Date(p.paidAt ?? p.createdAt)
+    if (appliedFrom && date < new Date(appliedFrom)) return false
+    if (appliedTo && date > new Date(appliedTo)) return false
     return true
   })
 
@@ -52,18 +170,59 @@ export default function PaymentsPage() {
   }
 
   function handleClear() {
-    setFromDate("")
-    setToDate("")
-    setAppliedFrom("")
-    setAppliedTo("")
+    setFromDate(""); setToDate("")
+    setAppliedFrom(""); setAppliedTo("")
     setCurrentPage(1)
     setShowFilter(false)
   }
 
-  // ── Pagination ────────────────────────────────────────────────────────────
-  const totalPages        = Math.ceil(filtered.length / ITEMS_PER_PAGE)
-  const startIndex        = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentTransactions = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const currentPayments = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+  function getDescription(payment: Payment) {
+    const tutor = tutorNames[payment._id]
+    const subject = subjectTitles[payment._id]
+    const duration = durations[payment._id]
+    const durationText = duration ? `${duration / 60}h` : ""
+    return {
+      title: tutor ? `Session with ${tutor}` : "Session",
+      subtitle: [subject, durationText].filter(Boolean).join(" · "),
+    }
+  }
+
+  const statusLabelMap: Record<Payment["status"], Transaction["status"]> = {
+  success: "Completed",
+  failed: "Failed",
+  refunded: "Refunded",
+  pending: "Pending",
+}
+
+  function toTransaction(payment: Payment): Transaction {
+    return {
+      id: payment._id,
+      date: formatDate(payment.paidAt ?? payment.createdAt),
+      tutorName: tutorNames[payment._id] ?? "Tutor",
+      subject: subjectTitles[payment._id] ?? "Session",
+      duration: durations[payment._id] ?? 0,
+      amount: payment.amount,
+      currency: payment.currency,
+      status: statusLabelMap[payment.status] ?? payment.status,
+    }
+  }
+
+  function handleExportCSV() {
+    exportCSV(filtered.map(toTransaction))
+  }
+
+  function handleExportInvoice(payment: Payment) {
+    exportInvoicePDF(toTransaction(payment))
+  }
+
+  function handleRowClick(payment: Payment) {
+    router.push(`/${locale}/paymentHistory/${payment._id}`)
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -74,130 +233,94 @@ export default function PaymentsPage() {
           <h2 className="text-base font-bold text-gray-800">Recent Transactions</h2>
           <div className="flex items-center gap-2">
 
-            {/* ── Filter button + dropdown ── */}
-            <div className="relative" ref={filterRef}>
-              <button
-                onClick={() => setShowFilter((v) => !v)}
-                className={`flex items-center gap-1.5 border rounded-lg px-2.5 py-1.5 text-xs md:text-sm transition-colors ${
-                  isFiltered
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                    : "border-gray-200 text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                <Filter size={13} />
-                <span className="hidden sm:inline cursor-pointer">Filter</span>
-                {isFiltered && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 ml-0.5" />
-                )}
-              </button>
-
-              {showFilter && (
-                <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-700">Filter by Date</span>
-                    <button onClick={() => setShowFilter(false)}>
-                      <X size={14} className="text-gray-400 hover:text-gray-600" />
-                    </button>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">From</label>
-                    <input
-                      type="date"
-                      value={fromDate}
-                      onChange={(e) => setFromDate(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">To</label>
-                    <input
-                      type="date"
-                      value={toDate}
-                      min={fromDate}
-                      onChange={(e) => setToDate(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                    />
-                  </div>
-
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={handleClear}
-                      className="flex-1 border border-gray-200 rounded-lg py-1.5 text-xs text-gray-500 hover:bg-gray-50"
-                    >
-                      Clear
-                    </button>
-                    <button
-                      onClick={handleApply}
-                      className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg py-1.5 text-xs font-semibold"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <PaymentFilter
+              showFilter={showFilter}
+              setShowFilter={setShowFilter}
+              fromDate={fromDate}
+              setFromDate={setFromDate}
+              toDate={toDate}
+              setToDate={setToDate}
+              isFiltered={isFiltered}
+              filterRef={filterRef}
+              handleApply={handleApply}
+              handleClear={handleClear}
+            />
 
             <button
-              onClick={() => exportCSV(transactions)}
-              className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-50 cursor-pointer"
+              onClick={handleExportCSV}
+              disabled={filtered.length === 0}
+              className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <Download size={13} className="cursor-pointer" />
+              <Download size={13} />
               <span className="hidden sm:inline">Export CSV</span>
             </button>
           </div>
         </div>
 
-        {/* Desktop */}
-        <div className="hidden md:block">
-          <div className="grid grid-cols-6 px-5 py-3 text-xs text-gray-400 uppercase border-b border-gray-50">
-            <span>Date</span><span className="col-span-2">Description</span>
-            <span className="text-right">Amount</span><span className="text-right">Status</span>
-            <span className="text-right">Invoice</span>
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm py-16">
+            <Loader2 size={18} className="animate-spin text-indigo-500" />
+            <span>Loading transactions...</span>
           </div>
-          {filtered.length === 0
-            ? <div className="text-center py-16 text-gray-400 text-sm">No transactions found.</div>
-            : <div className="divide-y divide-gray-50">
-                {currentTransactions.map((tx) => <TransactionRow key={tx.id} tx={tx} onExportPDF={exportInvoicePDF} />)}
-              </div>
-          }
-        </div>
+        )}
 
-        {/* Mobile */}
-        <div className="md:hidden">
-          {filtered.length === 0
-            ? <div className="text-center py-16 text-gray-400 text-sm">No transactions found.</div>
-            : <div className="divide-y divide-gray-100">
-                {currentTransactions.map((tx) => <TransactionCard key={tx.id} tx={tx} onExportPDF={exportInvoicePDF} />)}
-              </div>
-          }
-        </div>
+        {/* Error */}
+        {error && (
+          <div className="flex items-center gap-2 bg-red-50 text-red-600 px-5 py-3 text-sm border-b border-red-100">
+            <AlertCircle size={15} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Desktop Table */}
+        <PaymentTable
+          loading={loading}
+          error={error}
+          filtered={filtered}
+          currentPayments={currentPayments}
+          formatDate={formatDate}
+          getDescription={getDescription}
+          handleRowClick={handleRowClick}
+          handleExportInvoice={handleExportInvoice}
+          StatusBadge={StatusBadge}
+        />
+
+        {/* Mobile Cards */}
+        <PaymentMobileList
+          loading={loading}
+          error={error}
+          filtered={filtered}
+          currentPayments={currentPayments}
+          formatDate={formatDate}
+          getDescription={getDescription}
+          handleRowClick={handleRowClick}
+          handleExportInvoice={handleExportInvoice}
+          StatusBadge={StatusBadge}
+        />
 
         {/* Pagination */}
-        {filtered.length > 0 && (
+        {!loading && !error && filtered.length > 0 && (
           <div className="flex items-center justify-between px-4 md:px-5 py-4 border-t border-gray-100">
             <p className="text-xs md:text-sm text-gray-400">
               Showing {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
             </p>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}
-                className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-sm">‹</button>
-              <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}
-                className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-sm">›</button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-sm"
+              >‹</button>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-sm"
+              >›</button>
             </div>
           </div>
         )}
 
       </div>
-
-      {/* Help Card */}
-      <div className="mt-6 bg-indigo-50 rounded-2xl p-5 md:p-6">
-        <h3 className="text-base font-bold text-gray-800 mb-1">Need help with your billing?</h3>
-        <p className="text-sm text-gray-500 mb-4">Our support team is available 24/7 to resolve any payment discrepancies or subscription issues.</p>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">Contact Support</button>
-      </div>
-
     </div>
   )
 }
