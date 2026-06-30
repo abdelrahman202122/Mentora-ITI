@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useRegister } from '@/hooks/auth/use-auth';
+import { getSafeRedirectPath } from '@/utils/auth/safe-redirect';
 import {
   createBackendRegisterSchema,
   type BackendRegisterPayload,
@@ -37,6 +38,14 @@ export default function RegisterPage() {
   const isRtl = locale === 'ar';
 
   const nextParam = searchParams.get('next');
+  const registerRedirectPath =
+    typeof window === 'undefined'
+      ? getLocalePath(locale, '/')
+      : getSafeRedirectPath(
+          nextParam,
+          window.location.origin,
+          getLocalePath(locale, '/'),
+        );
   const loginPath = getLocalePath(locale, '/login');
   const loginHref = nextParam
     ? `${loginPath}?next=${encodeURIComponent(nextParam)}`
@@ -60,7 +69,7 @@ export default function RegisterPage() {
   function handleRegister(values: BackendRegisterPayload) {
     registerMutation.mutate(values, {
       onSuccess: () => {
-        router.replace(loginHref);
+        router.replace(registerRedirectPath);
         router.refresh();
       },
     });
