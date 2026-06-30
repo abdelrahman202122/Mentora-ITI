@@ -1,8 +1,13 @@
-import { Types } from 'mongoose';
-import type { AdminTutorSearchParams } from '../../validators/tutor-search.js';
+
+
 import { TutorSearchViewModel } from './search-view/tutor-search-view.model.js';
 import { TutorProfileModel } from './profile/tutor-profile.model.js';
 import { UserModel } from '../users/user.model.js';
+import { Types, type PipelineStage } from 'mongoose';
+import type { AdminTutorSearchParams } from '../../validators/tutor-search.js';
+import Booking from '../bookings/booking.model.js';
+import { BookingStatus } from '../bookings/booking.types.js';
+import Earning, { EarningStatus } from '../payments/earning.model.js';
 
 /**
  * Find all tutors in the database (search view)
@@ -375,4 +380,106 @@ const buildSort = (params: AdminTutorSearchParams) => {
         _id: 1,
       };
   }
+};
+
+/**
+ * Get stats for tutor dashboard.
+ */
+export const getStats = async (tutorId: string) => {
+  const [bookingStats, earningStats] = await Promise.all([
+    getBookingStats(tutorId),
+    getEarningStats(tutorId),
+  ]);
+
+  return {
+    totalHours: bookingStats.totalHours,
+    totalSessions: bookingStats.totalSessions,
+    totalEarnings: earningStats.totalEarnings, // AVAILABLE + PAID_OUT
+    availableBalance: earningStats.availableBalance, // AVAILABLE
+  };
+};
+
+/**
+ * Aggregate booking statistics.
+ */
+const getBookingStats = async (tutorId: string) => {
+  const [stats] = await Booking.aggregate([
+    {
+      $match: {
+        tutorId: new Types.ObjectId(tutorId),
+        bookingStatus: BookingStatus.COMPLETED,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalSessions: { $sum: 1 },
+        totalMinutes: { $sum: '$durationMinutes' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalSessions: 1,
+        totalHours: {
+          $round: [
+            {
+              $divide: ['$totalMinutes', 60],
+            },
+            2,
+          ],
+        },
+      },
+    },
+  ]);
+
+  return {
+    totalHours: stats?.totalHours ?? 0,
+    totalSessions: stats?.totalSessions ?? 0,
+  };
+};
+
+/**
+ * Aggregate tutor earnings.
+ */
+const getEarningStats = async (tutorId: string) => {
+  const [stats] = await Earning.aggregate([
+    {
+      $match: {
+        tutorId: new Types.ObjectId(tutorId),
+        status: {
+          $in: [EarningStatus.AVAILABLE, EarningStatus.PAID_OUT],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalEarnings: {
+          $sum: '$tutorAmount',
+        },
+        availableBalance: {
+          $sum: {
+            $cond: [
+              { $eq: ['$status', EarningStatus.AVAILABLE] },
+              '$tutorAmount',
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalEarnings: 1,
+        availableBalance: 1,
+      },
+    },
+  ]);
+
+  return {
+    totalEarnings: stats?.totalEarnings ?? 0,
+    availableBalance: stats?.availableBalance ?? 0,
+  };
 };
