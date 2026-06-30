@@ -99,7 +99,7 @@ function normalizeTutorSearchItem(tutor: RawTutorSearchItem): TutorSearchItem {
     avatar: tutor.avatar ?? populatedUser?.avatar,
     profile: {
       id: profileId,
-      headline: tutor.profile?.headline ?? "Tutor",
+      headline: tutor.profile?.headline ?? "",
       bio: tutor.profile?.bio ?? "",
       hourlyRate: tutor.profile?.hourlyRate ?? 0,
       languages: tutor.profile?.languages ?? [],

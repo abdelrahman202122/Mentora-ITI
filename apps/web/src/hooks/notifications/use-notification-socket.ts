@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { getChatSocket } from "@/services/chat/chat-socket";
+import { chatKeys } from "@/hooks/chat/use-chat";
+import type { ChatListData } from "@/types/chat/chat-types";
 import type {
   NotificationItem,
   NotificationListData,
@@ -18,6 +21,52 @@ function updateUnreadCount(
   updater: (count: number) => number
 ) {
   return Math.max(0, updater(currentCount ?? 0));
+}
+
+function getStringDataValue(
+  data: Record<string, unknown>,
+  key: string
+): string | null {
+  const value = data[key];
+  return typeof value === "string" ? value : null;
+}
+
+function updateChatListFromMessageNotification(
+  currentData: InfiniteData<ChatListData, number> | undefined,
+  notification: NotificationItem
+) {
+  if (!currentData?.pages.length || notification.type !== "message") {
+    return currentData;
+  }
+
+  const chatId = getStringDataValue(notification.data, "chatId");
+  const messageId = getStringDataValue(notification.data, "messageId");
+  const senderId = getStringDataValue(notification.data, "senderId");
+
+  if (!chatId || !messageId) {
+    return currentData;
+  }
+
+  return {
+    ...currentData,
+    pages: currentData.pages.map((page) => ({
+      ...page,
+      chats: page.chats.map((chat) =>
+        chat.id === chatId
+          ? {
+              ...chat,
+              lastMessage: {
+                id: messageId,
+                senderId: senderId ?? undefined,
+                preview: notification.body,
+                sentAt: notification.createdAt,
+              },
+              updatedAt: notification.createdAt,
+            }
+          : chat
+      ),
+    })),
+  };
 }
 
 function prependNotification(
@@ -105,6 +154,14 @@ export function useNotificationSocket() {
         queryClient.setQueryData<number>(
           notificationKeys.unreadCount(),
           (currentCount) => updateUnreadCount(currentCount, (count) => count + 1)
+        );
+      }
+
+      if (notification.type === "message") {
+        queryClient.setQueriesData<InfiniteData<ChatListData, number>>(
+          { queryKey: chatKeys.lists() },
+          (currentData) =>
+            updateChatListFromMessageNotification(currentData, notification)
         );
       }
     }
