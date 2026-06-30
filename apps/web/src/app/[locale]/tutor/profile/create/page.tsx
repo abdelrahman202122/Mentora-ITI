@@ -1,50 +1,71 @@
 "use client";
 
-import TutorProfileForm from '@/components/tutor/TutorProfileForm';
-import { useCurrentUser } from '@/hooks/auth/use-auth';
-import {  useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import TutorProfileForm from "@/components/tutor/TutorProfileForm";
+import { useCurrentUser } from "@/hooks/auth/use-auth";
+import { getLocalePath } from "@/utils/i18n/locale-path";
+import { Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function CreateProfilePage() {
   const { data: user, isLoading } = useCurrentUser();
-const router = useRouter();
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
+  const t = useTranslations("tutorProfile.page");
+  const loginPath = getLocalePath(locale, "/login");
+  const loginHref = `${loginPath}?next=${encodeURIComponent(pathname)}`;
+
   useEffect(() => {
     if (!isLoading && !user) {
-      router.replace("/login");
+      router.replace(loginHref);
     }
-  }, [isLoading, user]);
+  }, [isLoading, loginHref, router, user]);
 
-//  if (!user) {
-//     redirect("/login");
-//   }==> if it server component
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        <Loader2 className="mr-2 size-4 animate-spin" />
+        {t("loading")}
+      </div>
+    );
+  }
 
-  if (isLoading) return <p>Loading...</p>;
-  if (!user) return <p>Unable to load user. Please sign in.</p>;
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        {t("redirecting")}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between gap-6">
+      <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:py-10">
+        <div className="flex flex-col gap-2">
           <div>
-            <h1 className="text-3xl font-bold">Create Your Profile</h1>
-            <p className="text-muted-foreground mt-1">
-              Set up your tutor profile to start teaching students.
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              {t("title")}
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              {t("description")}
             </p>
           </div>
         </div>
 
-<TutorProfileForm
-  mode="create"
-  data={{
-    userData: {
-      _id: user?.id ?? "",
-      name: user?.name ?? "",
-      avatar: user?.avatar ?? "",
-    }
-  }}
-  tutorId={user?.id}
-/>      </div>
+        <TutorProfileForm
+          mode="create"
+          data={{
+            userData: {
+              _id: user.id,
+              name: user.name,
+              avatar: user.avatar ?? "",
+            },
+          }}
+          tutorId={user.id}
+        />
+      </div>
     </div>
   );
 }

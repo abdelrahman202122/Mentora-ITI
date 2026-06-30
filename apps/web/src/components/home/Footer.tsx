@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { 
   GraduationCap, 
   Mail, 
@@ -76,52 +76,26 @@ const Linkedin = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const socialLinks = [
-  { label: "Facebook", url: "https://facebook.com", icon: Facebook },
-  { label: "Twitter", url: "https://twitter.com", icon: Twitter },
-  { label: "Instagram", url: "https://instagram.com", icon: Instagram },
-  { label: "LinkedIn", url: "https://linkedin.com", icon: Linkedin },
-];
-
-const exploreLinks = [
-  { label: "Home", path: "/" },
-  { label: "Subjects", path: "/#subjects" },
-  { label: "How It Works", path: "/#how-it-works" },
-  { label: "Testimonials", path: "/#testimonials" },
-];
-
-const legalLinks = [
-  { label: "Privacy Policy", path: "/privacy" },
-  { label: "Terms of Service", path: "/terms" },
-  { label: "Help Center", path: "/help" },
-];
-
 export default function Footer() {
   const locale = useLocale();
+  const t = useTranslations("home.footer");
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // const socialLinks = [
-  //   { label: "Facebook", url: "https://facebook.com", icon: Facebook },
-  //   { label: "Twitter", url: "https://twitter.com", icon: Twitter },
-  //   { label: "Instagram", url: "https://instagram.com", icon: Instagram },
-  //   { label: "LinkedIn", url: "https://linkedin.com", icon: Linkedin },
-  // ];
-
   const exploreLinks = [
-    { label: "Home", path: "/" },
-    { label: "Subjects", path: "/#subjects" },
-    { label: "How It Works", path: "/#how-it-works" },
-    { label: "Testimonials", path: "/#testimonials" }
-  ];
+    { key: "home", path: "/" },
+    { key: "subjects", path: "/#subjects" },
+    { key: "howItWorks", path: "/#how-it-works" },
+    { key: "testimonials", path: "/#testimonials" },
+  ] as const;
 
   const legalLinks = [
-    { label: "Privacy Policy", path: "/privacy" },
-    { label: "Terms of Service", path: "/terms" },
-    { label: "Help Center", path: "/help" }
-  ];
+    { key: "privacyPolicy", path: "/privacy" },
+    { key: "termsOfService", path: "/terms" },
+    { key: "helpCenter", path: "/help" },
+  ] as const;
 
   return (
     <footer className="overflow-hidden border-t border-slate-900 bg-slate-950 pb-8 pt-16 text-slate-400 md:pt-20">
@@ -140,39 +114,25 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mx-auto max-w-xs text-sm leading-relaxed text-slate-400 sm:mx-0">
-              Mentora connects learners with verified tutors for personalized
-              lessons, secure booking, and clear communication before every
-              session.
+              {t("description")}
             </p>
             {/* Social Icons */}
             <div className="flex gap-4 pt-2 justify-center sm:justify-start">
-              {/* {socialLinks.map(({ icon: Icon, url, label }) => (
-                <a
-                  key={label}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="flex size-10 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-400 transition-colors duration-200 hover:border-indigo-500 hover:bg-slate-900 hover:text-white"
-                >
-                  <Icon className="size-5" />
-                </a>
-              ))} */}
             </div>
           </div>
 
           <div className="space-y-4 md:space-y-6">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-200">
-              Explore
+              {t("explore")}
             </h3>
             <ul className="space-y-3 text-sm md:space-y-4">
-              {exploreLinks.map(({ label, path }) => (
-                <li key={label}>
+              {exploreLinks.map(({ key, path }) => (
+                <li key={key}>
                   <Link
                     href={getLocalePath(locale, path)}
                     className="block transition-colors duration-200 hover:text-white sm:inline-block"
                   >
-                    {label}
+                    {t(key)}
                   </Link>
                 </li>
               ))}
@@ -181,16 +141,16 @@ export default function Footer() {
 
           <div className="space-y-4 md:space-y-6">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-200">
-              Contact &amp; Legal
+              {t("contactLegal")}
             </h3>
             <ul className="flex flex-col items-center space-y-3 text-sm sm:items-start md:space-y-4">
-              {legalLinks.map(({ label, path }) => (
-                <li key={label}>
+              {legalLinks.map(({ key, path }) => (
+                <li key={key}>
                   <Link
                     href={getLocalePath(locale, path)}
                     className="block transition-colors duration-200 hover:text-white sm:inline-block"
                   >
-                    {label}
+                    {t(key)}
                   </Link>
                 </li>
               ))}
@@ -203,24 +163,23 @@ export default function Footer() {
 
           <div className="mx-auto w-full max-w-sm space-y-4 sm:mx-0 sm:max-w-none md:space-y-6">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-200">
-              Newsletter
+              {t("newsletter")}
             </h3>
             <p className="text-sm leading-relaxed text-slate-400">
-              Get tutor-search tips, platform updates, and learning resources in
-              your inbox.
+              {t("newsletterDescription")}
             </p>
             <form onSubmit={(event) => event.preventDefault()} className="flex flex-col gap-3">
               <Input
                 type="email"
                 required
-                placeholder="Enter your email"
+                placeholder={t("emailPlaceholder")}
                 className="h-11 w-full rounded-lg border-slate-800 bg-slate-900 text-white placeholder:text-slate-500 focus-visible:border-indigo-500 focus-visible:ring-indigo-500"
               />
               <Button
                 type="submit"
                 className="h-11 w-full cursor-pointer rounded-lg bg-indigo-600 font-semibold text-white transition-colors duration-200 hover:bg-indigo-500"
               >
-                Subscribe to updates
+                {t("subscribe")}
               </Button>
             </form>
           </div>
@@ -230,11 +189,10 @@ export default function Footer() {
 
         <div className="flex flex-col-reverse items-center justify-between gap-6 pt-8 text-center text-xs text-slate-500 sm:flex-row sm:text-left">
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-1.5">
-            <span>© {new Date().getFullYear()} Mentora. All rights reserved.</span>
+            <span>{t("copyright", { year: new Date().getFullYear() })}</span>
             <span className="hidden text-slate-700 sm:inline">|</span>
             <span className="flex items-center gap-1">
-              Made with <Heart className="size-3 fill-red-500 text-red-500" /> at
-              ITI Lab
+              {t("madeWith")} <Heart className="size-3 fill-red-500 text-red-500" /> {t("madeAt")}
             </span>
           </div>
 
@@ -243,7 +201,7 @@ export default function Footer() {
             onClick={scrollToTop}
             className="h-auto w-full cursor-pointer justify-center rounded-lg border border-slate-800 px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-900 hover:text-white sm:w-auto"
           >
-            <span>Back to top</span>
+            <span>{t("backToTop")}</span>
             <ArrowUp className="ml-2 size-3 transition-transform duration-300 group-hover:-translate-y-0.5" />
           </Button>
         </div>

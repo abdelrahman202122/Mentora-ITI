@@ -2,7 +2,13 @@ import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { sendSuccess } from '../../utils/api-response.js';
 import { UnauthorizedError } from '../../common/errors/AppError.js';
-import type { CreateReviewInput } from '../../validators/review.js';
+import type {
+  CreateReviewInput,
+  ListReviewsQuery,
+  ReviewIdParam,
+  TutorIdParam,
+  UpdateReviewInput,
+} from '../../validators/review.js';
 import * as reviewService from './review.service.js';
 
 const { Types } = mongoose;
@@ -52,11 +58,20 @@ export async function listTutorReviews(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Read tutorProfileId from validated params.
-    // TODO: Read pagination and sorting values from validated query.
-    // TODO: Call reviewService.listTutorReviews.
-    // TODO: Return reviews and pagination metadata with sendSuccess.
-    await reviewService.listTutorReviews();
+    const { tutorProfileId } = req.params as TutorIdParam;
+    const query = req.query as unknown as ListReviewsQuery;
+
+    const result = await reviewService.listTutorReviews(
+      new Types.ObjectId(tutorProfileId),
+      {
+        page: query.page,
+        limit: query.limit,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
+      },
+    );
+
+    sendSuccess(res, 200, 'Reviews retrieved successfully', result);
   } catch (error) {
     next(error);
   }
@@ -72,11 +87,25 @@ export async function listMyReviews(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify the authenticated learner exists on req.user.
-    // TODO: Read pagination and filtering values from validated query.
-    // TODO: Call reviewService.listMyReviews with learner identity.
-    // TODO: Return reviews and pagination metadata with sendSuccess.
-    await reviewService.listMyReviews();
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const query = req.query as unknown as ListReviewsQuery;
+    const learnerId = new Types.ObjectId(req.user.userId);
+    const tutorProfileId = query.tutorProfileId
+      ? new Types.ObjectId(query.tutorProfileId)
+      : undefined;
+
+    const result = await reviewService.listMyReviews(learnerId, {
+      page: query.page,
+      limit: query.limit,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+      tutorProfileId,
+    });
+
+    sendSuccess(res, 200, 'Reviews retrieved successfully', result);
   } catch (error) {
     next(error);
   }
@@ -92,12 +121,20 @@ export async function updateReview(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify the authenticated learner exists on req.user.
-    // TODO: Read reviewId from validated params.
-    // TODO: Read rating/comment updates from validated body.
-    // TODO: Call reviewService.updateReview with learner identity.
-    // TODO: Return the updated review with sendSuccess.
-    await reviewService.updateReview();
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const { reviewId } = req.params as ReviewIdParam;
+    const updates = req.body as UpdateReviewInput;
+
+    const review = await reviewService.updateReview(
+      new Types.ObjectId(req.user.userId),
+      new Types.ObjectId(reviewId),
+      updates,
+    );
+
+    sendSuccess(res, 200, 'Review updated successfully', review);
   } catch (error) {
     next(error);
   }
@@ -113,11 +150,18 @@ export async function deleteReview(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // TODO: Verify the authenticated learner exists on req.user.
-    // TODO: Read reviewId from validated params.
-    // TODO: Call reviewService.deleteReview with learner identity.
-    // TODO: Return a success response with sendSuccess.
-    await reviewService.deleteReview();
+    if (!req.user?.userId) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+
+    const { reviewId } = req.params as ReviewIdParam;
+
+    await reviewService.deleteReview(
+      new Types.ObjectId(req.user.userId),
+      new Types.ObjectId(reviewId),
+    );
+
+    sendSuccess(res, 200, 'Review deleted successfully');
   } catch (error) {
     next(error);
   }

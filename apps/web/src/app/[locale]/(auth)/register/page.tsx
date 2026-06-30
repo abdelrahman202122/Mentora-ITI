@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { GraduationCap, Loader2, Phone } from "lucide-react";
 import { useMemo } from "react";
@@ -27,11 +27,18 @@ import { getLocalizedAuthError } from "@/utils/auth/localized-auth-error";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("auth");
   const tValidation = useTranslations("auth.validation");
   const tErrors = useTranslations("auth.errors");
   const registerMutation = useRegister();
+
+  const nextParam = searchParams.get("next");
+  const loginPath = getLocalePath(locale, "/login");
+  const loginHref = nextParam
+    ? `${loginPath}?next=${encodeURIComponent(nextParam)}`
+    : loginPath;
 
   const registerSchema = useMemo(
     () => createBackendRegisterSchema(tValidation),
@@ -51,7 +58,7 @@ export default function RegisterPage() {
   function handleRegister(values: BackendRegisterPayload) {
     registerMutation.mutate(values, {
       onSuccess: () => {
-        router.replace(getLocalePath(locale, "/"));
+        router.replace(loginHref);
         router.refresh();
       },
     });
@@ -170,7 +177,7 @@ export default function RegisterPage() {
                 {t("register.hasAccount")}{" "}
                 <Link
                   className="font-semibold text-indigo-600 hover:text-indigo-700"
-                  href={getLocalePath(locale, "/login")}
+                  href={loginHref}
                 >
                   {t("register.logInLink")}
                 </Link>

@@ -34,8 +34,15 @@ export async function createReview(
  */
 export async function findReviewById(
   reviewId: Types.ObjectId,
+  session?: ClientSession,
 ): Promise<ReviewResponse | null> {
-  const review = await ReviewModel.findById(reviewId).exec();
+  const query = ReviewModel.findById(reviewId);
+
+  if (session) {
+    query.session(session);
+  }
+
+  const review = await query.exec();
   return review ? toReviewResponse(review) : null;
 }
 
@@ -47,6 +54,18 @@ export async function findReviewByBookingId(
 ): Promise<ReviewResponse | null> {
   const review = await ReviewModel.findOne({ bookingId }).exec();
   return review ? toReviewResponse(review) : null;
+}
+
+/**
+ * Find a tutor profile by its ID with review visibility metadata.
+ */
+export async function findTutorProfileById(
+  tutorProfileId: Types.ObjectId,
+): Promise<{ _id: Types.ObjectId; status: string } | null> {
+  return TutorProfileModel.findById(tutorProfileId)
+    .select('_id status')
+    .lean<{ _id: Types.ObjectId; status: string }>()
+    .exec();
 }
 
 /**
@@ -85,8 +104,15 @@ export async function findReviewsByLearnerId(
   limit: number,
   sortBy = 'createdAt',
   sortOrder: 'asc' | 'desc' = 'desc',
+  tutorProfileId?: Types.ObjectId,
 ): Promise<ReviewResponse[]> {
-  return ReviewModel.find({ learnerId })
+  const query: Record<string, unknown> = { learnerId };
+
+  if (tutorProfileId) {
+    query.tutorProfileId = tutorProfileId;
+  }
+
+  return ReviewModel.find(query)
     .skip(skip)
     .limit(limit)
     .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
@@ -99,8 +125,15 @@ export async function findReviewsByLearnerId(
  */
 export async function countReviewsByLearnerId(
   learnerId: Types.ObjectId,
+  tutorProfileId?: Types.ObjectId,
 ): Promise<number> {
-  return ReviewModel.countDocuments({ learnerId }).exec();
+  const query: Record<string, unknown> = { learnerId };
+
+  if (tutorProfileId) {
+    query.tutorProfileId = tutorProfileId;
+  }
+
+  return ReviewModel.countDocuments(query).exec();
 }
 
 /**

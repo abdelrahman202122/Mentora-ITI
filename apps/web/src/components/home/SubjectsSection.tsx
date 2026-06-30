@@ -3,6 +3,7 @@
 import * as React from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Atom, BookOpen, FlaskConical, Pill, Triangle, Users } from "lucide-react";
 
 import {
@@ -24,15 +25,17 @@ const itemVariants = {
 };
 
 const subjects = [
-  { name: "Sociology", icon: Users },
-  { name: "English", icon: BookOpen },
-  { name: "History", icon: Triangle },
-  { name: "Mathematics", icon: Atom },
-  { name: "Chemistry", icon: FlaskConical },
-  { name: "Biology", icon: Pill },
-];
+  { key: "sociology", icon: Users },
+  { key: "english", icon: BookOpen },
+  { key: "history", icon: Triangle },
+  { key: "mathematics", icon: Atom },
+  { key: "chemistry", icon: FlaskConical },
+  { key: "biology", icon: Pill },
+] as const;
 
 export default function ProfessionalSubjectsSection() {
+  const t = useTranslations("home.subjects");
+
   const autoplay = React.useMemo(
     () =>
       Autoplay({
@@ -57,7 +60,7 @@ export default function ProfessionalSubjectsSection() {
           variants={itemVariants}
           className="mb-14 text-center text-3xl font-semibold tracking-tight text-slate-900"
         >
-          Find tutors by <span className="text-indigo-600">subject</span>
+          {t("title")} <span className="text-indigo-600">{t("titleHighlight")}</span>
         </motion.h2>
 
         <motion.div variants={itemVariants} className="relative mb-20 px-4">
@@ -72,7 +75,7 @@ export default function ProfessionalSubjectsSection() {
             <CarouselContent>
               {subjects.map((subject) => (
                 <CarouselItem
-                  key={subject.name}
+                  key={subject.key}
                   className="basis-1/2 md:basis-1/4 lg:basis-1/6"
                 >
                   <motion.div
@@ -83,7 +86,7 @@ export default function ProfessionalSubjectsSection() {
                       <subject.icon className="size-8 text-indigo-600" />
                     </div>
                     <span className="text-center font-semibold text-slate-700">
-                      {subject.name}
+                      {t(subject.key)}
                     </span>
                   </motion.div>
                 </CarouselItem>

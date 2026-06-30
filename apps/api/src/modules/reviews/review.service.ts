@@ -9,7 +9,11 @@ import { withTransaction } from '../../common/transactionHelper.js';
 import { BookingStatus } from '../bookings/booking.types.js';
 import * as bookingRepository from '../bookings/booking.repository.js';
 import * as reviewRepository from './review.repository.js';
-import type { ReviewResponse } from './review.types.js';
+import type {
+  PaginatedReviewsResponse,
+  ReviewResponse,
+  UpdateReviewInput,
+} from './review.types.js';
 
 function createReviewError(message: string, statusCode: number): AppError {
   return new AppError(message, statusCode, 'REVIEW_ERROR');
@@ -106,37 +110,177 @@ export async function createReview(
 /**
  * List public visible reviews for a tutor profile.
  */
-export async function listTutorReviews(): Promise<void> {
-  // TODO: Validate tutor profile access/display requirements.
-  // TODO: Delegate pagination and filtering to reviewRepository.findReviewsByTutorProfileId.
-  // TODO: Return public-safe review data and pagination metadata.
+export async function listTutorReviews(
+  tutorProfileId: Types.ObjectId,
+  query: {
+    page: number;
+    limit: number;
+    sortBy?: string;
+    sortOrder: 'asc' | 'desc';
+  },
+): Promise<PaginatedReviewsResponse> {
+  const tutorProfile = await reviewRepository.findTutorProfileById(
+    tutorProfileId,
+  );
+
+  if (!tutorProfile || tutorProfile.status !== 'approved') {
+    throw new NotFoundError('Tutor not found');
+  }
+
+  const skip = (query.page - 1) * query.limit;
+  const sortBy = query.sortBy ?? 'createdAt';
+
+  const [reviews, total] = await Promise.all([
+    reviewRepository.findReviewsByTutorProfileId(
+      tutorProfileId,
+      skip,
+      query.limit,
+      sortBy,
+      query.sortOrder,
+    ),
+    reviewRepository.countReviewsByTutorProfileId(tutorProfileId),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+    },
+  };
 }
 
 /**
  * List reviews created by a learner.
  */
-export async function listMyReviews(): Promise<void> {
-  // TODO: Confirm the learner is authenticated.
-  // TODO: Delegate pagination and filtering to reviewRepository.findReviewsByLearnerId.
-  // TODO: Return learner-owned review data and pagination metadata.
+export async function listMyReviews(
+  learnerId: Types.ObjectId,
+  query: {
+    page: number;
+    limit: number;
+    sortBy?: string;
+    sortOrder: 'asc' | 'desc';
+    tutorProfileId?: Types.ObjectId;
+  },
+): Promise<PaginatedReviewsResponse> {
+  const skip = (query.page - 1) * query.limit;
+  const sortBy = query.sortBy ?? 'createdAt';
+
+  const [reviews, total] = await Promise.all([
+    reviewRepository.findReviewsByLearnerId(
+      learnerId,
+      skip,
+      query.limit,
+      sortBy,
+      query.sortOrder,
+      query.tutorProfileId,
+    ),
+    reviewRepository.countReviewsByLearnerId(
+      learnerId,
+      query.tutorProfileId,
+    ),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit),
+    },
+  };
 }
 
 /**
  * Update a learner-owned review.
  */
-export async function updateReview(): Promise<void> {
-  // TODO: Load the review by ID.
-  // TODO: Ensure the review belongs to the authenticated learner.
-  // TODO: Apply rating/comment updates through reviewRepository.updateReviewById.
-  // TODO: Recalculate tutor aggregate rating and total review count.
+export async function updateReview(
+  learnerId: Types.ObjectId,
+  reviewId: Types.ObjectId,
+  updates: UpdateReviewInput,
+): Promise<ReviewResponse> {
+  const sanitizedUpdates: UpdateReviewInput = {};
+
+  if (updates.rating !== undefined) {
+    sanitizedUpdates.rating = updates.rating;
+  }
+
+  if (updates.comment !== undefined) {
+    sanitizedUpdates.comment = updates.comment;
+  }
+
+  if (
+    sanitizedUpdates.rating === undefined &&
+    sanitizedUpdates.comment === undefined
+  ) {
+    throw createReviewError('At least one field must be provided', 400);
+  }
+
+  const review = await reviewRepository.findReviewById(reviewId);
+
+  if (!review) {
+    throw new NotFoundError('Review not found');
+  }
+
+  if (!review.learnerId.equals(learnerId)) {
+    throw new ForbiddenError('You can only update your own reviews');
+  }
+
+  return withTransaction(async (session) => {
+    const updatedReview = await reviewRepository.updateReviewById(
+      reviewId,
+      sanitizedUpdates,
+      session,
+    );
+
+    if (!updatedReview) {
+      throw new NotFoundError('Review not found');
+    }
+
+    await reviewRepository.calculateTutorRatingAggregate(
+      review.tutorProfileId,
+      session,
+    );
+
+    return updatedReview;
+  });
 }
 
 /**
  * Delete a learner-owned review.
  */
-export async function deleteReview(): Promise<void> {
-  // TODO: Load the review by ID.
-  // TODO: Ensure the review belongs to the authenticated learner.
-  // TODO: Delete or hide the review through reviewRepository.deleteReviewById.
-  // TODO: Recalculate tutor aggregate rating and total review count.
+export async function deleteReview(
+  learnerId: Types.ObjectId,
+  reviewId: Types.ObjectId,
+): Promise<ReviewResponse> {
+  const review = await reviewRepository.findReviewById(reviewId);
+
+  if (!review) {
+    throw new NotFoundError('Review not found');
+  }
+
+  if (!review.learnerId.equals(learnerId)) {
+    throw new ForbiddenError('You can only delete your own reviews');
+  }
+
+  return withTransaction(async (session) => {
+    const deletedReview = await reviewRepository.deleteReviewById(
+      reviewId,
+      session,
+    );
+
+    if (!deletedReview) {
+      throw new NotFoundError('Review not found');
+    }
+
+    await reviewRepository.calculateTutorRatingAggregate(
+      review.tutorProfileId,
+      session,
+    );
+
+    return deletedReview;
+  });
 }
