@@ -9,6 +9,7 @@ import {
   Wallet,
   ShieldCheck,
   GraduationCap,
+  Clock,
   type LucideIcon,
 } from "lucide-react"
 
@@ -34,6 +35,7 @@ const tutorNavLinks: NavLink[] = [
   { path: "/tutor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/tutor/messages", icon: MessageSquare, label: "Messages" },
   { path: "/tutor/payment", icon: Wallet, label: "Earnings" },
+  { path: "/tutor/availability", icon: Clock, label: "availability" },
   { path: "/tutor/profile/edit", icon: Settings, label: "Profile" },
   { path: "/tutor/reviews", icon: CalendarClock, label: "Reviews" },
 ]
