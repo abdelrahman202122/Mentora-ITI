@@ -29,12 +29,17 @@ export const logger = winston.createLogger({
       filename: `${logDir}/error.log`,
       level: "error",
       format: combine(timestamp(), json()),
+
+      maxsize: 5 * 1024 * 1024, // 5 MB
+      maxFiles: 5,
     }),
 
     // All logs file
     new winston.transports.File({
       filename: `${logDir}/combined.log`,
       format: combine(timestamp(), json()),
+      maxsize: 5 * 1024 * 1024, // 5 MB
+      maxFiles: 5,
     }),
   ],
 });

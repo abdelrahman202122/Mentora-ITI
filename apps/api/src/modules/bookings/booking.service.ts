@@ -5,6 +5,7 @@ import type {
   CreateBookingInput,
   IBooking,
 } from './booking.types.js';
+import { PaymentStatus } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
 import {
   decryptConfirmationCode,
@@ -534,6 +535,21 @@ export async function confirmBookingCode(
   if (booking.bookingStatus !== 'confirmed') {
     throw createBookingError(
       `Booking must be in confirmed status to verify code. Current status: ${booking.bookingStatus}`,
+      409,
+    );
+  }
+
+  if (booking.paymentStatus !== PaymentStatus.PAID) {
+    throw createBookingError(
+      `Booking must be paid before verifying the session code. Current payment status: ${booking.paymentStatus}`,
+      409,
+    );
+  }
+
+  const now = new Date();
+  if (now < booking.startAt || now > booking.endAt) {
+    throw createBookingError(
+      'Session code can only be verified during the scheduled session time',
       409,
     );
   }

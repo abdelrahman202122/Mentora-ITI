@@ -1,3 +1,9 @@
+import type {
+  NotificationItem,
+  NotificationReadAllUpdatePayload,
+  NotificationReadUpdatePayload,
+} from "@/types/notifications/notification-types";
+
 export type ChatStatus = "active" | "archived";
 
 export type MessageType = "text" | "system";
@@ -138,6 +144,11 @@ export interface ServerToClientEvents {
   "message:new": (payload: NewMessagePayload) => void;
   "message:delivered:update": (payload: MessageReceiptPayload) => void;
   "message:read:update": (payload: MessageReceiptPayload) => void;
+  "notification:new": (payload: NotificationItem) => void;
+  "notification:read:update": (payload: NotificationReadUpdatePayload) => void;
+  "notification:read-all:update": (
+    payload: NotificationReadAllUpdatePayload
+  ) => void;
 }
 
 export interface ClientToServerEvents {

@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar } from "lucide-react"
+import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar, Loader2 } from "lucide-react"
+import { useCreateChat } from "@/hooks/chat/use-chat"
 import { getTutorById, type TutorSummary } from "@/services/tutorsLearner/tutor"
+import { getLocalePath } from "@/utils/i18n/locale-path"
 
 export default function TutorProfilePage() {
   const params = useParams()
@@ -12,6 +14,7 @@ export default function TutorProfilePage() {
   const locale = params.locale as string
   const [tutor, setTutor] = useState<TutorSummary | null>(null)
   const [loading, setLoading] = useState(true)
+  const createChat = useCreateChat()
 
   useEffect(() => {
     async function fetchData() {
@@ -39,6 +42,22 @@ export default function TutorProfilePage() {
         <p className="text-gray-400">Tutor not found.</p>
       </div>
     )
+  }
+
+  async function handleStartChat() {
+    if (!tutor) {
+      return
+    }
+
+    try {
+      const chat = await createChat.mutateAsync({ tutorId: tutor.id })
+      router.push(getLocalePath(locale, `/messages/${chat.id}`))
+    } catch (error) {
+      console.error("Failed to start tutor chat", {
+        error,
+        tutorId: tutor.id,
+      })
+    }
   }
 
   return (
@@ -89,16 +108,24 @@ export default function TutorProfilePage() {
 
         {/* Chat Button */}
         <button
-          onClick={async () => {
-            // const chatId = await startConversation(tutor.id, tutor.name)
-            const qs = new URLSearchParams({ tutorName: tutor.name }).toString()
-            // router.push(`/${locale}/learner/messages/${chatId}?${qs}`)
-          }}
-          className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer"
+          disabled={createChat.isPending}
+          onClick={() => void handleStartChat()}
+          className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+          type="button"
         >
-          <MessageSquare size={15} />
-          Chat with {tutor.name}
+          {createChat.isPending ? (
+            <Loader2 size={15} className="animate-spin" />
+          ) : (
+            <MessageSquare size={15} />
+          )}
+          {createChat.isPending ? "Starting chat..." : `Chat with ${tutor.name}`}
         </button>
+
+        {createChat.error ? (
+          <p className="mt-2 text-sm font-medium text-red-600">
+            {createChat.error.message}
+          </p>
+        ) : null}
 
         {/* About Me */}
         <div className="mt-4 pt-4 border-t border-gray-100">

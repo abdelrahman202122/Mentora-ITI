@@ -6,6 +6,7 @@ import { uploadAvatarMiddleware } from '../../middleware/upload.middleware.js';
 import { validate } from '../../middleware/validation.middleware.js';
 import {
   changePasswordSchema,
+  changeUserStatusSchema,
   forgotPasswordSchema,
   loginSchema,
   registerSchema,
@@ -74,7 +75,7 @@ router.patch(
 router.patch(
   '/profile',
   authMiddleware,
-  validate(updateProfileSchema), // ← added
+  validate(updateProfileSchema), 
   UserController.updateProfile,
 );
 
@@ -90,6 +91,14 @@ router.post(
   passwordResetRateLimit,
   validate(resetPasswordSchema),
   UserController.resetPassword
+);
+
+router.patch(
+  '/:id/status',
+  authMiddleware,
+  roleMiddleware(UserRole.ADMIN),
+  validate(changeUserStatusSchema),
+  UserController.changeUserStatus,
 );
 
 router.patch(

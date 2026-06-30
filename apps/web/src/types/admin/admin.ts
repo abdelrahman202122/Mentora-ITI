@@ -17,12 +17,14 @@ export interface User {
   status: Status;
   regDate: string;
   totalSessions?: number;
-  avgRating?: number;
-  lastActivity?: string;
-  avatarUrl?: string;
-  roleLabel?: string;
+  avgRating?: number | null;
+  lastActivity?: string | null;
+  avatarUrl?: string | null;
+  roleLabel?: string | null;
+  // ✅ Only present in detail response (GET /:id)
   reviews?: UserReview[];
 }
+
 
 export type ApprovalStatus = "Approved" | "Pending" | "Rejected";
 export type AccountStatus = "Active" | "Inactive" | "Suspended";

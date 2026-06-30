@@ -1,5 +1,8 @@
+
 import { z } from 'zod';
 import { UserRole } from './user.interface.js';
+import { normalizePhoneNumber } from '../../utils/normalizePhoneNumber.js';
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 
@@ -11,6 +14,16 @@ const emailSchema = z
   .toLowerCase()
   .email('Email must be a valid email address');
 
+  export const phoneNumberSchema = z
+  .string({
+    required_error: "Phone number is required",
+  })
+  .trim()
+  .regex(
+    /^(010|011|012|015)\d{8}$/,
+    "Invalid Egyptian phone number",
+  );
+
 export const registerSchema = z.object({
   name: z
     .string({
@@ -19,6 +32,7 @@ export const registerSchema = z.object({
     .trim()
     .min(2, 'Name must be at least 2 characters'),
   email: emailSchema,
+  phoneNumber: phoneNumberSchema,
   password: z
     .string({
       required_error: 'Password is required',
@@ -33,24 +47,32 @@ export const loginSchema = z.object({
   }),
 });
 
-
 export const updateUserByAdminSchema = z
   .object({
-    name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100).optional(),
+    name: z
+      .string()
+      .trim()
+      .min(2, 'Name must be at least 2 characters')
+      .max(100)
+      .optional(),
     email: emailSchema.optional(),
     avatar: z.string().url('Avatar must be a valid URL').max(500).optional(),
     role: z.nativeEnum(UserRole).optional(),
     isActive: z.boolean().optional(),
     isEmailVerified: z.boolean().optional(),
+  
+    adminStatus: z.enum(['Active', 'Pending', 'Suspended']).optional(),
+    roleLabel: z.string().trim().max(100).optional(),
   })
   .strict(); // rejects unknown keys: password, _id, __v, etc.
 
 export type UpdateUserByAdminInput = z.infer<typeof updateUserByAdminSchema>;
 
-
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string({ required_error: 'Current password is required' }).min(1),
+    currentPassword: z
+      .string({ required_error: 'Current password is required' })
+      .min(1),
     newPassword: z
       .string({ required_error: 'New password is required' })
       .min(6, 'Password must be at least 6 characters'),
@@ -63,48 +85,53 @@ export const changePasswordSchema = z
 
 export const updateProfileSchema = z
   .object({
-    name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100).optional(),
+    name: z
+      .string()
+      .trim()
+      .min(2, 'Name must be at least 2 characters')
+      .max(100)
+      .optional(),
     avatar: z.string().url('Avatar must be a valid URL').max(500).optional(),
+    phoneNumber: z
+    .string()
+    .transform(normalizePhoneNumber)
+    .optional(),
   })
   .strict();
 
-
-  export const listUsersQuerySchema = z.object({
+export const listUsersQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
 
-
-
 export const forgotPasswordSchema = z
-.object({
-  email: z
-  .string()
-  .trim()
-  .email('Invalid email address'),
-})
-.strict();
+  .object({
+    email: z.string().trim().email('Invalid email address'),
+  })
+  .strict();
 
-export type ForgotPasswordInput =
-z.infer<typeof forgotPasswordSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
 export const resetPasswordSchema = z
-.object({
-token: z
-.string()
-.min(1, 'Token is required'),
+  .object({
+    token: z.string().min(1, 'Token is required'),
 
-newPassword: z
-  .string()
-  .min(
-    6,
-    'Password must be at least 6 characters'
-  ),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  })
+  .strict();
 
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
-})
-.strict();
+/* ✅ NEW: Schema for the unified status-change endpoint
+   PATCH /users/:id/status
+   Body: { status: "Active" | "Pending" | "Suspended", reason: string } */
+export const changeUserStatusSchema = z
+  .object({
+    status: z.enum(['Active', 'Pending', 'Suspended']),
+    reason: z.string().min(1, 'Reason is required').max(500).trim(),
+  })
+  .strict();
 
-export type ResetPasswordInput =
-z.infer<typeof resetPasswordSchema>;
+export type ChangeUserStatusInput = z.infer<typeof changeUserStatusSchema>;
+

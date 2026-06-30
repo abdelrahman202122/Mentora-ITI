@@ -60,7 +60,7 @@ export function UserDrawer({
               <Avatar
                 name={user.name}
                 seed={user.id}
-                avatarUrl={user.avatarUrl}
+                avatarUrl={user.avatarUrl ?? undefined}
                 size="lg"
               />
               {/* Status indicator dot — color changes with status */}

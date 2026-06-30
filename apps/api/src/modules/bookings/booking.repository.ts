@@ -250,14 +250,15 @@ export async function cancelConfirmedBooking(
  */
 export async function completeConfirmedBooking(
   bookingId: Types.ObjectId,
-  confirmationCodeUsedAt: Date,
+  completedAt: Date,
 ): Promise<IBooking | null> {
   return Booking.findOneAndUpdate(
     { _id: bookingId, bookingStatus: 'confirmed' },
     {
       $set: {
         bookingStatus: 'completed',
-        confirmationCodeUsedAt,
+        confirmationCodeUsedAt: completedAt,
+        completedAt,
       },
     },
     { new: true },
