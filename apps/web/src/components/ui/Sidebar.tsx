@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -31,6 +31,9 @@ export default function Sidebar({ role }: SidebarProps) {
   const navLinks = navLinksByRole[effectiveRole];
 
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
+  const avatarRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   useEffect(() => {
     function handleResize() {
@@ -43,11 +46,38 @@ export default function Sidebar({ role }: SidebarProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (avatarRetryTimerRef.current) {
+        clearTimeout(avatarRetryTimerRef.current);
+      }
+    };
+  }, []);
+
   const avatarFileName = currentUser?.avatar ?? null;
   const avatarSrc =
     avatarFileName && failedAvatar !== avatarFileName
       ? `/api/files/avatars/${avatarFileName}`
       : null;
+
+  function handleAvatarError() {
+    if (!avatarFileName) {
+      return;
+    }
+
+    setFailedAvatar(avatarFileName);
+
+    if (avatarRetryTimerRef.current) {
+      clearTimeout(avatarRetryTimerRef.current);
+    }
+
+    avatarRetryTimerRef.current = setTimeout(() => {
+      setFailedAvatar((currentFailedAvatar) =>
+        currentFailedAvatar === avatarFileName ? null : currentFailedAvatar
+      );
+      avatarRetryTimerRef.current = null;
+    }, 30000);
+  }
 
   async function handleLogout() {
     try {
@@ -94,7 +124,7 @@ export default function Sidebar({ role }: SidebarProps) {
               width={36}
               height={36}
               className="w-full h-full object-cover"
-              onError={() => setFailedAvatar(avatarFileName)}
+              onError={handleAvatarError}
             />
           ) : (
             <span className="text-sm font-bold text-gray-500 uppercase">
