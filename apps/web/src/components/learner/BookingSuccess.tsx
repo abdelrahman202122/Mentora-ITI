@@ -1,3 +1,5 @@
+
+
 "use client"
 
 import { useRouter, useParams } from "next/navigation"
@@ -75,13 +77,12 @@ export default function BookingSuccess({
                 Message Tutor
               </Button>
 
-               <Link
-            box-target
-            href={`/${locale}/dashboard`}
-            className="text-indigo-600 hover:text-indigo-800 font-semibold text-sm transition-colors"
-          >
-            Back to Dashboard
-          </Link>
+              <Link
+                href={`/${locale}/dashboard`}
+                className="text-indigo-600 hover:text-indigo-800 font-semibold text-sm transition-colors"
+              >
+                Back to Dashboard
+              </Link>
             </div>
 
             {/* Notification Notice */}

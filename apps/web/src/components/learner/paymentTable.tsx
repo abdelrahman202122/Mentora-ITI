@@ -1,3 +1,4 @@
+
 import { FileText } from "lucide-react";
 import { Payment } from "@/services/payment/paymentHistory";
 
@@ -53,8 +54,20 @@ export default function PaymentTable({
             return (
               <div
                 key={payment._id}
+                role="button"
+                tabIndex={0}
+                aria-label={`View payment details for ${title}`}
                 onClick={() => handleRowClick(payment)}
-                className="grid grid-cols-[120px_1fr_140px_140px_80px] px-5 py-4 items-center hover:bg-gray-50/50 transition-colors cursor-pointer"
+                onKeyDown={(e) => {
+                  // only treat Enter/Space as "activate this row" when the
+                  // row itself is focused — not when the nested invoice
+                  // button is focused, since that has its own handler
+                  if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+                    e.preventDefault();
+                    handleRowClick(payment);
+                  }
+                }}
+                className="grid grid-cols-[120px_1fr_140px_140px_80px] px-5 py-4 items-center hover:bg-gray-50/50 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 rounded-lg"
               >
                 <span className="text-sm text-gray-500">
                   {formatDate(payment.paidAt ?? payment.createdAt)}

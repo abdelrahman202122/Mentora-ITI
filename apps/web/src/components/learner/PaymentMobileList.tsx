@@ -1,3 +1,6 @@
+
+
+
 import { FileText } from "lucide-react";
 import { Payment } from "@/services/payment/paymentHistory";
 
@@ -6,22 +9,11 @@ interface PaymentMobileListProps {
   error: string | null;
   filtered: Payment[];
   currentPayments: Payment[];
-
   formatDate: (date: string | null) => string;
-
-  getDescription: (
-    payment: Payment
-  ) => {
-    title: string;
-    subtitle: string;
-  };
-
+  getDescription: (payment: Payment) => { title: string; subtitle: string };
   handleRowClick: (payment: Payment) => void;
   handleExportInvoice: (payment: Payment) => void;
-
-  StatusBadge: React.ComponentType<{
-    status: Payment["status"];
-  }>;
+  StatusBadge: React.ComponentType<{ status: Payment["status"] }>;
 }
 
 export default function PaymentMobileList({
@@ -49,10 +41,22 @@ export default function PaymentMobileList({
             const { title, subtitle } = getDescription(payment);
 
             return (
+              // ✅ div with role="button" + tabIndex + onKeyDown — avoids the
+              // <button> inside <button> HTML violation while still giving full
+              // keyboard accessibility (Tab to focus, Enter/Space to activate)
               <div
                 key={payment._id}
+                role="button"
+                tabIndex={0}
+                aria-label={`View details for payment: ${title}`}
                 onClick={() => handleRowClick(payment)}
-                className="p-4 space-y-2 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleRowClick(payment);
+                  }
+                }}
+                className="p-4 space-y-2 cursor-pointer hover:bg-gray-50/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-inset"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -81,13 +85,14 @@ export default function PaymentMobileList({
                   <div className="flex items-center gap-3">
                     <StatusBadge status={payment.status} />
 
+                    {/* ✅ real <button> is fine here now that the outer is a div */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExportInvoice(payment);
                       }}
-                      className="text-indigo-400 hover:text-indigo-600 transition-colors"
-                      title="Download invoice"
+                      aria-label={`Download invoice for ${title}`}
+                      className="text-indigo-400 hover:text-indigo-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:rounded"
                     >
                       <FileText size={16} />
                     </button>

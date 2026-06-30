@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -48,6 +49,12 @@ function StatusBadge({ status }: { status: Payment["status"] }) {
   )
 }
 
+// composite key so two different tutors who happen to share a subjectId
+// never collide in the title lookup map
+function subjectKey(tutorId: string, subjectId: string): string {
+  return `${tutorId}_${subjectId}`
+}
+
 export default function PaymentsPage() {
   const router = useRouter()
   const params = useParams()
@@ -84,7 +91,7 @@ export default function PaymentsPage() {
 
         // ✅ deduplicate — only fetch each unique tutorId/subjectId pair once
         const uniquePairs = [
-          ...new Map(bookingsData.map((b) => [`${b.tutorId}_${b.subjectId}`, b])).values()
+          ...new Map(bookingsData.map((b) => [subjectKey(b.tutorId, b.subjectId), b])).values()
         ]
 
         // ✅ fetch all tutor names and subject titles in parallel
@@ -95,7 +102,9 @@ export default function PaymentsPage() {
           Promise.allSettled(
             uniquePairs.map((b) =>
               getSubjectTitle(b.tutorId, b.subjectId).then((title) => ({
-                subjectId: b.subjectId,
+                // keyed by the SAME composite key used to fetch it, since a
+                // subjectId alone can collide across different tutors
+                key: subjectKey(b.tutorId, b.subjectId),
                 title,
               }))
             )
@@ -110,7 +119,7 @@ export default function PaymentsPage() {
 
         const subjectTitleMap: Record<string, string> = {}
         subjectResults.forEach((r) => {
-          if (r.status === "fulfilled") subjectTitleMap[r.value.subjectId] = r.value.title
+          if (r.status === "fulfilled") subjectTitleMap[r.value.key] = r.value.title
         })
 
         // build per-payment enrichment maps
@@ -123,7 +132,8 @@ export default function PaymentsPage() {
           if (!booking) return
           newDurations[payment._id] = booking.durationMinutes
           if (tutorNameMap[booking.tutorId]) newTutorNames[payment._id] = tutorNameMap[booking.tutorId]
-          if (subjectTitleMap[booking.subjectId]) newSubjectTitles[payment._id] = subjectTitleMap[booking.subjectId]
+          const key = subjectKey(booking.tutorId, booking.subjectId)
+          if (subjectTitleMap[key]) newSubjectTitles[payment._id] = subjectTitleMap[key]
         })
 
         // ✅ set all state at once — renders everything together
@@ -156,7 +166,14 @@ export default function PaymentsPage() {
   const filtered = payments.filter((p) => {
     const date = new Date(p.paidAt ?? p.createdAt)
     if (appliedFrom && date < new Date(appliedFrom)) return false
-    if (appliedTo && date > new Date(appliedTo)) return false
+    if (appliedTo) {
+      // "YYYY-MM-DD" parses to midnight, which would exclude every
+      // transaction that happened later that same day — push the upper
+      // bound to the very end of the selected day instead.
+      const toDateEnd = new Date(appliedTo)
+      toDateEnd.setHours(23, 59, 59, 999)
+      if (date > toDateEnd) return false
+    }
     return true
   })
 

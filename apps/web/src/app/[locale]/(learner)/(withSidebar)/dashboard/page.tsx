@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -168,7 +169,6 @@ export default function LearnerDashboardPage() {
   function getDisplaySubject(subjectId: string): string {
     return subjectTitles[subjectId] ?? subjectId;
   }
-console.log(bookings)
   function getDisplayTutor(tutorId: string): string {
     return tutorNames[tutorId] ?? tutorId;
   }
@@ -223,10 +223,15 @@ console.log(bookings)
   // "Join Now" banner — not merely the next confirmed booking on the calendar
   const currentActiveSession = upcomingBookings.find((b) => isSessionLive(b, now));
 
-  // ✅ apply the selected status tab on top of all bookings
+  // ✅ apply the selected status tab on top of all bookings.
+  // 'paid' isn't a bookingStatus value (it lives on paymentStatus instead),
+  // so that one tab filters on paymentStatus while every other tab keeps
+  // filtering on bookingStatus as before.
   const filteredBookings =
     statusFilter === 'all'
       ? bookings
+      : statusFilter === 'paid'
+      ? bookings.filter((b) => b.paymentStatus === 'paid')
       : bookings.filter((b) => b.bookingStatus === statusFilter);
 
   const statusTabs: { key: typeof statusFilter; label: string }[] = [
