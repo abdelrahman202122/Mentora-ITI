@@ -1676,3 +1676,13 @@
 {"level":"info","message":"::1 - - [30/Jun/2026:00:54:54 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-30T00:54:54.918Z"}
 {"level":"info","message":"::1 - - [30/Jun/2026:00:56:38 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-30T00:56:38.092Z"}
 {"level":"info","message":"::1 - - [30/Jun/2026:00:57:20 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-30T00:57:20.454Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a33eaacecce3a24b1f78c25"},"timestamp":"2026-06-30T01:44:20.958Z"}
+{"level":"info","message":"::1 - - [30/Jun/2026:01:44:20 +0000] \"POST /api/users/login HTTP/1.1\" 200 128 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-30T01:44:20.961Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a33eaacecce3a24b1f78c25"},"timestamp":"2026-06-30T01:44:21.317Z"}
+{"level":"info","message":"::1 - - [30/Jun/2026:01:45:17 +0000] \"POST /api/chats HTTP/1.1\" 200 279 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-30T01:45:17.048Z"}
+{"level":"info","message":"Initializing Tutor Search View Real-Time Watchers...","timestamp":"2026-06-30T01:49:08.986Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-30T01:49:08.991Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-30T01:49:09.010Z"}
+{"level":"info","message":{"event":"login.success","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-30T01:51:56.370Z"}
+{"level":"info","message":"::1 - - [30/Jun/2026:01:51:56 +0000] \"POST /api/users/login HTTP/1.1\" 200 124 \"-\" \"PostmanRuntime/7.54.0\"","timestamp":"2026-06-30T01:51:56.382Z"}
+{"level":"info","message":{"action":"USER_LOGIN","event":"audit.created","userId":"6a2f2984b2f273a3accb5f5d"},"timestamp":"2026-06-30T01:51:56.645Z"}
