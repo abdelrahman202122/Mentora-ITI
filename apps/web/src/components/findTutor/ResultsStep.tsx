@@ -543,6 +543,7 @@ function TutorResultCard({
   const t = useTranslations("findTutor.results");
   const primarySubject = getPrimarySubject(tutor);
   const tutorProfileId = tutor.profile.id || tutor._id || tutor.userId;
+  const tutorUserId = tutor.userId;
   const primarySubjectTitle = primarySubject?.title ?? t("generalTutoring");
   const visibleSubjects = tutor.subjects.slice(0, 3);
   const remainingSubjectCount = Math.max(0, tutor.subjects.length - visibleSubjects.length);
@@ -660,7 +661,7 @@ function TutorResultCard({
 
         <div className="grid shrink-0 grid-cols-2 gap-2 md:w-40 md:grid-cols-1">
           <Button asChild variant="outline">
-            <Link href={getLocalePath(locale, `/tutor-match/${tutorProfileId}`)}>
+            <Link href={getLocalePath(locale, `/tutor-match/${tutorUserId}`)}>
               <Eye className="size-4" />
               {t("viewProfile")}
             </Link>
