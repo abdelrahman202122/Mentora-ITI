@@ -5,7 +5,8 @@ function isSupportedLocale(locale: string): locale is (typeof routing.locales)[n
   return routing.locales.includes(locale as (typeof routing.locales)[number]);
 }
 
-export default getRequestConfig(async ({locale}) => {
+export default getRequestConfig(async ({requestLocale}) => {
+  const locale = await requestLocale;
   const safeLocale =
     locale && isSupportedLocale(locale)
       ? locale

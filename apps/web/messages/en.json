@@ -1,4 +1,63 @@
 {
+  "aiAssistant": {
+    "badge": "AI Assistant",
+    "title": "Talk through your learning goals",
+    "description": "Ask for help clarifying what you need, planning your next study step, or deciding what kind of tutor would fit.",
+    "chatTitle": "Assistant chat",
+    "provider": "Provider: {provider}",
+    "status": {
+      "starting": "Starting",
+      "ready": "Ready",
+      "thinking": "Mentora AI is thinking..."
+    },
+    "composer": {
+      "label": "Message Mentora AI",
+      "placeholder": "Ask about a subject, study goal, curriculum, or tutor fit...",
+      "startingPlaceholder": "Preparing your assistant...",
+      "hint": "Press Enter to send. Use Shift + Enter for a new line."
+    },
+    "actions": {
+      "send": "Send message",
+      "findTutor": "Find tutors"
+    },
+    "empty": {
+      "title": "Start with what you are trying to learn",
+      "description": "The assistant can help you describe your goals, compare study paths, and prepare better criteria before you search for tutors."
+    },
+    "examples": {
+      "algebra": "I need help improving my algebra.",
+      "tutorLevel": "I don't know what tutor level I need.",
+      "igcse": "Can you help me prepare for IGCSE math?"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "latest": "Latest",
+    "unreadCount": "{count, plural, one {# unread notification} other {# unread notifications}}",
+    "allCaughtUp": "You are all caught up",
+    "actions": {
+      "open": "Open notifications",
+      "close": "Close notifications",
+      "markAllRead": "Mark all read",
+      "openChat": "Open chat"
+    },
+    "states": {
+      "emptyTitle": "No notifications yet",
+      "emptyDescription": "Messages, booking updates, and platform alerts will appear here.",
+      "error": "Could not load notifications."
+    },
+    "fallback": {
+      "title": "New notification",
+      "body": "Open Mentora to view the latest update."
+    },
+    "types": {
+      "message": "Message",
+      "booking": "Booking",
+      "payment": "Payment",
+      "review": "Review",
+      "system": "System"
+    }
+  },
   "aiTutorFinder": {
     "badge": "AI Tutor Finder",
     "title": "Find a tutor that matches your learning needs",
@@ -89,6 +148,212 @@
       "none": "Not Applicable"
     }
   },
+  "findTutor": {
+    "page": {
+      "title": "Find your tutor",
+      "description": "Start with a guided match, then refine the results with search, language, price, rating, and curriculum filters."
+    },
+    "steps": {
+      "title": "Search steps",
+      "curriculum": "Curriculum",
+      "level": "Level",
+      "subject": "Subject",
+      "results": "Results",
+      "back": "Back",
+      "next": "Next Step"
+    },
+    "curriculum": {
+      "title": "Select Curriculum",
+      "description": "Choose the educational system you want to study under.",
+      "loadErrorTitle": "Failed to load curricula",
+      "loadErrorDescription": "Please try again later",
+      "fallbackDescription": "Custom study tracks and courses tailored to your academic needs."
+    },
+    "level": {
+      "title": "Select Education Level",
+      "description": "Choose your current academic grade level.",
+      "loadErrorTitle": "Failed to load education levels",
+      "loadErrorDescription": "Please try again later"
+    },
+    "subject": {
+      "title": "Select Subject",
+      "description": "Choose the area you need help with to connect with the best experts.",
+      "searchPlaceholder": "Search subjects...",
+      "loadErrorTitle": "Failed to load subjects",
+      "loadErrorDescription": "Please try again later"
+    },
+    "aiCta": {
+      "title": "Want a faster tutor match?",
+      "description": "Let AI rank tutors by your subject, level, curriculum, language, and budget.",
+      "actionLabel": "Find with AI"
+    },
+    "filters": {
+      "title": "Search and filter tutors",
+      "description": "Your guided choices are already applied. Refine the list by price, language, rating, or keywords.",
+      "searchPlaceholder": "Search by name, subject, or keyword",
+      "allCurricula": "All curricula",
+      "allLevels": "All levels",
+      "allSubjects": "All subjects",
+      "sortBy": "Sort by",
+      "advanced": "Advanced filters",
+      "languagesPlaceholder": "Languages, e.g. English, Arabic",
+      "minRatePlaceholder": "Min EGP/hour",
+      "maxRatePlaceholder": "Max EGP/hour",
+      "minimumRating": "Minimum rating",
+      "anyRating": "Any rating",
+      "startOver": "Start over"
+    },
+    "options": {
+      "national": "National",
+      "igcse": "IGCSE",
+      "british": "British",
+      "american": "American",
+      "ib": "IB",
+      "noCurriculum": "No curriculum",
+      "primary": "Primary",
+      "preparatory": "Preparatory",
+      "secondary": "Secondary",
+      "university": "University",
+      "professional": "Professional",
+      "mathematics": "Mathematics",
+      "sciences": "Sciences",
+      "languages": "Languages",
+      "technology": "Technology",
+      "relevance": "Relevance",
+      "rating": "Rating",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low"
+    },
+    "results": {
+      "count": "{count, plural, one {# tutor found} other {# tutors found}}",
+      "updating": "Updating results...",
+      "approvedOnly": "Approved tutors only",
+      "loadErrorTitle": "Could not load tutors",
+      "tryAgain": "Try again",
+      "emptyTitle": "No tutors matched this search",
+      "emptyDescription": "Try a broader subject, another curriculum, or clear the filters to browse more tutors.",
+      "clearFilters": "Clear filters",
+      "generalTutoring": "General tutoring",
+      "profileFallback": "Tutor",
+      "headlineFallback": "Experienced tutor",
+      "bioFallback": "This tutor has not added a detailed bio yet.",
+      "noSubjects": "Subjects will appear here once this tutor adds them.",
+      "noLanguages": "Languages not listed",
+      "reviewsCount": "{count, plural, one {(# review)} other {(# reviews)}}",
+      "subjectsCount": "{count, plural, one {# subject} other {# subjects}}",
+      "moreSubjects": "{count, plural, one {+ # more subject} other {+ # more subjects}}",
+      "perHour": "per hour",
+      "available": "Available",
+      "availabilityVaries": "Availability varies",
+      "viewProfile": "View profile",
+      "bookSession": "Book session",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
+    }
+  },
+  "tutorProfile": {
+    "page": {
+      "title": "Create your tutor profile",
+      "description": "Add the teaching details learners need before they decide to message or book with you.",
+      "loading": "Loading your account...",
+      "redirecting": "Redirecting you to login..."
+    },
+    "form": {
+      "fields": {
+        "name": "Full name",
+        "headline": "Headline",
+        "bio": "Bio",
+        "hourlyRate": "Hourly rate",
+        "currentRole": "I currently work here"
+      },
+      "sections": {
+        "languages": "Languages",
+        "education": "Education",
+        "experience": "Experience"
+      },
+      "descriptions": {
+        "languages": "Add the languages you can teach in.",
+        "education": "Share the education background that supports your teaching.",
+        "experience": "Add relevant teaching or professional experience."
+      },
+      "placeholders": {
+        "name": "Full name",
+        "headline": "Math tutor with 5 years of experience",
+        "bio": "Tell learners about your teaching style, strengths, and the students you help best.",
+        "hourlyRate": "250",
+        "language": "English",
+        "degree": "Degree",
+        "field": "Field of study",
+        "institution": "Institution",
+        "graduationYear": "Graduation year",
+        "jobTitle": "Job title",
+        "startYear": "Start year",
+        "startMonth": "Start month",
+        "endYear": "End year, if finished",
+        "endMonth": "End month, if finished"
+      },
+      "empty": {
+        "languages": "No languages added yet.",
+        "education": "No education entries yet.",
+        "experience": "No experience entries yet."
+      },
+      "avatar": {
+        "alt": "Tutor avatar",
+        "change": "Change photo",
+        "selected": "New photo selected"
+      },
+      "actions": {
+        "add": "Add",
+        "addEducation": "Add education",
+        "addExperience": "Add experience",
+        "create": "Create profile",
+        "save": "Save changes",
+        "saving": "Saving...",
+        "removeEntry": "Remove entry",
+        "removeLanguage": "Remove {language}"
+      },
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "entry": "Entry {number}",
+      "errors": {
+        "save": "Could not save the tutor profile. Please try again."
+      }
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "headlineRequired": "Headline is required",
+      "bioMin": "Bio must be at least 10 characters",
+      "hourlyRateNumber": "Hourly rate must be a number",
+      "hourlyRateMin": "Rate must be at least 1",
+      "languageRequired": "Language is required",
+      "languagesMin": "Add at least one language",
+      "degreeRequired": "Degree is required",
+      "fieldRequired": "Field is required",
+      "institutionRequired": "Institution is required",
+      "yearNumber": "Year must be a number",
+      "yearMin": "Year must be 1970 or later",
+      "yearMax": "Year must be {year} or earlier",
+      "titleRequired": "Title is required",
+      "startYearRequired": "Start year is required",
+      "startMonthRequired": "Start month is required",
+      "startMonthRange": "Start month must be between 1 and 12",
+      "endMonthRange": "End month must be between 1 and 12",
+      "educationMin": "Add at least one education entry"
+    }
+  },
   "auth": {
     "brandName": "Mentora",
     "login": {
@@ -121,6 +386,108 @@
       "submitting": "Creating account",
       "hasAccount": "Already have an account?",
       "logInLink": "Log In"
+    },
+    "validation": {
+      "emailInvalid": "Email not valid",
+      "passwordMin": "Password must be at least 6 characters",
+      "nameMin": "Name must be at least 2 characters",
+      "phoneInvalid": "Enter a valid Egyptian phone number (e.g. 01012345678)",
+      "roleInvalid": "Please choose a valid account type",
+      "passwordRequired": "Password is required"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailAlreadyExists": "An account with this email already exists",
+      "unauthorized": "You are not authorized to perform this action",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "home": {
+    "header": {
+      "becomeTutor": "Become a Tutor",
+      "dashboard": "My dashboard",
+      "logOut": "Log out",
+      "loggingOut": "Logging out...",
+      "logIn": "Log in",
+      "loadingAccount": "Loading account"
+    },
+    "hero": {
+      "badge": "Tutoring that fits",
+      "title": "Find the right tutor for your learning goals",
+      "description": "Browse verified tutors or ask Mentora AI to suggest matches based on your subject, level, language, and budget.",
+      "findTutors": "Find tutors",
+      "socialProof": "1,200+ tutors ready to help",
+      "verifiedBadge": "Verified tutors",
+      "verifiedDescription": "Compare subjects, levels, prices, and availability.",
+      "heroImageAlt": "Learner studying with tutor support"
+    },
+    "subjects": {
+      "title": "Find tutors by",
+      "titleHighlight": "subject",
+      "sociology": "Sociology",
+      "english": "English",
+      "history": "History",
+      "mathematics": "Mathematics",
+      "chemistry": "Chemistry",
+      "biology": "Biology"
+    },
+    "grades": {
+      "title": "Find support for every level",
+      "preschool": "Preschool",
+      "primary": "Primary School",
+      "middle": "Middle School",
+      "secondary": "Secondary School",
+      "university": "University"
+    },
+    "howItWorks": {
+      "title": "How Mentora works",
+      "subtitle": "Go from tutor search to booked lesson in three clear steps.",
+      "step1Title": "1. Find a tutor",
+      "step1Description": "Search verified tutors by subject, level, price, language, and availability.",
+      "step2Title": "2. Message your match",
+      "step2Description": "Ask questions, share your learning goals, and confirm the tutor is the right fit.",
+      "step3Title": "3. Book a session",
+      "step3Description": "Choose a time, confirm your lesson, and pay securely through Mentora."
+    },
+    "reviews": {
+      "title": "What learners and families say",
+      "review1Name": "Mr. Moataz",
+      "review1Subject": "Physics",
+      "review1Text": "My son improved in both chemistry and physics after a few focused lessons.",
+      "review2Name": "Ms. Ghada",
+      "review2Subject": "German",
+      "review2Text": "Ms. Ghada explained German clearly and helped us choose a learning plan that made sense.",
+      "review3Name": "Ms. Marihan",
+      "review3Subject": "Arabic",
+      "review3Text": "My child is more confident in Arabic and looks forward to every lesson.",
+      "review4Name": "Ms. Farida",
+      "review4Subject": "French",
+      "review4Text": "Supportive, patient, and easy to communicate with before booking."
+    },
+    "startLearning": {
+      "title": "Ready to find your tutor?",
+      "description": "Search verified tutors, compare your options, and book the lesson that fits your goals.",
+      "cta": "Find tutors"
+    },
+    "footer": {
+      "description": "Mentora connects learners with verified tutors for personalized lessons, secure booking, and clear communication before every session.",
+      "explore": "Explore",
+      "home": "Home",
+      "subjects": "Subjects",
+      "howItWorks": "How It Works",
+      "testimonials": "Testimonials",
+      "contactLegal": "Contact & Legal",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "helpCenter": "Help Center",
+      "newsletter": "Newsletter",
+      "newsletterDescription": "Get tutor-search tips, platform updates, and learning resources in your inbox.",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "Subscribe to updates",
+      "copyright": "© {year} Mentora. All rights reserved.",
+      "madeWith": "Made with",
+      "madeAt": "at ITI Lab",
+      "backToTop": "Back to top"
     }
   }
 }

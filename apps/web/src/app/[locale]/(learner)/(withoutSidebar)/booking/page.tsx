@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, useMemo, Suspense } from "react"
 import { useRouter, useSearchParams, useParams } from "next/navigation"
 import { Calendar, Clock, Hourglass, Send, ArrowLeft, Loader2, AlertCircle } from "lucide-react"
 
@@ -23,7 +23,7 @@ import { createBooking } from "@/services/booking-services/bookingService"
 import { getTutorAvailability } from "@/services/booking-services/slots-service"
 
 
-import type { TimeSlot, AvailabilitySlots } from "@/types/bookingProcess/slots"
+import type { AvailabilitySlots } from "@/types/bookingProcess/slots"
 
 //used to ruturn throyght it time slots available
 const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
@@ -74,8 +74,6 @@ function BookSessionContent() {
   const [success, setSuccess] = useState(false)
 //this hock is used to store available days with its time
   const [slots, setSlots] = useState<AvailabilitySlots | null>(null)
-  ////this hock is used to store available  time for the date that user enter 
-  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([])
   const [slotsLoading, setSlotsLoading] = useState(false)
 
 //--------------------------availability slots--------------------------------
@@ -99,16 +97,15 @@ function BookSessionContent() {
 }, [tutorId])
 
 //when i click the date that i want it will return the time that available in that day 
-  useEffect(() => {
+  const availableSlots = useMemo(() => {
     if (!date || !slots) {
-      setAvailableSlots([])
-      return
+      return []
     }
     // build the date from LOCAL parts so the weekday lookup matches the
     // learner's local calendar day, not a UTC-shifted one
     const dayIndex = parseLocalDate(date).getDay() //return index of the day begin with zero
     const dayName = DAYS[dayIndex] as keyof AvailabilitySlots //like sunday 
-    setAvailableSlots(slots[dayName] ?? [])//slots[sunday] return the time that availablee on sunday  startTime and endTime
+    return slots[dayName] ?? []//slots[sunday] return the time that availablee on sunday  startTime and endTime
   }, [date, slots])
   //-----------------------------------------------------------------------
 //--------------------function to convert the time to 12 hours system-----------
@@ -197,7 +194,7 @@ function convertTo12Hour(time: string): string {
 
       <div className="max-w-6xl mx-auto mb-6">
         <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
-          <Link href={tutorProfileId ? `/${locale}/tutor-match/${tutorProfileId}` : `/${locale}/learner/tutor-match`}>
+          <Link href={tutorProfileId ? `/${locale}/tutor-match/${tutorProfileId}` : `/${locale}/find-tutor?mode=browse`}>
             <ArrowLeft size={16} /> Back to Teacher Profile
           </Link>
         </Button>
@@ -219,7 +216,7 @@ function convertTo12Hour(time: string): string {
               <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
                 <AlertCircle size={16} className="mt-0.5 shrink-0" />
                 <span>
-                  We couldn't find the tutor or subject for this booking. Please go back and pick a tutor and
+                  We couldn&apos;t find the tutor or subject for this booking. Please go back and pick a tutor and
                   subject before booking a session.
                 </span>
               </div>

@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { authMiddleware } from '../../../middleware/auth.middleware.js';
+import {
+  authMiddleware,
+  optionalAuthMiddleware,
+} from '../../../middleware/auth.middleware.js';
 import { roleMiddleware } from '../../../middleware/role.moddleware.js';
 import { validate } from '../../../middleware/validation.middleware.js';
 import {
@@ -31,6 +34,10 @@ router
 
 router
   .route('/:tutorId/profile')
-  .get(validate({ params: getProfileParamsSchema }), getProfileController);
+  .get(
+    optionalAuthMiddleware,
+    validate({ params: getProfileParamsSchema }),
+    getProfileController,
+  );
 
 export default router;

@@ -1,27 +1,42 @@
 import { z } from "zod";
 
 export const userRoles = ["student", "teacher"] as const;
+const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
 
-export const registerSchema = z.object({
-  email: z.string().email("Email not valid"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phoneNumber: z
-    .string()
-    .regex(
-      /^01[0-25]\d{8}$/,
-      "Enter a valid Egyptian phone number (e.g. 01012345678)",
-    ),
-  role: z.enum(userRoles, "Please choose a valid account type"),
-});
+/**
+ * Translator function type that mirrors the signature of next-intl's
+ * `useTranslations("auth.validation")`. Using a plain function type
+ * keeps the schema module free of React/hook dependencies.
+ */
+export type AuthValidationTranslator = (key: string) => string;
 
-export const backendRegisterSchema = registerSchema.omit({ role: true });
+export function createRegisterSchema(t: AuthValidationTranslator) {
+  return z.object({
+    email: z.string().email(t("emailInvalid")),
+    password: z.string().min(6, t("passwordMin")),
+    name: z.string().min(2, t("nameMin")),
+    phoneNumber: z
+      .string()
+      .trim()
+      .regex(egyptianPhoneRegex, t("phoneInvalid")),
+    role: z.enum(userRoles, t("roleInvalid")),
+  });
+}
 
-export const loginSchema = z.object({
-  email: z.string().email("Email not valid"),
-  password: z.string().min(1, "Password is required"),
-});
+export function createBackendRegisterSchema(t: AuthValidationTranslator) {
+  return createRegisterSchema(t).omit({ role: true });
+}
 
-export type RegisterPayload = z.infer<typeof registerSchema>;
-export type BackendRegisterPayload = z.infer<typeof backendRegisterSchema>;
-export type LoginPayload = z.infer<typeof loginSchema>;
+export function createLoginSchema(t: AuthValidationTranslator) {
+  return z.object({
+    email: z.string().email(t("emailInvalid")),
+    password: z.string().min(1, t("passwordRequired")),
+  });
+}
+
+/** Inferred types stay the same as before – based on the schema shape. */
+export type RegisterPayload = z.infer<ReturnType<typeof createRegisterSchema>>;
+export type BackendRegisterPayload = z.infer<
+  ReturnType<typeof createBackendRegisterSchema>
+>;
+export type LoginPayload = z.infer<ReturnType<typeof createLoginSchema>>;

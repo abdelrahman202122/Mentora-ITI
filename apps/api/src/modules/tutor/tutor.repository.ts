@@ -1,270 +1,289 @@
-import type { PipelineStage } from 'mongoose';
-import type { TutorSearchParams } from '../../validators/tutor-search.js';
-import { TutorSearchViewModel } from './search-view/tutor-search-view.model.js';
+import { Types, type PipelineStage } from 'mongoose';
 
-/**
- * Find all tutors in the database
- */
+import Booking from '../bookings/booking.model.js';
+import { BookingStatus } from '../bookings/booking.types.js';
+import Earning, { EarningStatus } from '../payments/earning.model.js';
+import { TutorProfileModel } from './profile/tutor-profile.model.js';
+import { TutorSearchViewModel } from './search-view/tutor-search-view.model.js';
+import type { AdminTutorSearchParams } from '../../validators/tutor-search.js';
+
+export interface FindTutorsResult {
+  tutors: unknown[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export const findAll = async () => {
   return TutorSearchViewModel.find().lean();
 };
 
-/**
- * Find tutors based on search query
- */
-export const findTutors = async (params: TutorSearchParams) => {
-  const { q, page, limit } = params;
-  const should = buildSearch(q); // text search queries
-  const filter = buildFilter(params); // filter queries
-  // const { isRelevanceSort, sortQuery } = buildSort(params); // sort condition
-  const sortQuery = buildSort(params);
+export const findTutors = async (
+  params: AdminTutorSearchParams,
+): Promise<FindTutorsResult> => {
+  const page = Math.max(1, params.page ?? 1);
+  const limit = Math.min(100, Math.max(1, params.limit ?? 10));
+  const skip = (page - 1) * limit;
 
-  /**
-   * Pipeline shape:
-   *
-   * [
-   *   {
-   *     $search: {
-   *       index: 'tutor_search',
-   *       compound: {
-   *         should: [...],
-   *         minimumShouldMatch: 1,
-   *         filters: [...]
-   *       },
-   *       // sorting by relevance
-   *       sort: {  ... },
-   *       count: { type: 'total',},
-   *     },
-   *   },
-   *     $facet: {
-   *       items: [{ $skip: skip }, { $limit: limit }],
-   *       meta: [ { replaceWith: '$$SEARCH_META', },],
-    },
-   * ];
-   */
-  const pipeline: PipelineStage[] = [];
+  const profileMatch: Record<string, unknown> = {};
 
-  pipeline.push({
-    $search: {
-      index: 'tutor_search',
+  if (params.profileStatus?.length) {
+    profileMatch.status = { $in: params.profileStatus };
+  }
 
-      ...(should.length || filter.length
-        ? {
-            compound: {
-              ...(should.length && {
-                should,
-                minimumShouldMatch: 1,
-              }),
-              ...(filter.length && {
-                filter,
-              }),
-            },
-          }
-        : {
-            exists: {
-              path: '_id',
-            },
-          }),
+  if (params.languages?.length) {
+    profileMatch.languages = { $in: params.languages };
+  }
 
-      sort: sortQuery,
+  if (params.minRating) {
+    profileMatch.rating = { $gte: params.minRating };
+  }
 
-      count: {
-        type: 'total',
+  if (params.minHourlyRate || params.maxHourlyRate) {
+    const hourlyRate: Record<string, number> = {};
+    if (params.minHourlyRate) hourlyRate.$gte = params.minHourlyRate;
+    if (params.maxHourlyRate) hourlyRate.$lte = params.maxHourlyRate;
+    profileMatch.hourlyRate = hourlyRate;
+  }
+
+  const userMatch: Record<string, unknown> = {};
+
+  if (params.activeStatus?.length) {
+    userMatch['userData.isActive'] = {
+      $in: params.activeStatus.map((status) => status === 'active'),
+    };
+  }
+
+  const subjectFilters: Record<string, string> = {};
+  if (params.category) subjectFilters.category = params.category;
+  if (params.educationLevel) {
+    subjectFilters.educationLevel = params.educationLevel;
+  }
+  if (params.curriculum) subjectFilters.curriculum = params.curriculum;
+
+  const basePipeline: PipelineStage[] = [
+    { $match: profileMatch },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'userData',
       },
     },
-  });
-
-  pipeline.push({
-    $facet: {
-      items: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-
-      meta: [
-        {
-          $replaceWith: '$$SEARCH_META',
-        },
-      ],
+    { $unwind: '$userData' },
+    { $match: userMatch },
+    {
+      $lookup: {
+        from: 'tutorsubjects',
+        localField: 'userId',
+        foreignField: 'tutorId',
+        as: 'subjects',
+      },
     },
-  });
+  ];
 
-  const [result] = await TutorSearchViewModel.aggregate(pipeline);
-  const { items, meta } = result ?? { items: [], meta: [] };
+  if (Object.keys(subjectFilters).length > 0) {
+    basePipeline.push({
+      $match: {
+        subjects: {
+          $elemMatch: subjectFilters,
+        },
+      },
+    });
+  }
+
+  if (params.q) {
+    const searchRegex = new RegExp(params.q, 'i');
+    basePipeline.push({
+      $match: {
+        $or: [
+          { 'userData.name': searchRegex },
+          { 'userData.email': searchRegex },
+          { headline: searchRegex },
+          { bio: searchRegex },
+          { 'subjects.title': searchRegex },
+          { 'subjects.description': searchRegex },
+          { 'subjects.gradeNote': searchRegex },
+        ],
+      },
+    });
+  }
+
+  let sort: Record<string, 1 | -1> = { createdAt: -1 };
+
+  switch (params.sortBy) {
+    case 'price_asc':
+      sort = { hourlyRate: 1, _id: 1 };
+      break;
+    case 'price_desc':
+      sort = { hourlyRate: -1, _id: 1 };
+      break;
+    case 'rating':
+    case 'relevance':
+      sort = { rating: -1, _id: 1 };
+      break;
+  }
+
+  const projectTutor: PipelineStage.Project = {
+    $project: {
+      _id: 0,
+      userId: '$userId',
+      name: '$userData.name',
+      avatar: '$userData.avatar',
+      isEmailVerified: '$userData.isEmailVerified',
+      isActive: '$userData.isActive',
+      profile: {
+        id: '$_id',
+        bio: '$bio',
+        headline: '$headline',
+        hourlyRate: '$hourlyRate',
+        rating: '$rating',
+        totalReviews: '$totalReviews',
+        languages: '$languages',
+        education: '$education',
+        experience: '$experience',
+        isAvailable: '$isAvailable',
+        status: '$status',
+      },
+      subjects: {
+        $map: {
+          input: '$subjects',
+          as: 'subject',
+          in: {
+            id: '$$subject._id',
+            title: '$$subject.title',
+            category: '$$subject.category',
+            educationLevel: '$$subject.educationLevel',
+            curriculum: '$$subject.curriculum',
+            gradeNote: '$$subject.gradeNote',
+            description: '$$subject.description',
+          },
+        },
+      },
+    },
+  };
+
+  const [tutors, totalResult] = await Promise.all([
+    TutorProfileModel.aggregate([
+      ...basePipeline,
+      { $sort: sort },
+      { $skip: skip },
+      { $limit: limit },
+      projectTutor,
+    ]),
+    TutorProfileModel.aggregate([...basePipeline, { $count: 'total' }]),
+  ]);
+  const total = totalResult[0]?.total ?? 0;
+
   return {
-    tutors: items,
+    tutors,
     pagination: {
       page,
       limit,
-      total: meta[0]?.count?.total ?? 0,
-      totalPages: Math.ceil((meta[0]?.count?.total ?? 0) / limit),
+      total,
+      totalPages: Math.ceil(total / limit),
     },
   };
 };
 
-const buildSearch = (q: string | undefined) => {
-  if (!q) {
-    return [];
-  }
-
-  const hasArabic = /[\u0600-\u06FF]/.test(q);
-  // const hasLatin = /[A-Za-z]/.test(query);
-  // const isMixed = hasArabic && hasLatin;
-
-  return [
-    {
-      // headline and subject title => fuzzy search, score boost: 3
-      text: {
-        query: q,
-        path: [
-          hasArabic
-            ? { value: 'profile.headline', multi: 'arabicAnalyzer' }
-            : { value: 'profile.headline' },
-          hasArabic
-            ? { value: 'subjects.title', multi: 'arabicAnalyzer' }
-            : { value: 'subjects.title' },
-        ],
-        score: { boost: { value: 3 } },
-        fuzzy: {
-          maxEdits: 1,
-          prefixLength: 2,
-          maxExpansions: 50,
-        },
-      },
-    },
-
-    // bio and subject description => fuzzy search, score boost: 2
-    {
-      text: {
-        query: q,
-        path: [
-          hasArabic
-            ? { value: 'profile.bio', multi: 'arabicAnalyzer' }
-            : { value: 'profile.bio' },
-          hasArabic
-            ? { value: 'subjects.description', multi: 'arabicAnalyzer' }
-            : { value: 'subjects.description' },
-        ],
-        score: { boost: { value: 2 } },
-        fuzzy: {
-          maxEdits: 1,
-          prefixLength: 2,
-          maxExpansions: 50,
-        },
-      },
-    },
-
-    // name and subject gradeNote => score boost: 1
-    {
-      text: {
-        query: q,
-        path: [
-          hasArabic
-            ? { value: 'name', multi: 'arabicAnalyzer' }
-            : { value: 'name' },
-          hasArabic
-            ? { value: 'subjects.gradeNote', multi: 'arabicAnalyzer' }
-            : { value: 'subjects.gradeNote' },
-        ],
-        score: { boost: { value: 1 } },
-      },
-    },
-  ];
+export const getTutors = async (params: AdminTutorSearchParams) => {
+  const { tutors, pagination } = await findTutors(params);
+  return { tutors, pagination };
 };
 
-const buildFilter = (params: TutorSearchParams) => {
-  const {
-    category,
-    educationLevel,
-    curriculum,
-    minRating,
-    maxHourlyRate,
-    minHourlyRate,
-    languages,
-  } = params;
+export const getStats = async (tutorId: string) => {
+  const [bookingStats, earningStats] = await Promise.all([
+    getBookingStats(tutorId),
+    getEarningStats(tutorId),
+  ]);
 
-  const filter = [];
+  return {
+    totalHours: bookingStats.totalHours,
+    totalSessions: bookingStats.totalSessions,
+    totalEarnings: earningStats.totalEarnings,
+    availableBalance: earningStats.availableBalance,
+  };
+};
 
-  if (category) {
-    filter.push({ equals: { path: 'subjects.category', value: category } });
-  }
-
-  if (educationLevel) {
-    filter.push({
-      equals: {
-        path: 'subjects.educationLevel',
-        value: educationLevel,
+const getBookingStats = async (tutorId: string) => {
+  const [stats] = await Booking.aggregate([
+    {
+      $match: {
+        tutorId: new Types.ObjectId(tutorId),
+        bookingStatus: BookingStatus.COMPLETED,
       },
-    });
-  }
-
-  if (curriculum) {
-    filter.push({
-      equals: { path: 'subjects.curriculum', value: curriculum },
-    });
-  }
-
-  if (minHourlyRate && maxHourlyRate) {
-    filter.push({
-      range: {
-        path: 'profile.hourlyRate',
-        gte: minHourlyRate,
-        lte: maxHourlyRate,
+    },
+    {
+      $group: {
+        _id: null,
+        totalSessions: { $sum: 1 },
+        totalMinutes: { $sum: '$durationMinutes' },
       },
-    });
-  } else if (minHourlyRate) {
-    filter.push({ range: { path: 'profile.hourlyRate', gte: minHourlyRate } });
-  } else if (maxHourlyRate) {
-    filter.push({ range: { path: 'profile.hourlyRate', lte: maxHourlyRate } });
-  }
+    },
+    {
+      $project: {
+        _id: 0,
+        totalSessions: 1,
+        totalHours: {
+          $round: [
+            {
+              $divide: ['$totalMinutes', 60],
+            },
+            2,
+          ],
+        },
+      },
+    },
+  ]);
 
-  if (minRating) {
-    filter.push({ range: { path: 'profile.rating', gte: minRating } });
-  }
+  return {
+    totalHours: stats?.totalHours ?? 0,
+    totalSessions: stats?.totalSessions ?? 0,
+  };
+};
 
-  if (languages && languages.length > 0) {
-    filter.push({
-      compound: {
-        should: languages?.map((language) => ({
-          equals: {
-            path: 'profile.languages',
-            value: language,
+const getEarningStats = async (tutorId: string) => {
+  const [stats] = await Earning.aggregate([
+    {
+      $match: {
+        tutorId: new Types.ObjectId(tutorId),
+        status: {
+          $in: [EarningStatus.AVAILABLE, EarningStatus.PAID_OUT],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalEarnings: {
+          $sum: '$tutorAmount',
+        },
+        availableBalance: {
+          $sum: {
+            $cond: [
+              { $eq: ['$status', EarningStatus.AVAILABLE] },
+              '$tutorAmount',
+              0,
+            ],
           },
-        })),
-        minimumShouldMatch: 1,
+        },
       },
-    });
-  }
+    },
+    {
+      $project: {
+        _id: 0,
+        totalEarnings: 1,
+        availableBalance: 1,
+      },
+    },
+  ]);
 
-  return filter;
-};
-
-const buildSort = (params: TutorSearchParams) => {
-  // if no query and sortBy set to relevance, sort by rating instead
-  const sortBy =
-    !params.q && params.sortBy === 'relevance' ? 'rating' : params.sortBy;
-
-  switch (sortBy) {
-    case 'price_asc':
-      return {
-        'profile.hourlyRate': 1,
-        _id: 1,
-      };
-
-    case 'price_desc':
-      return {
-        'profile.hourlyRate': -1,
-        _id: 1,
-      };
-
-    case 'rating':
-      return {
-        'profile.rating': -1,
-        _id: 1,
-      };
-
-    case 'relevance':
-      return {
-        score: { $meta: 'searchScore' },
-        'profile.rating': -1,
-        _id: 1,
-      };
-  }
+  return {
+    totalEarnings: stats?.totalEarnings ?? 0,
+    availableBalance: stats?.availableBalance ?? 0,
+  };
 };

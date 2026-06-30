@@ -48,9 +48,27 @@ export const changeUserStatusSchema = z
   .strict();
 
 
+/*  NEW: Query params for GET /:id/audit-logs */
+export const listAuditLogsQuerySchema = z.object({
+  page: z
+    .string()
+    .optional()
+    .transform((v) => {
+      const n = parseInt(v ?? '1', 10);
+      return Number.isNaN(n) ? 1 : Math.max(1, n);
+    }),
+  perPage: z
+    .string()
+    .optional()
+    .transform((v) => {
+      const n = parseInt(v ?? '20', 10);
+      return Number.isNaN(n) ? 20 : Math.min(100, Math.max(1, n));
+    }),
+});
 
 /* ─── Exported TypeScript types (auto-inferred from Zod) ─── */
 
+export type ListAuditLogsQuery = z.infer<typeof listAuditLogsQuerySchema>;
 export type ListAdminUsersQuery = z.infer<typeof listAdminUsersQuerySchema>;
 export type CreateAdminUserInput = z.infer<typeof createAdminUserSchema>;
 export type UpdateAdminUserInput = z.infer<typeof updateAdminUserSchema>;

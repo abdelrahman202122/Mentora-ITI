@@ -1,6 +1,7 @@
 "use client";
 
 import { GraduationCap, Award, BookOpen, Book, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useEducationLevels } from "@/hooks/metadata/useEducationLevels";
 import { motion } from "framer-motion";
 import SelectorCard from "./SelectorCard";
@@ -16,6 +17,8 @@ export default function LevelStep({
   onSelect,
   onNext,
 }: LevelStepProps) {
+  const locale = useLocale();
+  const t = useTranslations("findTutor.level");
   const { data: levels, isLoading, error } = useEducationLevels();
 
   // Helper to assign icons to different levels
@@ -52,8 +55,12 @@ export default function LevelStep({
   if (error || !levels) {
     return (
       <div className="text-center py-20 text-error">
-        <p className="font-headline-sm text-headline-sm">Failed to load education levels</p>
-        <p className="font-body-sm text-on-surface-variant mt-1">Please try again later</p>
+        <p className="font-headline-sm text-headline-sm">
+          {t("loadErrorTitle")}
+        </p>
+        <p className="font-body-sm text-on-surface-variant mt-1">
+          {t("loadErrorDescription")}
+        </p>
       </div>
     );
   }
@@ -70,9 +77,9 @@ export default function LevelStep({
       className="space-y-8"
     >
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Select Education Level</h2>
+        <h2 className="text-2xl font-semibold mb-2">{t("title")}</h2>
         <p className="text-slate-600">
-          Choose your current academic grade level.
+          {t("description")}
         </p>
       </div>
 
@@ -81,7 +88,7 @@ export default function LevelStep({
           const isSelected = selected === lvl.value;
           return (
             <motion.div
-              key={lvl.value}
+              key={`${lvl.value}-${index}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
@@ -94,7 +101,7 @@ export default function LevelStep({
                 onNext={onNext}
                 icon={getIcon(lvl.value)}
                 iconBgClass={getIconBg(lvl.value)}
-                title={lvl.en}
+                title={locale === "ar" ? lvl.ar : lvl.en}
               />
             </motion.div>
           );

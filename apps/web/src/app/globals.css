@@ -62,7 +62,7 @@
 
 :root {
   --font-sans:
-    var(--font-plus-jakarta-sans), var(--font-noto-sans-arabic), system-ui,
+    var(--font-plus-jakarta-sans), var(--font-rubik), system-ui,
     sans-serif;
 
   /* ← الـ indigo اللي استخدمناه في كل حاجة */
@@ -166,6 +166,11 @@
   html {
     @apply font-sans;
     scroll-behavior: smooth;
+  }
+
+  html:lang(ar) {
+    font-family: var(--font-rubik), var(--font-plus-jakarta-sans), system-ui,
+      sans-serif;
   }
 }
 

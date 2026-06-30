@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { GraduationCap, Loader2 } from 'lucide-react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -19,16 +20,27 @@ import { Input } from '@/components/ui/input';
 import { useLogin } from '@/hooks/auth/use-auth';
 import { getSafeRedirectPath } from '@/utils/auth/safe-redirect';
 import {
-  loginSchema,
+  createLoginSchema,
   type LoginPayload,
 } from '@/schemas/auth/auth-schema';
 import { getLocalePath } from '@/utils/i18n/locale-path';
+import { getLocalizedAuthError } from '@/utils/auth/localized-auth-error';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations('auth');
+  const tValidation = useTranslations('auth.validation');
+  const tErrors = useTranslations('auth.errors');
   const loginMutation = useLogin();
+  const isRtl = locale === 'ar';
+
+  const loginSchema = useMemo(
+    () => createLoginSchema(tValidation),
+    [tValidation],
+  );
+
   const form = useForm<LoginPayload>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -54,7 +66,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-slate-950 sm:px-6">
+    <main
+      className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-start text-slate-950 sm:px-6"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center">
         <Card className="w-full rounded-lg border-slate-200 bg-white/90 p-0 shadow-sm ring-slate-200">
           <CardHeader className="gap-2 px-7 pt-7">
@@ -79,7 +94,7 @@ export default function LoginPage() {
             <form className="space-y-6" onSubmit={form.handleSubmit(handleLogin)}>
               {loginMutation.error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-                  {loginMutation.error.message}
+                  {getLocalizedAuthError(loginMutation.error.message, tErrors)}
                 </div>
               )}
 
@@ -92,7 +107,10 @@ export default function LoginPage() {
                     {t('login.emailLabel')}
                   </label>
                   <Input
-                    className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
+                    className={cn(
+                      'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
+                      isRtl && 'text-right',
+                    )}
                     id="email"
                     autoComplete="email"
                     placeholder={t('login.emailPlaceholder')}
@@ -109,7 +127,10 @@ export default function LoginPage() {
                     {t('login.passwordLabel')}
                   </label>
                   <Input
-                    className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
+                    className={cn(
+                      'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
+                      isRtl && 'text-right',
+                    )}
                     id="password"
                     autoComplete="current-password"
                     placeholder={t('login.passwordPlaceholder')}
