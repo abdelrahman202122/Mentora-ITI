@@ -27,61 +27,56 @@ function PaymentSuccessContent({ locale }: { locale: string }) {
   const time = searchParams.get('time') ?? '';
 
   const [verifyState, setVerifyState] = useState<VerifyState>('checking');
+useEffect(() => {
+  if (!paymentId) {
+    setVerifyState('error');
+    return;
+  }
 
-  useEffect(() => {
-    // No paymentId means we have nothing to verify against the backend —
-    // fail closed instead of assuming success, so the confirmed-payment UI
-    // and chat CTA are never reachable without an actual server-verified
-    // payment.
-    if (!paymentId) {
-      setVerifyState('error');
-      return;
-    }
+  let attempts = 0;
+  let cancelled = false;
+  // ✅ keep a handle on the queued timer so we can cancel it on unmount
+  let timerId: ReturnType<typeof setTimeout> | null = null;
 
-    let attempts = 0;
-    let cancelled = false;
+  async function poll() {
+    try {
+      const payment = await getPaymentById(paymentId);
 
-    async function poll() {
-      try {
-        // 3. ✅ بنسأل السيرفر عن حالة الـ Payment ده بالـ ID بتاعه
-        const payment = await getPaymentById(paymentId);
+      if (cancelled) return;
 
-        if (cancelled) return;
-
-        // 4. ✅ الـ شرط الجديد: لو الـ status بقت success، يبقى الـ Webhook سمع وكله تمام!
-        if (payment.status === 'success') {
-          setVerifyState('paid');
-          return;
-        }
-
-        // failed/refunded are terminal outcomes — stop polling immediately
-        // instead of retrying until timeout, since the status will never
-        // become 'success' from here.
-        if (payment.status === 'failed' || payment.status === 'refunded') {
-          setVerifyState('failed');
-          return;
-        }
-
-        // only 'pending' keeps polling
-        attempts += 1;
-        if (attempts >= MAX_ATTEMPTS) {
-          setVerifyState('timeout');
-          return;
-        }
-
-        setTimeout(poll, POLL_INTERVAL_MS);
-      } catch (err) {
-        console.error('Failed to verify payment status:', err);
-        if (!cancelled) setVerifyState('error');
+      if (payment.status === 'success') {
+        setVerifyState('paid');
+        return;
       }
+
+      if (payment.status === 'failed' || payment.status === 'refunded') {
+        setVerifyState('failed');
+        return;
+      }
+
+      attempts += 1;
+      if (attempts >= MAX_ATTEMPTS) {
+        setVerifyState('timeout');
+        return;
+      }
+
+      // ✅ store the handle so cleanup can clear it if the component unmounts
+      // before this timer fires, preventing one extra getPaymentById() call
+      timerId = setTimeout(poll, POLL_INTERVAL_MS);
+    } catch (err) {
+      console.error('Failed to verify payment status:', err);
+      if (!cancelled) setVerifyState('error');
     }
+  }
 
-    poll();
+  poll();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [paymentId]);
+  return () => {
+    cancelled = true;
+    // ✅ clear the pending timer alongside the cancelled flag
+    if (timerId !== null) clearTimeout(timerId);
+  };
+}, [paymentId]);
 
   if (verifyState === 'checking') {
     return (
