@@ -302,9 +302,6 @@ Enable communication between learners and tutors.
 - Chat list
 - Chat conversation page
 - Tutor messaging interface
-
-#### FE1
-
 - Notification center
 
 ### Deliverables
