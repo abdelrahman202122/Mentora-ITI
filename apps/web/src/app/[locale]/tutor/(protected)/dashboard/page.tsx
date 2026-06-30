@@ -1,128 +1,3 @@
-// 'use client'
-
-// import { CreditCard, School, Timer, Video } from "lucide-react";
-// import StatCard from "@/components/tutor/StatCard";
-// import BookingCard from "@/components/tutor/BookingCard";
-// import { useMyBookings }    from "@/hooks/booking/booking";
-// import { useAcceptBooking } from "@/hooks/booking/approveBooking";
-// import { useRejectBooking } from "@/hooks/booking/rejectBooking";
-// import { useCancelBooking } from "@/hooks/booking/cancelBooking";
-
-// export default function InstructorDashboard() {
-//   const { data, isLoading, isError } = useMyBookings();
-
-//   const {
-//     mutate: acceptBooking,
-//     isPending: isAccepting,
-//     variables: acceptingId,
-//   } = useAcceptBooking();
-
-//   const {
-//     mutate: rejectBooking,
-//     isPending: isRejecting,
-//     variables: rejectingId,
-//   } = useRejectBooking();
-
-//   const {
-//     mutate: cancelBooking,
-//     isPending: isCanceling,
-//     variables: cancelingVariables, 
-//   } = useCancelBooking();
-
-//   const bookings = data?.bookings ?? [];
-
-//   return (
-//     <div className="min-h-screen bg-background text-foreground">
-//       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-
-//         {/* Header */}
-//         <header>
-//           <h1 className="text-3xl font-bold">Welcome back, Sarah</h1>
-//           <p className="text-muted-foreground mt-2 text-lg">
-//             You have 3 lessons scheduled for today.
-//           </p>
-//         </header>
-
-//         {/* Stats */}
-//         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//           <StatCard icon={CreditCard} label="Total Earnings" value="$4,250" />
-//           <StatCard icon={School}     label="Total Lessons"  value="142"    />
-//           <StatCard icon={Timer}      label="Hours Taught"   value="210h"   />
-//         </section>
-
-//         {/* Start Session */}
-//         <section className="relative overflow-hidden rounded-2xl bg-primary text-primary-foreground p-8">
-//           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-//           <div className="relative space-y-4">
-//             <div className="flex items-center gap-2">
-//               <Video className="w-6 h-6" />
-//               <h3 className="text-xl font-bold">Start Your Session</h3>
-//             </div>
-//             <p className="font-medium">Organic Chemistry with Alex Harrison</p>
-//             <p className="text-sm text-white/80 max-w-lg">
-//               Verify your student to begin the private learning session.
-//               Ensure your audio and video are working correctly.
-//             </p>
-//             <div className="flex flex-col sm:flex-row gap-4 mt-6">
-//               <input
-//                 placeholder="Enter Student Verification Code"
-//                 className="flex-1 rounded-xl px-4 py-3 bg-white/10 border border-white/20 placeholder:text-white/60 outline-none focus-visible:ring-primary"
-//               />
-//               <button className="btn-primary bg-white text-primary hover:bg-white/90">
-//                 Verify & Start Session
-//               </button>
-//             </div>
-//           </div>
-//         </section>
-
-//         {/* Upcoming Bookings */}
-//         <section className="space-y-4">
-//           <div className="flex justify-between items-center">
-//             <h2 className="text-xl font-bold">Upcoming Bookings</h2>
-//             <button className="text-primary font-medium">View All</button>
-//           </div>
-
-//           {isLoading && (
-//             <div className="text-muted-foreground text-sm py-6 text-center">Loading bookings…</div>
-//           )}
-//           {isError && (
-//             <div className="text-red-500 text-sm py-6 text-center">Failed to load bookings. Please try again.</div>
-//           )}
-//           {!isLoading && !isError && bookings.length === 0 && (
-//             <div className="text-muted-foreground text-sm py-6 text-center">No upcoming bookings.</div>
-//           )}
-
-//           <div className="space-y-4">
-//             {bookings.map((booking) => (
-//               <BookingCard
-//                 key={booking._id}
-//                 booking={booking}
-//                 onApprove={() => acceptBooking(booking._id)}
-//                 onReject={()  => rejectBooking(booking._id)}
-//                 onCancel={()  => cancelBooking({ bookingId: booking._id, cancelReason: "Canceled by tutor from dashboard." })}
-//                 isApproving={isAccepting && acceptingId === booking._id}
-//                 isRejecting={isRejecting && rejectingId === booking._id}
-//                 isCanceling={isCanceling && cancelingVariables?.bookingId === booking._id}
-//               />
-//             ))}
-//           </div>
-//         </section>
-
-//         {/* Footer */}
-//         <footer className="border-t pt-6 text-sm text-muted-foreground flex flex-col md:flex-row justify-between gap-4">
-//           <span className="font-bold text-primary">Mentora</span>
-//           <div className="flex gap-6 flex-wrap">
-//             <a>Privacy Policy</a>
-//             <a>Terms</a>
-//             <a>Help Center</a>
-//             <a>Contact</a>
-//           </div>
-//           <span>© 2026 EduMarket Inc.</span>
-//         </footer>
-//       </div>
-//     </div>
-//   );
-// }
 
 'use client'
 
@@ -134,25 +9,32 @@ import { useAcceptBooking } from "@/hooks/booking/approveBooking";
 import { useRejectBooking } from "@/hooks/booking/rejectBooking";
 import { useCancelBooking } from "@/hooks/booking/cancelBooking";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
+import { useTutorStats } from "@/hooks/tutor/useTutorStats";
 import type { BookingStatus } from "@/services/booking-services/getMyBooking";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-function minutesToHours(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
+function minutesToHours(totalHours: number): string {
+  const h = Math.floor(totalHours);
+  const m = Math.round((totalHours - h) * 60);
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
-function formatCurrency(amount: number, currency: string): string {
+function formatCurrency(amount: number | undefined, currency: string = "USD"): string {
   try {
+    if (typeof(amount) === "undefined") {
+      return "faild to load"
+    }
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
+    if (typeof(amount) === "undefined") {
+      return "faild to load"
+    }
     return `${currency} ${amount.toLocaleString()}`;
   }
 }
@@ -187,13 +69,10 @@ export default function InstructorDashboard() {
       : { page: currentPage, limit: 10 }
   );
 
-  // completed bookings for stats (fetch all at once)
-  const { data: completedData } = useMyBookings({
-    bookingStatus: "completed",
-    limit: 80,
-  });
-
   const { data: currentUser } = useCurrentUser();
+
+  // ── stats from dedicated endpoint ──────────────────────────────────────
+  const { data: stats, isLoading: isStatsLoading } = useTutorStats();
 
   const {
     mutate: acceptBooking,
@@ -213,26 +92,10 @@ export default function InstructorDashboard() {
     variables: cancelingVariables,
   } = useCancelBooking();
 
-  // const bookings          = data?.bookings ?? [];
-  // const totalPages        = data?.pagination?.totalPages ?? 1;
-  // const completedBookings = completedData?.bookings ?? [];
-   const bookings          = data?.bookings ?? [];
-  //  const totalPages        = data?.pagination?.totalPages ?? 1;
-    const totalPages = Math.max(data?.pagination?.totalPages ?? 1, 1);
-   const completedBookings = completedData?.bookings ?? [];
-// useEffect(() => {
-//   if (currentPage > totalPages) {
-//     setCurrentPage(totalPages);
-//   }
-// }, [currentPage, totalPages]);
+  const bookings   = data?.bookings ?? [];
+  const totalPages = Math.max(data?.pagination?.totalPages ?? 1, 1);
 
-  // ── stats ────────────────────────────────────────────────────────────────
-  const totalMinutes  = completedBookings.reduce((sum, b) => sum + b.durationMinutes, 0);
-  const totalEarnings = completedBookings.reduce((sum, b) => sum + b.price, 0);
-  const currency      = completedBookings[0]?.currency ?? "USD";
-  const totalSessions = completedBookings.length;
-
-  const displayName = currentUser?.name
+  const displayName = currentUser?.name;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -248,18 +111,17 @@ export default function InstructorDashboard() {
           <StatCard
             icon={CreditCard}
             label="Total Earnings"
-            value={formatCurrency(totalEarnings, currency)}
+            value={isStatsLoading ? "…" : formatCurrency(stats?.totalEarnings )}
           />
           <StatCard
             icon={School}
             label="Total Sessions"
-            value={String(totalSessions)}
+            value={isStatsLoading ? "…" : String(stats?.totalSessions ?? "faild to load")}
           />
           <StatCard
             icon={Timer}
             label="Hours Taught"
-            value={minutesToHours(totalMinutes)}
-          />
+            value={isStatsLoading ? "…" : stats?.totalHours != null ? `${stats.totalHours}h` : "failed to load"}          />
         </section>
 
         {/* Start Session */}
