@@ -87,23 +87,7 @@ export const register = async (data: RegisterInput): Promise<AuthResult> => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    const emailValidation = await verifyEmail(data.email);
 
-    if (!emailValidation.is_valid_format.value) {
-      throw new BadRequestError("Invalid email format");
-    }
-
-    if (!emailValidation.is_mx_found.value) {
-      throw new BadRequestError("Email domain cannot receive emails");
-    }
-
-    if (
-      emailValidation.deliverability !== "DELIVERABLE"
-    ) {
-      throw new BadRequestError(
-        "Email address does not appear to exist"
-      );
-    }
 
     logger.info({
       event: 'registration.success',
