@@ -11,6 +11,7 @@ import {
 } from '../../common/errors/AppError.js';
 import { sendSuccess } from '../../utils/api-response.js';
 import { listUsersQuerySchema } from './user.validation.js';
+import { changeUserStatusSchema } from './user.validation.js';
 
 export const register = async (
   req: Request,
@@ -92,6 +93,7 @@ export const logout = async (
   }
 };
 
+
 export const refreshToken = async (
   req: Request,
   res: Response,
@@ -100,31 +102,43 @@ export const refreshToken = async (
   try {
     const oldRefreshToken = req.cookies.refreshToken;
 
-    if (!oldRefreshToken) {
-      logger.warn({
-        event: 'refresh_token.missing',
-      });
+  
+    console.log('━━━ REFRESH TOKEN ATTEMPT ━━━');
+    console.log('Has cookie:', !!oldRefreshToken);
+    console.log('Cookie length:', oldRefreshToken?.length ?? 0);
+    console.log('Cookie value (first 30 chars):', oldRefreshToken?.substring(0, 30));
+    console.log('All cookies:', Object.keys(req.cookies));
 
+    if (!oldRefreshToken) {
+      console.log('FAILED: No refresh token cookie found');
       throw new UnauthorizedError('Refresh token missing');
     }
 
+    console.log(' Cookie found, calling service...');
+
     const tokens = await userService.refreshToken(oldRefreshToken);
 
-    res.cookie('accessToken', tokens.accessToken, cookieOptions.accessToken);
+    console.log(' Service succeeded, setting new cookies...');
 
+    res.cookie('accessToken', tokens.accessToken, cookieOptions.accessToken);
     res.cookie('refreshToken', tokens.refreshToken, cookieOptions.refreshToken);
 
-    logger.info({
-      event: 'refresh_token.completed',
-    });
+    console.log(' New cookies set, sending response...');
 
-    res.status(200).json({
-      success: true,
-    });
+    res.status(200).json({ success: true });
   } catch (error) {
+ 
+    console.log('━━━ REFRESH TOKEN FAILED ━━━');
+    console.log('Error name:', error instanceof Error ? error.constructor.name : 'Unknown');
+    console.log('Error message:', error instanceof Error ? error.message : String(error));
+    console.log('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.log('Full error:', error);
+
     next(error);
   }
 };
+
+
 
 export const getMe = async (
   req: Request,
@@ -399,4 +413,30 @@ res.status(200).json({
 } catch (error) {
 next(error);
 }
+};
+
+
+
+/* ✅ NEW: PATCH /users/:id/status — Change user status */
+export const changeUserStatus = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const adminId = req.user?.userId;
+    if (!adminId) {
+      throw new UnauthorizedError('Unauthorized');
+    }
+    const userId = req.params.id;
+    const data = changeUserStatusSchema.parse(req.body);
+    const result = await userService.changeUserStatus(adminId, userId, data);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

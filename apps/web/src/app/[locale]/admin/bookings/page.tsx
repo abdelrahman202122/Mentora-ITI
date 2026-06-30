@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -25,14 +24,16 @@ export default function BookingsPage() {
   const totalPages = Math.max(1, Math.ceil(TOTAL_BOOKINGS / PER_PAGE));
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
+    <div className="flex flex-col bg-gray-50 min-h-full">
+      
+      <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
           title="Bookings Management"
           description="Manage and monitor all tutor sessions and payments across the platform."
           actions={
-            <button type="button" className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
-              <Download className="h-4 w-4" />Export CSV
+            <button type="button" className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 sm:px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Export CSV</span>
             </button>
           }
         />

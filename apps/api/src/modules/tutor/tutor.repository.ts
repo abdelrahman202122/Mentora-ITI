@@ -1,103 +1,183 @@
-import type { PipelineStage } from 'mongoose';
+import { Types } from 'mongoose';
 import type { AdminTutorSearchParams } from '../../validators/tutor-search.js';
 import { TutorSearchViewModel } from './search-view/tutor-search-view.model.js';
+import { TutorProfileModel } from './profile/tutor-profile.model.js';
+import { UserModel } from '../users/user.model.js';
 
 /**
- * Find all tutors in the database
+ * Find all tutors in the database (search view)
  */
 export const findAll = async () => {
   return TutorSearchViewModel.find().lean();
 };
 
-/**
- * Find tutors based on search query
- */
-export const findTutors = async (params: AdminTutorSearchParams) => {
-  const { q, page, limit } = params;
-  const should = buildSearch(q); // text search queries
-  const filter = buildFilter(params); // filter queries
-  // const { isRelevanceSort, sortQuery } = buildSort(params); // sort condition
-  const sortQuery = buildSort(params);
+/* ═══════════════════════════════════════════════════════════════════
+   Result type for findTutors
+   ═══════════════════════════════════════════════════════════════════ */
 
-  /**
-   * Pipeline shape:
-   *
-   * [
-   *   {
-   *     $search: {
-   *       index: 'tutor_search',
-   *       compound: {
-   *         should: [...],
-   *         minimumShouldMatch: 1,
-   *         filters: [...]
-   *       },
-   *       // sorting by relevance
-   *       sort: {  ... },
-   *       count: { type: 'total',},
-   *     },
-   *   },
-   *     $facet: {
-   *       items: [{ $skip: skip }, { $limit: limit }],
-   *       meta: [ { replaceWith: '$$SEARCH_META', },],
-    },
-   * ];
-   */
-  const pipeline: PipelineStage[] = [];
+export interface FindTutorsResult {
+  tutors: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
 
-  pipeline.push({
-    $search: {
-      index: 'tutor_search',
+/* ═══════════════════════════════════════════════════════════════════
+   findTutors — paginated, filterable, searchable list of tutor
+   profiles with populated user data.
 
-      ...(should.length || filter.length
-        ? {
-            compound: {
-              ...(should.length && {
-                should,
-                minimumShouldMatch: 1,
-              }),
-              ...(filter.length && {
-                filter,
-              }),
-            },
-          }
-        : {
-            exists: {
-              path: '_id',
-            },
-          }),
+   Uses AdminTutorSearchParams directly so the field names match the
+   Zod validation schema exactly:
+     - q           (search query, not "search")
+     - languages   (array, not "subjects")
+     - profileStatus (array, not single "status" string)
+     - activeStatus  (array of "active" | "inactive")
+     - minRating, minHourlyRate, maxHourlyRate, sortBy, page, limit
+   ═══════════════════════════════════════════════════════════════════ */
 
-      sort: sortQuery,
+export const findTutors = async (
+  params: AdminTutorSearchParams,
+): Promise<FindTutorsResult> => {
+  const page = Math.max(1, params.page ?? 1);
+  const limit = Math.min(100, Math.max(1, params.limit ?? 10));
+  const skip = (page - 1) * limit;
 
-      count: {
-        type: 'total',
-      },
-    },
-  });
+  /* ─── Build the MongoDB filter ────────────────────────────────────── */
 
-  pipeline.push({
-    $facet: {
-      items: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+  const filter: Record<string, any> = {};
 
-      meta: [
-        {
-          $replaceWith: '$$SEARCH_META',
-        },
-      ],
-    },
-  });
+  // ✅ profileStatus — array of "pending" | "approved" | "rejected"
+  if (params.profileStatus && params.profileStatus.length > 0) {
+    filter.status = { $in: params.profileStatus };
+  }
 
-  const [result] = await TutorSearchViewModel.aggregate(pipeline);
-  const { items, meta } = result ?? { items: [], meta: [] };
+  // ✅ languages — array (this is the "subjects" filter)
+  if (params.languages && params.languages.length > 0) {
+    filter.languages = { $in: params.languages };
+  }
+
+  // Min rating filter
+  if (params.minRating) {
+    filter.rating = { $gte: params.minRating };
+  }
+
+  // Hourly rate range filter
+  if (params.minHourlyRate || params.maxHourlyRate) {
+    filter.hourlyRate = {};
+    if (params.minHourlyRate) filter.hourlyRate.$gte = params.minHourlyRate;
+    if (params.maxHourlyRate) filter.hourlyRate.$lte = params.maxHourlyRate;
+  }
+
+  /* ─── Active status filter ──────────────────────────────────────────
+     activeStatus is on the User document (isActive), not the
+     TutorProfile. We collect matching user IDs first. */
+
+  if (params.activeStatus && params.activeStatus.length > 0) {
+    const isActiveValues = params.activeStatus.map((s) => s === 'active');
+    const matchingUsers = await UserModel.find({
+      isActive: { $in: isActiveValues },
+    })
+      .select('_id')
+      .lean();
+    const activeUserIds: Types.ObjectId[] = matchingUsers.map((u) => u._id);
+
+    if (filter.userId && filter.userId.$in) {
+      // Intersect with existing userId filter (from search)
+      filter.userId.$in = filter.userId.$in.filter((id: Types.ObjectId) =>
+        activeUserIds.some((auId) => auId.equals(id)),
+      );
+    } else {
+      filter.userId = { $in: activeUserIds };
+    }
+  }
+
+  /* ─── Search filter (q) ─────────────────────────────────────────────
+     Search across user name/email — we need to join with User
+     collection, so we collect matching user IDs first. */
+
+  if (params.q) {
+    const searchRegex = new RegExp(params.q, 'i');
+    const matchingUsers = await UserModel.find({
+      $or: [{ name: searchRegex }, { email: searchRegex }],
+    })
+      .select('_id')
+      .lean();
+
+    // ✅ ObjectId[] — keep as ObjectId, don't convert to string
+    const searchUserIds: Types.ObjectId[] = matchingUsers.map((u) => u._id);
+
+    if (filter.userId && filter.userId.$in) {
+      // Intersect with existing userId filter (from activeStatus)
+      filter.userId.$in = filter.userId.$in.filter((id: Types.ObjectId) =>
+        searchUserIds.some((suId) => suId.equals(id)),
+      );
+    } else {
+      filter.userId = { $in: searchUserIds };
+    }
+  }
+
+  /* ─── Build sort ──────────────────────────────────────────────────── */
+
+  let sort: Record<string, 1 | -1> = { createdAt: -1 };
+  switch (params.sortBy) {
+    case 'price_asc':
+      sort = { hourlyRate: 1, _id: 1 };
+      break;
+    case 'price_desc':
+      sort = { hourlyRate: -1, _id: 1 };
+      break;
+    case 'rating':
+      sort = { rating: -1, _id: 1 };
+      break;
+    case 'relevance':
+      // No Atlas Search score here — fall back to rating
+      sort = { rating: -1, _id: 1 };
+      break;
+  }
+
+  /* ─── Execute queries in parallel ─────────────────────────────────── */
+
+  const [tutors, total] = await Promise.all([
+    TutorProfileModel.find(filter)
+      .populate({
+        path: 'userId',
+        select: 'name avatar isActive email', // ✅ populate user fields
+      })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    TutorProfileModel.countDocuments(filter),
+  ]);
+
   return {
-    tutors: items,
+    tutors,
     pagination: {
       page,
       limit,
-      total: meta[0]?.count?.total ?? 0,
-      totalPages: Math.ceil((meta[0]?.count?.total ?? 0) / limit),
+      total,
+      pages: Math.ceil(total / limit),
     },
   };
 };
+
+/* ═══════════════════════════════════════════════════════════════════
+   getTutors — thin wrapper used by admin-tutor.service.ts
+   (If you have this in admin-tutor.service.ts instead, delete it here.)
+   ═══════════════════════════════════════════════════════════════════ */
+
+export const getTutors = async (params: AdminTutorSearchParams) => {
+  const { tutors, pagination } = await findTutors(params);
+  return { tutors, pagination };
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   Atlas Search helpers (used by the public tutor search endpoint
+   that uses MongoDB Atlas Search with the TutorSearchViewModel)
+   ═══════════════════════════════════════════════════════════════════ */
 
 const buildSearch = (q: string | undefined) => {
   if (!q) {
@@ -105,8 +185,6 @@ const buildSearch = (q: string | undefined) => {
   }
 
   const hasArabic = /[\u0600-\u06FF]/.test(q);
-  // const hasLatin = /[A-Za-z]/.test(query);
-  // const isMixed = hasArabic && hasLatin;
 
   return [
     {
