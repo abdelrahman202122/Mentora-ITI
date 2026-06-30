@@ -100,40 +100,17 @@ export const refreshToken = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const oldRefreshToken = req.cookies.refreshToken;
 
-  
-    console.log('━━━ REFRESH TOKEN ATTEMPT ━━━');
-    console.log('Has cookie:', !!oldRefreshToken);
-    console.log('Cookie length:', oldRefreshToken?.length ?? 0);
-    console.log('Cookie value (first 30 chars):', oldRefreshToken?.substring(0, 30));
-    console.log('All cookies:', Object.keys(req.cookies));
-
+   const oldRefreshToken = req.cookies.refreshToken;
     if (!oldRefreshToken) {
-      console.log('FAILED: No refresh token cookie found');
       throw new UnauthorizedError('Refresh token missing');
     }
-
-    console.log(' Cookie found, calling service...');
-
     const tokens = await userService.refreshToken(oldRefreshToken);
-
-    console.log(' Service succeeded, setting new cookies...');
-
     res.cookie('accessToken', tokens.accessToken, cookieOptions.accessToken);
     res.cookie('refreshToken', tokens.refreshToken, cookieOptions.refreshToken);
-
-    console.log(' New cookies set, sending response...');
-
     res.status(200).json({ success: true });
   } catch (error) {
  
-    console.log('━━━ REFRESH TOKEN FAILED ━━━');
-    console.log('Error name:', error instanceof Error ? error.constructor.name : 'Unknown');
-    console.log('Error message:', error instanceof Error ? error.message : String(error));
-    console.log('Error stack:', error instanceof Error ? error.stack : 'No stack');
-    console.log('Full error:', error);
-
     next(error);
   }
 };

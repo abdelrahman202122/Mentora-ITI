@@ -53,11 +53,17 @@ export const listAuditLogsQuerySchema = z.object({
   page: z
     .string()
     .optional()
-    .transform((v) => Math.max(1, parseInt(v ?? '1', 10))),
+    .transform((v) => {
+      const n = parseInt(v ?? '1', 10);
+      return Number.isNaN(n) ? 1 : Math.max(1, n);
+    }),
   perPage: z
     .string()
     .optional()
-    .transform((v) => Math.min(100, Math.max(1, parseInt(v ?? '20', 10)))),
+    .transform((v) => {
+      const n = parseInt(v ?? '20', 10);
+      return Number.isNaN(n) ? 20 : Math.min(100, Math.max(1, n));
+    }),
 });
 
 /* ─── Exported TypeScript types (auto-inferred from Zod) ─── */

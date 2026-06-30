@@ -49,12 +49,12 @@ export const findTutors = async (
 
   const filter: Record<string, any> = {};
 
-  // ✅ profileStatus — array of "pending" | "approved" | "rejected"
+
   if (params.profileStatus && params.profileStatus.length > 0) {
     filter.status = { $in: params.profileStatus };
   }
 
-  // ✅ languages — array (this is the "subjects" filter)
+
   if (params.languages && params.languages.length > 0) {
     filter.languages = { $in: params.languages };
   }
@@ -106,7 +106,7 @@ export const findTutors = async (
       .select('_id')
       .lean();
 
-    // ✅ ObjectId[] — keep as ObjectId, don't convert to string
+
     const searchUserIds: Types.ObjectId[] = matchingUsers.map((u) => u._id);
 
     if (filter.userId && filter.userId.$in) {
@@ -144,7 +144,7 @@ export const findTutors = async (
     TutorProfileModel.find(filter)
       .populate({
         path: 'userId',
-        select: 'name avatar isActive email', // ✅ populate user fields
+        select: 'name avatar isActive email', 
       })
       .sort(sort)
       .skip(skip)
