@@ -50,9 +50,8 @@ export default function Header() {
       )
     : "";
   const tutorProfilePath = getLocalePath(locale, "/tutor/profile/create");
-  const registerPath = getLocalePath(locale, "/register");
 
-  const becomeTutorRegisterHref = `${registerPath}?next=${encodeURIComponent(tutorProfilePath)}`;
+  const becomeTutorLoginHref = `${loginPath}?next=${encodeURIComponent(tutorProfilePath)}`;
   const showBecomeTutor = !isPending && (!user || user.role === "learner");
 
   const targetLocale = locale === "en" ? "ar" : "en";
@@ -139,7 +138,7 @@ export default function Header() {
             <>
               {showBecomeTutor && (
                 <Button asChild variant="outline">
-                  <Link href={becomeTutorRegisterHref}>
+                  <Link href={becomeTutorLoginHref}>
                     <GraduationCap className="size-4" />
                     {t("becomeTutor")}
                   </Link>
@@ -228,7 +227,7 @@ export default function Header() {
                 {showBecomeTutor && (
                   <Button asChild className="justify-start" variant="outline">
                     <Link
-                      href={becomeTutorRegisterHref}
+                      href={becomeTutorLoginHref}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <GraduationCap className="size-4" />
