@@ -65,6 +65,13 @@ type RawTutorSearchItem = Omit<
   avatar?: string;
   profile?: Partial<TutorSearchProfile> | null;
   subjects?: TutorSearchSubject[];
+  bio?: string;
+  headline?: string;
+  hourlyRate?: number;
+  languages?: string[];
+  rating?: number;
+  totalReviews?: number;
+  isAvailable?: boolean;
 };
 
 export type TutorSearchPagination = {
@@ -99,13 +106,13 @@ function normalizeTutorSearchItem(tutor: RawTutorSearchItem): TutorSearchItem {
     avatar: tutor.avatar ?? populatedUser?.avatar,
     profile: {
       id: profileId,
-      headline: tutor.profile?.headline ?? "",
-      bio: tutor.profile?.bio ?? "",
-      hourlyRate: tutor.profile?.hourlyRate ?? 0,
-      languages: tutor.profile?.languages ?? [],
-      rating: tutor.profile?.rating,
-      totalReviews: tutor.profile?.totalReviews,
-      isAvailable: tutor.profile?.isAvailable,
+      headline: tutor.profile?.headline ?? tutor.headline ?? "",
+      bio: tutor.profile?.bio ?? tutor.bio ?? "",
+      hourlyRate: tutor.profile?.hourlyRate ?? tutor.hourlyRate ?? 0,
+      languages: tutor.profile?.languages ?? tutor.languages ?? [],
+      rating: tutor.profile?.rating ?? tutor.rating,
+      totalReviews: tutor.profile?.totalReviews ?? tutor.totalReviews,
+      isAvailable: tutor.profile?.isAvailable ?? tutor.isAvailable,
     },
     subjects: tutor.subjects ?? [],
   };
