@@ -144,18 +144,15 @@ export async function getFinanceStats(
     totalPaidRevenue:
       pending.totalGrossAmount +
       available.totalGrossAmount +
-      paidOut.totalGrossAmount +
-      (earningMap[EarningStatus.CANCELED]?.totalGrossAmount ?? 0),
+      paidOut.totalGrossAmount,
     platformCommissionTotal:
       pending.totalCommissionAmount +
       available.totalCommissionAmount +
-      paidOut.totalCommissionAmount +
-      (earningMap[EarningStatus.CANCELED]?.totalCommissionAmount ?? 0),
+      paidOut.totalCommissionAmount,
     tutorEarningsTotal:
       pending.totalTutorAmount +
       available.totalTutorAmount +
-      paidOut.totalTutorAmount +
-      (earningMap[EarningStatus.CANCELED]?.totalTutorAmount ?? 0),
+      paidOut.totalTutorAmount,
     pending: {
       count: pending.count,
       amount: pending.totalTutorAmount,
@@ -176,9 +173,7 @@ export async function getFinanceStats(
   };
 }
 
-export async function listWithdrawals(
-  _filters: unknown,
-): Promise<unknown> {
+export async function listWithdrawals(_filters: unknown): Promise<unknown> {
   throw new Error('Admin finance repository is not implemented yet');
 }
 
