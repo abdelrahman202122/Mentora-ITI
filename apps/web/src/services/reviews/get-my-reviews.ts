@@ -17,7 +17,7 @@ export async function getMyReviews(
         params,
       }
     );
-
+    console.log(response.data.data)
     return response.data.data;
   } catch (error) {
     if (error instanceof ApiClientError) {
