@@ -31,6 +31,7 @@ export function TutorDrawer({
   >(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNotes(tutor?.moderatorNotes ?? "");
     // Reset action state when tutor changes
     setActionInProgress(null);
@@ -83,7 +84,7 @@ export function TutorDrawer({
                 <Avatar
                   name={tutor.name}
                   seed={tutor.id}
-                  avatarUrl={tutor.avatarUrl}
+                  avatarUrl={tutor.avatarUrl ?? undefined}
                   size="lg"
                 />
                 <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />

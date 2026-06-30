@@ -36,6 +36,7 @@ export function FilterModal({ open, initial, onClose, onApply }: FilterModalProp
   const [draft, setDraft] = useState<FilterState>(initial);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) setDraft(initial);
   }, [open, initial]);
 

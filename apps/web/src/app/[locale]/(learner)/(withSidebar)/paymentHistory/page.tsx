@@ -10,7 +10,7 @@ import { exportCSV, exportInvoicePDF } from "@/utils/learner/exportUtils"
 const ITEMS_PER_PAGE = 4
 
 export default function PaymentsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactions] = useState<Transaction[]>(() => getTransactions())
   const [currentPage, setCurrentPage] = useState(1)
 
   // ── Filter state ─────────────────────────────────────────────────────────
@@ -20,8 +20,6 @@ export default function PaymentsPage() {
   const [appliedFrom, setAppliedFrom] = useState("")
   const [appliedTo, setAppliedTo]     = useState("")
   const filterRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => { setTransactions(getTransactions()) }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {

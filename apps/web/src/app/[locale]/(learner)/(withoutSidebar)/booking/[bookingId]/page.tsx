@@ -64,6 +64,7 @@ export default function BookingDetailsPage() {
 
   useEffect(() => {
     if (!bookingId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError("Booking ID not found in URL.")
       setLoading(false)
       return
