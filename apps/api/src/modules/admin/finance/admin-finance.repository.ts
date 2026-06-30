@@ -1,5 +1,9 @@
-import mongoose, { type Types } from 'mongoose';
-import { ConflictError, NotFoundError, ValidationError } from '../../../common/errors/AppError.js';
+import mongoose, { type PipelineStage, type Types } from 'mongoose';
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from '../../../common/errors/AppError.js';
 import Booking from '../../bookings/booking.model.js';
 import { BookingStatus } from '../../bookings/booking.types.js';
 import Earning from '../../payments/earning.model.js';
@@ -38,6 +42,16 @@ type WithdrawalsListResult = {
   totalPages: number;
 };
 
+type WithdrawalAggregateDoc = IEarning & {
+  booking?: {
+    bookingStatus?: string;
+    learnerId?: Types.ObjectId;
+    subjectId?: Types.ObjectId;
+    startAt?: Date;
+    endAt?: Date;
+  };
+};
+
 type WithdrawalsBulkApproveResult = {
   approvedCount: number;
   matchedCount: number;
@@ -50,6 +64,21 @@ function parseObjectId(value: string, fieldName: string): Types.ObjectId {
   }
 
   return new mongoose.Types.ObjectId(value);
+}
+
+function buildSort(sortBy?: string, sortOrder?: string): Record<string, 1 | -1> {
+  const field = sortBy?.trim() || 'createdAt';
+  const direction = sortOrder === 'asc' ? 1 : -1;
+  return { [field]: direction } as Record<string, 1 | -1>;
+}
+
+function shouldJoinBooking(filters: AdminWithdrawalListQuery): boolean {
+  return Boolean(
+    filters.bookingStatus ||
+      filters.learnerId ||
+      filters.subjectId ||
+      (filters.sortBy?.trim() && filters.sortBy.trim().startsWith('booking.')),
+  );
 }
 
 function emptyBookingStats(): BookingStats {
@@ -205,40 +234,115 @@ export async function listWithdrawals(
   const limit = filters.limit ?? 10;
   const skip = (page - 1) * limit;
 
-  const mongoFilters: Record<string, unknown> = {};
+  const earningFilters: Record<string, unknown> = {};
 
   if (filters.status) {
-    mongoFilters.status = filters.status;
+    earningFilters.status = filters.status;
   }
 
   if (filters.tutorId) {
-    mongoFilters.tutorId = parseObjectId(filters.tutorId, 'tutorId');
+    earningFilters.tutorId = parseObjectId(filters.tutorId, 'tutorId');
+  }
+
+  if (filters.createdAtFrom || filters.createdAtTo) {
+    earningFilters.createdAt = {};
+
+    if (filters.createdAtFrom) {
+      (earningFilters.createdAt as Record<string, unknown>).$gte = new Date(
+        filters.createdAtFrom,
+      );
+    }
+
+    if (filters.createdAtTo) {
+      (earningFilters.createdAt as Record<string, unknown>).$lte = new Date(
+        filters.createdAtTo,
+      );
+    }
   }
 
   if (filters.minAmount !== undefined || filters.maxAmount !== undefined) {
-    mongoFilters.tutorAmount = {};
+    earningFilters.tutorAmount = {};
 
     if (filters.minAmount !== undefined) {
-      (mongoFilters.tutorAmount as Record<string, unknown>).$gte =
+      (earningFilters.tutorAmount as Record<string, unknown>).$gte =
         filters.minAmount;
     }
 
     if (filters.maxAmount !== undefined) {
-      (mongoFilters.tutorAmount as Record<string, unknown>).$lte =
+      (earningFilters.tutorAmount as Record<string, unknown>).$lte =
         filters.maxAmount;
     }
   }
 
-  const [earnings, total] = await Promise.all([
-    Earning.find(mongoFilters)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec(),
-    Earning.countDocuments(mongoFilters).exec(),
-  ]);
+  const pipeline: PipelineStage[] = [
+    { $match: earningFilters as PipelineStage.Match['$match'] },
+  ];
 
-  const totalPages = Math.ceil(total / limit);
+  if (shouldJoinBooking(filters)) {
+    const bookingMatch: PipelineStage.Match['$match'] = {};
+
+    if (filters.bookingStatus) {
+      bookingMatch['booking.bookingStatus'] = filters.bookingStatus;
+    }
+
+    if (filters.learnerId) {
+      bookingMatch['booking.learnerId'] = parseObjectId(
+        filters.learnerId,
+        'learnerId',
+      );
+    }
+
+    if (filters.subjectId) {
+      bookingMatch['booking.subjectId'] = parseObjectId(
+        filters.subjectId,
+        'subjectId',
+      );
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: Booking.collection.name,
+          localField: 'bookingId',
+          foreignField: '_id',
+          as: 'booking',
+        },
+      },
+      {
+        $unwind: {
+          path: '$booking',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      { $match: bookingMatch },
+    );
+  }
+
+  const sort = buildSort(filters.sortBy, filters.sortOrder);
+  pipeline.push({ $sort: sort });
+
+  const aggregation = await Earning.aggregate([
+    ...pipeline,
+    {
+      $facet: {
+        earnings: [
+          { $skip: skip },
+          { $limit: limit },
+          { $project: { booking: 0 } },
+        ],
+        metadata: [{ $count: 'total' }],
+      },
+    },
+  ]).exec();
+
+  const [result] = aggregation as Array<{
+    earnings: WithdrawalAggregateDoc[];
+    metadata: Array<{ total: number }>;
+  }>;
+
+  const earnings = (result?.earnings ?? []) as IEarning[];
+  const total = result?.metadata?.[0]?.total ?? 0;
+  const totalPages = limit > 0 ? Math.ceil(total / limit) : 0;
 
   return {
     earnings,
@@ -268,9 +372,9 @@ export async function approveAllWithdrawals(): Promise<WithdrawalsBulkApproveRes
   };
 }
 
-export async function approveWithdrawal(
-  params: { earningId: string },
-): Promise<IEarning> {
+export async function approveWithdrawal(params: {
+  earningId: string;
+}): Promise<IEarning> {
   const earningId = parseObjectId(params.earningId, 'earningId');
   const now = new Date();
 
@@ -298,9 +402,9 @@ export async function approveWithdrawal(
   throw new ConflictError('Only available earnings can be approved');
 }
 
-export async function cancelWithdrawal(
-  params: { earningId: string },
-): Promise<IEarning> {
+export async function cancelWithdrawal(params: {
+  earningId: string;
+}): Promise<IEarning> {
   const earningId = parseObjectId(params.earningId, 'earningId');
 
   const updated = await Earning.findOneAndUpdate(
@@ -324,10 +428,4 @@ export async function cancelWithdrawal(
   }
 
   throw new ConflictError('Only available earnings can be canceled');
-
-  if (!updated) {
-    throw new NotFoundError('Earning not found');
-  }
-
-  return updated;
 }
