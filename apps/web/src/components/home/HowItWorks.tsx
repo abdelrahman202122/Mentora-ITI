@@ -1,32 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Search, MessageSquare, Calendar } from "lucide-react";
 
 const steps = [
-  {
-    title: "1. Find a tutor",
-    description: "Search verified tutors by subject, level, price, language, and availability.",
-    icon: Search,
-  },
-  {
-    title: "2. Message your match",
-    description: "Ask questions, share your learning goals, and confirm the tutor is the right fit.",
-    icon: MessageSquare,
-  },
-  {
-    title: "3. Book a session",
-    description: "Choose a time, confirm your lesson, and pay securely through Mentora.",
-    icon: Calendar,
-  },
-];
+  { titleKey: "step1Title", descKey: "step1Description", icon: Search },
+  { titleKey: "step2Title", descKey: "step2Description", icon: MessageSquare },
+  { titleKey: "step3Title", descKey: "step3Description", icon: Calendar },
+] as const;
 
 export default function HowItWorks() {
+  const t = useTranslations("home.howItWorks");
+
   return (
     <section id="how-it-works" className="py-20 px-6 bg-white">
       <div className="max-w-5xl mx-auto text-center">
-        <h2 className="text-3xl font-bold text-slate-900 mb-4">How Mentora works</h2>
-        <p className="text-slate-600 mb-16">Go from tutor search to booked lesson in three clear steps.</p>
+        <h2 className="text-3xl font-bold text-slate-900 mb-4">{t("title")}</h2>
+        <p className="text-slate-600 mb-16">{t("subtitle")}</p>
 
         <div className="grid md:grid-cols-3 gap-12 relative">
           {/* خط وهمي يصل بين الأيقونات في الشاشات الكبيرة */}
@@ -34,7 +25,7 @@ export default function HowItWorks() {
 
           {steps.map((step, index) => (
             <motion.div
-              key={step.title}
+              key={step.titleKey}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -44,8 +35,8 @@ export default function HowItWorks() {
               <div className="w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center mb-6 border border-indigo-100">
                 <step.icon className="w-7 h-7 text-indigo-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
-              <p className="text-slate-600 leading-relaxed max-w-xs">{step.description}</p>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">{t(step.titleKey)}</h3>
+              <p className="text-slate-600 leading-relaxed max-w-xs">{t(step.descKey)}</p>
             </motion.div>
           ))}
         </div>

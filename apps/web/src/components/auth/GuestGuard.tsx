@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
 import { getSafeRedirectPath } from "@/utils/auth/safe-redirect";
 import { getLocalePath } from "@/utils/i18n/locale-path";
@@ -13,10 +12,10 @@ import { getLocalePath } from "@/utils/i18n/locale-path";
 export function GuestGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const locale = useLocale();
-  const { data: user, error, isPending, refetch } = useCurrentUser();
+  const { data: user, isPending } = useCurrentUser();
 
   useEffect(() => {
-    if (!isPending && !error && user) {
+    if (!isPending && user) {
       const nextPath = new URLSearchParams(window.location.search).get("next");
       router.replace(
         getSafeRedirectPath(
@@ -26,17 +25,7 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
         ),
       );
     }
-  }, [error, isPending, locale, router, user]);
-
-  if (error) {
-    return (
-      <GuestState message="We could not check your session.">
-        <Button onClick={() => void refetch()} type="button" variant="outline">
-          Try again
-        </Button>
-      </GuestState>
-    );
-  }
+  }, [isPending, locale, router, user]);
 
   if (isPending || user) {
     return (
