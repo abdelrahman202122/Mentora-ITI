@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { authMiddleware } from '../../middleware/auth.middleware.js';
 import { roleMiddleware } from '../../middleware/role.moddleware.js';
 import { UserRole } from '../users/user.interface.js';
+import bookingRoutes from './booking/admin-booking.routes.js';
+import financeRoutes from './finance/admin-finance.routes.js';
 import tutorRoutes from './tutor/admin-tutor.routes.js';
 import userRoutes from './users/admin-user.routes.js';
 
@@ -11,5 +13,7 @@ router.use(authMiddleware, roleMiddleware(UserRole.ADMIN));
 
 router.use('/users', userRoutes);
 router.use('/tutors', tutorRoutes);
+router.use('/bookings', bookingRoutes);
+router.use('/finance', financeRoutes);
 
 export default router;

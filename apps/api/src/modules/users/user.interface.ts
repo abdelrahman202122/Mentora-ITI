@@ -1,80 +1,10 @@
-// import type { Document, Types } from 'mongoose';
 
-// /**
-//  * User roles in the system
-//  */
-
-// export enum UserRole {
-//   LEARNER = 'learner',
-//   TUTOR = 'tutor',
-//   ADMIN = 'admin',
-// }
-
-// /**
-//  * User interface
-//  */
-
-// export interface IUser extends Document {
-//   name: string;
-//   email: string;
-//   password: string;
-//   role: UserRole;
-//   isEmailVerified: boolean;
-//   isActive: boolean;
-//   avatar?: string;
-
-//   tutorProfile?: Types.ObjectId;
-
-//   passwordResetToken?: string | null;
-//   passwordResetExpires?: Date | null;
-
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// export interface AuthPayload {
-//   userId: string;
-//   role: UserRole;
-// }
-
-// export interface IRefreshToken extends Document {
-//   token:     string;
-//   userId:    Types.ObjectId;
-//   expiresAt: Date;
-//   createdAt: Date;
-// }
-
-
-// export interface AuthResult {
-//   accessToken: string;
-//   refreshToken: string;
-
-//   user: {
-//     id: string;
-//     name: string;
-//     email: string;
-//     role: UserRole;
-//   };
-// }
-
-// export interface UserProfileDTO {
-//   id: string;
-//   name: string;
-//   email: string;
-//   role: UserRole;
-//   avatar?: string;
-//   isEmailVerified: boolean;
-// }
-
-
-
-
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import type { Document, Types } from 'mongoose';
 
 /**
  * User roles in the system
  */
-
 export enum UserRole {
   LEARNER = 'learner',
   TUTOR = 'tutor',
@@ -82,12 +12,18 @@ export enum UserRole {
 }
 
 /**
+ * ✅ NEW: Admin status values
+ * Tracks the 3 possible account states for admin management
+ */
+export type AdminStatus = 'Active' | 'Pending' | 'Suspended';
+
+/**
  * User interface
  */
-
 export interface IUser extends Document {
   name: string;
   email: string;
+  phoneNumber: string;
   password: string;
 
   role: UserRole;
@@ -96,16 +32,16 @@ export interface IUser extends Document {
   isActive: boolean;
 
   avatar?: string | null;
+  tutorProfile?: Types.ObjectId;
+  adminStatus: AdminStatus;
+  roleLabel?: string | null;
 
-  // Relation to Tutor profile (only if role = tutor)
-  tutorProfile?: Types.ObjectId ;
+  passwordResetToken?: string | null;
+  passwordResetExpires?: Date | null;
 
   createdAt: Date;
   updatedAt: Date;
-  passwordResetToken?: string | null;
-  passwordResetExpires?: Date | null;
 }
-
 
 export interface AuthPayload {
   userId: string;
@@ -113,12 +49,11 @@ export interface AuthPayload {
 }
 
 export interface IRefreshToken extends Document {
-  token:     string;
-  userId:    Types.ObjectId;
+  token: string;
+  userId: Types.ObjectId;
   expiresAt: Date;
   createdAt: Date;
 }
-
 
 export interface AuthResult {
   accessToken: string;
@@ -128,6 +63,7 @@ export interface AuthResult {
     id: string;
     name: string;
     email: string;
+    phoneNumber: string | null;
     role: UserRole;
   };
 }
@@ -139,5 +75,9 @@ export interface UserProfileDTO {
   role: UserRole;
   avatar?: string;
   isEmailVerified: boolean;
-  tutorProfile?: unknown; // see Issue #8 for proper typing
+  phoneNumber: string | null;
+  adminStatus: AdminStatus;
+  roleLabel?: string | null;
+  tutorProfile?: unknown;
 }
+

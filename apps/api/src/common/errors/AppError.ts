@@ -28,3 +28,9 @@ export class NotFoundError     extends AppError {
 export class EmailError     extends AppError {
   constructor(message: string) { super(message, 500, 'EMAIL_ERROR'); }
 }
+
+export class BadRequestError extends AppError {
+  constructor(message: string) {
+    super(message, 400, 'BAD_REQUEST');
+  }
+}

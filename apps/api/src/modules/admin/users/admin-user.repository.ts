@@ -2,7 +2,10 @@ import { AuditModel } from '../../audit/audit.model.js';
 import Booking from '../../bookings/booking.model.js';
 import { UserModel } from '../../users/user.model.js';
 import type { ListAdminUsersQuery } from './admin-user.validation.js';
-import {formatTime} from '../../../utils/timeHelper.js';
+import {formatRelativeTime, formatTime} from '../../../utils/timeHelper.js';
+import ReviewModel from '../../reviews/review.model.js';
+import { PopulatedReview, UserReviewDto } from './admin-user.interface.js';
+import type { ListAuditLogsQuery } from './admin-user.validation.js';
 
 /* ───────── Build a MongoDB filter from the query params ───────── */
 
@@ -18,12 +21,13 @@ const buildFilter = (query: ListAdminUsersQuery) => {
   // Filter by role (map frontend label → DB enum value)
   if (query.role) {
     const roleMap: Record<string, string> = {
-      Tutor: 'TUTOR',
-      Student: 'LEARNER',
-      Admin: 'ADMIN',
+      Tutor: 'tutor',
+      Student: 'learner',
+      Admin: 'admin',
     };
-    filter.role = roleMap[query.role] ?? query.role;
+    filter.role = roleMap[query.role] ?? query.role.toLowerCase();
   }
+
 
   // Filter by status (use adminStatus field in DB)
   if (query.status) {
@@ -143,14 +147,11 @@ export const getUserSessionCount = async (_userId: string): Promise<number> => {
 export const getUserAvgRating = async (
   _userId: string,
 ): Promise<number | null> => {
-  // TODO: Average rating from reviews about this user
-  // Example:
-  //   const result = await ReviewModel.aggregate([
-  //     { $match: { tutorId: userId } },
-  //     { $group: { _id: null, avg: { $avg: '$rating' } } },
-  //   ]);
-  //   return result[0]?.avg ?? null;
-  return null;
+    const result = await ReviewModel.aggregate([
+      { $match: { tutorId: _userId } },
+      { $group: { _id: null, avg: { $avg: '$rating' } } },
+    ]);
+    return result[0]?.avg ?? null;
 };
 
 export const getUserLastActivity = async (
@@ -163,25 +164,64 @@ export const getUserLastActivity = async (
     return latest ? formatTime(latest.createdAt) : null;
 };
 
+
 export const getUserReviews = async (
-  _userId: string,
-): Promise<
-  Array<{ reviewer: string; rating: number; text: string; relativeTime: string }>
-> => {
-  // TODO: Get 5 most recent reviews for this user
-  // Example:
-  //   const reviews = await ReviewModel.find({ tutorId: userId })
-  //     .sort({ createdAt: -1 })
-  //     .limit(5)
-  //     .populate('learnerId', 'name')
-  //     .lean();
-  //   return reviews.map((r) => ({
-  //     reviewer: r.learnerId.name,
-  //     rating: r.rating,
-  //     text: r.text,
-  //     relativeTime: formatRelativeTime(r.createdAt),
-  //   }));
-  return [];
+  userId: string,
+): Promise<UserReviewDto[]> => {
+  const reviews = (await ReviewModel.find({ tutorId: userId })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .populate("learnerId", "name")
+    .lean()) as unknown as PopulatedReview[];
+
+  return reviews
+    .filter((review) => {
+      // Skip reviews where the learner wasn't populated
+      // (e.g., learner account was deleted)
+      if (!review.learnerId) return false;
+      // Skip reviews with no comment text
+      if (!review.comment) return false;
+      return true;
+    })
+    .map((review) => ({
+      reviewer: review.learnerId!.name,
+      rating: review.rating,
+      text: review.comment!, // safe — we filtered out nulls above
+      relativeTime: formatRelativeTime(review.createdAt),
+    }));
 };
 
+
+
+
+
+/*  NEW: Fetch paginated audit logs for a specific user */
+export const findUserAuditLogs = async (
+  userId: string,
+  query: ListAuditLogsQuery,
+) => {
+  const { page, perPage } = query;
+  const skip = (page - 1) * perPage;
+
+  /* The audit log collection stores the target user either in
+     metadata.targetUserId OR directly as the userId field.
+     We match both patterns so we catch every relevant log. */
+  const filter = {
+    $or: [
+      { userId },
+      { 'metadata.targetUserId': userId },
+    ],
+  };
+
+  const [logs, total] = await Promise.all([
+    AuditModel.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .lean(),
+    AuditModel.countDocuments(filter),
+  ]);
+
+  return { logs, total };
+};
 

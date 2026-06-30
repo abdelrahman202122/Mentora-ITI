@@ -34,7 +34,7 @@ export async function getTutorProfile(
     const response = await api.get<ApiSuccess<TutorProfileData>>(
       `/tutors/${tutorId}/profile`
     );
-    console.log("Tutor Profile Response:----------------------------------------------", response.data);
+    console.log(response.data);
     return response.data.data;
   } catch (error) {
     if (error instanceof ApiClientError) {

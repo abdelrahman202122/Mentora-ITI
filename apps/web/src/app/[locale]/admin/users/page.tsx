@@ -1,150 +1,148 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Download } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Plus, Download, Loader2, AlertCircle } from "lucide-react";
 import { AddUserModal } from "@/components/admin/users/components/AddUserModal";
 import type { AddUserFormState } from "@/components/admin/users/components/AddUserModal";
 import { UserDrawer } from "@/components/admin/users/components/UserDrawer";
 import { EditUserDrawer } from "@/components/admin/users/components/EditUserDrawer";
 import type { EditUserFormState } from "@/components/admin/users/components/EditUserDrawer";
 import { StatusChangeModal } from "@/components/admin/users/components/StatusChangeModal";
+import { AuditLogsModal } from "@/components/admin/users/components/AuditLogsModal";
 import { UserFilters } from "@/components/admin/users/components/UserFilters";
 import { UserTable } from "@/components/admin/users/components/UserTable";
-import { PER_PAGE, TOTAL_USERS, USERS } from "@/mocks/mock-data";
-import type { User, Role, Status } from "@/types/admin";
+import type { User, Status, Role } from "@/types/admin";
 import { PageHeader, TablePagination } from "@/components/admin/shared";
+import { useAdminUsers } from "@/hooks/admin/use-admin-users";
+import { getUserDetail, exportUsersCsv } from "@/lib/api/admin-users";
+
+const PER_PAGE = 10;
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(() => USERS);
-  const [query, setQuery] = useState("");
-  const [role, setRole] = useState("");
-  const [status, setStatus] = useState("");
-  const [page, setPage] = useState(1);
+  const {
+    users, loading, error, mutating,
+    page, totalPages, totalItems, setPage,
+    search: query, setSearch: setQuery,
+    role, setRole, status, setStatus,
+    createUser, updateUser, changeStatus, setUsers, refetch,
+  } = useAdminUsers({ perPage: PER_PAGE });
+
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [addUserOpen, setAddUserOpen] = useState(false);
-
-  // 🎯 Unified status-change modal state
-  // We track BOTH the user AND the target status (Active / Pending / Suspended)
   const [statusChangeUser, setStatusChangeUser] = useState<User | null>(null);
   const [targetStatus, setTargetStatus] = useState<Status | null>(null);
+  const [auditLogsUser, setAuditLogsUser] = useState<User | null>(null);
+  const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
-  const filtered = users.filter((u) => {
-    const matchesQuery =
-      !query ||
-      u.name.toLowerCase().includes(query.toLowerCase()) ||
-      u.email.toLowerCase().includes(query.toLowerCase()) ||
-      u.id.toLowerCase().includes(query.toLowerCase());
-    const matchesRole = !role || u.role === role;
-    const matchesStatus = !status || u.status === status;
-    return matchesQuery && matchesRole && matchesStatus;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(TOTAL_USERS / PER_PAGE));
-
-  /* ═══════════════════════════════════════════════════════════════
-     STATUS CHANGE HANDLERS
-     ═══════════════════════════════════════════════════════════════ */
-
-  // 1) User clicks "Suspend Account" inside the drawer
   const handleSuspendClick = (u: User) => {
     setStatusChangeUser(u);
     setTargetStatus("Suspended");
-    setSelectedUser(null); // close the drawer
+    setSelectedUser(null);
   };
 
-  // 2) User clicks "Restore Account" inside the drawer
   const handleRestoreClick = (u: User) => {
     setStatusChangeUser(u);
     setTargetStatus("Active");
-    setSelectedUser(null); // close the drawer
+    setSelectedUser(null);
   };
 
-  // 3) User confirms in the StatusChangeModal — this runs for BOTH
-  //    suspend and restore (and any other status change)
-  const handleConfirmStatusChange = (
-    u: User,
-    newStatus: Status,
-    reason: string,
-  ) => {
-    // TODO: wire to your API
-    // fetch(`/api/admin/users/${u.id}/status`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ status: newStatus, reason }),
-    // })
-    console.log(`Change user ${u.id} status to ${newStatus}. Reason:`, reason);
-
-    // Optimistically update local state so the table reflects the change
-    const updated: User = { ...u, status: newStatus };
-    setUsers((prev) => prev.map((row) => (row.id === u.id ? updated : row)));
-
-    // Close the modal
-    setStatusChangeUser(null);
-    setTargetStatus(null);
+  const handleConfirmStatusChange = async (u: User, newStatus: Status, reason: string) => {
+    try {
+      await changeStatus(u.id, { status: newStatus, reason });
+      setStatusChangeUser(null);
+      setTargetStatus(null);
+    } catch (err) {
+      console.error("Failed to change user status:", err);
+      alert(err instanceof Error ? err.message : "Failed to change user status.");
+    }
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     OTHER HANDLERS (unchanged)
-     ═══════════════════════════════════════════════════════════════ */
+  const handleViewUser = useCallback(
+    async (u: User) => {
+      setSelectedUser(u);
+      setDetailLoadingId(u.id);
+      try {
+        const detail = await getUserDetail(u.id);
+        setSelectedUser(detail);
+        setUsers((prev) => prev.map((row) => (row.id === detail.id ? detail : row)));
+      } catch (err) {
+        console.error("Failed to load user detail:", err);
+      } finally {
+        setDetailLoadingId(null);
+      }
+    },
+    [setUsers],
+  );
 
   const handleAuditLogs = (u: User) => {
-    console.log("Audit logs for user:", u.id);
+    setAuditLogsUser(u);
+    setSelectedUser(null);
   };
 
-  const handleSaveEdit = (u: User, form: EditUserFormState) => {
-    const updated: User = {
-      ...u,
-      name: form.name.trim() || u.name,
-      roleLabel: form.roleLabel.trim() || undefined,
-      email: form.email.trim() || u.email,
-    };
-    setUsers((prev) => prev.map((row) => (row.id === u.id ? updated : row)));
-    setSelectedUser((prev) => (prev && prev.id === u.id ? updated : prev));
-    console.log("Save user:", u.id, {
-      name: updated.name,
-      roleLabel: updated.roleLabel,
-      email: updated.email,
-    });
-    setEditingUser(null);
+  const handleSaveEdit = async (u: User, form: EditUserFormState) => {
+    try {
+      const updated = await updateUser(u.id, {
+        name: form.name.trim() || undefined,
+        email: form.email.trim() || undefined,
+        roleLabel: form.roleLabel?.trim() || undefined,
+      });
+      setSelectedUser((prev) => (prev && prev.id === updated.id ? updated : prev));
+      setEditingUser(null);
+    } catch (err) {
+      console.error("Failed to save user:", err);
+      alert(err instanceof Error ? err.message : "Failed to save user.");
+    }
   };
 
-  const handleCreateUser = (form: AddUserFormState) => {
-    const newUser: User = {
-      id: `USR-${String(users.length + 1).padStart(4, "0")}`,
-      name: form.fullName.trim(),
-      email: form.email.trim(),
-      role: form.role as Role,
-      status: form.status as Status,
-      regDate: new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }),
-      totalSessions: 0,
-      avgRating: undefined,
-      lastActivity: undefined,
-      avatarUrl: undefined,
-      roleLabel: undefined,
-      reviews: [],
-    };
-    setUsers((prev) => [newUser, ...prev]);
-    console.log("Create user:", {
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      status: newUser.status,
-    });
-    setAddUserOpen(false);
+  const handleCreateUser = async (form: AddUserFormState) => {
+    try {
+      await createUser({
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        role: form.role as Role,
+        status: form.status as Status,
+      });
+      setAddUserOpen(false);
+    } catch (err) {
+      console.error("Failed to create user:", err);
+      alert(err instanceof Error ? err.message : "Failed to create user.");
+    }
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     RENDER
-     ═══════════════════════════════════════════════════════════════ */
+  const handleExportCsv = async () => {
+    setExporting(true);
+    try {
+      const blob = await exportUsersCsv({
+        search: query || undefined,
+        role: (role || undefined) as Role | undefined,
+        status: (status || undefined) as Status | undefined,
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "users-export.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export CSV:", err);
+      alert(err instanceof Error ? err.message : "Failed to export CSV.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const start = totalItems === 0 ? 0 : (page - 1) * PER_PAGE + 1;
+  const end = Math.min(page * PER_PAGE, totalItems);
+  const showingText = `Showing ${start}-${end} of ${totalItems.toLocaleString()} users`;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
+    <div className="flex flex-col bg-gray-50 min-h-full">
+  
+      <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
           title="User Management"
           description="Monitor, manage, and audit all platform participants."
@@ -152,56 +150,64 @@ export default function UsersPage() {
             <>
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                onClick={handleExportCsv}
+                disabled={exporting || loading}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 sm:px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Download className="h-4 w-4" />
-                Export CSV
+                {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                <span className="hidden sm:inline">Export CSV</span>
               </button>
               <button
                 type="button"
                 onClick={() => setAddUserOpen(true)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+                disabled={mutating}
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-3 sm:px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" />
-                Add User
+                <span className="hidden sm:inline">Add User</span>
               </button>
             </>
           }
         />
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        {error && (
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+            <div className="flex items-center gap-2 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+            <button type="button" onClick={refetch} className="text-sm font-medium text-red-700 underline hover:text-red-800">
+              Retry
+            </button>
+          </div>
+        )}
+
+        <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+              <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+            </div>
+          )}
+
           <UserFilters
             query={query}
             onQueryChange={setQuery}
             role={role}
-            onRoleChange={setRole}
+            onRoleChange={(v) => setRole(v as Role | "")}
             status={status}
-            onStatusChange={setStatus}
+            onStatusChange={(v) => setStatus(v as Status | "")}
           />
-          <UserTable
-            users={filtered}
-            onView={setSelectedUser}
-            onEdit={setEditingUser}
-          />
+          <UserTable users={users} onView={handleViewUser} onEdit={setEditingUser} />
           <TablePagination
             page={page}
             totalPages={totalPages}
             onPageChange={setPage}
-            showingText={`Showing 1-${Math.min(PER_PAGE, TOTAL_USERS)} of ${TOTAL_USERS.toLocaleString()} users`}
+            showingText={showingText}
           />
         </div>
       </div>
 
-      {/* ---------- Add User modal ---------- */}
-      <AddUserModal
-        open={addUserOpen}
-        onClose={() => setAddUserOpen(false)}
-        onCreate={handleCreateUser}
-      />
-
-      {/* ---------- User detail drawer ----------
-          NOTE: Now passes BOTH onSuspend AND onRestore.
-          The drawer decides which button to show based on user.status. */}
+      <AddUserModal open={addUserOpen} onClose={() => setAddUserOpen(false)} onCreate={handleCreateUser} />
       <UserDrawer
         user={selectedUser}
         onClose={() => setSelectedUser(null)}
@@ -209,25 +215,15 @@ export default function UsersPage() {
         onRestore={handleRestoreClick}
         onAuditLogs={handleAuditLogs}
       />
-
-      {/* ---------- Edit user drawer ---------- */}
-      <EditUserDrawer
-        user={editingUser}
-        onClose={() => setEditingUser(null)}
-        onSave={handleSaveEdit}
-      />
-
-      {/* ---------- Unified status change modal ----------
-          Handles suspend, restore, and any future status change. */}
+      <EditUserDrawer user={editingUser} onClose={() => setEditingUser(null)} onSave={handleSaveEdit} />
       <StatusChangeModal
         user={statusChangeUser}
         targetStatus={targetStatus}
-        onClose={() => {
-          setStatusChangeUser(null);
-          setTargetStatus(null);
-        }}
+        onClose={() => { setStatusChangeUser(null); setTargetStatus(null); }}
         onConfirm={handleConfirmStatusChange}
+        mutating={mutating}
       />
+      <AuditLogsModal user={auditLogsUser} onClose={() => setAuditLogsUser(null)} />
     </div>
   );
 }
