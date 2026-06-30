@@ -460,8 +460,12 @@ export default function ResultsStep({
 
       {tutors.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
-          {tutors.map((tutor) => (
-            <TutorResultCard key={tutor.userId} locale={locale} tutor={tutor} />
+          {tutors.map((tutor, index) => (
+            <TutorResultCard
+              key={`${tutor.profile.id || tutor._id || tutor.userId}-${index}`}
+              locale={locale}
+              tutor={tutor}
+            />
           ))}
         </div>
       ) : null}
