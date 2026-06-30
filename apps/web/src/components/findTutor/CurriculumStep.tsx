@@ -85,7 +85,7 @@ export default function CurriculumStep({
           const isSelected = selected === curr.value;
           return (
             <motion.div
-              key={curr.value}
+              key={`${curr.value}-${index}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
