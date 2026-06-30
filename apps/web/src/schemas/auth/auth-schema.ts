@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const userRoles = ["student", "teacher"] as const;
+const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
 
 /**
  * Translator function type that mirrors the signature of next-intl's
@@ -16,10 +17,8 @@ export function createRegisterSchema(t: AuthValidationTranslator) {
     name: z.string().min(2, t("nameMin")),
     phoneNumber: z
       .string()
-      .regex(
-        /^01[0-25]\d{8}$/,
-        t("phoneInvalid"),
-      ),
+      .trim()
+      .regex(egyptianPhoneRegex, t("phoneInvalid")),
     role: z.enum(userRoles, t("roleInvalid")),
   });
 }
