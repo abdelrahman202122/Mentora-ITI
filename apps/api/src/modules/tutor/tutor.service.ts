@@ -1,4 +1,4 @@
-import { findTutors } from './tutor.repository.js';
+import { findTutors, getStats } from './tutor.repository.js';
 import type { TutorSearchParams } from '../../validators/tutor-search.js';
 
 export const getTutors = async (params: TutorSearchParams) => {
@@ -8,4 +8,8 @@ export const getTutors = async (params: TutorSearchParams) => {
     activeStatus: ['active'],
   });
   return { tutors, pagination };
+};
+
+export const getTutorStats = async (tutorId: string) => {
+  return await getStats(tutorId);
 };

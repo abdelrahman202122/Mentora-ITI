@@ -11,6 +11,7 @@ import {
 } from '../../common/errors/AppError.js';
 import { sendSuccess } from '../../utils/api-response.js';
 import { listUsersQuerySchema } from './user.validation.js';
+import { changeUserStatusSchema } from './user.validation.js';
 
 export const register = async (
   req: Request,
@@ -92,39 +93,29 @@ export const logout = async (
   }
 };
 
+
 export const refreshToken = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const oldRefreshToken = req.cookies.refreshToken;
 
+   const oldRefreshToken = req.cookies.refreshToken;
     if (!oldRefreshToken) {
-      logger.warn({
-        event: 'refresh_token.missing',
-      });
-
       throw new UnauthorizedError('Refresh token missing');
     }
-
     const tokens = await userService.refreshToken(oldRefreshToken);
-
     res.cookie('accessToken', tokens.accessToken, cookieOptions.accessToken);
-
     res.cookie('refreshToken', tokens.refreshToken, cookieOptions.refreshToken);
-
-    logger.info({
-      event: 'refresh_token.completed',
-    });
-
-    res.status(200).json({
-      success: true,
-    });
+    res.status(200).json({ success: true });
   } catch (error) {
+ 
     next(error);
   }
 };
+
+
 
 export const getMe = async (
   req: Request,
@@ -399,4 +390,30 @@ res.status(200).json({
 } catch (error) {
 next(error);
 }
+};
+
+
+
+/* ✅ NEW: PATCH /users/:id/status — Change user status */
+export const changeUserStatus = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const adminId = req.user?.userId;
+    if (!adminId) {
+      throw new UnauthorizedError('Unauthorized');
+    }
+    const userId = req.params.id;
+    const data = changeUserStatusSchema.parse(req.body);
+    const result = await userService.changeUserStatus(adminId, userId, data);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

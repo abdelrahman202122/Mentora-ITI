@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { ChevronLeft, ChevronRight, Home, Loader2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useCurrentUser, useLogout } from '@/hooks/auth/use-auth';
 import { getLocalePath } from '@/utils/i18n/locale-path';
 import {
@@ -29,13 +30,7 @@ export default function Sidebar({ role }: SidebarProps) {
   const effectiveRole = resolveRole(role, currentUser?.role);
   const navLinks = navLinksByRole[effectiveRole];
 
-  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
-  const [cacheVersion, setCacheVersion] = useState('');
-
-  useEffect(() => {
-    setCacheVersion(Date.now().toString());
-    setAvatarLoadFailed(false);
-  }, [currentUser?.avatar]);
+  const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     function handleResize() {
@@ -48,9 +43,10 @@ export default function Sidebar({ role }: SidebarProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const avatarFileName = currentUser?.avatar ?? null;
   const avatarSrc =
-    currentUser?.avatar && !avatarLoadFailed
-      ? `/api/files/avatars/${currentUser.avatar}${cacheVersion ? `?v=${cacheVersion}` : ''}`
+    avatarFileName && failedAvatar !== avatarFileName
+      ? `/api/files/avatars/${avatarFileName}`
       : null;
 
   async function handleLogout() {
@@ -98,7 +94,7 @@ export default function Sidebar({ role }: SidebarProps) {
               width={36}
               height={36}
               className="w-full h-full object-cover"
-              onError={() => setAvatarLoadFailed(true)}
+              onError={() => setFailedAvatar(avatarFileName)}
             />
           ) : (
             <span className="text-sm font-bold text-gray-500 uppercase">
@@ -142,6 +138,8 @@ export default function Sidebar({ role }: SidebarProps) {
 
       {/* Logout */}
       <div className="mt-auto space-y-1">
+        <NotificationBell collapsed={collapsed} role={effectiveRole} />
+
         <Button
           asChild
           className={`w-full gap-3 px-2 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 ${
