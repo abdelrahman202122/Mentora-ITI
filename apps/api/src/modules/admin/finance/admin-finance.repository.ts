@@ -303,8 +303,8 @@ export async function cancelWithdrawal(
 ): Promise<IEarning> {
   const earningId = parseObjectId(params.earningId, 'earningId');
 
-  const updated = await Earning.findByIdAndUpdate(
-    earningId,
+  const updated = await Earning.findOneAndUpdate(
+    { _id: earningId, status: EarningStatus.AVAILABLE },
     {
       $set: {
         status: EarningStatus.CANCELED,
@@ -312,6 +312,18 @@ export async function cancelWithdrawal(
     },
     { new: true, runValidators: true },
   ).exec();
+
+  if (updated) {
+    return updated;
+  }
+
+  const existing = await Earning.findById(earningId).exec();
+
+  if (!existing) {
+    throw new NotFoundError('Earning not found');
+  }
+
+  throw new ConflictError('Only available earnings can be canceled');
 
   if (!updated) {
     throw new NotFoundError('Earning not found');
