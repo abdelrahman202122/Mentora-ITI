@@ -168,6 +168,7 @@ export default function TutorProfileForm({ mode, data, tutorId }: Props) {
     try {
       if (pendingAvatarFile) {
         await uploadAvatar.mutateAsync(pendingAvatarFile);
+        setPendingAvatarFile(null);
       }
 
       const payload = {
@@ -240,9 +241,9 @@ export default function TutorProfileForm({ mode, data, tutorId }: Props) {
               <div className="grid gap-2">
                 <FieldLabel htmlFor="tutor-name">{t("fields.name")}</FieldLabel>
                 <Input
-                  disabled={!isUpdate}
                   id="tutor-name"
                   placeholder={t("placeholders.name")}
+                  readOnly={!isUpdate}
                   {...register("name")}
                 />
                 <FieldError message={errors.name?.message} />
