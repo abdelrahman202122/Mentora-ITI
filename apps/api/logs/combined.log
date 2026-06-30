@@ -1489,3 +1489,6 @@
 {"level":"info","message":"::1 - - [29/Jun/2026:10:39:39 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-29T10:39:39.546Z"}
 {"level":"info","message":"::1 - - [29/Jun/2026:10:39:39 +0000] \"GET /api/tutors/6a42493a47ba83732a24c53d/availability HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-29T10:39:39.550Z"}
 {"level":"info","message":"::1 - - [29/Jun/2026:10:39:41 +0000] \"GET /api/tutors/6a42493a47ba83732a24c53d/availability/slots?startDate=2026-06-29&endDate=2026-07-05 HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"","timestamp":"2026-06-29T10:39:41.586Z"}
+{"level":"info","message":"Initializing Tutor Search View Real-Time Watchers...","timestamp":"2026-06-29T23:49:42.385Z"}
+{"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-29T23:49:42.425Z"}
+{"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-29T23:49:42.557Z"}
