@@ -4,7 +4,8 @@ import * as adminUserService from './admin-user.service.js';
 import {
   listAdminUsersQuerySchema,
   createAdminUserSchema,
-  updateAdminUserSchema
+  updateAdminUserSchema,
+  listAuditLogsQuerySchema
 } from './admin-user.validation.js';
 
 /* Helper: extract adminId from req.user or throw */
@@ -150,6 +151,34 @@ export const exportUsers = async (
       'attachment; filename="users-export.csv"',
     );
     res.status(200).send(csv);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+/* ✅ NEW: GET /api/admin/users/:id/audit-logs */
+export const getUserAuditLogs = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const adminId = requireAdminId(req);
+    const userId = req.params.id;
+    const query = listAuditLogsQuerySchema.parse(req.query);
+    const result = await adminUserService.getUserAuditLogs(
+      adminId,
+      userId,
+      query,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: result.items,
+      meta: result.meta,
+    });
   } catch (error) {
     next(error);
   }

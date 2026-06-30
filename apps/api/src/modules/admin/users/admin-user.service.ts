@@ -12,6 +12,7 @@ import { createAuditLog } from '../../audit/audit.service.js';
 import type {
   AdminUserDetail,
   AdminUserListItem,
+  AuditLogDto,
 } from './admin-user.interface.js';
 import {
   findAdminUserById,
@@ -23,11 +24,13 @@ import {
   getUserAvgRating,
   getUserLastActivity,
   getUserReviews,
+  findUserAuditLogs
 } from './admin-user.repository.js';
 import type {
   ListAdminUsersQuery,
   CreateAdminUserInput,
   UpdateAdminUserInput,
+  ListAuditLogsQuery
 } from './admin-user.validation.js';
 import { sendResetEmail } from '../../../common/email/email.service.js';
 
@@ -36,11 +39,11 @@ import { sendResetEmail } from '../../../common/email/email.service.js';
    ═════════════════════════════════════════════════════════════════ */
 
 /* Map DB role enum → frontend label */
-const roleToFrontend: Record<string, string> = {
-  TUTOR: 'Tutor',
-  LEARNER: 'Student',
-  ADMIN: 'Admin',
-};
+  const roleToFrontend: Record<string, string> = {
+    TUTOR: 'Tutor',
+    LEARNER: 'Student',
+    ADMIN: 'Admin',
+  };
 
 /* Format a Date as "Jan 15, 2023" */
 const formatDate = (date: Date | undefined): string => {
@@ -150,9 +153,9 @@ export const createUser = async (
 
   /* Map frontend role → DB role enum */
   const roleToDb: Record<string, string> = {
-    Tutor: 'TUTOR',
-    Student: 'LEARNER',
-    Admin: 'ADMIN',
+    Tutor: 'tutor',
+    Student: 'learner',
+    Admin: 'admin',
   };
 
   /* Generate a random temp password — the user will reset it
@@ -384,4 +387,40 @@ export const exportUsersCsv = async (
   });
 
   return header + rows;
+};
+
+
+
+export const getUserAuditLogs = async (
+  adminId: string,
+  userId: string,
+  query: ListAuditLogsQuery,
+) => {
+  logger.info({
+    event: 'admin.users.audit_logs',
+    adminId,
+    targetUserId: userId,
+    page: query.page,
+  });
+
+  const { logs, total } = await findUserAuditLogs(userId, query);
+
+  /* Map DB documents → API response shape.
+     Adjust the field names below to match your actual AuditModel schema. */
+  const items: AuditLogDto[] = logs.map((log: any) => ({
+    id: log._id.toString(),
+    action: log.action ?? 'UNKNOWN',
+    performedBy: log.performedBy ?? log.metadata?.adminName ?? 'System',
+    details: log.details ?? log.metadata?.description ?? null,
+    timestamp: log.createdAt?.toISOString() ?? new Date().toISOString(),
+  }));
+
+  return {
+    items,
+    meta: {
+      page: query.page,
+      perPage: query.perPage,
+      totalItems: total,
+    },
+  };
 };

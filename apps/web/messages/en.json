@@ -30,6 +30,34 @@
       "igcse": "Can you help me prepare for IGCSE math?"
     }
   },
+  "notifications": {
+    "title": "Notifications",
+    "latest": "Latest",
+    "unreadCount": "{count, plural, one {# unread notification} other {# unread notifications}}",
+    "allCaughtUp": "You are all caught up",
+    "actions": {
+      "open": "Open notifications",
+      "close": "Close notifications",
+      "markAllRead": "Mark all read",
+      "openChat": "Open chat"
+    },
+    "states": {
+      "emptyTitle": "No notifications yet",
+      "emptyDescription": "Messages, booking updates, and platform alerts will appear here.",
+      "error": "Could not load notifications."
+    },
+    "fallback": {
+      "title": "New notification",
+      "body": "Open Mentora to view the latest update."
+    },
+    "types": {
+      "message": "Message",
+      "booking": "Booking",
+      "payment": "Payment",
+      "review": "Review",
+      "system": "System"
+    }
+  },
   "aiTutorFinder": {
     "badge": "AI Tutor Finder",
     "title": "Find a tutor that matches your learning needs",

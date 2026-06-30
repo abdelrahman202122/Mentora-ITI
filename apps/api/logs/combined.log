@@ -555,7 +555,6 @@
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-28T16:25:10.850Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-28T16:25:10.956Z"}
 {"level":"warn","message":"Shutdown signal received: SIGINT. Closing server.","timestamp":"2026-06-28T16:49:10.275Z"}
-<<<<<<< HEAD
 {"level":"info","message":"Initializing Tutor Search View Real-Time Watchers...","timestamp":"2026-06-29T11:29:33.526Z"}
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-29T11:29:33.597Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-29T11:29:33.781Z"}
@@ -663,7 +662,6 @@
 {"level":"info","message":"::1 - - [29/Jun/2026:23:29:47 +0000] \"GET /api/users/me HTTP/1.1\" 401 53 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.126.0 Chrome/148.0.7778.97 Electron/42.2.0 Safari/537.36\"","timestamp":"2026-06-29T23:29:47.074Z"}
 {"level":"warn","message":{"event":"refresh_token.missing"},"timestamp":"2026-06-29T23:29:47.078Z"}
 {"level":"info","message":"::1 - - [29/Jun/2026:23:29:47 +0000] \"POST /api/users/refresh-token HTTP/1.1\" 401 51 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.126.0 Chrome/148.0.7778.97 Electron/42.2.0 Safari/537.36\"","timestamp":"2026-06-29T23:29:47.081Z"}
-=======
 {"level":"info","message":"Initializing Tutor Search View Real-Time Watchers...","timestamp":"2026-06-28T19:15:20.169Z"}
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-28T19:15:20.183Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-28T19:15:20.282Z"}
@@ -1785,7 +1783,7 @@
 {"level":"info","message":"::1 - - [30/Jun/2026:00:54:54 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-30T00:54:54.918Z"}
 {"level":"info","message":"::1 - - [30/Jun/2026:00:56:38 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-30T00:56:38.092Z"}
 {"level":"info","message":"::1 - - [30/Jun/2026:00:57:20 +0000] \"GET /api/users/me HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-30T00:57:20.454Z"}
->>>>>>> b5152638a6b00df346ec759eb10597ac8ca114cb
 {"level":"info","message":"Initializing Tutor Search View Real-Time Watchers...","timestamp":"2026-06-30T13:18:05.433Z"}
 {"level":"warn","message":"Redis disabled; Socket.IO will use the in-memory adapter","timestamp":"2026-06-30T13:18:05.522Z"}
 {"level":"info","message":"Server started on http://localhost:4000","timestamp":"2026-06-30T13:18:05.893Z"}
+
