@@ -215,6 +215,108 @@
       "pageOf": "Page {page} of {totalPages}"
     }
   },
+  "tutorProfile": {
+    "page": {
+      "title": "Create your tutor profile",
+      "description": "Add the teaching details learners need before they decide to message or book with you.",
+      "loading": "Loading your account...",
+      "redirecting": "Redirecting you to login..."
+    },
+    "form": {
+      "fields": {
+        "name": "Full name",
+        "headline": "Headline",
+        "bio": "Bio",
+        "hourlyRate": "Hourly rate",
+        "currentRole": "I currently work here"
+      },
+      "sections": {
+        "languages": "Languages",
+        "education": "Education",
+        "experience": "Experience"
+      },
+      "descriptions": {
+        "languages": "Add the languages you can teach in.",
+        "education": "Share the education background that supports your teaching.",
+        "experience": "Add relevant teaching or professional experience."
+      },
+      "placeholders": {
+        "name": "Full name",
+        "headline": "Math tutor with 5 years of experience",
+        "bio": "Tell learners about your teaching style, strengths, and the students you help best.",
+        "hourlyRate": "250",
+        "language": "English",
+        "degree": "Degree",
+        "field": "Field of study",
+        "institution": "Institution",
+        "graduationYear": "Graduation year",
+        "jobTitle": "Job title",
+        "startYear": "Start year",
+        "startMonth": "Start month",
+        "endYear": "End year, if finished",
+        "endMonth": "End month, if finished"
+      },
+      "empty": {
+        "languages": "No languages added yet.",
+        "education": "No education entries yet.",
+        "experience": "No experience entries yet."
+      },
+      "avatar": {
+        "alt": "Tutor avatar",
+        "change": "Change photo",
+        "selected": "New photo selected"
+      },
+      "actions": {
+        "add": "Add",
+        "addEducation": "Add education",
+        "addExperience": "Add experience",
+        "create": "Create profile",
+        "save": "Save changes",
+        "saving": "Saving...",
+        "removeEntry": "Remove entry",
+        "removeLanguage": "Remove {language}"
+      },
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "entry": "Entry {number}",
+      "errors": {
+        "save": "Could not save the tutor profile. Please try again."
+      }
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "headlineRequired": "Headline is required",
+      "bioMin": "Bio must be at least 10 characters",
+      "hourlyRateNumber": "Hourly rate must be a number",
+      "hourlyRateMin": "Rate must be at least 1",
+      "languageRequired": "Language is required",
+      "languagesMin": "Add at least one language",
+      "degreeRequired": "Degree is required",
+      "fieldRequired": "Field is required",
+      "institutionRequired": "Institution is required",
+      "yearNumber": "Year must be a number",
+      "yearMin": "Year must be 1970 or later",
+      "yearMax": "Year must be {year} or earlier",
+      "titleRequired": "Title is required",
+      "startYearRequired": "Start year is required",
+      "startMonthRequired": "Start month is required",
+      "startMonthRange": "Start month must be between 1 and 12",
+      "endMonthRange": "End month must be between 1 and 12",
+      "educationMin": "Add at least one education entry"
+    }
+  },
   "auth": {
     "brandName": "Mentora",
     "login": {

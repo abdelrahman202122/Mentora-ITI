@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
   images: {
     localPatterns: [
       {
+        pathname: "/profile-default.jpeg",
+      },
+      {
         pathname: "/api/files/avatars/**",
       },
     ],
