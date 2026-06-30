@@ -1,30 +1,31 @@
 import * as adminFinanceRepository from './admin-finance.repository.js';
+import type {
+  AdminEarningIdParams,
+  AdminWithdrawalListQuery,
+} from './admin-finance.validation.js';
 
 export async function getFinanceStats(filters: unknown): Promise<unknown> {
   return adminFinanceRepository.getFinanceStats(filters);
 }
 
-export async function listWithdrawals(filters: unknown): Promise<unknown> {
+export async function listWithdrawals(
+  filters: AdminWithdrawalListQuery,
+): Promise<unknown> {
   return adminFinanceRepository.listWithdrawals(filters);
 }
 
-export async function approveAllWithdrawals(
-  params: unknown,
-  body: unknown,
-): Promise<unknown> {
-  return adminFinanceRepository.approveAllWithdrawals(params, body);
+export async function approveAllWithdrawals(): Promise<unknown> {
+  return adminFinanceRepository.approveAllWithdrawals();
 }
 
 export async function approveWithdrawal(
-  params: unknown,
-  body: unknown,
+  params: AdminEarningIdParams,
 ): Promise<unknown> {
-  return adminFinanceRepository.approveWithdrawal(params, body);
+  return adminFinanceRepository.approveWithdrawal(params);
 }
 
 export async function cancelWithdrawal(
-  params: unknown,
-  body: unknown,
+  params: AdminEarningIdParams,
 ): Promise<unknown> {
-  return adminFinanceRepository.cancelWithdrawal(params, body);
+  return adminFinanceRepository.cancelWithdrawal(params);
 }

@@ -1,7 +1,10 @@
+import mongoose, { type Types } from 'mongoose';
+import { ConflictError, NotFoundError, ValidationError } from '../../../common/errors/AppError.js';
 import Booking from '../../bookings/booking.model.js';
 import { BookingStatus } from '../../bookings/booking.types.js';
 import Earning from '../../payments/earning.model.js';
-import { EarningStatus } from '../../payments/earning.types.js';
+import { EarningStatus, type IEarning } from '../../payments/earning.types.js';
+import type { AdminWithdrawalListQuery } from './admin-finance.validation.js';
 
 type BookingStats = {
   total: number;
@@ -27,6 +30,27 @@ type FinanceStats = {
     paidOut: EarningBucket;
   };
 };
+
+type WithdrawalsListResult = {
+  earnings: IEarning[];
+  total: number;
+  page: number;
+  totalPages: number;
+};
+
+type WithdrawalsBulkApproveResult = {
+  approvedCount: number;
+  matchedCount: number;
+  modifiedCount: number;
+};
+
+function parseObjectId(value: string, fieldName: string): Types.ObjectId {
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    throw new ValidationError(`Invalid ${fieldName}`);
+  }
+
+  return new mongoose.Types.ObjectId(value);
+}
 
 function emptyBookingStats(): BookingStats {
   return {
@@ -173,27 +197,125 @@ export async function getFinanceStats(
   };
 }
 
-export async function listWithdrawals(_filters: unknown): Promise<unknown> {
-  throw new Error('Admin finance repository is not implemented yet');
+export async function listWithdrawals(
+  _filters: unknown,
+): Promise<WithdrawalsListResult> {
+  const filters = _filters as AdminWithdrawalListQuery;
+  const page = filters.page ?? 1;
+  const limit = filters.limit ?? 10;
+  const skip = (page - 1) * limit;
+
+  const mongoFilters: Record<string, unknown> = {};
+
+  if (filters.status) {
+    mongoFilters.status = filters.status;
+  }
+
+  if (filters.tutorId) {
+    mongoFilters.tutorId = parseObjectId(filters.tutorId, 'tutorId');
+  }
+
+  if (filters.minAmount !== undefined || filters.maxAmount !== undefined) {
+    mongoFilters.tutorAmount = {};
+
+    if (filters.minAmount !== undefined) {
+      (mongoFilters.tutorAmount as Record<string, unknown>).$gte =
+        filters.minAmount;
+    }
+
+    if (filters.maxAmount !== undefined) {
+      (mongoFilters.tutorAmount as Record<string, unknown>).$lte =
+        filters.maxAmount;
+    }
+  }
+
+  const [earnings, total] = await Promise.all([
+    Earning.find(mongoFilters)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec(),
+    Earning.countDocuments(mongoFilters).exec(),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    earnings,
+    total,
+    page,
+    totalPages,
+  };
 }
 
-export async function approveAllWithdrawals(
-  _params: unknown,
-  _body: unknown,
-): Promise<unknown> {
-  throw new Error('Admin finance repository is not implemented yet');
+export async function approveAllWithdrawals(): Promise<WithdrawalsBulkApproveResult> {
+  const now = new Date();
+  const result = await Earning.updateMany(
+    { status: EarningStatus.AVAILABLE },
+    {
+      $set: {
+        status: EarningStatus.PAID_OUT,
+        paidOutAt: now,
+      },
+    },
+    { runValidators: true },
+  ).exec();
+
+  return {
+    approvedCount: result.modifiedCount ?? 0,
+    matchedCount: result.matchedCount ?? 0,
+    modifiedCount: result.modifiedCount ?? 0,
+  };
 }
 
 export async function approveWithdrawal(
-  _params: unknown,
-  _body: unknown,
-): Promise<unknown> {
-  throw new Error('Admin finance repository is not implemented yet');
+  params: { earningId: string },
+): Promise<IEarning> {
+  const earningId = parseObjectId(params.earningId, 'earningId');
+  const now = new Date();
+
+  const updated = await Earning.findOneAndUpdate(
+    { _id: earningId, status: EarningStatus.AVAILABLE },
+    {
+      $set: {
+        status: EarningStatus.PAID_OUT,
+        paidOutAt: now,
+      },
+    },
+    { new: true, runValidators: true },
+  ).exec();
+
+  if (updated) {
+    return updated;
+  }
+
+  const existing = await Earning.findById(earningId).exec();
+
+  if (!existing) {
+    throw new NotFoundError('Earning not found');
+  }
+
+  throw new ConflictError('Only available earnings can be approved');
 }
 
 export async function cancelWithdrawal(
-  _params: unknown,
-  _body: unknown,
-): Promise<unknown> {
-  throw new Error('Admin finance repository is not implemented yet');
+  params: { earningId: string },
+): Promise<IEarning> {
+  const earningId = parseObjectId(params.earningId, 'earningId');
+
+  const updated = await Earning.findByIdAndUpdate(
+    earningId,
+    {
+      $set: {
+        status: EarningStatus.CANCELED,
+      },
+    },
+    { new: true, runValidators: true },
+  ).exec();
+
+  if (!updated) {
+    throw new NotFoundError('Earning not found');
+  }
+
+  return updated;
 }
