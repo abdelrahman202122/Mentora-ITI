@@ -63,7 +63,7 @@ export interface UpdateTutorPayload {
 
 export interface RawTutorFromBackend {
   _id: string;
-  userId: string | { _id: string; name: string; avatar?: string; isActive?: boolean };
+  userId: string | { _id?: string; id?: string; name: string; avatar?: string; isActive?: boolean };
   headline?: string;
   bio?: string;
   hourlyRate: number;
@@ -90,6 +90,21 @@ export interface RawTutorFromBackend {
   createdAt: string;
   updatedAt: string;
 }
+
+type RawTutorExperience = NonNullable<RawTutorFromBackend["experience"]>[number] & {
+  description?: string;
+  org?: string;
+};
+
+type AdminTutorApiRecord = RawTutorFromBackend & {
+  commissionRate?: string;
+  created_at?: string;
+  degree?: string;
+  hourly_rate?: number | string;
+  id?: string;
+  subjects?: string[];
+  userData?: RawTutorFromBackend["userId"];
+};
 
 /* ─── Shared response handler ─── */
 
@@ -154,7 +169,7 @@ function safeNumber(value: unknown, fallback = 0): number {
   return fallback;
 }
 
-export function mapToTutor(raw: any): Tutor {
+export function mapToTutor(raw: AdminTutorApiRecord): Tutor {
   let userName = "Tutor";
   let userAvatar: string | undefined;
   let userIsActive = true;
@@ -185,7 +200,7 @@ export function mapToTutor(raw: any): Tutor {
       ? raw.subjects
       : [];
 
-  const experience = (raw?.experience ?? []).map((exp: any) => {
+  const experience = (raw?.experience ?? []).map((exp: RawTutorExperience) => {
     const period = exp?.isCurrent
       ? `${exp.startYear ?? ""} - Present`
       : exp?.endYear

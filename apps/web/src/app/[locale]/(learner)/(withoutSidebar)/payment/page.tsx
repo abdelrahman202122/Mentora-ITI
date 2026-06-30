@@ -321,7 +321,7 @@ function PaymentContent() {
               </Button>
 
               <p className="text-xs text-center text-gray-400">
-                By confirming, you agree to Mentora's{" "}
+                By confirming, you agree to Mentora&apos;s{" "}
                 <Link href="#" className="underline">Terms of Service</Link>
                 {" "}and{" "}
                 <Link href="#" className="underline">Refund Policy</Link>.

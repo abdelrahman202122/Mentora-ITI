@@ -22,6 +22,7 @@ export function SuspendUserModal({
   // Reset the reason input whenever a new user is opened
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReason("");
     }
   }, [user]);
