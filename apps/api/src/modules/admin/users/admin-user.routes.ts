@@ -23,6 +23,7 @@ router.use(roleMiddleware(UserRole.ADMIN));
 /* IMPORTANT: /export must come BEFORE /:id, otherwise Express
    will treat "export" as a user ID */
 
+router.get('/:id/audit-logs', AdminUserController.getUserAuditLogs);
 router.get('/', AdminUserController.listUsers);
 router.get('/export', AdminUserController.exportUsers);
 router.get('/:id', AdminUserController.getUserDetail);

@@ -37,3 +37,40 @@ export interface AdminUserListMeta {
   totalItems: number;
   totalPages: number;
 }
+
+
+
+
+
+import type { Types } from 'mongoose';
+import { ReviewModel } from '../../reviews/review.model.js'; // adjust path
+
+/* ─── Types ─── */
+
+/** Shape of a Review document AFTER populate('learnerId', 'name') */
+export interface PopulatedReview {
+  _id: Types.ObjectId;
+  learnerId: { _id: Types.ObjectId; name: string } | null;
+  tutorId: Types.ObjectId;
+  rating: number;
+  comment?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Shape returned to the service layer */
+export interface UserReviewDto {
+  reviewer: string;
+  rating: number;
+  text: string;
+  relativeTime: string;
+}
+
+
+export interface AuditLogDto {
+  id: string;
+  action: string;
+  performedBy: string;
+  details: string | null;
+  timestamp: string;
+}
