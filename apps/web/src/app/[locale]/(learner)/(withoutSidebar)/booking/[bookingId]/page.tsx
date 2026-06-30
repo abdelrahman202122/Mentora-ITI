@@ -1,3 +1,4 @@
+
 "use client"
 
 import { initiateCheckout } from "@/services/payment/paymentService"
@@ -110,20 +111,26 @@ export default function BookingDetailsPage() {
       setCanceling(false)
     }
   }
+async function handlePayNow() {
+  if (!booking) return
+  setIsPaying(true)
+  setPayError(null)
+  try {
+    const { checkoutUrl } = await initiateCheckout(booking._id)
 
-  async function handlePayNow() {
-    if (!booking) return
-    setIsPaying(true)
-    setPayError(null)
-    try {
-      const { checkoutUrl } = await initiateCheckout(booking._id)
-      window.location.href = checkoutUrl
-    } catch (err) {
-      setPayError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+    // ✅ guard: only redirect when checkoutUrl is a non-empty, usable string
+    if (!checkoutUrl || typeof checkoutUrl !== "string" || !checkoutUrl.startsWith("http")) {
+      setPayError("Payment could not be initiated. Please try again or contact support.")
       setIsPaying(false)
+      return
     }
-  }
 
+    window.location.href = checkoutUrl
+  } catch (err) {
+    setPayError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+    setIsPaying(false)
+  }
+}
   return (
     <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
       <div className="max-w-2xl mx-auto">
@@ -236,6 +243,7 @@ export default function BookingDetailsPage() {
                     )}
                   </Button>
                 )}
+
                 {(booking.bookingStatus === "pending" || booking.bookingStatus === "confirmed") && (
                   <Button
                     variant="outline"

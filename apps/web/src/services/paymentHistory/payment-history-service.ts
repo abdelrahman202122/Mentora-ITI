@@ -6,7 +6,7 @@ export type Transaction = {
   amount: number
   currency: string
   duration: number
-  status: "Completed" | "Pending"
+  status: "Completed" | "Failed" | "Refunded" | "Pending"
 }
 
 export function saveTransaction(tx: Transaction) {
