@@ -95,9 +95,9 @@ export default function SubjectStep({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {filteredCategories.map((cat) => (
+        {filteredCategories.map((cat, index) => (
           <SelectorCard
-            key={cat.value}
+            key={`${cat.value}-${index}`}
             isSelected={selected === cat.value}
             value={cat.value}
             onSelect={onSelect}

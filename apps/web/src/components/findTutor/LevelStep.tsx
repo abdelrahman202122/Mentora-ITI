@@ -88,7 +88,7 @@ export default function LevelStep({
           const isSelected = selected === lvl.value;
           return (
             <motion.div
-              key={lvl.value}
+              key={`${lvl.value}-${index}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}

@@ -1,5 +1,9 @@
 import api from "@/lib/axios"
 import { mockTutor } from "@/mocks/mock-data"
+import {
+  searchTutors,
+  type TutorSearchItem,
+} from "@/services/tutorsLearner/tutor-search"
 import type { ApiSuccess } from "@/types/apis/api-success"
 import type { TutorProfileData } from "@/types/tutor/tutor-profile"
 
@@ -45,23 +49,46 @@ function toTutorSummary(
   }
 }
 
+function toTutorSummaryFromSearch(tutor: TutorSearchItem): TutorSummary {
+  return {
+    id: tutor.userId,
+    name: tutor.name || "Tutor",
+    title: tutor.profile.headline,
+    subjects: tutor.subjects.map((subject) => subject.title),
+    rating: tutor.profile.rating ?? 0,
+    bio: tutor.profile.bio,
+    hourlyRate: tutor.profile.hourlyRate,
+    currency: "EGP",
+    availability: tutor.profile.isAvailable ? ["Available"] : [],
+    totalReviews: tutor.profile.totalReviews ?? 0,
+    totalStudents: 0,
+    isAvailable: tutor.profile.isAvailable ?? false,
+  }
+}
+
 export async function getTutors(): Promise<TutorSummary[]> {
-  return [
-    {
-      id: mockTutor._id,
-      name: mockTutor.user.firstName + " " + mockTutor.user.lastName,
-      title: mockTutor.headline,
-      subjects: mockTutor.subjects.map((subject) => subject.nameEn),
-      rating: mockTutor.averageRating,
-      bio: mockTutor.bio,
-      hourlyRate: mockTutor.hourlyRate,
-      currency: mockTutor.currency,
-      availability: ["Monday", "Wednesday", "Friday"],
-      totalReviews: mockTutor.totalReviews,
-      totalStudents: 120,
-      isAvailable: mockTutor.isAvailable,
-    },
-  ]
+  try {
+    const result = await searchTutors({ limit: 50, sortBy: "rating" })
+    return result.tutors.map(toTutorSummaryFromSearch)
+  } catch (error) {
+    console.error("Failed to fetch tutors; using mock fallback", { error })
+    return [
+      {
+        id: mockTutor.user._id,
+        name: mockTutor.user.firstName + " " + mockTutor.user.lastName,
+        title: mockTutor.headline,
+        subjects: mockTutor.subjects.map((subject) => subject.nameEn),
+        rating: mockTutor.averageRating,
+        bio: mockTutor.bio,
+        hourlyRate: mockTutor.hourlyRate,
+        currency: mockTutor.currency,
+        availability: ["Monday", "Wednesday", "Friday"],
+        totalReviews: mockTutor.totalReviews,
+        totalStudents: 120,
+        isAvailable: mockTutor.isAvailable,
+      },
+    ]
+  }
 }
 
 export async function getTutorById(id: string): Promise<TutorSummary | null> {
@@ -72,11 +99,27 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
 
     return toTutorSummary(response.data.data, id)
   } catch (error) {
-    console.error("Failed to fetch tutor profile; using mock fallback", {
+    console.error("Failed to fetch tutor profile by user id", {
       error,
       tutorId: id,
     })
-    // Keep the existing mock fallback for frontend-only tutor-match pages.
+  }
+
+  try {
+    const result = await searchTutors({ limit: 100, sortBy: "rating" })
+    const matchedTutor = result.tutors.find(
+      (tutor) =>
+        tutor.userId === id || tutor.profile.id === id || tutor._id === id
+    )
+
+    if (matchedTutor) {
+      return toTutorSummaryFromSearch(matchedTutor)
+    }
+  } catch (error) {
+    console.error("Failed to resolve tutor profile from tutor search", {
+      error,
+      tutorId: id,
+    })
   }
 
   const tutors = await getTutors()

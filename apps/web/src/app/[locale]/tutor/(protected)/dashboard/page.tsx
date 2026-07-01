@@ -1,13 +1,13 @@
-
 'use client'
 
-import { CreditCard, School, Timer, Video } from "lucide-react";
+import { AlertCircle, CheckCircle2, CreditCard, School, Timer, Video } from "lucide-react";
 import StatCard from "@/components/tutor/StatCard";
 import BookingCard from "@/components/tutor/BookingCard";
 import { useMyBookings } from "@/hooks/booking/booking";
 import { useAcceptBooking } from "@/hooks/booking/approveBooking";
 import { useRejectBooking } from "@/hooks/booking/rejectBooking";
 import { useCancelBooking } from "@/hooks/booking/cancelBooking";
+import { useConfirmBookingCode } from "@/hooks/booking/useConfirmBookingCode";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
 import { useTutorStats } from "@/hooks/tutor/useTutorStats";
 import type { BookingStatus } from "@/services/booking-services/getMyBooking";
@@ -40,6 +40,42 @@ function formatCurrency(amount: number | undefined, currency: string = "USD"): s
   }
 }
 
+function formatSessionDateTime(isoString: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(isoString));
+}
+
+function isLivePaidSession(booking: Booking): boolean {
+  const now = Date.now();
+  const startsAt = new Date(booking.startAt).getTime();
+  const endsAt = new Date(booking.endAt).getTime();
+
+  return (
+    booking.bookingStatus === "confirmed" &&
+    booking.paymentStatus === "paid" &&
+    now >= startsAt &&
+    now <= endsAt
+  );
+}
+
+function isUpcomingPaidSession(booking: Booking): boolean {
+  return (
+    booking.bookingStatus === "confirmed" &&
+    booking.paymentStatus === "paid" &&
+    new Date(booking.startAt).getTime() > Date.now()
+  );
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error
+    ? error.message
+    : "Could not verify the session code.";
+}
+
 // ─── filter tabs ─────────────────────────────────────────────────────────────
 // ─── component ───────────────────────────────────────────────────────────────
 
@@ -58,6 +94,8 @@ const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
 
   const [activeFilter, setActiveFilter] = useState<BookingStatus | "all">("all");
   const [currentPage, setCurrentPage]   = useState(1);
+  const [sessionCode, setSessionCode] = useState("");
+  const [sessionSuccess, setSessionSuccess] = useState<string | null>(null);
 
   function handleFilterChange(value: BookingStatus | "all") {
     setActiveFilter(value);
@@ -93,13 +131,154 @@ const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
     isPending: isCanceling,
     variables: cancelingVariables,
   } = useCancelBooking();
+  const confirmBookingCode = useConfirmBookingCode();
 
   const bookings   = data?.bookings ?? [];
   const totalPages = Math.max(data?.pagination?.totalPages ?? 1, 1);
+  const activeSession = bookings.find(isLivePaidSession);
+  const nextPaidSession = bookings
+    .filter(isUpcomingPaidSession)
+    .sort(
+      (a, b) =>
+        new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+    )[0];
 
   const displayName = currentUser?.name;
 
 const t = useTranslations("tutorDashboard");
+  function handleSessionCodeSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSessionSuccess(null);
+
+    if (!activeSession || sessionCode.trim().length === 0) {
+      return;
+    }
+
+    confirmBookingCode.mutate(
+      {
+        bookingId: activeSession._id,
+        code: sessionCode,
+      },
+      {
+        onSuccess: () => {
+          setSessionCode("");
+          setSessionSuccess("Session code verified. Booking marked completed.");
+        },
+      },
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+
+        {/* Header */}
+        <header>
+          <h1 className="text-3xl font-bold">Welcome back, {displayName}</h1>
+        </header>
+
+        {/* Stats */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard
+            icon={CreditCard}
+            label="Total Earnings"
+            value={isStatsLoading ? "…" : formatCurrency(stats?.totalEarnings )}
+          />
+          <StatCard
+            icon={School}
+            label="Total Sessions"
+            value={isStatsLoading ? "…" : String(stats?.totalSessions ?? "faild to load")}
+          />
+          <StatCard
+            icon={Timer}
+            label="Hours Taught"
+            value={isStatsLoading ? "…" : stats?.totalHours != null ? `${stats.totalHours}h` : "failed to load"}          />
+        </section>
+
+        {/* Start Session */}
+        <Card className="border-primary/15 bg-primary text-primary-foreground shadow-sm">
+          <CardHeader className="gap-2">
+            <div className="flex items-center gap-2">
+              <Video className="size-5" />
+              <CardTitle className="text-xl">Start Your Session</CardTitle>
+            </div>
+            <CardDescription className="max-w-2xl text-primary-foreground/80">
+              Ask the learner for the session code shown on their dashboard.
+              Verification is available only for paid bookings during the
+              scheduled session time.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {activeSession ? (
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4">
+                <p className="text-sm font-semibold">
+                  Session - {activeSession.subjectId}
+                </p>
+                <p className="mt-1 text-sm text-primary-foreground/75">
+                  {formatSessionDateTime(activeSession.startAt)} to{" "}
+                  {formatSessionDateTime(activeSession.endAt)}
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4 text-sm text-primary-foreground/85">
+                {nextPaidSession ? (
+                  <>
+                    Your next paid session starts on{" "}
+                    <span className="font-semibold text-primary-foreground">
+                      {formatSessionDateTime(nextPaidSession.startAt)}
+                    </span>
+                    . The verification field will become available during the
+                    session time.
+                  </>
+                ) : (
+                  "No paid session is live right now."
+                )}
+              </div>
+            )}
+
+            <form
+              className="flex flex-col gap-3 sm:flex-row"
+              onSubmit={handleSessionCodeSubmit}
+            >
+              <Input
+                value={sessionCode}
+                onChange={(event) => {
+                  setSessionCode(event.target.value);
+                  setSessionSuccess(null);
+                }}
+                placeholder="Enter learner session code"
+                disabled={!activeSession || confirmBookingCode.isPending}
+                className="h-11 border-white/20 bg-white/10 text-primary-foreground placeholder:text-primary-foreground/55 focus-visible:ring-white/40"
+              />
+              <Button
+                type="submit"
+                disabled={
+                  !activeSession ||
+                  sessionCode.trim().length === 0 ||
+                  confirmBookingCode.isPending
+                }
+                className="h-11 bg-white px-5 font-semibold text-primary hover:bg-white/90"
+              >
+                {confirmBookingCode.isPending ? "Verifying..." : "Verify Code"}
+              </Button>
+            </form>
+
+            {confirmBookingCode.error ? (
+              <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                <AlertCircle className="size-4" />
+                {getErrorMessage(confirmBookingCode.error)}
+              </div>
+            ) : null}
+
+            {sessionSuccess ? (
+              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                <CheckCircle2 className="size-4" />
+                {sessionSuccess}
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
 
 return (
   <div className="min-h-screen bg-background text-foreground">

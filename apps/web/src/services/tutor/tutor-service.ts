@@ -101,7 +101,24 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
 
     return toTutorSummaryFromProfile(response.data.data, id)
   } catch (error) {
-    console.error("Failed to fetch tutor profile; using mock fallback", {
+    console.error("Failed to fetch tutor profile by user id", {
+      error,
+      tutorId: id,
+    })
+  }
+
+  try {
+    const result = await searchTutors({ limit: 100, sortBy: "rating" })
+    const matchedTutor = result.tutors.find(
+      (tutor) =>
+        tutor.userId === id || tutor.profile.id === id || tutor._id === id
+    )
+
+    if (matchedTutor) {
+      return toTutorSummary(matchedTutor)
+    }
+  } catch (error) {
+    console.error("Failed to resolve tutor profile from tutor search", {
       error,
       tutorId: id,
     })

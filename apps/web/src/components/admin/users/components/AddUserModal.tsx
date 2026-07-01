@@ -35,6 +35,7 @@ export function AddUserModal({ open, onClose, onCreate }: AddUserModalProps) {
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({ fullName: "", email: "", role: "", status: "Active" });
     }
   }, [open]);

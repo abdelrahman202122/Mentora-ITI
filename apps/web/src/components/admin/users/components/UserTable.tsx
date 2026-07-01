@@ -40,7 +40,7 @@ export function UserTable({ users, onView, onEdit }: UserTableProps) {
             >
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <Avatar name={u.name} seed={u.id} avatarUrl={u.avatarUrl} size="sm" />
+                  <Avatar name={u.name} seed={u.id} avatarUrl={u.avatarUrl ?? undefined} size="sm" />
                   <span className="font-medium text-gray-900">{u.name}</span>
                 </div>
               </td>

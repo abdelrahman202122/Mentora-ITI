@@ -35,6 +35,7 @@ export function EditUserDrawer({
 
   useEffect(() => {
     if (!user) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({
       name: user.name,
       roleLabel: user.roleLabel ?? "",
@@ -84,7 +85,7 @@ export function EditUserDrawer({
               <Avatar
                 name={user.name}
                 seed={user.id}
-                avatarUrl={user.avatarUrl}
+                avatarUrl={user.avatarUrl ?? undefined}
                 size="lg"
               />
               <span className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-gray-700">
