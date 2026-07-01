@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,6 +11,7 @@ import {
   Loader2,
   AlertCircle,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Booking } from '@/types/bookingProcess/booking';
 import { getMyBookings } from '@/services/booking-services/getMyBookingService';
@@ -20,7 +20,11 @@ import { getTutorName } from '@/services/booking-services/getTutorNameService';
 import { initiateCheckout } from '@/services/payment/paymentService';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 
-function formatDisplayTime(iso: string, duration: number) {
+function formatDisplayTime(
+  iso: string,
+  duration: number,
+  t: ReturnType<typeof useTranslations<'Dashboard'>>,
+) {
   const dateObj = new Date(iso);
   const timeString = dateObj.toLocaleTimeString('en-US', {
     hour: '2-digit',
@@ -28,7 +32,7 @@ function formatDisplayTime(iso: string, duration: number) {
   });
 
   const hours = duration / 60;
-  const durationText = hours % 1 === 0 ? `${hours}h` : `${hours}h`;
+  const durationText = t('time.sessionSuffix', { duration: hours });
 
   const today = new Date();
   const tomorrow = new Date(today);
@@ -36,10 +40,10 @@ function formatDisplayTime(iso: string, duration: number) {
 
   const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
   const datePrefix = isTomorrow
-    ? 'Tomorrow'
+    ? t('time.tomorrow')
     : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-  return `${datePrefix}, ${timeString} (${durationText} session)`;
+  return `${datePrefix}, ${timeString} (${durationText})`;
 }
 
 function isSessionLive(booking: Booking, now: number): boolean {
@@ -47,26 +51,33 @@ function isSessionLive(booking: Booking, now: number): boolean {
   if (booking.paymentStatus !== 'paid') return false;
   const start = new Date(booking.startAt).getTime();
   const end = new Date(booking.endAt).getTime();
-  const fiveMinutesMs = 5 * 60 * 1000;
-  return now >= start - fiveMinutesMs && now <= end;
+  const threeHoursMs = 3 * 60 * 60 * 1000;
+  return now >= start - threeHoursMs && now <= end;
 }
 
-function BookingStatusBadge({ status }: { status: string }) {
-  const config: Record<string, { label: string; dot: string; className: string }> = {
-    pending: { label: 'Pending', dot: 'bg-amber-400', className: 'bg-amber-50 text-amber-700 border-amber-200' },
-    confirmed: { label: 'Confirmed', dot: 'bg-green-500', className: 'bg-green-50 text-green-700 border-green-200' },
-    completed: { label: 'Completed', dot: 'bg-blue-500', className: 'bg-blue-50 text-blue-700 border-blue-200' },
-    canceled: { label: 'Canceled', dot: 'bg-red-400', className: 'bg-red-50 text-red-600 border-red-200' },
-    rejected: { label: 'Rejected', dot: 'bg-orange-400', className: 'bg-orange-50 text-orange-700 border-orange-200' },
-    expired: { label: 'Expired', dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' },
+function BookingStatusBadge({
+  status,
+  t,
+}: {
+  status: string;
+  t: ReturnType<typeof useTranslations<'Dashboard'>>;
+}) {
+  const config: Record<string, { dot: string; className: string }> = {
+    pending: { dot: 'bg-amber-400', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+    confirmed: { dot: 'bg-green-500', className: 'bg-green-50 text-green-700 border-green-200' },
+    completed: { dot: 'bg-blue-500', className: 'bg-blue-50 text-blue-700 border-blue-200' },
+    canceled: { dot: 'bg-red-400', className: 'bg-red-50 text-red-600 border-red-200' },
+    rejected: { dot: 'bg-orange-400', className: 'bg-orange-50 text-orange-700 border-orange-200' },
+    expired: { dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' },
   };
 
-  const current = config[status] ?? { label: status, dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' };
+  const current = config[status] ?? { dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' };
+  const label = t.has(`status.${status}`) ? t(`status.${status}` as any) : status;
 
   return (
     <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full border text-[11px] font-semibold w-fit ${current.className}`}>
       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${current.dot} ${status === 'pending' ? 'animate-pulse' : ''}`} />
-      {current.label}
+      {label}
     </span>
   );
 }
@@ -76,35 +87,29 @@ export default function LearnerDashboardPage() {
   const params = useParams();
   const locale = (params.locale as string) ?? 'en';
   const { data: currentUser } = useCurrentUser();
+  const t = useTranslations('Dashboard');
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [payError, setPayError] = useState<string | null>(null);
-  // ✅ tracks which booking is currently being checked out to prevent duplicate requests
   const [pendingCheckoutId, setPendingCheckoutId] = useState<string | null>(null);
 
   const [subjectTitles, setSubjectTitles] = useState<Record<string, string>>({});
   const [tutorNames, setTutorNames] = useState<Record<string, string>>({});
 
-  // ✅ which status tab is currently selected ('all' shows every booking)
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'pending' | 'confirmed' | 'completed' | 'canceled' | 'paid'
-  >('all');
+ const [statusFilter, setStatusFilter] = useState
+  <'all' | 'pending' | 'confirmed' | 'completed' | 'canceled' | 'paid'>('all');
 
-  // ✅ ticking clock so the "live now" banner appears/disappears without a manual refresh
   const [now, setNow] = useState(() => Date.now());
-
-  // ✅ feedback state for the "Copy" confirmation code button
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 30000); // re-check every 30s
+    const interval = setInterval(() => setNow(Date.now()), 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ reusable fetcher so we can refresh bookings after the user returns from Paymob
   function refetchBookings() {
     return getMyBookings()
       .then(setBookings)
@@ -115,9 +120,6 @@ export default function LearnerDashboardPage() {
     refetchBookings().finally(() => setLoading(false));
   }, []);
 
-  // ✅ when the user comes back to this tab (e.g. after paying on Paymob's hosted
-  // checkout page and returning), refetch so paymentStatus updates without a
-  // manual page refresh
   useEffect(() => {
     function handleVisibilityOrFocus() {
       if (document.visibilityState === 'visible') {
@@ -189,7 +191,6 @@ export default function LearnerDashboardPage() {
   }
 
   async function handlePayNow(bookingId: string) {
-    // ✅ prevent duplicate requests for the same booking
     if (pendingCheckoutId) return;
 
     setPayError(null);
@@ -197,11 +198,10 @@ export default function LearnerDashboardPage() {
 
     try {
       const { checkoutUrl } = await initiateCheckout(bookingId);
-      // Paymob's checkout page is external, so a full redirect is required
       window.location.href = checkoutUrl;
     } catch (err: any) {
       console.error(err);
-      setPayError(err?.message || 'Failed to start checkout. Please try again.');
+      setPayError(err?.message || t('errors.payFailed'));
       setPendingCheckoutId(null);
     }
   }
@@ -209,8 +209,6 @@ export default function LearnerDashboardPage() {
   const upcomingBookings = bookings.filter(
     (b) => b.bookingStatus === 'pending' || b.bookingStatus === 'confirmed',
   );
-  // real values only — 0 completed sessions or 0 hours learned are legitimate
-  // states for a new learner, not bugs to be masked with placeholder numbers
   const totalCompleted = bookings.filter(
     (b) => b.bookingStatus === 'completed',
   ).length;
@@ -219,14 +217,8 @@ export default function LearnerDashboardPage() {
     .reduce((acc, curr) => acc + curr.durationMinutes / 60, 0);
   const upcomingCount = upcomingBookings.length;
 
-  // only a session that's actually happening right now qualifies for the
-  // "Join Now" banner — not merely the next confirmed booking on the calendar
   const currentActiveSession = upcomingBookings.find((b) => isSessionLive(b, now));
 
-  // ✅ apply the selected status tab on top of all bookings.
-  // 'paid' isn't a bookingStatus value (it lives on paymentStatus instead),
-  // so that one tab filters on paymentStatus while every other tab keeps
-  // filtering on bookingStatus as before.
   const filteredBookings =
     statusFilter === 'all'
       ? bookings
@@ -235,14 +227,12 @@ export default function LearnerDashboardPage() {
       : bookings.filter((b) => b.bookingStatus === statusFilter);
 
   const statusTabs: { key: typeof statusFilter; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
-    { key: 'confirmed', label: 'Confirmed' },
-    { key: 'completed', label: 'Completed' },
-    { key: 'canceled', label: 'Canceled' },
-    {key:'paid',label:'paid'}
-    
-   
+    { key: 'all', label: t('tabs.all') },
+    { key: 'pending', label: t('tabs.pending') },
+    { key: 'confirmed', label: t('tabs.confirmed') },
+    { key: 'completed', label: t('tabs.completed') },
+    { key: 'canceled', label: t('tabs.canceled') },
+    { key: 'paid', label: t('tabs.paid') },
   ];
 
   return (
@@ -252,10 +242,10 @@ export default function LearnerDashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[#11142D]">
-            Welcome back, {currentUser?.name ?? ''}
+            {t('welcomeBack', { name: currentUser?.name ?? '' })}
           </h1>
           <p className="text-sm text-[#68718B] mt-1">
-            You&apos;re making great progress. Ready for your next challenge?
+            {t('subtitle')}
           </p>
         </div>
 
@@ -264,7 +254,7 @@ export default function LearnerDashboardPage() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
-                Sessions Completed
+                {t('stats.sessionsCompleted')}
               </p>
               <p className="text-3xl font-black text-[#5051F9]">
                 {totalCompleted}
@@ -278,7 +268,7 @@ export default function LearnerDashboardPage() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
-                Hours Learned
+                {t('stats.hoursLearned')}
               </p>
               <p className="text-3xl font-black text-[#5051F9]">
                 {totalHours}h
@@ -292,7 +282,7 @@ export default function LearnerDashboardPage() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
-                Upcoming Sessions
+                {t('stats.upcomingSessions')}
               </p>
               <p className="text-3xl font-black text-[#5051F9]">
                 {upcomingCount}
@@ -306,25 +296,25 @@ export default function LearnerDashboardPage() {
 
         {/* Live Session Banner */}
         {currentActiveSession && (
-          <div className="bg-[#5051F9] text-white rounded-2xl p-6 shadow-xl shadow-indigo-100 relative overflow-hidden">
+          <div className="bg-[#5051F9] text-white rounded-2xl p-6 shadow-xl shadow-indigo-100 relative overflow-hidden ">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 relative">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-white/90">
                   <Video size={18} />
-                  <span>Your session starts soon</span>
+                  <span>{t('liveSession.startsSoon')}</span>
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">
                     {getDisplaySubject(currentActiveSession.subjectId)}
                   </h3>
                   <p className="text-sm text-white/80">
-                    with {getDisplayTutor(currentActiveSession.tutorId)}
+                    {t('liveSession.with', { tutorName: getDisplayTutor(currentActiveSession.tutorId) })}
                   </p>
                 </div>
                 {currentActiveSession.confirmationCode && (
                   <div className="inline-flex items-center gap-2 bg-black/20 rounded-lg px-3 py-1.5 text-xs font-mono tracking-wide">
                     <span>
-                      CONFIRMATION CODE:{' '}
+                      {t('liveSession.confirmationCode')}{' '}
                       <span className="font-bold text-lg ml-1">
                         {currentActiveSession.confirmationCode}
                       </span>
@@ -336,26 +326,15 @@ export default function LearnerDashboardPage() {
                       className="ml-2 bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors shrink-0"
                     >
                       {copyStatus === 'copied'
-                        ? 'Copied!'
+                        ? t('liveSession.copied')
                         : copyStatus === 'error'
-                        ? 'Failed'
-                        : 'Copy'}
+                        ? t('liveSession.failed')
+                        : t('liveSession.copy')}
                     </button>
                   </div>
                 )}
               </div>
-              <div>
-                <Button
-                  onClick={() =>
-                    router.push(
-                      `/${locale}/booking/${currentActiveSession._id}`,
-                    )
-                  }
-                  className="bg-white text-[#5051F9] hover:bg-white/90 font-bold px-8 py-6 rounded-xl shadow-md text-sm transition-all w-full md:w-auto"
-                >
-                  Join Now
-                </Button>
-              </div>
+             
             </div>
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           </div>
@@ -372,7 +351,7 @@ export default function LearnerDashboardPage() {
         {/* Bookings List */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-[#11142D]">
-            Upcoming Bookings
+            {t('bookingsList.title')}
           </h2>
 
           {/* Status filter tabs */}
@@ -395,7 +374,7 @@ export default function LearnerDashboardPage() {
           {loading && (
             <div className="flex items-center gap-2 text-gray-400 text-sm py-8 justify-center">
               <Loader2 size={20} className="animate-spin text-[#5051F9]" />
-              <span>Loading bookings...</span>
+              <span>{t('bookingsList.loading')}</span>
             </div>
           )}
 
@@ -408,7 +387,7 @@ export default function LearnerDashboardPage() {
 
           {!loading && !error && filteredBookings.length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
-              No bookings found.
+              {t('bookingsList.empty')}
             </div>
           )}
 
@@ -417,7 +396,6 @@ export default function LearnerDashboardPage() {
               {filteredBookings.map((booking) => {
                 const showPayNow = booking.paymentStatus === 'unpaid' && booking.bookingStatus === 'confirmed';
                 const isPaid = booking.paymentStatus === 'paid';
-                // ✅ button is disabled while this specific booking is being checked out
                 const isCheckingOut = pendingCheckoutId === booking._id;
 
                 return (
@@ -436,10 +414,10 @@ export default function LearnerDashboardPage() {
                         <h4 className="font-bold text-[#11142D] text-[15px]">
                           {getDisplaySubject(booking.subjectId)}
                         </h4>
-                        <p className="text-xs text-[#68718B]">with {getDisplayTutor(booking.tutorId)}</p>
-                        <BookingStatusBadge status={booking.bookingStatus} />
-
-                    
+                        <p className="text-xs text-[#68718B]">
+                          {t('bookingsList.with', { tutorName: getDisplayTutor(booking.tutorId) })}
+                        </p>
+                        <BookingStatusBadge status={booking.bookingStatus} t={t} />
                       </div>
                     </div>
 
@@ -450,6 +428,7 @@ export default function LearnerDashboardPage() {
                           {formatDisplayTime(
                             booking.startAt,
                             booking.durationMinutes,
+                            t,
                           )}
                         </span>
                       </div>
@@ -457,7 +436,7 @@ export default function LearnerDashboardPage() {
                       {isPaid && (
                         <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-2 rounded-xl shrink-0">
                           <CheckCircle2 size={14} className="text-green-600" />
-                          Paid
+                          {t('bookingsList.paid')}
                         </span>
                       )}
 
@@ -472,10 +451,10 @@ export default function LearnerDashboardPage() {
                         >
                           {isCheckingOut ? (
                             <>
-                              <Loader2 size={12} className="animate-spin mr-1" /> Processing...
+                              <Loader2 size={12} className="animate-spin mr-1" /> {t('bookingsList.processing')}
                             </>
                           ) : (
-                            'Pay Now'
+                            t('bookingsList.payNow')
                           )}
                         </Button>
                       )}

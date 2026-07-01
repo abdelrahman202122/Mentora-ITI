@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -7,8 +8,10 @@ import { Star, MessageSquare, ArrowLeft, Clock, Users, Calendar, Loader2 } from 
 import { useCreateChat } from "@/hooks/chat/use-chat"
 import { getTutorById, type TutorSummary } from "@/services/tutorsLearner/tutor"
 import { getLocalePath } from "@/utils/i18n/locale-path"
+import { useTranslations } from "next-intl"
 
 export default function TutorProfilePage() {
+  const t = useTranslations("TutorProfile")
   const params = useParams()
   const router = useRouter()
   const locale = params.locale as string
@@ -30,24 +33,22 @@ export default function TutorProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-400">Loading...</p>
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <p className="text-gray-400">{t("loading")}</p>
       </div>
     )
   }
 
   if (!tutor) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-400">Tutor not found.</p>
+      <div className="flex items-center justify-center h-full min-h-[300px]">
+        <p className="text-gray-400">{t("tutorNotFound")}</p>
       </div>
     )
   }
 
   async function handleStartChat() {
-    if (!tutor) {
-      return
-    }
+    if (!tutor) return
 
     try {
       const chat = await createChat.mutateAsync({ tutorId: tutor.id })
@@ -63,13 +64,13 @@ export default function TutorProfilePage() {
   return (
     <div className="max-w-3xl mx-auto">
 
-      {/* Back */}
+      {/* Back to Tutors Link */}
       <Link
         href={`/${locale}/find-tutor`}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4"
+        className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4 inline-flex"
       >
-        <ArrowLeft size={16} />
-        Back to Tutors
+        <ArrowLeft size={16} className="rtl:rotate-180" />
+        {t("backToTutors")}
       </Link>
 
       {/* Header Card */}
@@ -90,17 +91,19 @@ export default function TutorProfilePage() {
                 {tutor.rating}
               </span>
               <span className="text-xs text-indigo-500">
-                ({tutor.totalReviews} reviews)
+                {t("reviews", { count: tutor.totalReviews })}
               </span>
             </div>
             <div className="flex flex-wrap gap-3 mt-2">
               <div className="flex items-center gap-1 text-gray-500">
                 <Users size={12} />
-                <span className="text-xs">{tutor.totalStudents} students</span>
+                <span className="text-xs">{t("students", { count: tutor.totalStudents })}</span>
               </div>
               <div className="flex items-center gap-1 text-gray-500">
                 <Clock size={12} />
-                <span className="text-xs">{tutor.hourlyRate} {tutor.currency}/hr</span>
+                <span className="text-xs">
+                  {t("hourlyRate", { rate: tutor.hourlyRate, currency: tutor.currency })}
+                </span>
               </div>
             </div>
           </div>
@@ -118,7 +121,7 @@ export default function TutorProfilePage() {
           ) : (
             <MessageSquare size={15} />
           )}
-          {createChat.isPending ? "Starting chat..." : `Chat with ${tutor.name}`}
+          {createChat.isPending ? t("startingChat") : t("chatWith", { name: tutor.name })}
         </button>
 
         {createChat.error ? (
@@ -129,15 +132,15 @@ export default function TutorProfilePage() {
 
         {/* About Me */}
         <div className="mt-4 pt-4 border-t border-gray-100">
-          <h2 className="text-sm font-bold text-gray-800 mb-2">About Me</h2>
+          <h2 className="text-sm font-bold text-gray-800 mb-2">{t("aboutMe")}</h2>
           <p className="text-sm text-gray-500 leading-relaxed">{tutor.bio}</p>
         </div>
 
         {/* Availability */}
         <div className="mt-4 pt-4 border-t border-gray-100">
-          <h2 className="text-sm font-bold text-gray-800 mb-2">
-            <Calendar size={13} className="inline mr-1" />
-            Availability
+          <h2 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1">
+            <Calendar size={13} />
+            {t("availability")}
           </h2>
           <div className="flex flex-wrap gap-2">
             {tutor.availability.map((day: string) => (
@@ -156,7 +159,7 @@ export default function TutorProfilePage() {
       {/* Courses Offered */}
       <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm mb-4">
         <h2 className="text-base font-bold text-gray-800 mb-4">
-          Courses Offered
+          {t("coursesOffered")}
         </h2>
         <div className="flex flex-col gap-4">
           {tutor.subjects.map((subject: string) => (
@@ -170,10 +173,10 @@ export default function TutorProfilePage() {
                   {subject}
                 </p>
                 <p className="text-xs text-indigo-600 font-medium mb-1">
-                  {tutor.hourlyRate} {tutor.currency} / hour session
+                  {t("hourSession", { rate: tutor.hourlyRate, currency: tutor.currency })}
                 </p>
                 <p className="text-xs text-gray-400 mb-2">
-                  A deep dive into {subject.toLowerCase()} concepts for all levels.
+                  {t("deepDive", { subject: subject.toLowerCase() })}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {tutor.availability.slice(0, 3).map((day: string) => (
@@ -191,22 +194,22 @@ export default function TutorProfilePage() {
         </div>
       </div>
 
- 
-<div className="fixed bottom-6 right-6 z-50 animate-fade-in">
-  <Link
-    href={
-      `/${locale}/booking` +
-      `?tutorId=${tutor.id}` +
-      `&tutorName=${encodeURIComponent(tutor.name)}` +
-      `&hourlyRate=${tutor.hourlyRate}` +
-      `&currency=${encodeURIComponent(tutor.currency)}` +
-      `&subject=${encodeURIComponent(tutor.subjects[0] || "General Session")}`
-    }
-    className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
-  >
-    <span>Book a Session — {tutor.hourlyRate} {tutor.currency}/hr</span>
-  </Link>
-</div>
+      {/* Booking Floating Action Button */}
+      <div className="fixed bottom-6 ltr:right-6 rtl:left-6 z-50 animate-fade-in">
+        <Link
+          href={
+            `/${locale}/booking` +
+            `?tutorId=${tutor.id}` +
+            `&tutorName=${encodeURIComponent(tutor.name)}` +
+            `&hourlyRate=${tutor.hourlyRate}` +
+            `&currency=${encodeURIComponent(tutor.currency)}` +
+            `&subject=${encodeURIComponent(tutor.subjects[0] || "General Session")}`
+          }
+          className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
+        >
+          <span>{t("bookSession", { rate: tutor.hourlyRate, currency: tutor.currency })}</span>
+        </Link>
+      </div>
     </div>
   )
 }

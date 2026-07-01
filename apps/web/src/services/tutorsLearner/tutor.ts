@@ -20,6 +20,7 @@ export type TutorSummary = {
   totalReviews: number
   totalStudents: number
   isAvailable: boolean
+
 }
 
 type TutorProfileWithUser = TutorProfileData & {
