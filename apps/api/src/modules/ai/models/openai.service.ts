@@ -9,8 +9,11 @@ export type OpenAIMessage = {
 export const generateResponse = async (
   systemPrompt: string,
   messages: OpenAIMessage[],
-  abortSignal: AbortSignal,
+  timeout_ms: number,
 ) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeout_ms);
+
   const response = await openai.responses.create(
     {
       model: env.OPENAI_MODEL,
@@ -23,9 +26,12 @@ export const generateResponse = async (
       ],
     },
     {
-      signal: abortSignal,
+      signal: controller.signal,
     },
   );
 
+  // console.log(response);
+
+  clearTimeout(timeout);
   return response;
 };

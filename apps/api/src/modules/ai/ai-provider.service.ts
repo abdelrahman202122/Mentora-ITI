@@ -1,8 +1,8 @@
-import { APIError } from 'openai';
+import { APIError as OpenAIAPIError } from 'openai';
 import { env } from '../../config/env.js';
 import { logger } from '../../config/logger.js';
-// import openai from '../../config/openai.config.js';
 import * as openaiService from './models/openai.service.js';
+import * as geminiService from './models/gemini.service.js';
 import { createAILog } from './ai-log.service.js';
 import type { OpenAIMessage } from './models/openai.service.js';
 
@@ -13,24 +13,6 @@ type GenerateAIReplyInput = {
   locale?: string;
   goal?: string | null;
 };
-
-// type OpenAIResponse = {
-//   output_text?: string;
-//   output?: Array<{
-//     content?: Array<{
-//       text?: string;
-//       type?: string;
-//     }>;
-//   }>;
-// };
-
-// type OpenAIErrorResponse = {
-//   error?: {
-//     code?: string | null;
-//     type?: string | null;
-//     message?: string;
-//   };
-// };
 
 const fallbackReply =
   'I can help you describe your learning goals and find suitable tutors. Tell me the subject, level, preferred language, and budget you have in mind.';
@@ -53,26 +35,11 @@ function buildSystemPrompt(input: GenerateAIReplyInput) {
   ].join(' ');
 }
 
-// function extractText(response: OpenAIResponse) {
-//   if (response.output_text?.trim()) {
-//     return response.output_text.trim();
-//   }
-
-//   const text = response.output
-//     ?.flatMap((item) => item.content ?? [])
-//     .map((content) => content.text)
-//     .filter((content): content is string => Boolean(content?.trim()))
-//     .join('\n')
-//     .trim();
-
-//   return text || fallbackReply;
-// }
-
 export async function generateAIReply(input: GenerateAIReplyInput) {
-  const startedAt = Date.now();
+  const startedAt: number = Date.now();
 
   // missing api keys, return fallback
-  if (!env.OPENAI_API_KEY) {
+  if (!env.OPENAI_API_KEY && !env.GEMINI_API_KEY) {
     await createAILog({
       conversationId: input.conversationId,
       learnerId: input.learnerId,
@@ -94,43 +61,44 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
 
   // call llm api
   const TIMEOUT_MS = 10_000;
+  const systemPrompt = buildSystemPrompt(input);
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let output_text: string;
+  let provider: string;
+  let model: string;
 
+  // try calling OpenAI API
   try {
-    const systemPrompt = buildSystemPrompt(input);
-
     const response = await openaiService.generateResponse(
       systemPrompt,
       input.messages,
-      controller.signal,
+      TIMEOUT_MS,
     );
-
-    clearTimeout(timeout);
+    output_text = response.output_text;
+    provider = 'openai';
+    model = response.model;
 
     await createAILog({
       conversationId: input.conversationId,
       learnerId: input.learnerId,
-      provider: 'openai',
-      model: env.OPENAI_MODEL,
+      provider: provider,
+      model: model,
       status: 'success',
       latencyMs: Date.now() - startedAt,
       promptMessagesCount: input.messages.length,
     });
 
     return {
-      content: response.output_text,
-      provider: 'openai',
-      model: env.OPENAI_MODEL,
+      content: output_text,
+      provider: provider,
+      model: model,
     };
   } catch (error) {
-    clearTimeout(timeout);
-    logger.error('Failed to generate AI reply', {
+    // log openapi failure
+    logger.warn('OpenAI request failed, trying Gemini..', {
       error: error instanceof Error ? error.message : error,
     });
-
-    if (error instanceof APIError) {
+    if (error instanceof OpenAIAPIError) {
       await createAILog({
         conversationId: input.conversationId,
         learnerId: input.learnerId,
@@ -145,22 +113,70 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
       });
     }
 
-    await createAILog({
-      conversationId: input.conversationId,
-      learnerId: input.learnerId,
-      provider: 'fallback',
-      model: null,
-      status: 'fallback',
-      latencyMs: Date.now() - startedAt,
-      promptMessagesCount: input.messages.length,
-      errorCode: 'provider_failed',
-      errorType: 'exception',
-    });
+    // fallback to Gemini API
+    try {
+      const interaction = await geminiService.generateResponse(
+        systemPrompt,
+        geminiService.formatGeminiMessages(input.messages),
+        TIMEOUT_MS,
+      );
+      output_text = interaction.output_text ?? '';
+      provider = 'gemini';
+      model = interaction.model ?? env.GEMINI_MODEL;
 
-    return {
-      content: fallbackReply,
-      provider: 'fallback',
-      model: null,
-    };
+      await createAILog({
+        conversationId: input.conversationId,
+        learnerId: input.learnerId,
+        provider: provider,
+        model: model,
+        status: 'success',
+        latencyMs: Date.now() - startedAt,
+        promptMessagesCount: input.messages.length,
+      });
+
+      return {
+        content: output_text,
+        provider: provider,
+        model: model,
+      };
+    } catch (error) {
+      // if they both fail, fallback to generic message
+      logger.error('Failed to generate AI reply', {
+        error: error instanceof Error ? error.message : error,
+      });
+
+      if (geminiService.isGeminiError(error)) {
+        await createAILog({
+          conversationId: input.conversationId,
+          learnerId: input.learnerId,
+          provider: 'gemini',
+          model: env.GEMINI_MODEL,
+          status: 'failed',
+          latencyMs: Date.now() - startedAt,
+          promptMessagesCount: input.messages.length,
+          errorStatus: error.rawResponse?.status ?? null,
+          errorCode: error.rawResponse?.statusText ?? null,
+          errorType: error.rawResponse?.type ?? null,
+        });
+      }
+
+      await createAILog({
+        conversationId: input.conversationId,
+        learnerId: input.learnerId,
+        provider: 'fallback',
+        model: null,
+        status: 'fallback',
+        latencyMs: Date.now() - startedAt,
+        promptMessagesCount: input.messages.length,
+        errorCode: 'provider_failed',
+        errorType: 'exception',
+      });
+
+      return {
+        content: fallbackReply,
+        provider: 'fallback',
+        model: null,
+      };
+    }
   }
 }
