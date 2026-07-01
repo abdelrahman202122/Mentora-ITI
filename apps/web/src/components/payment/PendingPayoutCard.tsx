@@ -36,9 +36,11 @@
 //     </div>
 //   );
 // }
+// 
 "use client";
 
 import { Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface PendingPayoutCardProps {
   amount: string;
@@ -46,6 +48,8 @@ interface PendingPayoutCardProps {
 }
 
 export default function PendingPayoutCard({ amount, count }: PendingPayoutCardProps) {
+  const t = useTranslations("payments.pendingPayout");
+
   return (
     <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
@@ -55,13 +59,13 @@ export default function PendingPayoutCard({ amount, count }: PendingPayoutCardPr
           <Clock className="h-6 w-6" />
         </div>
 
-        <p className="text-sm text-primary-foreground/80">Pending Payout</p>
+        <p className="text-sm text-primary-foreground/80">{t("title")}</p>
 
         <h2 className="mt-2 text-3xl font-bold">{amount}</h2>
 
-        <p className="mt-4 text-sm text-primary-foreground/80">
-          {count} pending {count === 1 ? "session" : "sessions"}
-        </p>
+      <p className="mt-4 text-sm text-primary-foreground/80">
+        {count} {t("sessions")}
+      </p>
       </div>
     </div>
   );

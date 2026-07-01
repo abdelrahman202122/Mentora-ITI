@@ -489,5 +489,177 @@
       "madeAt": "في مختبر ITI",
       "backToTop": "العودة للأعلى"
     }
+  },
+  
+  "tutorDashboard": {
+    "welcomeBack": "أهلاً بعودتك",
+    "stats": {
+      "totalEarnings": "إجمالي الأرباح",
+      "totalSessions": "إجمالي الجلسات",
+      "hoursTaught": "ساعات التدريس",
+      "failedToLoad": "فشل التحميل"
+    },
+    "startSession": {
+      "title": "ابدأ جلستك",
+      "description": "تحقق من الطالب لبدء جلسة التعلّم الخاصة. تأكد من أن الصوت والفيديو يعملان بشكل صحيح.",
+      "inputPlaceholder": "أدخل رمز التحقق الخاص بالطالب",
+      "verifyButton": "تحقق وابدأ الجلسة"
+    },
+    "bookings": {
+      "title": "الحجوزات",
+      "loading": "جاري تحميل الحجوزات…",
+      "error": "فشل تحميل الحجوزات. حاول مرة أخرى.",
+      "empty": "لا توجد حجوزات.",
+      "cancelReason": "تم الإلغاء بواسطة المدرّس من لوحة التحكم.",
+      "previous": "السابق",
+      "next": "التالي"
+    }
+  },
+  "bookingStatus": {
+    "all": "الكل",
+    "pending": "قيد الانتظار",
+    "confirmed": "مؤكد",
+    "completed": "مكتمل",
+    "canceled": "ملغي",
+    "rejected": "مرفوض",
+    "expired": "منتهي الصلاحية"
+  },
+  "bookingCard": {
+    "sessionTitle": "جلسة — {subject}",
+    "today": "اليوم، {time}",
+    "approve": "قبول",
+    "approving": "جاري القبول…",
+    "reject": "رفض",
+    "rejecting": "جاري الرفض…",
+    "cancel": "إلغاء",
+    "canceling": "جاري الإلغاء…"
+  },
+  "bookingStatusLabel": {
+    "expired": "منتهي الصلاحية",
+    "pendingApproval": "قيد الموافقة",
+    "canceled": "ملغي",
+    "rejected": "مرفوض",
+    "completed": "مكتمل",
+    "confirmedPaid": "مؤكد ومدفوع",
+    "confirmedAwaitingPayment": "مؤكد وفي انتظار الدفع",
+    "confirmedPaymentPending": "مؤكد والدفع قيد المعالجة",
+    "confirmedPaymentFailed": "مؤكد وفشل الدفع",
+    "confirmed": "مؤكد",
+    "refunded": "مسترد",
+    "awaitingPayment": "في انتظار الدفع",
+    "paymentFailed": "فشل الدفع",
+    "paymentPending": "الدفع قيد المعالجة"
+  }, 
+  "payments": {
+    "pageHeader": {
+      "title": "نظرة عامة على الأمور المالية",
+      "description": "تابع تقدمك الأكاديمي وأداء إيراداتك.",
+      "exportDate": "أكتوبر 2023",
+      "export": "تصدير"
+    },
+    "statCards": {
+      "availableBalance": "الرصيد المتاح",
+      "paidOut": "المدفوع",
+      "unavailable": "غير متاح",
+      "sessionsCount": "{count} جلسة"
+    },
+    "pendingPayout": {
+      "title": "الدفعات المعلّقة",
+      "session": "{count} جلسة معلّقة",
+      "sessions": "{count} جلسات معلّقة"
+    },
+    "transactionsTable": {
+      "title": "المعاملات الأخيرة",
+      "description": "نظرة عامة على آخر الدفعات",
+      "columns": {
+        "date": "التاريخ",
+        "student": "الطالب",
+        "subject": "المادة",
+        "duration": "المدة",
+        "amount": "المبلغ",
+        "status": "الحالة"
+      },
+      "loading": "جاري تحميل المعاملات…",
+      "error": "فشل تحميل المعاملات.",
+      "empty": "لا توجد معاملات حتى الآن.",
+      "showing": "عرض {count} من {total} معاملة",
+      "defaultStudent": "طالب"
+    }
+  },
+  "earningStatus": {
+    "all": "الكل",
+    "pending": "قيد الانتظار",
+    "available": "متاح",
+    "paid_out": "مدفوع",
+    "canceled": "ملغي"
+  },
+  "pendingPayout": {
+    "title": "الدفعات المعلّقة",
+    "sessions": "جلسات معلّقة"
+  },
+  "availability": {
+  "page": {
+    "title": "إدارة أوقات التوفر",
+    "description": "حدد جدولك الأسبوعي ليتمكن الطلاب من إيجادك في الوقت المناسب.",
+    "scheduleActions": "إجراءات الجدول",
+    "setUpMyAvailability": "إعداد أوقات توفري",
+    "editAvailability": "تعديل التوفر",
+    "weeklySchedule": "الجدول الأسبوعي",
+    "weeklyDescription": "أوقات توفرك المتكررة خلال الأسبوع.",
+    "noAvailability": "لا توجد بيانات توفر.",
+    "slotsByDate": "الأوقات المتاحة حسب التاريخ",
+    "slotsDescription": "عرض أوقات الحجز المتاحة للفترة القادمة.",
+    "noSlots": "لا توجد بيانات أوقات."
+  },
+  "days": {
+    "monday": "الإثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت",
+    "sunday": "الأحد"
+  },
+  "addSlotForm": {
+    "title": "إضافة وقت",
+    "day": "اليوم",
+    "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء",
+    "timezone": "المنطقة الزمنية",
+    "cancel": "إلغاء",
+    "addSlot": "إضافة الوقت"
+  },
+  "createForm": {
+    "title": "إعداد أول وقت توفر",
+    "day": "اليوم",
+    "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء",
+    "timezone": "المنطقة الزمنية",
+    "cancel": "إلغاء",
+    "save": "حفظ والبدء"
+  },
+  "editForm": {
+    "title": "تعديل التوفر",
+    "noSlots": "لا توجد أوقات حتى الآن. استخدم الزر أدناه لإضافة وقت.",
+    "newSlot": "وقت جديد",
+    "start": "البدء",
+    "end": "الانتهاء",
+    "cancel": "إلغاء",
+    "add": "إضافة",
+    "addAnotherSlot": "إضافة وقت آخر",
+    "timezone": "المنطقة الزمنية",
+    "save": "حفظ التغييرات",
+    "requiredError": "وقت البدء والانتهاء مطلوبان",
+    "endTimeError": "يجب أن يكون وقت الانتهاء بعد وقت البدء"
+  },
+  "dailySlots": {
+    "empty": "لا توجد أوقات متاحة للفترة المحددة."
+  },
+  "daySection": {
+    "to": "إلى"
   }
+},
+"weeklyAvailability": {
+  "empty": "لم يتم تحديد جدول أسبوعي بعد."
+}
 }
