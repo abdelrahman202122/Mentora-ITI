@@ -142,6 +142,7 @@ export function AuditLogsModal({ user, onClose }: AuditLogsModalProps) {
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       void fetchLogs(user.id);
     } else {
       // Reset when modal closes

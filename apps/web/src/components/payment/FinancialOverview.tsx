@@ -179,13 +179,16 @@
 //     </section>
 //   );
 // }
+
 "use client";
 
+import { useState } from "react";
 import { useMyEarnings } from "@/hooks/earning/useMyEarning";
 import { useBooking } from "@/hooks/booking/usebookingById";
 import { usePublicUserById } from "@/hooks/user/useUserById";
 import { useQuery } from "@tanstack/react-query";
 import { getTutorSubjectById } from "@/services/tutor/getSubjectById";
+import type { EarningStatus } from "@/services/earning/getMyEarning";
 
 import {
   Table, TableBody, TableCell, TableHead,
@@ -193,14 +196,23 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Earning } from "@/types/earning/earningData";
 
-// ── Row ──────────────────────────────────────────────────────────────────────
+// ── filter tabs ───────────────────────────────────────────────────────────────
+
+const STATUS_FILTERS: { label: string; value: EarningStatus | "all" }[] = [
+  { label: "All",       value: "all"       },
+  { label: "Pending",   value: "pending"   },
+  { label: "Available", value: "available" },
+  { label: "Paid Out",  value: "paid_out"  },
+  { label: "Canceled",  value: "canceled"  },
+];
+
+// ── Row ───────────────────────────────────────────────────────────────────────
 
 function TransactionRow({ earning }: { earning: Earning }) {
   const { data: booking } = useBooking(earning.bookingId);
-
   const { data: learner } = usePublicUserById(booking?.learnerId ?? "");
 
   const { data: subject } = useQuery({
@@ -228,8 +240,9 @@ function TransactionRow({ earning }: { earning: Earning }) {
   }).format(earning.tutorAmount);
 
   const statusLabel =
-    earning.status === "paid_out" ? "Paid Out"
+    earning.status === "paid_out"    ? "Paid Out"
     : earning.status === "available" ? "Available"
+    : earning.status === "canceled"  ? "Canceled"
     : "Pending";
 
   const statusClass =
@@ -237,6 +250,8 @@ function TransactionRow({ earning }: { earning: Earning }) {
       ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
       : earning.status === "available"
       ? "bg-blue-50 text-blue-700 border border-blue-100"
+      : earning.status === "canceled"
+      ? "bg-red-50 text-red-700 border border-red-100"
       : "bg-amber-50 text-amber-700 border border-amber-100";
 
   return (
@@ -250,9 +265,7 @@ function TransactionRow({ earning }: { earning: Earning }) {
             className="h-8 w-8 rounded-full object-cover ring-2 ring-background"
             alt={learner?.name ?? "Student"}
           />
-          <span className="font-medium text-sm">
-            {learner?.name ?? "—"}
-          </span>
+          <span className="font-medium text-sm">{learner?.name ?? "—"}</span>
         </div>
       </TableCell>
 
@@ -261,7 +274,6 @@ function TransactionRow({ earning }: { earning: Earning }) {
       </TableCell>
 
       <TableCell className="text-sm p-4">{durationHours}</TableCell>
-
       <TableCell className="font-medium p-4">{amount}</TableCell>
 
       <TableCell className="text-right p-4">
@@ -276,23 +288,50 @@ function TransactionRow({ earning }: { earning: Earning }) {
 // ── Table ─────────────────────────────────────────────────────────────────────
 
 export default function TransactionsTable() {
-  const { data, isLoading, isError } = useMyEarnings();
+  const [activeFilter, setActiveFilter] = useState<EarningStatus | "all">("all");
+  const [currentPage, setCurrentPage]   = useState(1);
 
-  const earnings = data?.earnings ?? [];
+  function handleFilterChange(value: EarningStatus | "all") {
+    setActiveFilter(value);
+    setCurrentPage(1);
+  }
+
+  const { data, isLoading, isError } = useMyEarnings(
+    activeFilter !== "all"
+      ? { status: activeFilter, page: currentPage, limit: 10 }
+      : { page: currentPage, limit: 10 }
+  );
+
+  const earnings   = data?.earnings   ?? [];
   const pagination = data?.pagination;
+  const totalPages = Math.max(pagination?.totalPages ?? 1, 1);
 
   return (
     <section className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+
       {/* Header */}
       <div className="flex flex-col gap-3 border-b p-5 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-lg font-semibold">Recent Transactions</h2>
           <p className="text-sm text-muted-foreground">Overview of latest payments</p>
         </div>
-        <Button variant="outline" className="gap-2">
-          <Filter className="h-4 w-4" />
-          Filter
-        </Button>
+
+        {/* Filter tabs */}
+        <div className="flex flex-wrap gap-2">
+          {STATUS_FILTERS.map(({ label, value }) => (
+            <button
+              key={value}
+              onClick={() => handleFilterChange(value)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                activeFilter === value
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
@@ -344,19 +383,37 @@ export default function TransactionsTable() {
       {/* Footer */}
       <div className="flex items-center justify-between border-t bg-muted/20 px-5 py-4">
         <p className="text-xs text-muted-foreground">
-          Showing{" "}
-          <span className="font-medium">{earnings.length}</span>{" "}
+          Showing <span className="font-medium">{earnings.length}</span>{" "}
           of {pagination?.total ?? 0} transactions
         </p>
-        <div className="flex gap-1">
-          <Button variant="outline" size="icon" className="h-8 w-8">
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8">
+
+          <span className="text-xs text-muted-foreground">
+            {currentPage} / {totalPages}
+          </span>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
+
     </section>
   );
 }

@@ -85,15 +85,13 @@ export function NotificationBell({
     [locale]
   );
 
-  async function handleNotificationClick(notification: NotificationItem) {
+  function handleNotificationClick(notification: NotificationItem) {
     const href = getNotificationHref(notification, locale, role);
 
     if (notification.status === "unread") {
-      try {
-        await markRead.mutateAsync(notification.id);
-      } catch (error) {
+      void markRead.mutateAsync(notification.id).catch((error) => {
         console.error("Failed to mark notification as read:", error);
-      }
+      });
     }
 
     if (href) {
@@ -114,7 +112,7 @@ export function NotificationBell({
     <div className="relative">
       <Button
         aria-expanded={open}
-        aria-label={t("actions.open")}
+        aria-label={open ? t("actions.close") : t("actions.open")}
         className={cn(
           "relative w-full gap-3 px-2 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600",
           collapsed ? "justify-center" : "justify-start"
