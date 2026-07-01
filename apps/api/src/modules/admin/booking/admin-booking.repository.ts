@@ -1,7 +1,9 @@
+
 import mongoose from 'mongoose';
 import Booking from '../../bookings/booking.model.js';
 import type { BookingResponse } from '../../bookings/booking.types.js';
 import type { AdminBookingListQuery } from './admin-booking.validation.js';
+import { TutorSubjectModel } from '../../tutor/subject/tutor-subject.model.js';
 
 type AdminBookingListResult = {
   bookings: BookingResponse[];
@@ -63,8 +65,22 @@ export async function listBookings(
   const sortOrder = filters.sortOrder === 'asc' ? 1 : -1;
   const sort = { [sortBy]: sortOrder } as Record<string, 1 | -1>;
 
+  /* ─── Execute queries in parallel ─────────────────────────────────── */
   const [bookings, total] = await Promise.all([
     Booking.find(mongoFilters)
+      .populate({
+        path: 'learnerId',
+        select: 'name',
+      })
+      .populate({
+        path: 'tutorId',
+        select: 'name',
+      })
+      .populate({
+        path: 'subjectId',
+        model: TutorSubjectModel,
+        select: 'title name',
+      })
       .sort(sort)
       .skip(skip)
       .limit(limit)
