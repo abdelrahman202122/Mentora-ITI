@@ -1,5 +1,3 @@
-import type { Document } from 'mongoose';
-
 /* The 3 possible statuses shown in the admin UI */
 export type AdminUserStatus = 'Active' | 'Pending' | 'Suspended';
 
@@ -43,7 +41,6 @@ export interface AdminUserListMeta {
 
 
 import type { Types } from 'mongoose';
-import { ReviewModel } from '../../reviews/review.model.js'; // adjust path
 
 /* ─── Types ─── */
 

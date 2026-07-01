@@ -26,8 +26,11 @@ vi.mock('../../src/config/logger.js', () => ({
 }));
 
 vi.mock('../../src/modules/payments/payment.repository.js', () => ({
+  createPayment: vi.fn(),
+  findPaymentByBookingId: vi.fn(),
   findPaymentById: vi.fn(),
   findPaymentByProviderOrderId: vi.fn(),
+  updatePaymentById: vi.fn(),
   updatePaymentAtomically: vi.fn(),
 }));
 
@@ -41,6 +44,12 @@ vi.mock('../../src/modules/payments/earning.repository.js', () => ({
   findEarningByBookingId: vi.fn(),
 }));
 
+vi.mock('../../src/modules/users/user.model.js', () => ({
+  UserModel: {
+    findById: vi.fn(),
+  },
+}));
+
 const paymentRepository = await import(
   '../../src/modules/payments/payment.repository.js'
 );
@@ -50,9 +59,10 @@ const bookingRepository = await import(
 const earningRepository = await import(
   '../../src/modules/payments/earning.repository.js'
 );
-const { handlePaymobWebhook } = await import(
+const { handlePaymobWebhook, initiateCheckout } = await import(
   '../../src/modules/payments/payment.service.js'
 );
+const { UserModel } = await import('../../src/modules/users/user.model.js');
 
 const PAYMOB_HMAC_FIELDS = [
   'amount_cents',
@@ -142,7 +152,18 @@ describe('Paymob webhook handling', () => {
 
   beforeEach(() => {
     process.env.MENTORA_COMMISSION_RATE = '0.2';
+    vi.restoreAllMocks();
     vi.mocked(paymentRepository.findPaymentById).mockResolvedValue(null);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
+          client_secret: 'client_secret_test',
+          id: 'paymob_order_retry',
+        }),
+        ok: true,
+      }),
+    );
   });
 
   it('marks the payment successful, marks the booking paid, and creates tutor earning', async () => {
@@ -225,5 +246,84 @@ describe('Paymob webhook handling', () => {
     expect(paymentRepository.updatePaymentAtomically).not.toHaveBeenCalled();
     expect(bookingRepository.updateBooking).not.toHaveBeenCalled();
     expect(earningRepository.createEarning).not.toHaveBeenCalled();
+  });
+
+  it('reuses a failed payment record when retrying checkout for the same booking', async () => {
+    const failedPayment = {
+      _id: paymentId,
+      amount: 250,
+      bookingId,
+      currency: 'EGP',
+      learnerId,
+      provider: 'paymob',
+      providerOrderId: 'old_order',
+      status: PaymentStatus.FAILED,
+      tutorId,
+    } as IPayment;
+    const resetPayment = {
+      ...failedPayment,
+      providerOrderId: null,
+      status: PaymentStatus.PENDING,
+    } as IPayment;
+
+    vi.mocked(bookingRepository.findBookingById).mockResolvedValue({
+      _id: bookingId,
+      bookingStatus: 'confirmed',
+      currency: 'EGP',
+      learnerId,
+      paymentStatus: BookingPaymentStatus.FAILED,
+      price: 250,
+      tutorId,
+    } as Awaited<ReturnType<typeof bookingRepository.findBookingById>>);
+    vi.mocked(paymentRepository.findPaymentByBookingId).mockResolvedValue(
+      failedPayment,
+    );
+    vi.mocked(paymentRepository.updatePaymentById)
+      .mockResolvedValueOnce(resetPayment)
+      .mockResolvedValueOnce({
+        ...resetPayment,
+        providerCheckoutUrl:
+          'https://paymob.test/unifiedcheckout/?publicKey=public_test_key&clientSecret=client_secret_test',
+        providerOrderId: 'paymob_order_retry',
+      } as IPayment);
+    vi.mocked(bookingRepository.updateBooking).mockResolvedValue(null);
+    vi.mocked(UserModel.findById).mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue({
+        name: 'Learner One',
+        phoneNumber: '01012345678',
+      }),
+    } as never);
+
+    const result = await initiateCheckout(bookingId, learnerId);
+
+    expect(paymentRepository.createPayment).not.toHaveBeenCalled();
+    expect(paymentRepository.updatePaymentById).toHaveBeenNthCalledWith(
+      1,
+      paymentId,
+      expect.objectContaining({
+        failedAt: null,
+        providerOrderId: null,
+        status: PaymentStatus.PENDING,
+      }),
+    );
+    expect(result).toEqual({
+      checkoutUrl:
+        'https://paymob.test/unifiedcheckout/?publicKey=public_test_key&clientSecret=client_secret_test',
+      paymentId: paymentId.toString(),
+    });
+
+    const fetchMock = vi.mocked(fetch);
+    const [, request] = fetchMock.mock.calls[0];
+    const body = JSON.parse(String(request?.body));
+    expect(body.billing_data).toEqual({
+      first_name: 'Learner',
+      last_name: 'One',
+      phone_number: '01012345678',
+    });
+    expect(body.redirection_url).toBe(
+      `https://web.test/en/payment/success?paymentId=${paymentId.toString()}`,
+    );
+    expect(body.special_reference).toBe(paymentId.toString());
   });
 });

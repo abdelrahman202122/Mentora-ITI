@@ -1,51 +1,64 @@
-'use client'
+'use client';
 
-import { AlertCircle, CheckCircle2, CreditCard, School, Timer, Video } from "lucide-react";
-import StatCard from "@/components/tutor/StatCard";
-import BookingCard from "@/components/tutor/BookingCard";
-import { useMyBookings } from "@/hooks/booking/booking";
-import { useAcceptBooking } from "@/hooks/booking/approveBooking";
-import { useRejectBooking } from "@/hooks/booking/rejectBooking";
-import { useCancelBooking } from "@/hooks/booking/cancelBooking";
-import { useConfirmBookingCode } from "@/hooks/booking/useConfirmBookingCode";
-import { useCurrentUser } from "@/hooks/auth/use-auth";
-import { useTutorStats } from "@/hooks/tutor/useTutorStats";
-import type { BookingStatus } from "@/services/booking-services/getMyBooking";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import {
+  AlertCircle,
+  CheckCircle2,
+  CreditCard,
+  School,
+  Timer,
+  Video,
+} from 'lucide-react';
+import StatCard from '@/components/tutor/StatCard';
+import BookingCard from '@/components/tutor/BookingCard';
+import { useMyBookings } from '@/hooks/booking/booking';
+import { useAcceptBooking } from '@/hooks/booking/approveBooking';
+import { useRejectBooking } from '@/hooks/booking/rejectBooking';
+import { useCancelBooking } from '@/hooks/booking/cancelBooking';
+import { useConfirmBookingCode } from '@/hooks/booking/useConfirmBookingCode';
+import { useCurrentUser } from '@/hooks/auth/use-auth';
+import { useTutorStats } from '@/hooks/tutor/useTutorStats';
+import type { BookingStatus } from '@/services/booking-services/getMyBooking';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import type { Booking } from '@/types/booking/booking-data';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-// function minutesToHours(totalHours: number): string {
-//   const h = Math.floor(totalHours);
-//   const m = Math.round((totalHours - h) * 60);
-//   return m > 0 ? `${h}h ${m}m` : `${h}h`;
-// }
-
-function formatCurrency(amount: number | undefined, currency: string = "USD"): string {
+function formatCurrency(
+  amount: number | undefined,
+  currency: string = 'USD',
+): string {
   try {
-    if (typeof(amount) === "undefined") {
-      return "faild to load"
+    if (typeof amount === 'undefined') {
+      return 'faild to load';
     }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    if (typeof(amount) === "undefined") {
-      return "faild to load"
+    if (typeof amount === 'undefined') {
+      return 'faild to load';
     }
     return `${currency} ${amount.toLocaleString()}`;
   }
 }
 
 function formatSessionDateTime(isoString: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   }).format(new Date(isoString));
 }
 
@@ -55,8 +68,8 @@ function isLivePaidSession(booking: Booking): boolean {
   const endsAt = new Date(booking.endAt).getTime();
 
   return (
-    booking.bookingStatus === "confirmed" &&
-    booking.paymentStatus === "paid" &&
+    booking.bookingStatus === 'confirmed' &&
+    booking.paymentStatus === 'paid' &&
     now >= startsAt &&
     now <= endsAt
   );
@@ -64,8 +77,8 @@ function isLivePaidSession(booking: Booking): boolean {
 
 function isUpcomingPaidSession(booking: Booking): boolean {
   return (
-    booking.bookingStatus === "confirmed" &&
-    booking.paymentStatus === "paid" &&
+    booking.bookingStatus === 'confirmed' &&
+    booking.paymentStatus === 'paid' &&
     new Date(booking.startAt).getTime() > Date.now()
   );
 }
@@ -73,7 +86,7 @@ function isUpcomingPaidSession(booking: Booking): boolean {
 function getErrorMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
-    : "Could not verify the session code.";
+    : 'Could not verify the session code.';
 }
 
 // ─── filter tabs ─────────────────────────────────────────────────────────────
@@ -97,16 +110,16 @@ const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
   const [sessionCode, setSessionCode] = useState("");
   const [sessionSuccess, setSessionSuccess] = useState<string | null>(null);
 
-  function handleFilterChange(value: BookingStatus | "all") {
+  function handleFilterChange(value: BookingStatus | 'all') {
     setActiveFilter(value);
     setCurrentPage(1);
   }
 
   // main bookings query (filtered + paginated)
   const { data, isLoading, isError } = useMyBookings(
-    activeFilter !== "all"
+    activeFilter !== 'all'
       ? { bookingStatus: activeFilter, page: currentPage, limit: 10 }
-      : { page: currentPage, limit: 10 }
+      : { page: currentPage, limit: 10 },
   );
 
   const { data: currentUser } = useCurrentUser();
@@ -133,14 +146,13 @@ const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
   } = useCancelBooking();
   const confirmBookingCode = useConfirmBookingCode();
 
-  const bookings   = data?.bookings ?? [];
+  const bookings = data?.bookings ?? [];
   const totalPages = Math.max(data?.pagination?.totalPages ?? 1, 1);
   const activeSession = bookings.find(isLivePaidSession);
   const nextPaidSession = bookings
     .filter(isUpcomingPaidSession)
     .sort(
-      (a, b) =>
-        new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+      (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
     )[0];
 
   const displayName = currentUser?.name;
@@ -161,8 +173,8 @@ const t = useTranslations("tutorDashboard");
       },
       {
         onSuccess: () => {
-          setSessionCode("");
-          setSessionSuccess("Session code verified. Booking marked completed.");
+          setSessionCode('');
+          setSessionSuccess('Session code verified. Booking marked completed.');
         },
       },
     );
@@ -171,7 +183,6 @@ const t = useTranslations("tutorDashboard");
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-
         {/* Header */}
         <header>
           <h1 className="text-3xl font-bold">Welcome back, {displayName}</h1>
@@ -182,17 +193,28 @@ const t = useTranslations("tutorDashboard");
           <StatCard
             icon={CreditCard}
             label="Total Earnings"
-            value={isStatsLoading ? "…" : formatCurrency(stats?.totalEarnings )}
+            value={isStatsLoading ? '…' : formatCurrency(stats?.totalEarnings)}
           />
           <StatCard
             icon={School}
             label="Total Sessions"
-            value={isStatsLoading ? "…" : String(stats?.totalSessions ?? "faild to load")}
+            value={
+              isStatsLoading
+                ? '…'
+                : String(stats?.totalSessions ?? 'faild to load')
+            }
           />
           <StatCard
             icon={Timer}
             label="Hours Taught"
-            value={isStatsLoading ? "…" : stats?.totalHours != null ? `${stats.totalHours}h` : "failed to load"}          />
+            value={
+              isStatsLoading
+                ? '…'
+                : stats?.totalHours != null
+                  ? `${stats.totalHours}h`
+                  : 'failed to load'
+            }
+          />
         </section>
 
         {/* Start Session */}
@@ -216,7 +238,7 @@ const t = useTranslations("tutorDashboard");
                   Session - {activeSession.subjectId}
                 </p>
                 <p className="mt-1 text-sm text-primary-foreground/75">
-                  {formatSessionDateTime(activeSession.startAt)} to{" "}
+                  {formatSessionDateTime(activeSession.startAt)} to{' '}
                   {formatSessionDateTime(activeSession.endAt)}
                 </p>
               </div>
@@ -224,7 +246,7 @@ const t = useTranslations("tutorDashboard");
               <div className="rounded-xl border border-white/15 bg-white/10 p-4 text-sm text-primary-foreground/85">
                 {nextPaidSession ? (
                   <>
-                    Your next paid session starts on{" "}
+                    Your next paid session starts on{' '}
                     <span className="font-semibold text-primary-foreground">
                       {formatSessionDateTime(nextPaidSession.startAt)}
                     </span>
@@ -232,7 +254,7 @@ const t = useTranslations("tutorDashboard");
                     session time.
                   </>
                 ) : (
-                  "No paid session is live right now."
+                  'No paid session is live right now.'
                 )}
               </div>
             )}
@@ -260,7 +282,7 @@ const t = useTranslations("tutorDashboard");
                 }
                 className="h-11 bg-white px-5 font-semibold text-primary hover:bg-white/90"
               >
-                {confirmBookingCode.isPending ? "Verifying..." : "Verify Code"}
+                {confirmBookingCode.isPending ? 'Verifying...' : 'Verify Code'}
               </Button>
             </form>
 

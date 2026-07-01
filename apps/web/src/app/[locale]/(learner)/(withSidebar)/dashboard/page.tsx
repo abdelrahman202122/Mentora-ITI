@@ -198,10 +198,14 @@ export default function LearnerDashboardPage() {
     try {
       const { checkoutUrl } = await initiateCheckout(bookingId);
       // Paymob's checkout page is external, so a full redirect is required
-      window.location.href = checkoutUrl;
-    } catch (err: any) {
+      window.location.assign(checkoutUrl);
+    } catch (err: unknown) {
       console.error(err);
-      setPayError(err?.message || 'Failed to start checkout. Please try again.');
+      setPayError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to start checkout. Please try again.',
+      );
       setPendingCheckoutId(null);
     }
   }
