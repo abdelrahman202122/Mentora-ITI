@@ -14,11 +14,15 @@ import {
   ArrowRight,
   Terminal,
 } from 'lucide-react';
-import { useRef, useState, KeyboardEvent, ClipboardEvent } from 'react';
+import { useRef, useState, useMemo, KeyboardEvent, ClipboardEvent } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver as zr } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  createForgotPasswordSchema,
+  createResetPasswordSchema,
+  type ResetPasswordPayload,
+} from '@/schemas/auth/auth-schema';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,10 +110,13 @@ function OtpInput({
 export default function ForgotPasswordPage() {
   const locale = useLocale();
   const t = useTranslations('auth');
+  const tValidation = useTranslations('auth.validation');
   const tErrors = useTranslations('auth.errors');
   const forgotMutation = useForgotPassword();
   const resetMutation = useResetPassword();
   const isRtl = locale === 'ar';
+
+  const resetSchema = useMemo(() => createResetPasswordSchema(tValidation), [tValidation]);
 
   const [step, setStep] = useState<Step>('email');
   const [dir, setDir] = useState(1);
@@ -117,24 +124,17 @@ export default function ForgotPasswordPage() {
   const [otp, setOtp] = useState('');
   const [devCode, setDevCode] = useState<string | null>(null);
 
-  /* email form */
+  /* email form — uses shared localized schema */
+  const forgotSchema = useMemo(() => createForgotPasswordSchema(tValidation), [tValidation]);
   const emailForm = useForm<{ email: string }>({
-    resolver: zodResolver(z.object({ email: z.string().email('Invalid email') })),
+    resolver: zodResolver(forgotSchema),
     defaultValues: { email: '' },
   });
 
-  /* password form */
-  const pwForm = useForm<{ password: string; confirm: string }>({
-    resolver: zodResolver(
-      z.object({
-        password: z.string().min(6, 'At least 6 characters'),
-        confirm: z.string().min(6, 'At least 6 characters'),
-      }).refine((d) => d.password === d.confirm, {
-        message: "Passwords don't match",
-        path: ['confirm'],
-      }),
-    ),
-    defaultValues: { password: '', confirm: '' },
+  /* password form — schema is the single source of truth; fields match ResetPasswordInput */
+  const pwForm = useForm<ResetPasswordPayload>({
+    resolver: zodResolver(resetSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
@@ -165,9 +165,9 @@ export default function ForgotPasswordPage() {
   }
 
   /* ── Step 3: reset password ── */
-  function handleResetPassword(values: { password: string; confirm: string }) {
+  function handleResetPassword(values: ResetPasswordPayload) {
     resetMutation.mutate(
-      { email, code: otp, newPassword: values.password },
+      { email, code: otp, newPassword: values.newPassword },
       { onSuccess: () => goTo('done', 1) },
     );
   }
@@ -291,10 +291,10 @@ export default function ForgotPasswordPage() {
                     </div>
                     <div className="pt-2">
                       <CardTitle className="text-2xl font-semibold tracking-normal">
-                        Enter verification code
+                        {t('forgotPassword.verifyCode.title')}
                       </CardTitle>
                       <CardDescription className="mt-2 text-sm text-slate-600">
-                        We sent a 6-digit code to <span className="font-semibold text-slate-800">{email}</span>. It expires in 10 minutes.
+                        {t('forgotPassword.verifyCode.description', { email })}
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -328,7 +328,7 @@ export default function ForgotPasswordPage() {
                       type="button"
                     >
                       <ShieldCheck className="size-4" />
-                      Verify code
+                      {t('forgotPassword.verifyCode.verifyButton')}
                     </Button>
 
                     <div className="flex items-center justify-between text-sm text-slate-600">
@@ -338,7 +338,7 @@ export default function ForgotPasswordPage() {
                         onClick={() => goTo('email', -1)}
                       >
                         <BackIcon className="size-4" />
-                        Change email
+                        {t('forgotPassword.verifyCode.changeEmail')}
                       </button>
                       <button
                         type="button"
@@ -356,9 +356,16 @@ export default function ForgotPasswordPage() {
                           );
                         }}
                       >
-                        {forgotMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : 'Resend code'}
+                        {forgotMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : t('forgotPassword.verifyCode.resendCode')}
                       </button>
                     </div>
+
+                    {/* Resend error — shown below so it doesn't displace the OTP boxes */}
+                    {forgotMutation.error && (
+                      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                        {getLocalizedAuthError(forgotMutation.error.message, tErrors)}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -414,14 +421,14 @@ export default function ForgotPasswordPage() {
                             autoComplete="new-password"
                             placeholder={t('resetPassword.newPasswordPlaceholder')}
                             className={cn('h-12 rounded-lg border-slate-300 bg-white pl-10 pr-4 text-sm', isRtl && 'pl-4 pr-10 text-right')}
-                            {...pwForm.register('password')}
+                            {...pwForm.register('newPassword')}
                           />
                           <div className={cn('pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400', isRtl && 'left-auto right-0 pr-3 pl-0')}>
                             <Lock className="size-5" />
                           </div>
                         </div>
-                        {pwForm.formState.errors.password && (
-                          <p className="text-xs font-medium text-red-600">{pwForm.formState.errors.password.message}</p>
+                        {pwForm.formState.errors.newPassword && (
+                          <p className="text-xs font-medium text-red-600">{pwForm.formState.errors.newPassword.message}</p>
                         )}
                       </div>
 
@@ -437,14 +444,14 @@ export default function ForgotPasswordPage() {
                             autoComplete="new-password"
                             placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                             className={cn('h-12 rounded-lg border-slate-300 bg-white pl-10 pr-4 text-sm', isRtl && 'pl-4 pr-10 text-right')}
-                            {...pwForm.register('confirm')}
+                            {...pwForm.register('confirmPassword')}
                           />
                           <div className={cn('pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400', isRtl && 'left-auto right-0 pr-3 pl-0')}>
                             <Lock className="size-5" />
                           </div>
                         </div>
-                        {pwForm.formState.errors.confirm && (
-                          <p className="text-xs font-medium text-red-600">{pwForm.formState.errors.confirm.message}</p>
+                        {pwForm.formState.errors.confirmPassword && (
+                          <p className="text-xs font-medium text-red-600">{pwForm.formState.errors.confirmPassword.message}</p>
                         )}
                       </div>
 
@@ -467,7 +474,7 @@ export default function ForgotPasswordPage() {
                           onClick={() => goTo('code', -1)}
                         >
                           <BackIcon className="size-4" />
-                          Back to code
+                          {t('forgotPassword.verifyCode.backToCode')}
                         </button>
                       </p>
                     </form>

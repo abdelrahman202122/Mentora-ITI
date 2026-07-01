@@ -132,7 +132,7 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export const changeUserStatusSchema = z
   .object({
     status: z.enum(['Active', 'Pending', 'Suspended']),
-    reason: z.string().min(1, 'Reason is required').max(500).trim(),
+    reason: z.string().trim().min(1, 'Reason is required').max(500),
   })
   .strict();
 

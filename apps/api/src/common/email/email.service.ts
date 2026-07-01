@@ -17,17 +17,18 @@ export const sendResetEmail = async (
   email: string,
   otp: string
 ): Promise<void> => {
-  // In development, log the OTP so you can test without real email credentials
+  // Missing credentials — fail hard in production before touching the OTP.
   if (!env.EMAIL_USER || !env.EMAIL_PASS) {
+    if (env.NODE_ENV === 'production') {
+      throw new EmailError('EMAIL_USER or EMAIL_PASS is missing');
+    }
+    // Development only: log the OTP so engineers can test without a real SMTP account.
     logger.warn({
       event: 'email.reset.dev_fallback',
       message: 'EMAIL_USER or EMAIL_PASS is missing – OTP logged instead of sent',
       otp,
       to: email,
     });
-    if (env.NODE_ENV === 'production') {
-      throw new EmailError('EMAIL_USER or EMAIL_PASS is missing');
-    }
     return;
   }
 

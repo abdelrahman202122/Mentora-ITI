@@ -43,10 +43,10 @@ export function createForgotPasswordSchema(t: AuthValidationTranslator) {
 export function createResetPasswordSchema(t: AuthValidationTranslator) {
   return z
     .object({
-      password: z.string().min(6, t("passwordMin")),
+      newPassword: z.string().min(6, t("passwordMin")),
       confirmPassword: z.string().min(6, t("passwordMin")),
     })
-    .refine((data) => data.password === data.confirmPassword, {
+    .refine((data) => data.newPassword === data.confirmPassword, {
       message: t("passwordsMustMatch"),
       path: ["confirmPassword"],
     });

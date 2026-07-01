@@ -360,9 +360,10 @@ try {
 
     const resetToken = await userService.forgotPassword(email);
 
-    // In development with no email credentials configured, expose the OTP
-    // directly in the response so devs can test without a real email account.
-    const isDev = process.env.NODE_ENV !== 'production';
+    // Expose the raw OTP in the response only in explicit local development
+    // (NODE_ENV === 'development'). 'not production' is too broad and would
+    // leak codes in staging / preview environments.
+    const isDev = process.env.NODE_ENV === 'development';
     const hasEmailCreds = !!process.env.EMAIL_USER && !!process.env.EMAIL_PASS;
     const devCode =
       isDev && !hasEmailCreds && resetToken ? resetToken : undefined;

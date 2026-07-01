@@ -25,6 +25,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    // reset-password is no longer a standalone page — the full OTP flow
+    // lives in /forgot-password. Redirect both locale variants permanently.
+    return [
+      { source: "/en/reset-password", destination: "/en/forgot-password", permanent: true },
+      { source: "/ar/reset-password", destination: "/ar/forgot-password", permanent: true },
+    ];
+  },
   images: {
     localPatterns: [
       {

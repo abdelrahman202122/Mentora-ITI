@@ -874,8 +874,8 @@ export const forgotPassword = async (email: string): Promise<string | undefined>
     return undefined; // ← silently return, don't send email
   }
 
-  // Generate a 6-digit OTP (100000–999999)
-  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  // Generate a cryptographically secure 6-digit OTP (100000–999999)
+  const otp = String(crypto.randomInt(100000, 1000000));
   const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
   const RESET_OTP_EXPIRATION_MS = 10 * 60 * 1000; // 10 minutes

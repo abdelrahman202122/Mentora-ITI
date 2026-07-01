@@ -390,15 +390,23 @@
     },
     "forgotPassword": {
       "title": "Forgot Password?",
-      "description": "Enter your email address and we'll send you a link to reset your password.",
+      "description": "Enter your email address and we'll send a 6-digit verification code.",
       "emailLabel": "Email address",
       "emailPlaceholder": "name@company.com",
-      "submit": "Send reset link",
-      "submitting": "Sending link",
+      "submit": "Send verification code",
+      "submitting": "Sending code",
       "backToLogin": "Back to Log In",
       "successTitle": "Check your email",
       "successDescription": "If an account exists for {email}, we've sent instructions to reset your password. Please check your inbox and spam folder.",
-      "successAction": "Return to Log In"
+      "successAction": "Return to Log In",
+      "verifyCode": {
+        "title": "Enter verification code",
+        "description": "We sent a 6-digit code to {email}. It expires in 10 minutes.",
+        "verifyButton": "Verify code",
+        "changeEmail": "Change email",
+        "resendCode": "Resend code",
+        "backToCode": "Back to code"
+      }
     },
     "resetPassword": {
       "title": "Reset Your Password",
@@ -431,7 +439,7 @@
       "emailAlreadyExists": "An account with this email already exists",
       "unauthorized": "You are not authorized to perform this action",
       "generic": "Something went wrong. Please try again.",
-      "expiredResetToken": "The password reset link is invalid or has expired.",
+      "expiredResetToken": "The verification code is invalid or has expired. Please request a new one.",
       "accountSuspended": "Your account is suspended. Please contact support."
     }
   },

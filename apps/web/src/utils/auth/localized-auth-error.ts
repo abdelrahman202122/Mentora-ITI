@@ -39,6 +39,7 @@ export function getLocalizedAuthError(
 
   if (
     lower.includes("invalid or expired reset token") ||
+    lower.includes("invalid or expired verification code") ||
     lower.includes("expired token") ||
     lower.includes("invalid token")
   ) {
