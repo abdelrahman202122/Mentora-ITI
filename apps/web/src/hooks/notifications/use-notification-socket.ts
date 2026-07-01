@@ -69,6 +69,14 @@ function updateChatListFromMessageNotification(
   };
 }
 
+function getMessageNotificationChatId(notification: NotificationItem) {
+  if (notification.type !== "message") {
+    return null;
+  }
+
+  return getStringDataValue(notification.data, "chatId");
+}
+
 function prependNotification(
   currentData: NotificationListData | undefined,
   notification: NotificationItem
@@ -158,11 +166,22 @@ export function useNotificationSocket() {
       }
 
       if (notification.type === "message") {
+        const chatId = getMessageNotificationChatId(notification);
+
         queryClient.setQueriesData<InfiniteData<ChatListData, number>>(
           { queryKey: chatKeys.lists() },
           (currentData) =>
             updateChatListFromMessageNotification(currentData, notification)
         );
+
+        if (chatId) {
+          void queryClient.invalidateQueries({
+            queryKey: chatKeys.messageList(chatId),
+          });
+          void queryClient.invalidateQueries({
+            queryKey: chatKeys.detail(chatId),
+          });
+        }
       }
     }
 
