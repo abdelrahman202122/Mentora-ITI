@@ -52,7 +52,6 @@
 'use client';
 
 import { Trash2, Clock } from 'lucide-react';
-import { useFieldArray } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import {
   type Control,
