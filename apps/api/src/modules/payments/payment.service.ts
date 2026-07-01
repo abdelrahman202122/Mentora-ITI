@@ -503,9 +503,6 @@ export async function initiateCheckout(
     );
   }
 
-  const learner = await findUserById(learnerId.toString());
-  const billingData = buildPaymobBillingData(learner);
-
   // Step 5: Ensure no existing payment (in any status) exists for this booking.
   // Rejecting all statuses — not just SUCCESS — prevents a race condition where two
   // concurrent requests both pass this check and both create a pending payment record.
@@ -524,6 +521,9 @@ export async function initiateCheckout(
       );
     }
   }
+
+  const learner = await findUserById(learnerId.toString());
+  const billingData = buildPaymobBillingData(learner);
 
   // Step 6: Derive amount server-side from booking (never trust client)
   const amount = booking.price; // decimal (e.g. 250.00)
