@@ -716,6 +716,21 @@
     "goBack": "العودة",
     "confirmCancel": "تأكيد الإلغاء",
     "canceling": "جاري الإلغاء...",
+    "review": {
+      "title": "قيّم المعلم",
+      "description": "انتهت جلستك. شارك رأيك لمساعدة الطلاب الآخرين على اختيار المعلم المناسب.",
+      "ratingLabel": "التقييم",
+      "ratingRequired": "يرجى اختيار تقييم قبل إرسال المراجعة.",
+      "ratingOption": "{count, plural, one {نجمة واحدة} two {نجمتان} few {# نجوم} many {# نجمة} other {# نجمة}}",
+      "commentLabel": "التعليق",
+      "commentPlaceholder": "ما الذي أعجبك؟ هل كان الشرح واضحاً والمعلم مستعداً ومفيداً؟",
+      "commentCount": "{count}/1000 حرف",
+      "submit": "إرسال المراجعة",
+      "submitting": "جاري الإرسال...",
+      "submitError": "تعذر إرسال المراجعة. يرجى المحاولة مرة أخرى.",
+      "submittedTitle": "تم إرسال المراجعة",
+      "submittedDescription": "شكراً لك. تم ربط رأيك بهذه الجلسة المكتملة."
+    },
     "statuses": {
       "pending": "قيد الانتظار",
       "confirmed": "مؤكد",
