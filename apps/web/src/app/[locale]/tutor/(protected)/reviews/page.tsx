@@ -43,29 +43,36 @@ import ReviewSummary from "@/components/TutorReviews/ReviewSummary";
 import ReviewCard from "@/components/TutorReviews/ReviewCard";
 import { useMyReviews } from "@/hooks/reviews/reviews";
 import { useTutorProfile } from "@/hooks/tutor/useTutorProfile";
-import { useCurrentUser } from "@/hooks/auth/use-auth"; // adjust path to wherever this actually lives
-
+import { useCurrentUser } from "@/hooks/auth/use-auth"; 
 const PAGE_LIMIT = 5;
 
 export default function ReviewsPage() {
   const { data: currentUser } = useCurrentUser();
-  const tutorId = currentUser?.id?? ""; // change to currentUser?.id if your AuthUser uses `id`
+  const tutorId = currentUser?.id?? ""; 
 
   const [page, setPage] = useState(1);
 
-  const { data: tutorProfile, isLoading: isLoadingProfile } = useTutorProfile(tutorId);
-
   const {
-    data: reviewsData,
-    isLoading: isLoadingReviews,
-    isError: isReviewsError,
-  } = useMyReviews({ page, limit: PAGE_LIMIT });
+  data: tutorProfile,
+  isLoading: isLoadingProfile,
+} = useTutorProfile(tutorId);
+
+const {
+  data: reviewsData,
+  isLoading: isLoadingReviews,
+  isError: isReviewsError,
+} = useMyReviews(
+  tutorProfile?._id ?? "" ,
+  { page, limit: PAGE_LIMIT },
+   !!tutorProfile, 
+  
+);
 
   const reviews = reviewsData?.reviews ?? [];
   const pagination = reviewsData?.pagination;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+    <div className="max-w-6xl mx-auto px-0 sm:px-6 py-8 space-y-10">
       <div>
         <h1 className="text-3xl font-bold">My Reviews</h1>
         <p className="text-muted-foreground">

@@ -79,10 +79,10 @@ export default function ReviewSummary({
   totalReviews: number;
 }) {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <section className="grid grid-cols-1 md:grid-cols-12   gap-6">
       {/* Average */}
-      <div className="md:col-span-4 border border-border bg-card p-6 rounded-xl text-center">
-        <p className="text-xs text-muted-foreground">Average Rating</p>
+      <div className="md:col-span-6   border border-border bg-card p-6 rounded-xl text-center">
+        <p className="text-lg text-muted-foreground">Average Rating</p>
 
         <div className="text-5xl font-bold text-primary mt-2">
           {rating.toFixed(1)} <span className="text-xl">/5</span>
@@ -94,23 +94,23 @@ export default function ReviewSummary({
               const type = getStarType(rating, index);
 
               if (type === "full") {
-                return <FaStar key={index} size={18} className="text-yellow-400" />;
+                return <FaStar key={index} size={24} className="text-yellow-400 " />;
               }
               if (type === "half") {
-                return <FaStarHalfAlt key={index} size={18} className="text-yellow-400" />;
+                return <FaStarHalfAlt key={index} size={24} className="text-yellow-400 " />;
               }
-              return <FaRegStar key={index} size={18} className="text-yellow-400" />;
+              return <FaRegStar key={index} size={24} className="text-yellow-400 " />;
             })}
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-lg text-muted-foreground mt-2">
           Based on {totalReviews} reviews
         </p>
       </div>
 
       {/* Breakdown — TODO: backend endpoint not built yet, keeping static for now */}
-      <div className="md:col-span-8 border border-border bg-card p-6 rounded-xl">
+      {/* <div className="md:col-span-8 border border-border bg-card p-6 rounded-xl">
         <h3 className="font-semibold mb-4">Rating Breakdown</h3>
 
         {[
@@ -128,7 +128,7 @@ export default function ReviewSummary({
             <span className="text-xs text-muted-foreground w-10">{item.value}%</span>
           </div>
         ))}
-      </div>
+      </div> */}
     </section>
   );
 }
