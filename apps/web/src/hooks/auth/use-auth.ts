@@ -3,16 +3,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  forgotPassword,
   getCurrentUser,
   login,
   logout,
   register,
+  resetPassword,
 } from "@/services/auth/auth-service";
 import type { ApiClientError } from "@/lib/axios";
 import type {
   AuthUser,
+  ForgotPasswordInput,
   LoginInput,
   RegisterInput,
+  ResetPasswordInput,
 } from "@/types/auth/auth-types";
 
 export const authKeys = {
@@ -49,6 +53,18 @@ export function useRegister() {
       queryClient.setQueryData(authKeys.currentUser, user);
       await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
     },
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation<string, ApiClientError, ForgotPasswordInput>({
+    mutationFn: forgotPassword,
+  });
+}
+
+export function useResetPassword() {
+  return useMutation<string, ApiClientError, ResetPasswordInput>({
+    mutationFn: resetPassword,
   });
 }
 

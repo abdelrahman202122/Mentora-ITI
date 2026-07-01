@@ -369,7 +369,8 @@
       "signUpLink": "إنشاء حساب",
       "privacyPolicy": "سياسة الخصوصية",
       "termsOfService": "شروط الخدمة",
-      "helpCenter": "مركز المساعدة"
+      "helpCenter": "مركز المساعدة",
+      "forgotPassword": "نسيت كلمة المرور؟"
     },
     "register": {
       "title": "انضم إلى منتورا",
@@ -393,13 +394,41 @@
       "nameMin": "يجب أن يتكون الاسم من حرفين على الأقل",
       "phoneInvalid": "أدخل رقم هاتف مصري صالح (مثال: 01012345678)",
       "roleInvalid": "يرجى اختيار نوع حساب صالح",
-      "passwordRequired": "كلمة المرور مطلوبة"
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+      "passwordsMustMatch": "يجب أن تتطابق كلمتا المرور"
     },
     "errors": {
       "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
       "emailAlreadyExists": "يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل",
       "unauthorized": "غير مصرح لك بتنفيذ هذا الإجراء",
-      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+      "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "invalidResetToken": "رابط إعادة التعيين غير صالح أو انتهت صلاحيته. يرجى طلب بريد جديد لإعادة تعيين كلمة المرور."
+    },
+    "forgotPassword": {
+      "title": "نسيت كلمة المرور؟",
+      "description": "أدخل بريدك الإلكتروني وسنرسل رابط إعادة التعيين.",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "name@company.com",
+      "submit": "إرسال رابط إعادة التعيين",
+      "submitting": "جارٍ إرسال الرابط",
+      "checkEmailTitle": "تحقق من بريدك الإلكتروني",
+      "successMessage": "إذا كان الحساب موجوداً، فقد تم إرسال رابط إعادة التعيين.",
+      "backToLogin": "العودة إلى تسجيل الدخول"
+    },
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "description": "أنشئ كلمة مرور جديدة لحسابك في منتورا.",
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "أدخل كلمة مرور جديدة",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+      "submit": "إعادة تعيين كلمة المرور",
+      "submitting": "جارٍ إعادة التعيين",
+      "missingToken": "رابط إعادة التعيين لا يحتوي على رمز صالح. يرجى طلب بريد جديد لإعادة تعيين كلمة المرور.",
+      "successTitle": "تم تغيير كلمة المرور",
+      "successMessage": "تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.",
+      "backToLogin": "العودة إلى تسجيل الدخول"
     }
   },
   "home": {
