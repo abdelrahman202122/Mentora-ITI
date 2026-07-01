@@ -17,12 +17,14 @@ import {
   NotFoundError,
   ForbiddenError,
   ConflictError,
+  ValidationError,
   AppError,
 } from '../../common/errors/AppError.js';
 import { paymobConfig } from '../../config/paymob.config.js';
 import { DEFAULT_CURRENCY } from './payment.model.js';
 import { DEFAULT_COMMISSION_RATE } from '../bookings/booking.model.js';
 import { logger } from '../../config/logger.js';
+import { findUserById } from '../users/user.repository.js';
 import mongoose from 'mongoose';
 
 /**
@@ -38,6 +40,49 @@ interface PaymobIntentionResponse {
   id: string;
 }
 
+interface PaymobBillingData {
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+}
+
+interface PaymobIntentionRequestBody {
+  amount: number;
+  currency: string;
+  payment_methods: number[];
+  items: [];
+  billing_data: PaymobBillingData;
+  special_reference: string;
+  notification_url: string;
+  redirection_url: string;
+}
+
+function buildPaymobBillingData(
+  user: Awaited<ReturnType<typeof findUserById>>,
+): PaymobBillingData {
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  const name = user.name.trim();
+  const phoneNumber =
+    typeof user.phoneNumber === 'string' ? user.phoneNumber.trim() : '';
+
+  if (!name) {
+    throw new ValidationError('User name is required for checkout');
+  }
+
+  if (!phoneNumber) {
+    throw new ValidationError('User phone number is required for checkout');
+  }
+
+  return {
+    first_name: name,
+    last_name: name,
+    phone_number: phoneNumber,
+  };
+}
+
 /**
  * Call the Paymob Intention API to create a payment intention.
  * Uses the Secret Key for server-to-server authentication.
@@ -51,19 +96,16 @@ async function createPaymobIntention(
   amountCents: number,
   currency: string,
   internalOrderId: string,
+  billingData: PaymobBillingData,
 ): Promise<PaymobIntentionResponse> {
   const url = `${paymobConfig.baseUrl}/v1/intention/`;
 
-  const body = {
+  const body: PaymobIntentionRequestBody = {
     amount: amountCents,
     currency,
     payment_methods: [paymobConfig.integrationId],
     items: [],
-    billing_data: {
-      first_name: 'Ahmed',
-      last_name: 'Tarek',
-      phone_number: '01553616035',
-    },
+    billing_data: billingData,
     special_reference: internalOrderId,
     notification_url: paymobConfig.notificationUrl,
     redirection_url: paymobConfig.redirectUrl,
@@ -480,6 +522,9 @@ export async function initiateCheckout(
     }
   }
 
+  const learner = await findUserById(learnerId.toString());
+  const billingData = buildPaymobBillingData(learner);
+
   // Step 6: Derive amount server-side from booking (never trust client)
   const amount = booking.price; // decimal (e.g. 250.00)
   const currency = (booking.currency ?? DEFAULT_CURRENCY) as
@@ -507,6 +552,7 @@ export async function initiateCheckout(
       amountCents,
       currency,
       (payment._id as Types.ObjectId).toString(),
+      billingData,
     );
 
     // Step 9: Build the hosted checkout URL
