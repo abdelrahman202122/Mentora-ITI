@@ -78,6 +78,13 @@ type ResultsStepProps = {
   setCurriculum?: (value: string | null) => void;
   setLevel?: (value: string | null) => void;
   setSubject?: (value: string | null) => void;
+  initialLanguageQuery?: string;
+  initialMaxHourlyRate?: string;
+  initialMinHourlyRate?: string;
+  initialMinRating?: string;
+  initialPage?: number;
+  initialSearchQuery?: string;
+  initialSortBy?: TutorSearchSort;
 };
 
 function normalizeFilterValue(value: string | null | undefined) {
@@ -165,21 +172,28 @@ export default function ResultsStep({
   setCurriculum,
   setLevel,
   setSubject,
+  initialLanguageQuery = "",
+  initialMaxHourlyRate = "",
+  initialMinHourlyRate = "",
+  initialMinRating = ALL_VALUE,
+  initialPage = 1,
+  initialSearchQuery = "",
+  initialSortBy = "relevance",
 }: ResultsStepProps) {
   const locale = useLocale();
   const t = useTranslations("findTutor");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCurriculum, setSelectedCurriculum] = useState(
     curriculum || ALL_VALUE,
   );
   const [selectedLevel, setSelectedLevel] = useState(level || ALL_VALUE);
   const [selectedSubject, setSelectedSubject] = useState(subject || ALL_VALUE);
-  const [sortBy, setSortBy] = useState<TutorSearchSort>("relevance");
-  const [languageQuery, setLanguageQuery] = useState("");
-  const [minHourlyRate, setMinHourlyRate] = useState("");
-  const [maxHourlyRate, setMaxHourlyRate] = useState("");
-  const [minRating, setMinRating] = useState(ALL_VALUE);
-  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState<TutorSearchSort>(initialSortBy);
+  const [languageQuery, setLanguageQuery] = useState(initialLanguageQuery);
+  const [minHourlyRate, setMinHourlyRate] = useState(initialMinHourlyRate);
+  const [maxHourlyRate, setMaxHourlyRate] = useState(initialMaxHourlyRate);
+  const [minRating, setMinRating] = useState(initialMinRating || ALL_VALUE);
+  const [page, setPage] = useState(initialPage);
 
   const queryParams = useMemo(() => {
     const trimmedSearch = searchQuery.trim();
@@ -218,6 +232,39 @@ export default function ResultsStep({
 
   const tutors = data?.tutors ?? [];
   const pagination = data?.pagination;
+  const returnQueryString = useMemo(() => {
+    const params = new URLSearchParams({ mode: "browse" });
+    const trimmedSearch = searchQuery.trim();
+    const trimmedLanguages = languageQuery.trim();
+
+    if (trimmedSearch) params.set("q", trimmedSearch);
+    if (normalizeFilterValue(selectedCurriculum)) {
+      params.set("curriculum", selectedCurriculum);
+    }
+    if (normalizeFilterValue(selectedLevel)) params.set("level", selectedLevel);
+    if (normalizeFilterValue(selectedSubject)) {
+      params.set("subject", selectedSubject);
+    }
+    if (trimmedLanguages) params.set("languages", trimmedLanguages);
+    if (minHourlyRate) params.set("minHourlyRate", minHourlyRate);
+    if (maxHourlyRate) params.set("maxHourlyRate", maxHourlyRate);
+    if (normalizeFilterValue(minRating)) params.set("minRating", minRating);
+    if (sortBy !== "relevance") params.set("sortBy", sortBy);
+    if (page > 1) params.set("page", String(page));
+
+    return params.toString();
+  }, [
+    languageQuery,
+    maxHourlyRate,
+    minHourlyRate,
+    minRating,
+    page,
+    searchQuery,
+    selectedCurriculum,
+    selectedLevel,
+    selectedSubject,
+    sortBy,
+  ]);
 
   function handleReset() {
     setSearchQuery("");
@@ -490,6 +537,7 @@ export default function ResultsStep({
             <TutorResultCard
               key={`${tutor.profile.id || tutor._id || tutor.userId}-${index}`}
               locale={locale}
+              returnQueryString={returnQueryString}
               tutor={tutor}
             />
           ))}
@@ -534,9 +582,11 @@ export default function ResultsStep({
 
 function TutorResultCard({
   locale,
+  returnQueryString,
   tutor,
 }: {
   locale: string;
+  returnQueryString: string;
   tutor: TutorSearchItem;
 }) {
   const tFindTutor = useTranslations("findTutor");
@@ -661,7 +711,9 @@ function TutorResultCard({
 
         <div className="grid shrink-0 grid-cols-2 gap-2 md:w-40 md:grid-cols-1">
           <Button asChild variant="outline">
-            <Link href={getLocalePath(locale, `/tutor-match/${tutorUserId}`)}>
+            <Link
+              href={`${getLocalePath(locale, `/tutor-match/${tutorUserId}`)}?${returnQueryString}`}
+            >
               <Eye className="size-4" />
               {t("viewProfile")}
             </Link>
