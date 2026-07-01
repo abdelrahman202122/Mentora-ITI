@@ -120,8 +120,9 @@ export function useAdminBookings({
   }, [fetchBookings]);
 
   /* ── Client-side name filtering ────────────────────────────────────
-     Filter the fetched bookings by tutor/learner name.
-     This runs on every render — fast because the list is small (10 items). */
+     Filter the fetched bookings by tutor/learner name. */
+  const isNameFilterActive = !!filters.tutorQuery || !!filters.learnerQuery;
+  
   const bookings = allBookings.filter((b) => {
     const tutorMatch =
       !filters.tutorQuery ||
@@ -132,6 +133,11 @@ export function useAdminBookings({
     return tutorMatch && learnerMatch;
   });
 
+  /* ── Recalculate totals when name filters are active ───────────────
+     Ensures totalItems and totalPages stay in sync with the displayed list. */
+  const finalTotalItems = isNameFilterActive ? bookings.length : totalItems;
+  const finalTotalPages = isNameFilterActive ? 1 : totalPages;
+
   return {
     // data (client-filtered)
     bookings,
@@ -139,8 +145,8 @@ export function useAdminBookings({
     error,
     // pagination
     page,
-    totalPages,
-    totalItems,
+    totalPages: finalTotalPages,
+    totalItems: finalTotalItems,
     setPage,
     // filters
     filters,

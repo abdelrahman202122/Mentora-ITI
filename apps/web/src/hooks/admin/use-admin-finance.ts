@@ -68,6 +68,10 @@ export function useAdminFinance() {
       await approveAllWithdrawals();
       await fetchWithdrawals();
       await fetchStats();
+      } catch (err) {
+        setWithdrawalsError(
+          err instanceof Error ? err.message : "Failed to approve all withdrawals",
+        );
     } finally {
       setMutating(false);
     }
@@ -85,6 +89,10 @@ export function useAdminFinance() {
           ),
         );
         await fetchStats();
+        } catch (err) {
+          setWithdrawalsError(
+          err instanceof Error ? err.message : "Failed to approve withdrawl",
+        );
       } finally {
         setMutating(false);
       }
