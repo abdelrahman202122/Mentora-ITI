@@ -1,9 +1,11 @@
+
+
 "use client"
 
 import { useRouter, useParams } from "next/navigation"
 import { Calendar, Clock, Hourglass, Tag, CreditCard, MessageCircle, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import Link from "next/link";
 interface BookingSuccessProps {
   tutorName: string
   subject: string
@@ -75,19 +77,16 @@ export default function BookingSuccess({
                 Message Tutor
               </Button>
 
-              <button
-                onClick={() => router.push(`/${locale}/my-bookings`)}
-                className="text-sm font-semibold text-[#6366F1] hover:text-[#4F46E5] transition-colors"
+              <Link
+                href={`/${locale}/dashboard`}
+                className="text-indigo-600 hover:text-indigo-800 font-semibold text-sm transition-colors"
               >
-                View My Bookings
-              </button>
+                Back to Dashboard
+              </Link>
             </div>
 
             {/* Notification Notice */}
-            <div className="flex items-center gap-2 text-xs text-[#68718B] pt-4">
-              <Mail className="w-4 h-4 text-[#5051F9]" />
-              <span>A confirmation email has been sent to your inbox.</span>
-            </div>
+         
           </div>
 
           {/* Right Column: Session Summary Card (Your exact Data structure) */}

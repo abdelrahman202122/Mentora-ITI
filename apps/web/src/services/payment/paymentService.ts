@@ -1,48 +1,37 @@
-import type { ApiResponse } from "@/types/bookingProcess/booking"
+
+import api, { ApiClientError } from "@/lib/axios";
+import type { ApiSuccess } from "@/types/apis/api-success";
 
 interface CheckoutData {
-  paymentId: string
-  checkoutUrl: string
-}
-
-function extractErrorMessage(body: ApiResponse<CheckoutData>): string {
-  if (body.errors) {
-    return Object.values(body.errors).flat().join(" ")
-  }
-  return body.message ?? "Something went wrong. Please try again."
+  paymentId: string;
+  checkoutUrl: string;
 }
 
 export async function initiateCheckout(bookingId: string): Promise<CheckoutData> {
-  const response = await fetch("/api/payments/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ bookingId }),
-  })
+  try {
+    const response = await api.post<ApiSuccess<CheckoutData>>(
+      "/payments/checkout",
+      { bookingId },
+    );
+    const body = response.data;
 
-  const body: ApiResponse<CheckoutData> = await response.json()
-
-  if (!response.ok || !body.success) {
-    switch (response.status) {
-      case 400:
-        throw new Error(extractErrorMessage(body))
-      case 401:
-        throw new Error(extractErrorMessage(body))
-      case 403:
-        throw new Error(extractErrorMessage(body))
-      case 404:
-        throw new Error(extractErrorMessage(body))
-      case 409:
-        throw new Error(extractErrorMessage(body))
-      case 500:
-      default:
-        throw new Error(extractErrorMessage(body))
+    // guard the envelope — without this, a { success: false } or a missing
+    // payload would silently flow through as a "valid" CheckoutData, and the
+    // caller's `window.location.href = checkoutUrl` would redirect to
+    // "undefined" instead of surfacing the real backend error
+    if (!body.success) {
+      throw new Error(body.message ?? "Failed to start checkout.");
     }
-  }
 
-  if (!body.data) {
-    throw new Error("Unexpected response from server.")
-  }
+    if (!body.data || !body.data.checkoutUrl) {
+      throw new Error("Unexpected response from server.");
+    }
 
-  return body.data
+    return body.data;
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      console.error("Checkout Initiation Error:", error.message);
+    }
+    throw error;
+  }
 }

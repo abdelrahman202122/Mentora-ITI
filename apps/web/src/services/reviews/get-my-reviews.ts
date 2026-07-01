@@ -7,21 +7,25 @@ export interface GetMyReviewsParams {
   limit?: number;
 }
 
-export async function getMyReviews(
+export async function getMyReviews(tutorProfileId : string ,
   params?: GetMyReviewsParams
 ): Promise<ReviewsData> {
   try {
     const response = await api.get<ApiSuccess<ReviewsData>>(
-      "/reviews/me",
+      `/reviews/tutors/${tutorProfileId}`,
       {
         params,
       }
     );
-
+    console.log(response.data.data)
     return response.data.data;
   } catch (error) {
     if (error instanceof ApiClientError) {
-      console.error(error.message);
+      console.log("Message:", error.message);
+    console.log("Status:", error.status);
+    console.log("cause:", error.cause);
+    console.log("details Data:", error.details);
+    console.log("stack Config:", error.stack);
     }
 
     throw error;
