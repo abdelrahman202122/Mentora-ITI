@@ -1,3 +1,5 @@
+
+
 "use client"
 
 import { useRef, useState, useEffect } from "react"
@@ -8,6 +10,7 @@ import { uploadAvatar, deleteAvatar } from "@/services/setting/avatarservice"
 import { updateProfileName } from "@/services/setting/editName"
 import { useCurrentUser, authKeys } from "@/hooks/auth/use-auth"
 import { useQueryClient } from "@tanstack/react-query"
+import { useTranslations } from "next-intl"
 
 function getInitials(name: string): string {
   return name
@@ -20,6 +23,7 @@ function getInitials(name: string): string {
 }
 
 export default function SettingsPage() {
+  const t = useTranslations("SettingsPage")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
   const { data: currentUser } = useCurrentUser()
@@ -65,12 +69,10 @@ export default function SettingsPage() {
   }
 
   function handleRemove() {
-    // ✅ only set avatarRemoved if there is actually something to remove
     const hasExistingAvatar = !!savedAvatarUrl
     const hasSelectedFile = !!selectedFile
 
     if (!hasExistingAvatar && !hasSelectedFile) {
-      // nothing to remove — just clear local UI state, no-op on save
       if (previewUrl) URL.revokeObjectURL(previewUrl)
       setSelectedFile(null)
       setPreviewUrl(null)
@@ -80,7 +82,6 @@ export default function SettingsPage() {
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setSelectedFile(null)
     setPreviewUrl(null)
-    // ✅ only mark removed if there's a real server avatar to delete
     setAvatarRemoved(hasExistingAvatar)
     setSaveError(null)
     setSaveSuccess(false)
@@ -96,7 +97,7 @@ export default function SettingsPage() {
     if (!nameChanged && !avatarUploadPending && !avatarRemovePending) return
 
     if (nameChanged && trimmedName.length === 0) {
-      setSaveError("Name cannot be empty.")
+      setSaveError(t("emptyNameError"))
       return
     }
 
@@ -104,7 +105,6 @@ export default function SettingsPage() {
     setSaveError(null)
     setSaveSuccess(false)
 
-    // ✅ track each task with its kind so we can reconcile individually
     const tasks: Promise<{ kind: "avatarUpload" | "avatarRemove" | "name" }>[] = []
 
     if (avatarUploadPending && selectedFile) {
@@ -137,7 +137,6 @@ export default function SettingsPage() {
 
     const results = await Promise.allSettled(tasks)
 
-    // ✅ reconcile individually — clear state only for succeeded operations
     const succeededKinds = new Set(
       results
         .filter((r): r is PromiseFulfilledResult<{ kind: "avatarUpload" | "avatarRemove" | "name" }> => r.status === "fulfilled")
@@ -154,15 +153,13 @@ export default function SettingsPage() {
       setAvatarRemoved(false)
     }
 
-    // name state is updated inside the task via setFullName(res.name)
-
     const failures = results.filter(
       (r): r is PromiseRejectedResult => r.status === "rejected"
     )
 
     if (failures.length > 0) {
       const messages = failures.map((f) =>
-        f.reason instanceof Error ? f.reason.message : "Something went wrong."
+        f.reason instanceof Error ? f.reason.message : t("genericError")
       )
       setSaveError(Array.from(new Set(messages)).join(" "))
     } else {
@@ -175,23 +172,23 @@ export default function SettingsPage() {
   return (
     <div className="p-4 sm:p-6 md:p-10">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#11142D]">Settings</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#11142D]">{t("title")}</h1>
         <p className="text-sm text-[#68718B] mt-1 mb-6 sm:mb-8">
-          Manage your account preferences and personal information.
+          {t("description")}
         </p>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-8">
-          <h2 className="text-lg font-bold text-[#11142D]">Profile Information</h2>
+          <h2 className="text-lg font-bold text-[#11142D]">{t("profileInfo")}</h2>
           <p className="text-sm text-[#68718B] mt-1 mb-6">
-            Update your photo and personal details.
+            {t("profileDesc")}
           </p>
 
           {/* Avatar Section */}
           <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 mb-4">
             <div className="w-full sm:w-40 shrink-0">
-              <p className="text-sm font-semibold text-[#11142D] mb-1">Profile Picture</p>
+              <p className="text-sm font-semibold text-[#11142D] mb-1">{t("profilePicture")}</p>
               <p className="text-xs text-[#68718B] mb-2 sm:mb-0">
-                This will be displayed on your profile and can be seen by tutors.
+                {t("avatarDesc")}
               </p>
             </div>
 
@@ -228,35 +225,35 @@ export default function SettingsPage() {
                   onClick={() => fileInputRef.current?.click()}
                   className="bg-[#5051F9] hover:bg-[#4041DB] text-sm py-2 px-3 sm:px-4 h-9 flex items-center gap-2"
                 >
-                  <Upload size={14} /> Upload New
+                  <Upload size={14} /> {t("uploadNew")}
                 </Button>
 
                 <button
                   onClick={handleRemove}
                   className="text-sm font-semibold px-3 sm:px-4 h-9 rounded-lg bg-[#EEF2FF] text-[#5051F9] hover:bg-[#E0E7FF] transition-colors"
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               </div>
             </div>
           </div>
 
           {selectedFile && (
-            <p className="text-xs text-[#5051F9] mb-4 sm:pl-46">
-              New photo selected — click Save Changes to upload it.
+            <p className="text-xs text-[#5051F9] mb-4 sm:inline-block sm:ps-44">
+              {t("newPhotoSelected")}
             </p>
           )}
           {!selectedFile && avatarRemoved && (
-            <p className="text-xs text-[#5051F9] mb-4 sm:pl-46">
-              Photo will be removed — click Save Changes to confirm.
+            <p className="text-xs text-[#5051F9] mb-4 sm:inline-block sm:ps-44">
+              {t("photoWillBeRemoved")}
             </p>
           )}
 
           {/* Name Section */}
           <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 mt-6 pt-4 border-t border-gray-50">
             <div className="w-full sm:w-40 shrink-0">
-              <p className="text-sm font-semibold text-[#11142D] mb-1">Full Name</p>
-              <p className="text-xs text-[#68718B] mb-2 sm:mb-0">Please use your real name.</p>
+              <p className="text-sm font-semibold text-[#11142D] mb-1">{t("fullName")}</p>
+              <p className="text-xs text-[#68718B] mb-2 sm:mb-0">{t("nameDesc")}</p>
             </div>
 
             <div className="w-full max-w-md">
@@ -273,10 +270,10 @@ export default function SettingsPage() {
           </div>
 
           {saveError && (
-            <p className="text-red-600 text-xs mt-4 text-left sm:text-right">{saveError}</p>
+            <p className="text-red-600 text-xs mt-4 text-start sm:text-end">{saveError}</p>
           )}
           {saveSuccess && (
-            <p className="text-green-600 text-xs mt-4 text-left sm:text-right">Changes saved.</p>
+            <p className="text-green-600 text-xs mt-4 text-start sm:text-end">{t("successMessage")}</p>
           )}
 
           {/* Actions */}
@@ -293,7 +290,7 @@ export default function SettingsPage() {
                 setSaveSuccess(false)
               }}
             >
-              Cancel
+              {t("cancel")}
             </button>
 
             <Button
@@ -301,7 +298,7 @@ export default function SettingsPage() {
               disabled={saving}
               className="bg-[#5051F9] hover:bg-[#4041DB] h-10 px-6 text-sm"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? t("saving") : t("saveChanges")}
             </Button>
           </div>
         </div>

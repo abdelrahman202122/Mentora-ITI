@@ -28,6 +28,7 @@ export type TutorSummary = {
   totalReviews: number
   totalStudents: number
   isAvailable: boolean
+
 }
 
 export type TutorReview = {

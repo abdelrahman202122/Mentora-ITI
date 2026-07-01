@@ -490,6 +490,254 @@
       "backToTop": "Back to top"
     }
   },
+  
+  "Booking": {
+    "backToTeacherProfile": "Back to Teacher Profile",
+    "bookNewSession": "Book New Session",
+    "missingTutorSubject": "We couldn't find the tutor or subject for this booking. Please go back and pick a tutor and subject before booking a session.",
+    "selectDate": "Select Date",
+    "lessonDuration": "Lesson Duration",
+    "duration30": "30 minutes session",
+    "duration60": "60 minutes session",
+    "duration90": "90 minutes session",
+    "selectTime": "Select Time",
+    "availableSlots": "Tutor Available Slots",
+    "loadingSlots": "Loading available slots...",
+    "noSlots": "No available slots for this day. Please select another date.",
+    "bookingSummary": "Booking Summary",
+    "booking": "Booking...",
+    "sendRequest": "Send Booking Request",
+    "pageLoading": "Loading...",
+    "errors": {
+      "missingInfo": "Missing tutor or subject information. Please go back and select a tutor and subject again.",
+      "invalidDateTime": "Invalid date or time selected. Please try again.",
+      "pastTime": "The selected time has already passed. Please choose a future time.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "success": {
+      "title": "Booking Request Sent!",
+      "description": "Your session with {tutorName} has been requested.",
+      "waiting": "Waiting for the tutor to confirm.",
+      "messageTutor": "Message Tutor",
+      "backToDashboard": "Back to Dashboard",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "minutes": "minutes",
+      "hourlyRate": "Hourly Rate",
+      "perHour": "/hr",
+      "totalPrice": "Total Price",
+      "status": "Status",
+      "pending": "Pending confirmation"
+    },
+    "summary": {
+      "pricePerHour": "Price per hour",
+      "duration": "Duration",
+      "hour": "Hour",
+      "mins": "mins",
+      "sessionCost": "Session cost",
+      
+      "totalPrice": "Total Price",
+      "termsAgree": "By confirming, you agree to Mentora's <terms>Terms of Service</terms> and <refund>Refund Policy</refund>."
+    }
+  }
+  ,
+  "Dashboard": {
+    "welcomeBack": "Welcome back, {name}",
+    "subtitle": "You're making great progress. Ready for your next challenge?",
+    "stats": {
+      "sessionsCompleted": "Sessions Completed",
+      "hoursLearned": "Hours Learned",
+      "upcomingSessions": "Upcoming Sessions"
+    },
+    "liveSession": {
+      "startsSoon": "Your session starts soon",
+      "with": "with {tutorName}",
+      "confirmationCode": "CONFIRMATION CODE:",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "failed": "Failed",
+      "joinNow": "Join Now"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "tabs": {
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "paid": "Paid"
+    },
+    "bookingsList": {
+      "title": "Upcoming Bookings",
+      "loading": "Loading bookings...",
+      "empty": "No bookings found.",
+      "with": "with {tutorName}",
+      "paid": "Paid",
+      "payNow": "Pay Now",
+      "processing": "Processing..."
+    },
+    "time": {
+      "tomorrow": "Tomorrow",
+      "sessionSuffix": "{duration}h session"
+    },
+    "errors": {
+      "payFailed": "Failed to start checkout. Please try again."
+    }
+  },
+  
+  "Payments": {
+    "recentTransactions": "Recent Transactions",
+    "exportCSV": "Export CSV",
+    "loadingTransactions": "Loading transactions...",
+    "noTransactions": "No transactions found.",
+    "downloadInvoice": "Download invoice",
+    "viewDetailsFor": "View payment details for {title}",
+    "sessionWith": "Session with {tutorName}",
+    "session": "Session",
+    "table": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "invoice": "Invoice"
+    },
+    "pagination": {
+      "showing": "Showing {from}–{to} of {total}"
+    },
+    "filter": {
+      "filter": "Filter",
+      "filterByDate": "Filter by Date",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear",
+      "apply": "Apply"
+    },
+    "status": {
+      "success": "Completed",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "pending": "Pending"
+    }
+  },
+  
+  "PaymentDetails": {
+    "backToPayments": "Back to Payments",
+    "loading": "Loading payment details...",
+    "notFoundError": "Payment ID not found in URL.",
+    "genericError": "Failed to load payment details.",
+    "title": "Payment Details",
+    "sections": {
+      "amount": "Amount",
+      "timeline": "Timeline",
+      "info": "Info"
+    },
+    "fields": {
+      "total": "Total",
+      "provider": "Provider",
+      "createdAt": "Created At",
+      "paidAt": "Paid At",
+      "failedAt": "Failed At",
+      "refundedAt": "Refunded At",
+      "failureReason": "Failure Reason",
+      "paymentId": "Payment ID",
+      "transactionId": "Transaction ID",
+      "relatedBooking": "Related Booking"
+    },
+    "status": {
+      "success": "Completed",
+      "pending": "Pending",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    }
+  },
+  
+  "SettingsPage": {
+    "title": "Settings",
+    "description": "Manage your account preferences and personal information.",
+    "profileInfo": "Profile Information",
+    "profileDesc": "Update your photo and personal details.",
+    "profilePicture": "Profile Picture",
+    "avatarDesc": "This will be displayed on your profile and can be seen by tutors.",
+    "uploadNew": "Upload New",
+    "remove": "Remove",
+    "newPhotoSelected": "New photo selected — click Save Changes to upload it.",
+    "photoWillBeRemoved": "Photo will be removed — click Save Changes to confirm.",
+    "fullName": "Full Name",
+    "nameDesc": "Please use your real name.",
+    "emptyNameError": "Name cannot be empty.",
+    "genericError": "Something went wrong.",
+    "successMessage": "Changes saved.",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving..."
+  },
+  
+  "BookingDetails": {
+    "backToBookings": "Back to My Bookings",
+    "loading": "Loading booking details...",
+    "bookingIdNotFound": "Booking ID not found in URL.",
+    "title": "Booking Details",
+    "session": "Session",
+    "date": "Date",
+    "time": "Time",
+    "duration": "Duration",
+    "minutes": "minutes",
+    "payment": "Payment",
+    "price": "Price",
+    "paymentStatus": "Payment Status",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "yourNote": "Your Note",
+    "cancellation": "Cancellation",
+    "canceledBy": "Canceled By",
+    "reason": "Reason",
+    "canceledAt": "Canceled At",
+    "info": "Info",
+    "bookingId": "Booking ID",
+    "createdAt": "Created At",
+    "payNow": "Pay Now",
+    "processing": "Processing...",
+    "cancelBooking": "Cancel Booking",
+    "cancelModalTitle": "Cancel Booking",
+    "cancelModalDesc": "Please tell us why you want to cancel.",
+    "cancelPlaceholder": "e.g. Sudden schedule conflict",
+    "cancelReasonError": "Please provide a reason for cancellation.",
+    "genericError": "Something went wrong.",
+    "paymentInitError": "Payment could not be initiated. Please try again or contact support.",
+    "paymentFailedError": "Payment failed. Please try again.",
+    "goBack": "Go Back",
+    "confirmCancel": "Confirm Cancel",
+    "canceling": "Canceling...",
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled"
+    }
+  },
+  "TutorProfile": {
+    "backToTutors": "Back to Tutors",
+    "loading": "Loading...",
+    "tutorNotFound": "Tutor not found.",
+    "reviews": "({count} reviews)",
+    "students": "{count} students",
+    "hourlyRate": "{rate} {currency}/hr",
+    "startingChat": "Starting chat...",
+    "chatWith": "Chat with {name}",
+    "aboutMe": "About Me",
+    "availability": "Availability",
+    "coursesOffered": "Courses Offered",
+    "hourSession": "{rate} {currency} / hour session",
+    "deepDive": "A deep dive into {subject} concepts for all levels.",
+    "bookSession": "Book a Session — {rate} {currency}/hr"
   "tutorDashboard": {
     "welcomeBack": "Welcome back",
     "stats": {
@@ -664,3 +912,11 @@
   "empty": "No weekly availability set yet."
 }
 }
+ 
+
+
+
+
+
+
+

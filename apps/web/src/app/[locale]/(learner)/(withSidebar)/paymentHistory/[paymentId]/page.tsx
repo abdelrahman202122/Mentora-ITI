@@ -1,3 +1,5 @@
+
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -8,9 +10,9 @@ import {
   AlertCircle,
   Loader2,
   CreditCard,
-  Hash,
   Link2,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -27,17 +29,24 @@ function formatDate(iso: string | null): string {
   })
 }
 
-function StatusBadge({ status }: { status: PaymentDetails["status"] }) {
-  const map: Record<string, { label: string; className: string }> = {
-    success:  { label: "Completed", className: "bg-green-100 text-green-700 border-green-200" },
-    pending:  { label: "Pending",   className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-    failed:   { label: "Failed",    className: "bg-red-100 text-red-600 border-red-200" },
-    refunded: { label: "Refunded",  className: "bg-blue-100 text-blue-700 border-blue-200" },
+function StatusBadge({
+  status,
+  t,
+}: {
+  status: PaymentDetails["status"]
+  t: ReturnType<typeof useTranslations<"PaymentDetails">>
+}) {
+  const map: Record<string, { className: string }> = {
+    success: { className: "bg-green-100 text-green-700 border-green-200" },
+    pending: { className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
+    failed: { className: "bg-red-100 text-red-600 border-red-200" },
+    refunded: { className: "bg-blue-100 text-blue-700 border-blue-200" },
   }
   const s = map[status] ?? map.pending
+  const label = t(`status.${status}` as any)
   return (
     <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${s.className}`}>
-      {s.label}
+      {label}
     </span>
   )
 }
@@ -55,6 +64,7 @@ export default function PaymentDetailsPage() {
   const params = useParams()
   const paymentId = params.paymentId as string
   const locale = (params.locale as string) ?? "en"
+  const t = useTranslations("PaymentDetails")
 
   const [payment, setPayment] = useState<PaymentDetails | null>(null)
   const [loading, setLoading] = useState(() => Boolean(paymentId))
@@ -64,12 +74,14 @@ export default function PaymentDetailsPage() {
 
   useEffect(() => {
     if (!paymentId) {
+      setError(t("notFoundError"))
+      setLoading(false)
       return
     }
 
     getPaymentById(paymentId)
       .then(setPayment)
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load payment details."))
+      .catch((err) => setError(err instanceof Error ? err.message : t("genericError")))
       .finally(() => setLoading(false))
   }, [paymentId])
 
@@ -80,7 +92,7 @@ export default function PaymentDetailsPage() {
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
             <Link href={`/${locale}/paymentHistory`}>
-              <ArrowLeft size={16} /> Back to Payments
+              <ArrowLeft size={16} /> {t("backToPayments")}
             </Link>
           </Button>
         </div>
@@ -88,7 +100,7 @@ export default function PaymentDetailsPage() {
         {loading && (
           <div className="flex items-center justify-center py-24 text-muted-foreground gap-2">
             <Loader2 size={20} className="animate-spin" />
-            <span>Loading payment details...</span>
+            <span>{t("loading")}</span>
           </div>
         )}
 
@@ -102,47 +114,53 @@ export default function PaymentDetailsPage() {
         {!loading && !error && payment && (
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl font-bold">Payment Details</CardTitle>
-              <StatusBadge status={payment.status} />
+              <CardTitle className="text-xl font-bold">{t("title")}</CardTitle>
+              <StatusBadge status={payment.status} t={t} />
             </CardHeader>
 
             <CardContent className="space-y-1">
 
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Amount</p>
-              <Row label="Total" value={
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                {t("sections.amount")}
+              </p>
+              <Row label={t("fields.total")} value={
                 <span className="flex items-center gap-2">
                   <CreditCard size={14} className="text-muted-foreground" />
                   {payment.currency} {payment.amount.toFixed(2)}
                 </span>
               } />
-              <Row label="Provider" value={payment.provider} />
+              <Row label={t("fields.provider")} value={payment.provider} />
 
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Timeline</p>
-              <Row label="Created At" value={
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">
+                {t("sections.timeline")}
+              </p>
+              <Row label={t("fields.createdAt")} value={
                 <span className="flex items-center gap-2">
                   <Calendar size={14} className="text-muted-foreground" />
                   {formatDate(payment.createdAt)}
                 </span>
               } />
-              {payment.paidAt && <Row label="Paid At" value={formatDate(payment.paidAt)} />}
-              {payment.failedAt && <Row label="Failed At" value={formatDate(payment.failedAt)} />}
-              {payment.refundedAt && <Row label="Refunded At" value={formatDate(payment.refundedAt)} />}
+              {payment.paidAt && <Row label={t("fields.paidAt")} value={formatDate(payment.paidAt)} />}
+              {payment.failedAt && <Row label={t("fields.failedAt")} value={formatDate(payment.failedAt)} />}
+              {payment.refundedAt && <Row label={t("fields.refundedAt")} value={formatDate(payment.refundedAt)} />}
               {payment.failureReason && (
-                <Row label="Failure Reason" value={
+                <Row label={t("fields.failureReason")} value={
                   <span className="text-red-600">{payment.failureReason}</span>
                 } />
               )}
 
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Info</p>
-              <Row label="Payment ID" value={<span className="font-mono text-xs">{payment._id}</span>} />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">
+                {t("sections.info")}
+              </p>
+              <Row label={t("fields.paymentId")} value={<span className="font-mono text-xs">{payment._id}</span>} />
               {payment.providerTransactionId && (
                 <Row
-                  label="Transaction ID"
+                  label={t("fields.transactionId")}
                   value={<span className="font-mono text-xs">{payment.providerTransactionId}</span>}
                 />
               )}
               <Row
-                label="Related Booking"
+                label={t("fields.relatedBooking")}
                 value={
                   <Link
                     href={`/${locale}/booking/${payment.bookingId}`}
