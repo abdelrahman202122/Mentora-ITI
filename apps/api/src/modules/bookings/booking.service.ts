@@ -7,6 +7,8 @@ import type {
 } from './booking.types.js';
 import { PaymentStatus } from './booking.types.js';
 import * as bookingRepository from './booking.repository.js';
+import * as earningRepository from '../payments/earning.repository.js';
+import { EarningStatus } from '../payments/earning.types.js';
 import {
   decryptConfirmationCode,
   encryptConfirmationCode,
@@ -62,6 +64,28 @@ function formatBookingsForResponse(
   return bookings.map((booking) =>
     formatBookingForResponse(booking, viewerRole),
   );
+}
+
+async function promoteBookingEarningToAvailable(
+  bookingId: Types.ObjectId,
+  availableAt: Date,
+): Promise<void> {
+  const updatedEarning = await earningRepository.updateEarningAtomically(
+    {
+      bookingId,
+      status: EarningStatus.PENDING,
+    },
+    {
+      status: EarningStatus.AVAILABLE,
+      availableAt,
+    },
+  );
+
+  if (!updatedEarning) {
+    // The booking can still complete, but this should be investigated because
+    // the earning should have been created when the payment succeeded.
+    return;
+  }
 }
 
 type CreateBookingPayload = Omit<
@@ -572,9 +596,10 @@ export async function confirmBookingCode(
     throw createBookingError('Invalid confirmation code', 401);
   }
 
+  const completedAt = new Date();
   const updatedBooking = await bookingRepository.completeConfirmedBooking(
     bookingId,
-    new Date(),
+    completedAt,
   );
 
   if (!updatedBooking) {
@@ -583,6 +608,11 @@ export async function confirmBookingCode(
       409,
     );
   }
+
+  await promoteBookingEarningToAvailable(
+    bookingId,
+    updatedBooking.completedAt ?? completedAt,
+  );
 
   return formatBookingForResponse(updatedBooking, 'tutor');
 }
