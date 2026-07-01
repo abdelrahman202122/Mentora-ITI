@@ -159,9 +159,9 @@ export function mapToBooking(raw: RawBookingFromBackend): Booking {
   return {
     id: raw._id,
     bookingId: raw.bookingId ?? `#BK-${raw._id.slice(-6).toUpperCase()}`,
-    learner: extractName(raw.learnerId as any, "Unknown Learner"),
-    tutor: extractName(raw.tutorId as any, "Unknown Tutor"),
-    subject: extractSubject(raw.subjectId as any),
+    learner: extractName(raw.learnerId, "Unknown Learner"),
+    tutor: extractName(raw.tutorId, "Unknown Tutor"),
+    subject: extractSubject(raw.subjectId),
     hasBadge: false,
     date: formatDate(raw.startAt),
     status: bookingStatus,

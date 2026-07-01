@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useState, type SetStateAction } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   listBookings,
   type ListBookingsParams,
 } from "@/lib/api/admin-bookings";
-import type { Booking } from "@/types/admin";
 
 export interface BookingFilters {
   bookingStatus: string;
@@ -25,7 +25,6 @@ interface UseAdminBookingsOptions {
   perPage?: number;
 }
 
-/* Convert date range dropdown value → { startAtFrom, startAtTo } ISO strings */
 function resolveDateRange(
   range: string,
 ): { startAtFrom?: string; startAtTo?: string } {
@@ -51,9 +50,9 @@ function resolveDateRange(
   }
 }
 
-/* Convert frontend status label → backend enum value (lowercase) */
 function resolveBookingStatus(status: string): string | undefined {
   if (!status) return undefined;
+
   const map: Record<string, string> = {
     Pending: "pending",
     Confirmed: "confirmed",
@@ -63,37 +62,35 @@ function resolveBookingStatus(status: string): string | undefined {
     Cancelled: "canceled",
     Expired: "expired",
   };
+
   return map[status];
 }
 
 export function useAdminBookings({
   perPage = 10,
 }: UseAdminBookingsOptions = {}) {
-  const [allBookings, setAllBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-
   const [filters, setFilters] = useState<BookingFilters>(EMPTY_FILTERS);
 
-  /* ── Reset to page 1 when filters change ─────────────────────────── */
-  useEffect(() => {
+  const updateFilters = useCallback((nextFilters: SetStateAction<BookingFilters>) => {
     setPage(1);
-  }, [filters]);
+    setFilters(nextFilters);
+  }, []);
 
-  /* ── Fetch bookings from backend ───────────────────────────────────
-     Sends bookingStatus + dateRange to the backend (server-side filter).
-     Tutor/learner name search is done client-side after fetch. */
-  const fetchBookings = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const dateRange = resolveDateRange(filters.dateRange);
-      const bookingStatus = resolveBookingStatus(filters.bookingStatus);
+  const dateRange = resolveDateRange(filters.dateRange);
+  const bookingStatus = resolveBookingStatus(filters.bookingStatus);
 
+  const bookingQuery = useQuery({
+    queryKey: [
+      "admin",
+      "bookings",
+      page,
+      perPage,
+      bookingStatus,
+      dateRange.startAtFrom,
+      dateRange.startAtTo,
+    ],
+    queryFn: () => {
       const params: ListBookingsParams = {
         page,
         limit: perPage,
@@ -101,58 +98,41 @@ export function useAdminBookings({
         ...dateRange,
       };
 
-      const result = await listBookings(params);
-      setAllBookings(result.bookings);
-      setTotalPages(result.meta.totalPages ?? 1);
-      setTotalItems(result.meta.total ?? 0);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load bookings");
-      setAllBookings([]);
-      setTotalItems(0);
-      setTotalPages(1);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, perPage, filters.bookingStatus, filters.dateRange]);
+      return listBookings(params);
+    },
+  });
 
-  useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
+  const allBookings = bookingQuery.data?.bookings ?? [];
+  const isNameFilterActive = Boolean(filters.tutorQuery || filters.learnerQuery);
 
-  /* ── Client-side name filtering ────────────────────────────────────
-     Filter the fetched bookings by tutor/learner name. */
-  const isNameFilterActive = !!filters.tutorQuery || !!filters.learnerQuery;
-  
-  const bookings = allBookings.filter((b) => {
+  const bookings = allBookings.filter((booking) => {
     const tutorMatch =
       !filters.tutorQuery ||
-      b.tutor.toLowerCase().includes(filters.tutorQuery.toLowerCase());
+      booking.tutor.toLowerCase().includes(filters.tutorQuery.toLowerCase());
     const learnerMatch =
       !filters.learnerQuery ||
-      b.learner.toLowerCase().includes(filters.learnerQuery.toLowerCase());
+      booking.learner.toLowerCase().includes(filters.learnerQuery.toLowerCase());
     return tutorMatch && learnerMatch;
   });
 
-  /* ── Recalculate totals when name filters are active ───────────────
-     Ensures totalItems and totalPages stay in sync with the displayed list. */
+  const totalItems = bookingQuery.data?.meta.total ?? 0;
+  const totalPages = bookingQuery.data?.meta.totalPages ?? 1;
   const finalTotalItems = isNameFilterActive ? bookings.length : totalItems;
   const finalTotalPages = isNameFilterActive ? 1 : totalPages;
 
   return {
-    // data (client-filtered)
     bookings,
-    loading,
-    error,
-    // pagination
+    loading: bookingQuery.isPending,
+    error:
+      bookingQuery.error instanceof Error ? bookingQuery.error.message : null,
     page,
     totalPages: finalTotalPages,
     totalItems: finalTotalItems,
     setPage,
-    // filters
     filters,
-    setFilters,
-    // misc
-    refetch: fetchBookings,
-    setAllBookings,
+    setFilters: updateFilters,
+    refetch: () => {
+      void bookingQuery.refetch();
+    },
   };
 }
