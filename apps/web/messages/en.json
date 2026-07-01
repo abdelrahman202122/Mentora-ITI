@@ -738,6 +738,7 @@
     "hourSession": "{rate} {currency} / hour session",
     "deepDive": "A deep dive into {subject} concepts for all levels.",
     "bookSession": "Book a Session — {rate} {currency}/hr"
+  },
   "tutorDashboard": {
     "welcomeBack": "Welcome back",
     "stats": {
