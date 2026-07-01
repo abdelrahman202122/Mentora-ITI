@@ -72,7 +72,7 @@ export default function PaymentDetailsPage() {
     paymentId ? null : "Payment ID not found in URL.",
   )
 
-  useEffect(() => {
+useEffect(() => {
     if (!paymentId) {
       setError(t("notFoundError"))
       setLoading(false)
@@ -81,10 +81,10 @@ export default function PaymentDetailsPage() {
 
     getPaymentById(paymentId)
       .then(setPayment)
-      .catch((err) => setError(err instanceof Error ? err.message : t("genericError")))
+      // 🛠️ تم تعديل الـ catch هنا ليعتمد دائماً على النص المترجم للخطأ العام بدلاً من err.message
+      .catch(() => setError(t("genericError")))
       .finally(() => setLoading(false))
   }, [paymentId])
-
   return (
     <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
       <div className="max-w-2xl mx-auto">

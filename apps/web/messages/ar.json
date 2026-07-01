@@ -545,7 +545,7 @@
   
   "Dashboard": {
     "welcomeBack": "أهلاً بعودتك، {name}",
-    "subtitle": "أنت بتحقق تقدم رائع. مستعد للتحدي الجاي؟",
+    "subtitle": "أنت بتحقق تقدم رائع.هل أنت مستعد للتحدي القادم؟",
     "stats": {
       "sessionsCompleted": "الجلسات المكتملة",
       "hoursLearned": "ساعات التعلّم",
@@ -595,6 +595,7 @@
   },
   "Payments": {
     "recentTransactions": "أحدث المعاملات",
+    "downloadInvoiceFor": "تحميل الفاتورة الخاصة بـ {title}",
     "exportCSV": "تصدير CSV",
     "loadingTransactions": "جاري تحميل المعاملات...",
     "noTransactions": "لا توجد معاملات.",
@@ -681,7 +682,7 @@
   },
   
   "BookingDetails": {
-    "backToBookings": "العودة إلى حتوزاتي",
+    "backToBookings": "العودة إلى حجوزاتي",
     "loading": "جاري تحميل تفاصيل الحجز...",
     "bookingIdNotFound": "لم يتم العثور على معرف الحجز في الرابط.",
     "title": "تفاصيل الحجز",

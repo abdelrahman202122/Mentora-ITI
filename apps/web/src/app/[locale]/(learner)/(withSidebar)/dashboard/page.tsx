@@ -24,9 +24,10 @@ function formatDisplayTime(
   iso: string,
   duration: number,
   t: ReturnType<typeof useTranslations<'Dashboard'>>,
+  locale: string,
 ) {
   const dateObj = new Date(iso);
-  const timeString = dateObj.toLocaleTimeString('en-US', {
+  const timeString = dateObj.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -41,7 +42,7 @@ function formatDisplayTime(
   const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
   const datePrefix = isTomorrow
     ? t('time.tomorrow')
-    : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    : dateObj.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 
   return `${datePrefix}, ${timeString} (${durationText})`;
 }
@@ -452,7 +453,7 @@ export default function LearnerDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 ml-auto sm:ml-0">
+                    {/* <div className="flex items-center gap-4 ml-auto sm:ml-0">
                       <div className="flex items-center gap-2 text-xs font-semibold text-[#68718B] bg-gray-50 px-3 py-2 rounded-xl border border-gray-100/80">
                         <Calendar size={14} className="text-[#5051F9]" />
                         <span>
@@ -489,7 +490,49 @@ export default function LearnerDashboardPage() {
                           )}
                         </Button>
                       )}
-                    </div>
+                    </div> */}
+
+
+
+                    <div className="flex items-center gap-4 ml-auto sm:ml-0">
+  <div className="flex items-center gap-2 text-xs font-semibold text-[#68718B] bg-gray-50 px-3 py-2 rounded-xl border border-gray-100/80">
+    <Calendar size={14} className="text-[#5051F9]" />
+    <span>
+      {formatDisplayTime(
+        booking.startAt,
+        booking.durationMinutes,
+        t,
+        locale // 👈 تم إضافة متغير الـ locale هنا كمعامل رابع
+      )}
+    </span>
+  </div>
+
+  {isPaid && (
+    <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-2 rounded-xl shrink-0">
+      <CheckCircle2 size={14} className="text-green-600" />
+      {t('bookingsList.paid')}
+    </span>
+  )}
+
+  {showPayNow && (
+    <Button
+      disabled={isCheckingOut}
+      onClick={(e) => {
+        e.stopPropagation();
+        handlePayNow(booking._id);
+      }}
+      className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      {isCheckingOut ? (
+        <>
+          <Loader2 size={12} className="animate-spin mr-1" /> {t('bookingsList.processing')}
+        </>
+      ) : (
+        t('bookingsList.payNow')
+      )}
+    </Button>
+  )}
+</div>
                   </div>
                 );
               })}
