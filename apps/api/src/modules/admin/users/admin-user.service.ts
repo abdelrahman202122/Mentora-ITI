@@ -2,12 +2,10 @@ import crypto from 'node:crypto';
 import {
   ConflictError,
   NotFoundError,
-  UnauthorizedError,
   ValidationError,
 } from '../../../common/errors/AppError.js';
 import { logger } from '../../../config/logger.js';
 import { AuditAction } from '../../audit/audit.interface.js';
-import { hashPassword } from '../../../utils/hashPassword.js';
 import { createAuditLog } from '../../audit/audit.service.js';
 import type {
   AdminUserDetail,
@@ -161,7 +159,6 @@ export const createUser = async (
   /* Generate a random temp password — the user will reset it
      via the invitation email */
 
-  const isActive = data.status === 'Active';
   const temporaryPassword = crypto
   .randomBytes(32)
   .toString("hex");
@@ -171,7 +168,7 @@ export const createUser = async (
     email: data.email,
     role: roleToDb[data.role] ?? data.role,
     adminStatus: data.status,
-    isActive:false,
+    isActive: data.status === 'Active',
     password: temporaryPassword,
   });
 

@@ -3,7 +3,10 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../../config/logger.js';
-import { cookieOptions } from '../../config/cookie.config.js';
+import {
+  clearCookieOptions,
+  cookieOptions,
+} from '../../config/cookie.config.js';
 import * as userService from './user.service.js';
 import {
   UnauthorizedError,
@@ -75,9 +78,9 @@ export const logout = async (
 
     await userService.logout(userId);
 
-    res.clearCookie('accessToken');
+    res.clearCookie('accessToken', clearCookieOptions);
 
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', clearCookieOptions);
 
     logger.info({
       event: 'logout.completed',
@@ -358,7 +361,7 @@ export const forgotPassword = async (
 try {
     const { email } = req.body;
 
-    const resetToken = await userService.forgotPassword(email);
+    await userService.forgotPassword(email);
 
     res.status(200).json({
       success: true,
