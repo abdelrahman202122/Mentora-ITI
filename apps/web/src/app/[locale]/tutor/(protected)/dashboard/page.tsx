@@ -1,4 +1,3 @@
-
 'use client'
 
 import { AlertCircle, CheckCircle2, CreditCard, School, Timer, Video } from "lucide-react";
