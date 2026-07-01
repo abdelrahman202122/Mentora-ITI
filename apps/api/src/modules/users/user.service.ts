@@ -890,13 +890,14 @@ export const forgotPassword = async (email: string): Promise<string | undefined>
     userId: user._id.toString(),
   });
 
-  sendResetEmail(user.email, otp).catch((error) => {
-    logger.error({
-      event: 'email.reset.failed',
-      userId: user._id.toString(),
-      error,
-    });
-  });
+  try {
+    await sendResetEmail(user.email, otp);
+  } catch (error) {
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await user.save();
+    throw error;
+  }
 
   // Return the raw OTP so the controller can surface it in dev mode
   return otp;
