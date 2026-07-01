@@ -5,7 +5,7 @@ import { TutorSearchViewModel } from './tutor-search-view.model.js';
 const pipeline = [
   {
     $match: {
-      role: 'tutor', // tutor accounts only
+      roles: 'tutor', // tutor-capable accounts only
     },
   },
 

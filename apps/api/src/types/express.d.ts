@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-import { AuthPayload } from "../modules/users/user.interface.ts";
+import type { AuthPayload } from '../modules/users/user.interface.js';
 
 declare global {
   namespace Express {

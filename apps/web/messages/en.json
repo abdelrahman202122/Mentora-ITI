@@ -989,6 +989,8 @@
   "collapse": "Collapse sidebar",
   "userAvatar": "User Avatar",
   "home": "Home",
+  "switchToTutor": "Switch to tutor mode",
+  "switchToLearner": "Switch to learner mode",
   "loggingOut": "Logging out...",
   "logOut": "Log Out"
 },

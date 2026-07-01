@@ -15,6 +15,8 @@ import {
   generateConfirmationCode,
   isConfirmationCodeMatch,
 } from './confirmation-code.util.js';
+import { hasRole } from '../users/role.utils.js';
+import { UserRole } from '../users/user.interface.js';
 
 /**
  * Booking service handles business logic for booking operations
@@ -97,7 +99,8 @@ type CreateBookingPayload = Omit<
 
 interface UserContext {
   id: string | Types.ObjectId;
-  role: string;
+  role?: string;
+  roles?: string[];
 }
 
 function createBookingError(message: string, statusCode: number) {
@@ -108,7 +111,7 @@ function createBookingError(message: string, statusCode: number) {
  * Validate that the user is a learner
  */
 export function validateLearnerRole(user: UserContext): void {
-  if (user.role !== 'learner') {
+  if (!hasRole(user, UserRole.LEARNER)) {
     throw createBookingError('Only learners can create bookings', 403);
   }
 }
@@ -328,7 +331,7 @@ export async function createBooking(
  * Validate that the user is a tutor
  */
 export function validateTutorRole(user: UserContext): void {
-  if (user.role !== 'tutor') {
+  if (!hasRole(user, UserRole.TUTOR)) {
     throw createBookingError('Only tutors can accept or reject bookings', 403);
   }
 }
@@ -479,7 +482,7 @@ export async function rejectBooking(
 export async function cancelBooking(
   bookingId: Types.ObjectId,
   userId: string | Types.ObjectId,
-  userRole: string,
+  userRoles: string[],
   cancelReason?: string,
 ): Promise<BookingResponse> {
   const booking = await bookingRepository.findBookingById(bookingId);
@@ -488,14 +491,30 @@ export async function cancelBooking(
     throw new NotFoundError('Booking not found');
   }
 
-  if (userRole !== 'learner' && userRole !== 'tutor') {
+  const userContext = { roles: userRoles };
+  const canCancelAsLearner =
+    hasRole(userContext, UserRole.LEARNER) &&
+    booking.learnerId.equals(
+      typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId,
+    );
+  const canCancelAsTutor =
+    hasRole(userContext, UserRole.TUTOR) &&
+    booking.tutorId.equals(
+      typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId,
+    );
+
+  if (!canCancelAsLearner && !canCancelAsTutor) {
     throw createBookingError(
-      'Only learners and tutors can cancel bookings',
+      'This booking does not belong to you',
       403,
     );
   }
 
-  if (userRole === 'learner') {
+  const cancelRole: 'learner' | 'tutor' = canCancelAsLearner
+    ? 'learner'
+    : 'tutor';
+
+  if (cancelRole === 'learner') {
     validateBookingBelongsToLearner(booking.learnerId, userId);
   } else {
     validateBookingBelongsToTutor(booking.tutorId, userId);
@@ -518,7 +537,7 @@ export async function cancelBooking(
     bookingId,
     {
       canceledAt: new Date(),
-      canceledBy: userRole as 'learner' | 'tutor',
+      canceledBy: cancelRole,
       cancelReason,
     },
   );
@@ -530,7 +549,7 @@ export async function cancelBooking(
     );
   }
 
-  return formatBookingForResponse(updatedBooking, userRole);
+  return formatBookingForResponse(updatedBooking, cancelRole);
 }
 
 /**
@@ -805,7 +824,7 @@ export async function listAdminBookings(
  * For tutors, the confirmationCode field is excluded from the response
  * @param bookingId - The booking ID
 
- * @param userRole - The authenticated user's role
+ * @param userRoles - The authenticated user's roles
  * @returns The booking if the user is authorized
  * @throws NotFoundError if booking does not exist
  * @throws UnauthorizedError if user is not authorized to view the booking
@@ -813,7 +832,7 @@ export async function listAdminBookings(
 export async function getBookingByIdWithAuth(
   bookingId: Types.ObjectId,
   userId: Types.ObjectId | string,
-  userRole: string,
+  userRoles: string[],
 ): Promise<BookingResponse> {
   const booking = await bookingRepository.findBookingById(bookingId);
 
@@ -830,9 +849,8 @@ export async function getBookingByIdWithAuth(
   // Check authorization: user must be learner, tutor, or admin for this booking
   const isLearner = booking.learnerId.equals(userObjectId);
   const isTutor = booking.tutorId.equals(userObjectId);
-  const isAdmin = userRole === 'admin';
-
-  const viewerRole: ViewerRole = userRole as ViewerRole;
+  const userContext = { roles: userRoles };
+  const isAdmin = hasRole(userContext, UserRole.ADMIN);
 
   if (!isLearner && !isTutor && !isAdmin) {
     throw new AppError(
@@ -842,14 +860,11 @@ export async function getBookingByIdWithAuth(
     );
   }
 
-  // For tutors, exclude confirmationCode from response
-  if (isTutor && !isAdmin) {
-    const bookingObj =
-      booking instanceof mongoose.Model ? booking.toObject() : booking;
-    const bookingWithoutCode = { ...(bookingObj as Record<string, unknown>) };
-    delete bookingWithoutCode.confirmationCode;
-    return bookingWithoutCode as unknown as IBooking;
-  }
+  const viewerRole: ViewerRole = isLearner
+    ? 'learner'
+    : isTutor
+      ? 'tutor'
+      : 'admin';
 
   return formatBookingForResponse(booking, viewerRole);
 }

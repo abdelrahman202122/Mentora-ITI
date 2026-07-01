@@ -25,7 +25,8 @@ import { DEFAULT_COMMISSION_RATE } from '../bookings/booking.model.js';
 import { logger } from '../../config/logger.js';
 import { findUserById } from '../users/user.repository.js';
 import mongoose from 'mongoose';
-import { UserModel } from '../users/user.model.js';
+import { hasRole } from '../users/role.utils.js';
+import { UserRole } from '../users/user.interface.js';
 
 /**
  * Payment service handles business logic for payment and Paymob checkout workflows.
@@ -44,6 +45,17 @@ interface PaymobBillingData {
   first_name: string;
   last_name: string;
   phone_number: string;
+}
+
+interface PaymobIntentionRequestBody {
+  amount: number;
+  currency: string;
+  payment_methods: [number];
+  items: unknown[];
+  billing_data: PaymobBillingData;
+  special_reference: string;
+  notification_url?: string;
+  redirection_url: string;
 }
 
 /**
@@ -127,9 +139,7 @@ function buildPaymobRedirectUrl(paymentId: string): string {
 async function getLearnerBillingData(
   learnerId: Types.ObjectId,
 ): Promise<PaymobBillingData> {
-  const learner = await UserModel.findById(learnerId)
-    .select('name phoneNumber')
-    .lean();
+  const learner = await findUserById(learnerId.toString());
 
   if (!learner) {
     throw new NotFoundError('Learner not found');
@@ -625,7 +635,7 @@ export async function initiateCheckout(
 export async function getPaymentById(
   paymentId: Types.ObjectId,
   userId: string,
-  role: string,
+  roles: string[],
 ): Promise<PaymentResponseDTO> {
   // Step 1: Fetch the payment
   const payment = await paymentRepository.findPaymentById(paymentId);
@@ -635,24 +645,11 @@ export async function getPaymentById(
     throw new NotFoundError('Payment not found');
   }
 
-  // Step 3: If the requesting user is a learner, verify payment.learnerId matches userId.
-  if (role === 'learner') {
-    if (payment.learnerId.toString() !== userId) {
-      throw new ForbiddenError(
-        'You do not have permission to view this payment',
-      );
-    }
-  }
-  // Step 4: If the requesting user is a tutor, verify payment.tutorId matches userId.
-  else if (role === 'tutor') {
-    if (payment.tutorId.toString() !== userId) {
-      throw new ForbiddenError(
-        'You do not have permission to view this payment',
-      );
-    }
-  }
-  // If the user has a role other than learner or tutor, deny access.
-  else {
+  const isLearnerOwner = payment.learnerId.toString() === userId;
+  const isTutorOwner = payment.tutorId.toString() === userId;
+  const isAdmin = hasRole({ roles }, UserRole.ADMIN);
+
+  if (!isLearnerOwner && !isTutorOwner && !isAdmin) {
     throw new ForbiddenError('You do not have permission to view this payment');
   }
 

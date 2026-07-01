@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/auth/use-auth";
 import type { UserRole } from "@/types/auth/auth-types";
+import { hasAnyRole } from "@/utils/auth/role-utils";
 import { getLocalePath } from "@/utils/i18n/locale-path";
 
 type AuthGuardProps = {
@@ -20,7 +21,7 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   const router = useRouter();
   const locale = useLocale();
   const { data: user, error, isPending, refetch } = useCurrentUser();
-  const hasAllowedRole = !allowedRoles || (user ? allowedRoles.includes(user.role) : false);
+  const hasAllowedRole = !allowedRoles || hasAnyRole(user, allowedRoles);
 
   useEffect(() => {
     if (isPending || error) {
