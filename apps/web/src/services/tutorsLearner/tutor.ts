@@ -10,7 +10,13 @@ import type { TutorProfileData } from "@/types/tutor/tutor-profile"
 
 export type TutorSubjectSummary = Pick<
   TutorSearchSubject,
-  "category" | "curriculum" | "educationLevel" | "id" | "title"
+  | "category"
+  | "curriculum"
+  | "description"
+  | "educationLevel"
+  | "gradeNote"
+  | "id"
+  | "title"
 >
 
 export type TutorSummary = {
@@ -50,6 +56,10 @@ type TutorAvailabilityResponse = {
   slots?: Record<string, { startTime: string; endTime: string }[]>
 }
 
+type TutorSubjectResponse = TutorSearchSubject & {
+  _id?: string
+}
+
 const dayLabels: Record<string, string> = {
   friday: "Friday",
   monday: "Monday",
@@ -64,7 +74,9 @@ function toSubjectSummary(subject: TutorSearchSubject): TutorSubjectSummary {
   return {
     category: subject.category,
     curriculum: subject.curriculum,
+    description: subject.description,
     educationLevel: subject.educationLevel,
+    gradeNote: subject.gradeNote,
     id: subject.id,
     title: subject.title,
   }
@@ -74,9 +86,25 @@ function fallbackSubject(title: string): TutorSubjectSummary {
   return {
     category: "",
     curriculum: "",
+    description: "",
     educationLevel: "",
+    gradeNote: "",
     id: "",
     title,
+  }
+}
+
+function toSubjectSummaryFromResponse(
+  subject: TutorSubjectResponse
+): TutorSubjectSummary {
+  return {
+    category: subject.category,
+    curriculum: subject.curriculum,
+    description: subject.description,
+    educationLevel: subject.educationLevel,
+    gradeNote: subject.gradeNote,
+    id: subject.id ?? subject._id ?? "",
+    title: subject.title,
   }
 }
 
@@ -188,6 +216,23 @@ async function getAvailabilityLabels(tutorId: string): Promise<string[]> {
   }
 }
 
+async function getTutorSubjectSummaries(
+  tutorId: string
+): Promise<TutorSubjectSummary[]> {
+  try {
+    const response = await api.get<ApiSuccess<TutorSubjectResponse[]>>(
+      `/tutors/${tutorId}/subjects`
+    )
+
+    return response.data.data
+      .map(toSubjectSummaryFromResponse)
+      .filter((subject) => Boolean(subject.id))
+  } catch (error) {
+    console.error("Failed to fetch tutor subjects", { error, tutorId })
+    return []
+  }
+}
+
 export async function getTutorById(id: string): Promise<TutorSummary | null> {
   let searchTutor: TutorSearchItem | null = null
 
@@ -207,8 +252,14 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
 
     const summary = toTutorSummary(response.data.data, id, searchTutor ?? undefined)
     const availability = await getAvailabilityLabels(summary.id)
+    const subjects = await getTutorSubjectSummaries(summary.id)
+
     return {
       ...summary,
+      subjects:
+        subjects.length > 0
+          ? subjects
+          : summary.subjects.filter((subject) => Boolean(subject.id)),
       availability:
         availability.length > 0
           ? availability
@@ -226,8 +277,11 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
   if (searchTutor) {
     const summary = toTutorSummaryFromSearch(searchTutor)
     const availability = await getAvailabilityLabels(summary.id)
+    const subjects = await getTutorSubjectSummaries(summary.id)
+
     return {
       ...summary,
+      subjects: subjects.length > 0 ? subjects : summary.subjects,
       availability:
         availability.length > 0
           ? availability
@@ -237,8 +291,7 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
     }
   }
 
-  const tutors = await getTutors()
-  return tutors.find((tutor) => tutor.id === id) || null
+  return null
 }
 
 type ReviewResponse = {
