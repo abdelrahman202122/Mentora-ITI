@@ -97,9 +97,11 @@ export default function TutorProfilePage() {
     `&subject=${encodeURIComponent(primarySubject?.title || "General Session")}` +
     `&subjectId=${primarySubject?.id ?? ""}`
 
+  return (
+    <div className="mx-auto max-w-3xl">
       {/* Back to Tutors Link */}
       <Link
-        href={`/${locale}/find-tutor`}
+        href={getLocalePath(locale, "/find-tutor?mode=browse")}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4 inline-flex"
       >
         <ArrowLeft size={16} className="rtl:rotate-180" />
@@ -141,10 +143,12 @@ export default function TutorProfilePage() {
               </span>
             </div>
             <div className="mt-2 flex flex-wrap gap-3">
-              <div className="flex items-center gap-1 text-gray-500">
-                <Users size={12} />
-                <span className="text-xs">{t("students", { count: tutor.totalStudents })}</span>
-              </div>
+              {tutor.totalStudents > 0 ? (
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Users size={12} />
+                  <span className="text-xs">{t("students", { count: tutor.totalStudents })}</span>
+                </div>
+              ) : null}
               <div className="flex items-center gap-1 text-gray-500">
                 <Clock size={12} />
                 <span className="text-xs">
@@ -228,7 +232,10 @@ export default function TutorProfilePage() {
                   {t("hourSession", { rate: tutor.hourlyRate, currency: tutor.currency })}
                 </p>
                 <p className="text-xs text-gray-400 mb-2">
-                  {t("deepDive", { subject: subject.toLowerCase() })}
+                  {subject.description ||
+                    [subject.educationLevel, subject.curriculum, subject.gradeNote]
+                      .filter(Boolean)
+                      .join(" • ")}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {tutor.availability.slice(0, 3).map((day) => (
@@ -248,19 +255,22 @@ export default function TutorProfilePage() {
 
       {/* Booking Floating Action Button */}
       <div className="fixed bottom-6 ltr:right-6 rtl:left-6 z-50 animate-fade-in">
-        <Link
-          href={
-            `/${locale}/booking` +
-            `?tutorId=${tutor.id}` +
-            `&tutorName=${encodeURIComponent(tutor.name)}` +
-            `&hourlyRate=${tutor.hourlyRate}` +
-            `&currency=${encodeURIComponent(tutor.currency)}` +
-            `&subject=${encodeURIComponent(tutor.subjects[0] || "General Session")}`
-          }
-          className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
-        >
-          <span>{t("bookSession", { rate: tutor.hourlyRate, currency: tutor.currency })}</span>
-        </Link>
+        {canBook ? (
+          <Link
+            href={bookingHref}
+            className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
+          >
+            <span>{t("bookSession", { rate: tutor.hourlyRate, currency: tutor.currency })}</span>
+          </Link>
+        ) : (
+          <button
+            className="bg-gray-300 text-gray-600 px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 text-sm md:text-base cursor-not-allowed"
+            disabled
+            type="button"
+          >
+            {t("noBookableSubject")}
+          </button>
+        )}
       </div>
     </div>
   )
