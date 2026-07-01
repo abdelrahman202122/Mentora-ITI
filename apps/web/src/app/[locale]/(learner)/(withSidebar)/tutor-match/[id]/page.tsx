@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
   BookOpen,
@@ -36,6 +36,7 @@ export default function TutorProfilePage() {
   const t = useTranslations("TutorProfile")
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const locale = params.locale as string
   const [tutor, setTutor] = useState<TutorSummary | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,12 +97,15 @@ export default function TutorProfilePage() {
     `&currency=${encodeURIComponent(tutor.currency)}` +
     `&subject=${encodeURIComponent(primarySubject?.title || "General Session")}` +
     `&subjectId=${primarySubject?.id ?? ""}`
+  const backToTutorsHref = `${getLocalePath(locale, "/find-tutor")}?${
+    searchParams.toString() || "mode=browse"
+  }`
 
   return (
     <div className="mx-auto max-w-3xl">
       {/* Back to Tutors Link */}
       <Link
-        href={getLocalePath(locale, "/find-tutor?mode=browse")}
+        href={backToTutorsHref}
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4 inline-flex"
       >
         <ArrowLeft size={16} className="rtl:rotate-180" />
