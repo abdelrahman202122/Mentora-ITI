@@ -92,8 +92,13 @@ export interface Withdrawal {
   requestDate: string;
   status: WithdrawalStatus;
 }
-
-export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "REFUNDED";
+export type BookingStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "REJECTED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "EXPIRED";
 export type PaymentStatus = "PAID" | "PENDING" | "REFUNDED" | "FAILED";
 
 export interface Booking {
