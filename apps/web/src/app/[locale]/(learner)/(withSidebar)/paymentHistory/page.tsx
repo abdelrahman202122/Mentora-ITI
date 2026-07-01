@@ -32,6 +32,13 @@ const statusLabelMap: Record<Payment["status"], Transaction["status"]> = {
   pending: "Pending",
 }
 
+const statusTranslationKeys: Record<Payment["status"], string> = {
+  success: "status.success",
+  failed: "status.failed",
+  refunded: "status.refunded",
+  pending: "status.pending",
+}
+
 function StatusBadge({
   status,
   t,
@@ -46,7 +53,7 @@ function StatusBadge({
     pending: { color: "text-yellow-400" },
   }
   const s = map[status] ?? map.pending
-  const label = t(`status.${status}` as any)
+  const label = t(statusTranslationKeys[status])
   return (
     <span className={`flex items-center gap-1 font-semibold text-sm ${s.color}`}>
       <span className="w-2 h-2 rounded-full bg-current" />
@@ -138,14 +145,13 @@ export default function PaymentsPage() {
         setPayments(paymentsData)
 
       } catch (err) {
-        // 🛠️ تم التعديل هنا لدعم الترجمة للرسالة العامة
         setError(err instanceof Error ? err.message : t("genericError"))
       } finally {
         setLoading(false)
       }
     }
     load()
-  }, [])
+  }, [t])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

@@ -36,6 +36,12 @@ function StatusBadge({
   status: PaymentDetails["status"]
   t: ReturnType<typeof useTranslations<"PaymentDetails">>
 }) {
+  const statusTranslationKeys: Record<PaymentDetails["status"], string> = {
+    success: "status.success",
+    pending: "status.pending",
+    failed: "status.failed",
+    refunded: "status.refunded",
+  }
   const map: Record<string, { className: string }> = {
     success: { className: "bg-green-100 text-green-700 border-green-200" },
     pending: { className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
@@ -43,7 +49,7 @@ function StatusBadge({
     refunded: { className: "bg-blue-100 text-blue-700 border-blue-200" },
   }
   const s = map[status] ?? map.pending
-  const label = t(`status.${status}` as any)
+  const label = t(statusTranslationKeys[status])
   return (
     <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${s.className}`}>
       {label}
@@ -68,23 +74,18 @@ export default function PaymentDetailsPage() {
 
   const [payment, setPayment] = useState<PaymentDetails | null>(null)
   const [loading, setLoading] = useState(() => Boolean(paymentId))
-  const [error, setError] = useState<string | null>(() =>
-    paymentId ? null : "Payment ID not found in URL.",
-  )
+  const [error, setError] = useState<string | null>(null)
 
 useEffect(() => {
     if (!paymentId) {
-      setError(t("notFoundError"))
-      setLoading(false)
       return
     }
 
     getPaymentById(paymentId)
       .then(setPayment)
-      // 🛠️ تم تعديل الـ catch هنا ليعتمد دائماً على النص المترجم للخطأ العام بدلاً من err.message
       .catch(() => setError(t("genericError")))
       .finally(() => setLoading(false))
-  }, [paymentId])
+  }, [paymentId, t])
   return (
     <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
       <div className="max-w-2xl mx-auto">

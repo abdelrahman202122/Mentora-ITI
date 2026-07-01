@@ -75,8 +75,7 @@
 //   );
 // }
 import { Flag, CheckCircle } from "lucide-react";
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
-import { getStarType } from "@/utils/reviews/reviews";
+import { StarRating } from "@/components/reviews/StarRating";
 import { usePublicUserById } from "@/hooks/user/useUserById";
 import type { Review } from "@/types/reviews/reviews";
 
@@ -139,15 +138,7 @@ export default function ReviewCard({
         )}
       </div>
 
-      {/* Rating */}
-      <div className="flex items-center gap-1 mb-3">
-        {Array.from({ length: 5 }).map((_, index) => {
-          const type = getStarType(review.rating, index);
-          if (type === "full") return <FaStar key={index} size={16} className="text-yellow-400" />;
-          if (type === "half") return <FaStarHalfAlt key={index} size={16} className="text-yellow-400" />;
-          return <FaRegStar key={index} size={16} className="text-yellow-400" />;
-        })}
-      </div>
+      <StarRating rating={review.rating} className="mb-3" />
 
       <p className="text-sm text-foreground/80">{review.comment}</p>
     </div>

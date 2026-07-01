@@ -22,9 +22,6 @@ export async function cancelBooking(
       throw new Error("Unexpected response from server.")
     }
 
-    console.log("Booking ID:", bookingId);
-    console.log("New Status:", response.data.data.bookingStatus);
-
     return response.data.data;
   } catch (error) {
     if (error instanceof ApiClientError) {

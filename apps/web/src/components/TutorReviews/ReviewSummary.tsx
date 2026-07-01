@@ -68,8 +68,7 @@
 //   );
 // }
 
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
-import { getStarType } from "@/utils/reviews/reviews";
+import { StarRating } from "@/components/reviews/StarRating";
 
 export default function ReviewSummary({
   rating,
@@ -88,20 +87,8 @@ export default function ReviewSummary({
           {rating.toFixed(1)} <span className="text-xl">/5</span>
         </div>
 
-        <div className="flex justify-center items-center p-2">
-          <div className="flex items-center gap-1 mb-3">
-            {Array.from({ length: 5 }).map((_, index) => {
-              const type = getStarType(rating, index);
-
-              if (type === "full") {
-                return <FaStar key={index} size={24} className="text-yellow-400 " />;
-              }
-              if (type === "half") {
-                return <FaStarHalfAlt key={index} size={24} className="text-yellow-400 " />;
-              }
-              return <FaRegStar key={index} size={24} className="text-yellow-400 " />;
-            })}
-          </div>
+        <div className="flex justify-center p-2">
+          <StarRating rating={rating} size={24} className="mb-3" />
         </div>
 
         <p className="text-lg text-muted-foreground mt-2">

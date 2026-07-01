@@ -86,6 +86,11 @@ export default function BookingDetailsPage() {
   }, [bookingId, t])
 
   async function handleCancel() {
+    if (!bookingId) {
+      setCancelError(t("bookingIdNotFound"))
+      return
+    }
+
     if (!cancelReason.trim()) {
       setCancelError(t("cancelReasonError"))
       return
@@ -131,7 +136,7 @@ export default function BookingDetailsPage() {
         return
       }
 
-      window.location.href = checkoutUrl
+      window.location.assign(checkoutUrl)
     } catch (err) {
       setPayError(err instanceof Error ? err.message : t("paymentFailedError"))
       setIsPaying(false)

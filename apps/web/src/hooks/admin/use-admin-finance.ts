@@ -1,136 +1,115 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  getFinanceStats,
-  listWithdrawals,
   approveAllWithdrawals,
   approveWithdrawal,
   cancelWithdrawal,
-  type FinanceStats,
-  type Withdrawal,
+  getFinanceStats,
+  listWithdrawals,
 } from "@/lib/api/admin-finance";
 
 export function useAdminFinance() {
-  const [stats, setStats] = useState<FinanceStats | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [statsError, setStatsError] = useState<string | null>(null);
-
-  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
-  const [withdrawalsLoading, setWithdrawalsLoading] = useState(true);
-  const [withdrawalsError, setWithdrawalsError] = useState<string | null>(null);
-
+  const [mutationError, setMutationError] = useState<string | null>(null);
   const [mutating, setMutating] = useState(false);
 
-  /* ── Fetch stats ────────────────────────────────────────────────── */
-  const fetchStats = useCallback(async () => {
-    setStatsLoading(true);
-    setStatsError(null);
-    try {
-      const data = await getFinanceStats();
-      setStats(data);
-    } catch (err) {
-      setStatsError(err instanceof Error ? err.message : "Failed to load stats");
-    } finally {
-      setStatsLoading(false);
-    }
-  }, []);
+  const statsQuery = useQuery({
+    queryKey: ["admin", "finance", "stats"],
+    queryFn: getFinanceStats,
+  });
 
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
-
-  /* ── Fetch withdrawals ──────────────────────────────────────────── */
-  const fetchWithdrawals = useCallback(async () => {
-    setWithdrawalsLoading(true);
-    setWithdrawalsError(null);
-    try {
+  const withdrawalsQuery = useQuery({
+    queryKey: ["admin", "finance", "withdrawals"],
+    queryFn: async () => {
       const result = await listWithdrawals({ limit: 100 });
-      setWithdrawals(result.withdrawals);
-    } catch (err) {
-      setWithdrawalsError(
-        err instanceof Error ? err.message : "Failed to load withdrawals",
-      );
-      setWithdrawals([]);
-    } finally {
-      setWithdrawalsLoading(false);
-    }
-  }, []);
+      return result.withdrawals;
+    },
+  });
 
-  useEffect(() => {
-    fetchWithdrawals();
-  }, [fetchWithdrawals]);
+  const refetchStats = useCallback(async () => {
+    await statsQuery.refetch();
+  }, [statsQuery]);
 
-  /* ── Approve all withdrawals ────────────────────────────────────── */
+  const refetchWithdrawals = useCallback(async () => {
+    await withdrawalsQuery.refetch();
+  }, [withdrawalsQuery]);
+
   const handleApproveAll = useCallback(async (): Promise<void> => {
     setMutating(true);
+    setMutationError(null);
+
     try {
       await approveAllWithdrawals();
-      await fetchWithdrawals();
-      await fetchStats();
-      } catch (err) {
-        setWithdrawalsError(
-          err instanceof Error ? err.message : "Failed to approve all withdrawals",
-        );
+      await refetchWithdrawals();
+      await refetchStats();
+    } catch (err) {
+      setMutationError(
+        err instanceof Error ? err.message : "Failed to approve all withdrawals",
+      );
     } finally {
       setMutating(false);
     }
-  }, [fetchWithdrawals, fetchStats]);
+  }, [refetchWithdrawals, refetchStats]);
 
-  /* ── Approve single withdrawal ──────────────────────────────────── */
   const handleApprove = useCallback(
     async (earningId: string): Promise<void> => {
       setMutating(true);
+      setMutationError(null);
+
       try {
         await approveWithdrawal(earningId);
-        setWithdrawals((prev) =>
-          prev.map((w) =>
-            w.id === earningId ? { ...w, status: "PAID_OUT" } : w,
-          ),
-        );
-        await fetchStats();
-        } catch (err) {
-          setWithdrawalsError(
-          err instanceof Error ? err.message : "Failed to approve withdrawl",
+        await refetchWithdrawals();
+        await refetchStats();
+      } catch (err) {
+        setMutationError(
+          err instanceof Error ? err.message : "Failed to approve withdrawal",
         );
       } finally {
         setMutating(false);
       }
     },
-    [fetchStats],
+    [refetchWithdrawals, refetchStats],
   );
 
-  /* ── Cancel single withdrawal ───────────────────────────────────── */
   const handleCancel = useCallback(
     async (earningId: string): Promise<void> => {
       setMutating(true);
+      setMutationError(null);
+
       try {
         await cancelWithdrawal(earningId);
-        setWithdrawals((prev) =>
-          prev.map((w) =>
-            w.id === earningId ? { ...w, status: "CANCELED" } : w,
-          ),
+        await refetchWithdrawals();
+        await refetchStats();
+      } catch (err) {
+        setMutationError(
+          err instanceof Error ? err.message : "Failed to cancel withdrawal",
         );
-        await fetchStats();
       } finally {
         setMutating(false);
       }
     },
-    [fetchStats],
+    [refetchWithdrawals, refetchStats],
   );
 
   return {
-    // stats
-    stats,
-    statsLoading,
-    statsError,
-    refetchStats: fetchStats,
-    // withdrawals
-    withdrawals,
-    withdrawalsLoading,
-    withdrawalsError,
-    refetchWithdrawals: fetchWithdrawals,
-    // mutations
+    stats: statsQuery.data ?? null,
+    statsLoading: statsQuery.isPending,
+    statsError:
+      statsQuery.error instanceof Error ? statsQuery.error.message : null,
+    refetchStats: () => {
+      void refetchStats();
+    },
+    withdrawals: withdrawalsQuery.data ?? [],
+    withdrawalsLoading: withdrawalsQuery.isPending,
+    withdrawalsError:
+      mutationError ??
+      (withdrawalsQuery.error instanceof Error
+        ? withdrawalsQuery.error.message
+        : null),
+    refetchWithdrawals: () => {
+      void refetchWithdrawals();
+    },
     approveAll: handleApproveAll,
     approve: handleApprove,
     cancel: handleCancel,
