@@ -1,5 +1,3 @@
-
-
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -140,7 +138,8 @@ export default function PaymentsPage() {
         setPayments(paymentsData)
 
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load payments.")
+        // 🛠️ تم التعديل هنا لدعم الترجمة للرسالة العامة
+        setError(err instanceof Error ? err.message : t("genericError"))
       } finally {
         setLoading(false)
       }
@@ -200,6 +199,7 @@ export default function PaymentsPage() {
     }
   }
 
+  // ... باقي الدوال والـ Handlers كما هي دون تغيير
   function toTransaction(payment: Payment): Transaction {
     return {
       id: payment._id,
@@ -213,17 +213,15 @@ export default function PaymentsPage() {
     }
   }
 
-  // ... باقي الدوال والـ Handlers كما هي
   function handleExportCSV() { exportCSV(filtered.map(toTransaction)) }
   function handleExportInvoice(payment: Payment) { exportInvoicePDF(toTransaction(payment)) }
   function handleRowClick(payment: Payment) { router.push(`/${locale}/paymentHistory/${payment._id}`) }
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* 🛠️ تم إزالة overflow-hidden وإضافة relative لكي تظهر القائمة المنبثقة بشكل سليم فوق أي عنصر خارجي */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 relative">
 
-        {/* Header - تم إضافة rounded-t-2xl للحفاظ على انحناء الحواف العلوي */}
+        {/* Header */}
         <div className="flex items-center justify-between p-4 md:p-5 border-b border-gray-100 rounded-t-2xl bg-white relative z-20">
           <h2 className="text-base font-bold text-gray-800">{t("recentTransactions")}</h2>
           <div className="flex items-center gap-2">
@@ -268,7 +266,6 @@ export default function PaymentsPage() {
           </div>
         )}
 
-        {/* 🛠️ الـ Container الخاص بالـ Tables والبيانات الفاضية واخد min-h ليضمن مساحة كافية للـ Dropdown */}
         <div className="min-h-[220px] rounded-b-2xl overflow-hidden">
           {/* Desktop Table */}
           <PaymentTable

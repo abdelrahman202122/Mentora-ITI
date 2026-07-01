@@ -247,7 +247,7 @@ export default function TutorProfilePage() {
       </div>
 
       {/* Booking Floating Action Button */}
-      <div className="fixed bottom-6 ltr:right-6 rtl:left-6 z-50 animate-fade-in">
+   <div className="fixed bottom-6 ltr:right-6 rtl:left-6 z-50 animate-fade-in">
         <Link
           href={
             `/${locale}/booking` +
@@ -255,7 +255,7 @@ export default function TutorProfilePage() {
             `&tutorName=${encodeURIComponent(tutor.name)}` +
             `&hourlyRate=${tutor.hourlyRate}` +
             `&currency=${encodeURIComponent(tutor.currency)}` +
-            `&subject=${encodeURIComponent(tutor.subjects[0] || "General Session")}`
+            `&subject=${encodeURIComponent(tutor.subjects[0] || t("generalSession"))}`
           }
           className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
         >

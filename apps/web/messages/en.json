@@ -601,6 +601,7 @@
     "downloadInvoice": "Download invoice",
     "viewDetailsFor": "View payment details for {title}",
     "sessionWith": "Session with {tutorName}",
+    "downloadInvoiceFor": "Download invoice for {title}",
     "session": "Session",
     "table": {
       "date": "Date",
@@ -727,8 +728,8 @@
     "backToTutors": "Back to Tutors",
     "loading": "Loading...",
     "tutorNotFound": "Tutor not found.",
-    "reviews": "({count} reviews)",
-    "students": "{count} students",
+   "reviews": "({count, plural, one {# review} other {# reviews}})",
+    "students": "{count, plural, one {# student} other {# students}}",
     "hourlyRate": "{rate} {currency}/hr",
     "startingChat": "Starting chat...",
     "chatWith": "Chat with {name}",
