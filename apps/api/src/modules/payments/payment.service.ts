@@ -17,7 +17,6 @@ import {
   NotFoundError,
   ForbiddenError,
   ConflictError,
-  ValidationError,
   AppError,
 } from '../../common/errors/AppError.js';
 import { paymobConfig } from '../../config/paymob.config.js';
@@ -523,7 +522,6 @@ export async function initiateCheckout(
   }
 
   const learner = await findUserById(learnerId.toString());
-  const billingData = buildPaymobBillingData(learner);
 
   // Step 6: Derive amount server-side from booking (never trust client)
   const amount = booking.price; // decimal (e.g. 250.00)

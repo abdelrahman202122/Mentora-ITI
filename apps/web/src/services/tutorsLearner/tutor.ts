@@ -3,15 +3,23 @@ import { mockTutor } from "@/mocks/mock-data"
 import {
   searchTutors,
   type TutorSearchItem,
+  type TutorSearchSubject,
 } from "@/services/tutorsLearner/tutor-search"
 import type { ApiSuccess } from "@/types/apis/api-success"
 import type { TutorProfileData } from "@/types/tutor/tutor-profile"
 
+export type TutorSubjectSummary = Pick<
+  TutorSearchSubject,
+  "category" | "curriculum" | "educationLevel" | "id" | "title"
+>
+
 export type TutorSummary = {
   id: string
+  profileId: string
   name: string
+  avatar?: string
   title: string
-  subjects: string[]
+  subjects: TutorSubjectSummary[]
   rating: number
   bio: string
   hourlyRate: number
@@ -37,15 +45,60 @@ type TutorProfileWithUser = TutorProfileData & {
   }
 }
 
+type TutorAvailabilityResponse = {
+  slots?: Record<string, { startTime: string; endTime: string }[]>
+}
+
+const dayLabels: Record<string, string> = {
+  friday: "Friday",
+  monday: "Monday",
+  saturday: "Saturday",
+  sunday: "Sunday",
+  thursday: "Thursday",
+  tuesday: "Tuesday",
+  wednesday: "Wednesday",
+}
+
+function toSubjectSummary(subject: TutorSearchSubject): TutorSubjectSummary {
+  return {
+    category: subject.category,
+    curriculum: subject.curriculum,
+    educationLevel: subject.educationLevel,
+    id: subject.id,
+    title: subject.title,
+  }
+}
+
+function fallbackSubject(title: string): TutorSubjectSummary {
+  return {
+    category: "",
+    curriculum: "",
+    educationLevel: "",
+    id: "",
+    title,
+  }
+}
+
+function getAvatarFromProfile(profile: TutorProfileWithUser): string | undefined {
+  return profile.userData?.avatar || undefined
+}
+
 function toTutorSummary(
   profile: TutorProfileWithUser,
-  tutorId: string
+  tutorId: string,
+  searchTutor?: TutorSearchItem
 ): TutorSummary {
   return {
     id: tutorId,
+    profileId: profile._id,
     name: profile.userData?.name ?? "Tutor",
+    avatar: getAvatarFromProfile(profile) ?? searchTutor?.avatar,
     title: profile.headline,
-    subjects: profile.languages.length > 0 ? profile.languages : ["Tutoring"],
+    subjects:
+      searchTutor?.subjects.map(toSubjectSummary) ??
+      (profile.languages.length > 0
+        ? profile.languages.map(fallbackSubject)
+        : [fallbackSubject("Tutoring")]),
     rating: profile.rating,
     bio: profile.bio,
     hourlyRate: profile.hourlyRate,
@@ -60,9 +113,11 @@ function toTutorSummary(
 function toTutorSummaryFromSearch(tutor: TutorSearchItem): TutorSummary {
   return {
     id: tutor.userId,
+    profileId: tutor.profile.id || tutor._id || tutor.userId,
     name: tutor.name || "Tutor",
+    avatar: tutor.avatar,
     title: tutor.profile.headline,
-    subjects: tutor.subjects.map((subject) => subject.title),
+    subjects: tutor.subjects.map(toSubjectSummary),
     rating: tutor.profile.rating ?? 0,
     bio: tutor.profile.bio,
     hourlyRate: tutor.profile.hourlyRate,
@@ -83,9 +138,13 @@ export async function getTutors(): Promise<TutorSummary[]> {
     return [
       {
         id: mockTutor.user._id,
+        profileId: mockTutor._id,
         name: mockTutor.user.firstName + " " + mockTutor.user.lastName,
+        avatar: undefined,
         title: mockTutor.headline,
-        subjects: mockTutor.subjects.map((subject) => subject.nameEn),
+        subjects: mockTutor.subjects.map((subject) =>
+          fallbackSubject(subject.nameEn)
+        ),
         rating: mockTutor.averageRating,
         bio: mockTutor.bio,
         hourlyRate: mockTutor.hourlyRate,
@@ -99,13 +158,63 @@ export async function getTutors(): Promise<TutorSummary[]> {
   }
 }
 
+async function getSearchTutorById(id: string): Promise<TutorSearchItem | null> {
+  const result = await searchTutors({ limit: 100, sortBy: "rating" })
+  return (
+    result.tutors.find(
+      (tutor) =>
+        tutor.userId === id || tutor.profile.id === id || tutor._id === id
+    ) ?? null
+  )
+}
+
+async function getAvailabilityLabels(tutorId: string): Promise<string[]> {
+  try {
+    const response = await api.get<ApiSuccess<TutorAvailabilityResponse>>(
+      `/tutors/${tutorId}/availability`
+    )
+    const slots = response.data.data.slots ?? {}
+
+    return Object.entries(slots)
+      .filter(([, daySlots]) => daySlots.length > 0)
+      .map(([day, daySlots]) => {
+        const firstSlot = daySlots[0]
+        return `${dayLabels[day] ?? day} ${firstSlot.startTime}-${firstSlot.endTime}`
+      })
+  } catch (error) {
+    console.error("Failed to fetch tutor availability", { error, tutorId })
+    return []
+  }
+}
+
 export async function getTutorById(id: string): Promise<TutorSummary | null> {
+  let searchTutor: TutorSearchItem | null = null
+
+  try {
+    searchTutor = await getSearchTutorById(id)
+  } catch (error) {
+    console.error("Failed to resolve tutor from tutor search", {
+      error,
+      tutorId: id,
+    })
+  }
+
   try {
     const response = await api.get<ApiSuccess<TutorProfileWithUser>>(
       `/tutors/${id}/profile`
     )
 
-    return toTutorSummary(response.data.data, id)
+    const summary = toTutorSummary(response.data.data, id, searchTutor ?? undefined)
+    const availability = await getAvailabilityLabels(summary.id)
+    return {
+      ...summary,
+      availability:
+        availability.length > 0
+          ? availability
+          : summary.isAvailable
+            ? ["Available"]
+            : [],
+    }
   } catch (error) {
     console.error("Failed to fetch tutor profile by user id", {
       error,
@@ -113,21 +222,18 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
     })
   }
 
-  try {
-    const result = await searchTutors({ limit: 100, sortBy: "rating" })
-    const matchedTutor = result.tutors.find(
-      (tutor) =>
-        tutor.userId === id || tutor.profile.id === id || tutor._id === id
-    )
-
-    if (matchedTutor) {
-      return toTutorSummaryFromSearch(matchedTutor)
+  if (searchTutor) {
+    const summary = toTutorSummaryFromSearch(searchTutor)
+    const availability = await getAvailabilityLabels(summary.id)
+    return {
+      ...summary,
+      availability:
+        availability.length > 0
+          ? availability
+          : summary.isAvailable
+            ? ["Available"]
+            : [],
     }
-  } catch (error) {
-    console.error("Failed to resolve tutor profile from tutor search", {
-      error,
-      tutorId: id,
-    })
   }
 
   const tutors = await getTutors()
