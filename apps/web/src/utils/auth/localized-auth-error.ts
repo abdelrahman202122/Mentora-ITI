@@ -37,5 +37,21 @@ export function getLocalizedAuthError(
     return t("unauthorized");
   }
 
+  if (
+    lower.includes("invalid or expired reset token") ||
+    lower.includes("expired token") ||
+    lower.includes("invalid token")
+  ) {
+    return t("expiredResetToken");
+  }
+
+  if (
+    lower.includes("suspended account") ||
+    lower.includes("suspended") ||
+    lower.includes("cannot reset password on a suspended account")
+  ) {
+    return t("accountSuspended");
+  }
+
   return t("generic");
 }

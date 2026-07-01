@@ -34,9 +34,29 @@ export function createLoginSchema(t: AuthValidationTranslator) {
   });
 }
 
+export function createForgotPasswordSchema(t: AuthValidationTranslator) {
+  return z.object({
+    email: z.string().email(t("emailInvalid")),
+  });
+}
+
+export function createResetPasswordSchema(t: AuthValidationTranslator) {
+  return z
+    .object({
+      password: z.string().min(6, t("passwordMin")),
+      confirmPassword: z.string().min(6, t("passwordMin")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("passwordsMustMatch"),
+      path: ["confirmPassword"],
+    });
+}
+
 /** Inferred types stay the same as before – based on the schema shape. */
 export type RegisterPayload = z.infer<ReturnType<typeof createRegisterSchema>>;
 export type BackendRegisterPayload = z.infer<
   ReturnType<typeof createBackendRegisterSchema>
 >;
 export type LoginPayload = z.infer<ReturnType<typeof createLoginSchema>>;
+export type ForgotPasswordPayload = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
+export type ResetPasswordPayload = z.infer<ReturnType<typeof createResetPasswordSchema>>;

@@ -367,6 +367,7 @@
       "submitting": "Checking account",
       "noAccount": "Don't have an account?",
       "signUpLink": "Sign Up",
+      "forgotPasswordLink": "Forgot password?",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "helpCenter": "Help Center"
@@ -387,19 +388,51 @@
       "hasAccount": "Already have an account?",
       "logInLink": "Log In"
     },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "description": "Enter your email address and we'll send you a link to reset your password.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@company.com",
+      "submit": "Send reset link",
+      "submitting": "Sending link",
+      "backToLogin": "Back to Log In",
+      "successTitle": "Check your email",
+      "successDescription": "If an account exists for {email}, we've sent instructions to reset your password. Please check your inbox and spam folder.",
+      "successAction": "Return to Log In"
+    },
+    "resetPassword": {
+      "title": "Reset Your Password",
+      "description": "Choose a strong password to secure your account.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPasswordLabel": "Confirm new password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submit": "Reset password",
+      "submitting": "Resetting password",
+      "backToLogin": "Back to Log In",
+      "successTitle": "Password updated",
+      "successDescription": "Your password has been reset successfully. You can now log in with your new credentials.",
+      "successAction": "Log In",
+      "missingToken": "Reset token is missing or invalid. Please check your link or request a new reset email.",
+      "requestNewLink": "Request a new link",
+      "errorTitle": "Unable to reset password"
+    },
     "validation": {
       "emailInvalid": "Email not valid",
       "passwordMin": "Password must be at least 6 characters",
       "nameMin": "Name must be at least 2 characters",
       "phoneInvalid": "Enter a valid Egyptian phone number (e.g. 01012345678)",
       "roleInvalid": "Please choose a valid account type",
-      "passwordRequired": "Password is required"
+      "passwordRequired": "Password is required",
+      "passwordsMustMatch": "Passwords must match"
     },
     "errors": {
       "invalidCredentials": "Invalid email or password",
       "emailAlreadyExists": "An account with this email already exists",
       "unauthorized": "You are not authorized to perform this action",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "expiredResetToken": "The password reset link is invalid or has expired.",
+      "accountSuspended": "Your account is suspended. Please contact support."
     }
   },
   "home": {

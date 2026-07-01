@@ -27,3 +27,13 @@ export type ApiSuccess<T> = {
   message?: string;
   data: T;
 };
+
+export type ForgotPasswordInput = {
+  email: string;
+};
+
+export type ResetPasswordInput = {
+  email: string;
+  code: string;
+  newPassword: string;
+};

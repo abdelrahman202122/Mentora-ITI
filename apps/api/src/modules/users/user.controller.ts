@@ -360,16 +360,24 @@ try {
 
     const resetToken = await userService.forgotPassword(email);
 
+    // In development with no email credentials configured, expose the OTP
+    // directly in the response so devs can test without a real email account.
+    const isDev = process.env.NODE_ENV !== 'production';
+    const hasEmailCreds = !!process.env.EMAIL_USER && !!process.env.EMAIL_PASS;
+    const devCode =
+      isDev && !hasEmailCreds && resetToken ? resetToken : undefined;
+
     res.status(200).json({
       success: true,
-      message: 'If an account with that email exists, a reset link has been sent.',
+      message: 'If an account with that email exists, a verification code has been sent.',
+      ...(devCode && { devCode }),
     });
-
 
 } catch (error) {
     next(error);
 }
 };
+
 
 export const resetPassword = async (
   req: Request,
@@ -377,9 +385,9 @@ export const resetPassword = async (
   next: NextFunction
 ): Promise<void> => {
 try {
-const { token, newPassword } = req.body;
+const { email, code, newPassword } = req.body;
 
-await userService.resetPassword(token, newPassword);
+await userService.resetPassword(email, code, newPassword);
 
 res.status(200).json({
   success: true,

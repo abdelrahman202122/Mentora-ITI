@@ -7,12 +7,16 @@ import {
   login,
   logout,
   register,
+  forgotPassword,
+  resetPassword,
 } from "@/services/auth/auth-service";
 import type { ApiClientError } from "@/lib/axios";
 import type {
   AuthUser,
   LoginInput,
   RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
 } from "@/types/auth/auth-types";
 
 export const authKeys = {
@@ -61,5 +65,17 @@ export function useLogout() {
       queryClient.setQueryData(authKeys.currentUser, null);
       await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
     },
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation<{ message?: string; devCode?: string }, ApiClientError, ForgotPasswordInput>({
+    mutationFn: forgotPassword,
+  });
+}
+
+export function useResetPassword() {
+  return useMutation<{ message?: string }, ApiClientError, ResetPasswordInput>({
+    mutationFn: resetPassword,
   });
 }

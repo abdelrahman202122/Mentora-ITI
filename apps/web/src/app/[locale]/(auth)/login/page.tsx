@@ -120,12 +120,20 @@ export default function LoginPage() {
                 </FieldError>
 
                 <FieldError message={form.formState.errors.password?.message}>
-                  <label
-                    className="text-xs font-semibold text-slate-700"
-                    htmlFor="password"
-                  >
-                    {t('login.passwordLabel')}
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label
+                      className="text-xs font-semibold text-slate-700"
+                      htmlFor="password"
+                    >
+                      {t('login.passwordLabel')}
+                    </label>
+                    <Link
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+                      href={getLocalePath(locale, '/forgot-password')}
+                    >
+                      {t('login.forgotPasswordLink')}
+                    </Link>
+                  </div>
                   <Input
                     className={cn(
                       'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',

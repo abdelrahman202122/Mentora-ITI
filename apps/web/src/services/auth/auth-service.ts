@@ -4,6 +4,8 @@ import type {
   AuthUser,
   LoginInput,
   RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
 } from "@/types/auth/auth-types";
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
@@ -31,4 +33,14 @@ export async function register(input: RegisterInput): Promise<AuthUser> {
 
 export async function logout(): Promise<void> {
   await api.post("/users/logout");
+}
+
+export async function forgotPassword(input: ForgotPasswordInput): Promise<{ message?: string; devCode?: string }> {
+  const response = await api.post<ApiSuccess<null> & { devCode?: string }>("/users/forgot-password", input);
+  return { message: response.data.message, devCode: (response.data as { devCode?: string }).devCode };
+}
+
+export async function resetPassword(input: ResetPasswordInput): Promise<{ message?: string }> {
+  const response = await api.post<ApiSuccess<null>>("/users/reset-password", input);
+  return { message: response.data.message };
 }

@@ -844,7 +844,7 @@ export const deleteAvatar = async (userId: string) => {
    - We return the SAME success message to prevent enumeration
    ═══════════════════════════════════════════════════════════════════ */
 
-export const forgotPassword = async (email: string): Promise<void> => {
+export const forgotPassword = async (email: string): Promise<string | undefined> => {
   const normalizedEmail = email.trim().toLowerCase();
 
   logger.info({
@@ -860,32 +860,28 @@ export const forgotPassword = async (email: string): Promise<void> => {
       event: 'password.forgot.not_found',
       emailHash: emailHash(normalizedEmail),
     });
-    return;
+    return undefined;
   }
 
   // ✅ STATUS CHECK — don't send reset email to suspended users
-  // BUT we still return void (no error) to prevent enumeration
+  // BUT we still return undefined (no error) to prevent enumeration
   if (user.adminStatus === 'Suspended') {
     logger.warn({
       event: 'password.forgot.rejected',
       reason: 'account_suspended',
       userId: user._id.toString(),
     });
-    return; // ← silently return, don't send email
+    return undefined; // ← silently return, don't send email
   }
 
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
+  // Generate a 6-digit OTP (100000–999999)
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
-  const RESET_TOKEN_EXPIRATION_MS = 15 * 60 * 1000;
+  const RESET_OTP_EXPIRATION_MS = 10 * 60 * 1000; // 10 minutes
 
-  user.passwordResetToken = hashedToken;
-  user.passwordResetExpires = new Date(
-    Date.now() + RESET_TOKEN_EXPIRATION_MS,
-  );
+  user.passwordResetToken = hashedOtp;
+  user.passwordResetExpires = new Date(Date.now() + RESET_OTP_EXPIRATION_MS);
 
   await user.save();
 
@@ -894,14 +890,18 @@ export const forgotPassword = async (email: string): Promise<void> => {
     userId: user._id.toString(),
   });
 
-  sendResetEmail(user.email, resetToken).catch((error) => {
+  sendResetEmail(user.email, otp).catch((error) => {
     logger.error({
       event: 'email.reset.failed',
       userId: user._id.toString(),
       error,
     });
   });
+
+  // Return the raw OTP so the controller can surface it in dev mode
+  return otp;
 };
+
 
 /* ═══════════════════════════════════════════════════════════════════
    17. RESET PASSWORD
@@ -918,21 +918,24 @@ export const forgotPassword = async (email: string): Promise<void> => {
    ═══════════════════════════════════════════════════════════════════ */
 
 export const resetPassword = async (
-  token: string,
+  email: string,
+  code: string,
   newPassword: string,
 ): Promise<void> => {
   logger.info({ event: 'password.reset.attempt' });
 
-  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  const normalizedEmail = email.trim().toLowerCase();
+  const hashedCode = crypto.createHash('sha256').update(code).digest('hex');
 
   const user = await UserModel.findOne({
-    passwordResetToken: hashedToken,
+    email: normalizedEmail,
+    passwordResetToken: hashedCode,
     passwordResetExpires: { $gt: new Date() },
   });
 
   if (!user) {
     logger.warn({ event: 'password.reset.invalid_or_expired_token' });
-    throw new UnauthorizedError('Invalid or expired reset token');
+    throw new UnauthorizedError('Invalid or expired verification code');
   }
 
   // ✅ STATUS CHECK — reject suspended users
