@@ -56,11 +56,19 @@ function isSessionLive(booking: Booking, now: number): boolean {
   return now >= start - threeHoursMs && now <= end;
 }
 
+function shouldShowConfirmationCode(booking: Booking): boolean {
+  return (
+    booking.bookingStatus === 'confirmed' &&
+    booking.paymentStatus === 'paid' &&
+    Boolean(booking.confirmationCode)
+  );
+}
+
 function BookingStatusBadge({
   status,
   t,
 }: {
-  status: string;
+  status: Booking['bookingStatus'];
   t: ReturnType<typeof useTranslations<'Dashboard'>>;
 }) {
   const config: Record<string, { dot: string; className: string }> = {
@@ -73,7 +81,7 @@ function BookingStatusBadge({
   };
 
   const current = config[status] ?? { dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' };
-  const label = t.has(`status.${status}`) ? t(`status.${status}` as any) : status;
+  const label = t(`status.${status}`);
 
   return (
     <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full border text-[11px] font-semibold w-fit ${current.className}`}>
@@ -200,9 +208,9 @@ export default function LearnerDashboardPage() {
     try {
       const { checkoutUrl } = await initiateCheckout(bookingId);
       window.location.href = checkoutUrl;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setPayError(err?.message || t('errors.payFailed'));
+      setPayError(err instanceof Error ? err.message : t('errors.payFailed'));
       setPendingCheckoutId(null);
     }
   }
@@ -398,6 +406,7 @@ export default function LearnerDashboardPage() {
                 const showPayNow = booking.paymentStatus === 'unpaid' && booking.bookingStatus === 'confirmed';
                 const isPaid = booking.paymentStatus === 'paid';
                 const isCheckingOut = pendingCheckoutId === booking._id;
+                const showConfirmationCode = shouldShowConfirmationCode(booking);
 
                 return (
                   <div
@@ -419,6 +428,28 @@ export default function LearnerDashboardPage() {
                           {t('bookingsList.with', { tutorName: getDisplayTutor(booking.tutorId) })}
                         </p>
                         <BookingStatusBadge status={booking.bookingStatus} t={t} />
+                        {showConfirmationCode && (
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-mono text-xs font-bold tracking-wider text-[#5051F9]">
+                              {t('liveSession.confirmationCode')}{' '}
+                              {booking.confirmationCode}
+                            </span>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleCopyConfirmationCode(booking.confirmationCode!);
+                              }}
+                              className="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-[#68718B] transition-colors hover:bg-gray-50"
+                              type="button"
+                            >
+                              {copyStatus === 'copied'
+                                ? t('liveSession.copied')
+                                : copyStatus === 'error'
+                                ? t('liveSession.failed')
+                                : t('liveSession.copy')}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 

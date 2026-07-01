@@ -738,7 +738,9 @@
     "coursesOffered": "Courses Offered",
     "hourSession": "{rate} {currency} / hour session",
     "deepDive": "A deep dive into {subject} concepts for all levels.",
-    "bookSession": "Book a Session — {rate} {currency}/hr"
+    "bookSession": "Book a Session — {rate} {currency}/hr",
+    "noBookableSubject": "No bookable subject available"
+  },
   "tutorDashboard": {
     "welcomeBack": "Welcome back",
     "stats": {
@@ -911,6 +913,79 @@
 },
 "weeklyAvailability": {
   "empty": "No weekly availability set yet."
+},
+"nav": {
+  "learner": {
+    "dashboard": "Dashboard",
+    "aiAssistant": "AI Assistant",
+    "findTutor": "Find Tutor",
+    "messages": "Messages",
+    "payments": "Payments",
+    "settings": "Settings"
+  },
+  "tutor": {
+    "dashboard": "Dashboard",
+    "messages": "Messages",
+    "earnings": "Earnings",
+    "availability": "Availability",
+    "profile": "Profile",
+    "reviews": "Reviews"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "tutors": "Tutors",
+    "moderation": "Moderation",
+    "payments": "Payments",
+    "settings": "Settings"
+  }
+},
+"sidebar": {
+  "expand": "Expand sidebar",
+  "collapse": "Collapse sidebar",
+  "userAvatar": "User Avatar",
+  "home": "Home",
+  "loggingOut": "Logging out...",
+  "logOut": "Log Out"
+},
+"editProfile": {
+  "loading": "Loading...",
+  "error": "Something went wrong.",
+  "title": "Edit Profile",
+  "description": "Update your professional identity and manage your curriculum.",
+  "discardChanges": "Discard Changes",
+  "saveProfile": "Save Profile",
+  "coursesOffered": "Courses Offered",
+  "loadingCourses": "Loading courses...",
+  "coursesError": "Couldn't load courses. Try again later.",
+  "addNewCourse": "Add New Course",
+  "addNewCourseDescription": "List a new subject to start teaching more students."
+},
+"courseCard": {
+  "editSubject": "Edit subject",
+  "deleteSubject": "Delete subject",
+  "deleteConfirmTitle": "Delete this subject?",
+  "deleteConfirmDescription": "This action cannot be undone.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "level": "Level",
+  "curriculum": "Curriculum",
+  "created": "Created"
+},
+"courseForm": {
+  "updateTitle": "Update Course",
+  "addTitle": "Add New Course",
+  "titlePlaceholder": "Course Title",
+  "descriptionPlaceholder": "Description",
+  "selectCategory": "Select Category",
+  "selectEducationLevel": "Select Education Level",
+  "selectCurriculum": "Select Curriculum",
+  "gradeNotePlaceholder": "Grade / Year (optional, e.g. Preparatory 1)",
+  "cancel": "Cancel",
+  "updating": "Updating...",
+  "saving": "Saving...",
+  "update": "Update",
+  "save": "Save"
 }
 }
  

@@ -741,8 +741,9 @@
     "coursesOffered": "الدورات المقدمة",
     "hourSession": "{rate} {currency} / جلسة ساعة كاملة",
     "deepDive": "شرح عميق ومكثف لمفاهيم {subject} لجميع المستويات.",
-    "bookSession": "احجز جلسة — {rate} {currency}/ساعة"
-  }
+    "bookSession": "احجز جلسة — {rate} {currency}/ساعة",
+    "noBookableSubject": "لا توجد مادة متاحة للحجز"
+  },
 
 
 
@@ -916,6 +917,79 @@
 },
 "weeklyAvailability": {
   "empty": "لم يتم تحديد جدول أسبوعي بعد."
+},
+"nav": {
+  "learner": {
+    "dashboard": "لوحة التحكم",
+    "aiAssistant": "المساعد الذكي",
+    "findTutor": "ابحث عن مدرّس",
+    "messages": "الرسائل",
+    "payments": "المدفوعات",
+    "settings": "الإعدادات"
+  },
+  "tutor": {
+    "dashboard": "لوحة التحكم",
+    "messages": "الرسائل",
+    "earnings": "الأرباح",
+    "availability": "التوفر",
+    "profile": "الملف الشخصي",
+    "reviews": "التقييمات"
+  },
+  "admin": {
+    "dashboard": "لوحة التحكم",
+    "users": "المستخدمون",
+    "tutors": "المدرّسون",
+    "moderation": "الإشراف",
+    "payments": "المدفوعات",
+    "settings": "الإعدادات"
+  }
+},
+"sidebar": {
+  "expand": "توسيع القائمة الجانبية",
+  "collapse": "طي القائمة الجانبية",
+  "userAvatar": "صورة المستخدم",
+  "home": "الرئيسية",
+  "loggingOut": "جاري تسجيل الخروج...",
+  "logOut": "تسجيل الخروج"
+},
+"editProfile": {
+  "loading": "جاري التحميل...",
+  "error": "حدث خطأ ما.",
+  "title": "تعديل الملف الشخصي",
+  "description": "حدّث هويتك المهنية وأدر مناهجك الدراسية.",
+  "discardChanges": "تجاهل التغييرات",
+  "saveProfile": "حفظ الملف الشخصي",
+  "coursesOffered": "المواد المُقدَّمة",
+  "loadingCourses": "جاري تحميل المواد...",
+  "coursesError": "تعذر تحميل المواد. حاول مرة أخرى لاحقاً.",
+  "addNewCourse": "إضافة مادة جديدة",
+  "addNewCourseDescription": "أضف مادة جديدة لبدء تدريس المزيد من الطلاب."
+},
+"courseCard": {
+  "editSubject": "تعديل المادة",
+  "deleteSubject": "حذف المادة",
+  "deleteConfirmTitle": "هل تريد حذف هذه المادة؟",
+  "deleteConfirmDescription": "لا يمكن التراجع عن هذا الإجراء.",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "level": "المستوى",
+  "curriculum": "المنهج",
+  "created": "تاريخ الإنشاء"
+},
+"courseForm": {
+  "updateTitle": "تحديث المادة",
+  "addTitle": "إضافة مادة جديدة",
+  "titlePlaceholder": "عنوان المادة",
+  "descriptionPlaceholder": "الوصف",
+  "selectCategory": "اختر الفئة",
+  "selectEducationLevel": "اختر المستوى التعليمي",
+  "selectCurriculum": "اختر المنهج",
+  "gradeNotePlaceholder": "الصف / السنة (اختياري، مثال: إعدادي 1)",
+  "cancel": "إلغاء",
+  "updating": "جاري التحديث...",
+  "saving": "جاري الحفظ...",
+  "update": "تحديث",
+  "save": "حفظ"
 }
 }
 
