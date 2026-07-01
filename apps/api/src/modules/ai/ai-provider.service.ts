@@ -1,5 +1,7 @@
+import { APIError } from 'openai';
 import { env } from '../../config/env.js';
 import { logger } from '../../config/logger.js';
+import openai from '../../config/openai.config.js';
 import { createAILog } from './ai-log.service.js';
 
 export type AIProviderMessage = {
@@ -15,23 +17,23 @@ type GenerateAIReplyInput = {
   goal?: string | null;
 };
 
-type OpenAIResponse = {
-  output_text?: string;
-  output?: Array<{
-    content?: Array<{
-      text?: string;
-      type?: string;
-    }>;
-  }>;
-};
+// type OpenAIResponse = {
+//   output_text?: string;
+//   output?: Array<{
+//     content?: Array<{
+//       text?: string;
+//       type?: string;
+//     }>;
+//   }>;
+// };
 
-type OpenAIErrorResponse = {
-  error?: {
-    code?: string | null;
-    type?: string | null;
-    message?: string;
-  };
-};
+// type OpenAIErrorResponse = {
+//   error?: {
+//     code?: string | null;
+//     type?: string | null;
+//     message?: string;
+//   };
+// };
 
 const fallbackReply =
   'I can help you describe your learning goals and find suitable tutors. Tell me the subject, level, preferred language, and budget you have in mind.';
@@ -54,24 +56,25 @@ function buildSystemPrompt(input: GenerateAIReplyInput) {
   ].join(' ');
 }
 
-function extractText(response: OpenAIResponse) {
-  if (response.output_text?.trim()) {
-    return response.output_text.trim();
-  }
+// function extractText(response: OpenAIResponse) {
+//   if (response.output_text?.trim()) {
+//     return response.output_text.trim();
+//   }
 
-  const text = response.output
-    ?.flatMap((item) => item.content ?? [])
-    .map((content) => content.text)
-    .filter((content): content is string => Boolean(content?.trim()))
-    .join('\n')
-    .trim();
+//   const text = response.output
+//     ?.flatMap((item) => item.content ?? [])
+//     .map((content) => content.text)
+//     .filter((content): content is string => Boolean(content?.trim()))
+//     .join('\n')
+//     .trim();
 
-  return text || fallbackReply;
-}
+//   return text || fallbackReply;
+// }
 
 export async function generateAIReply(input: GenerateAIReplyInput) {
   const startedAt = Date.now();
 
+  // missing api keys, return fallback
   if (!env.OPENAI_API_KEY) {
     await createAILog({
       conversationId: input.conversationId,
@@ -92,19 +95,14 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
     };
   }
 
-  try {
-const OPENAI_TIMEOUT_MS = 10_000;
+  // call llm api
+  const TIMEOUT_MS = 10_000;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
-    const response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const response = await openai.responses.create(
+      {
         model: env.OPENAI_MODEL,
         input: [
           {
@@ -113,45 +111,13 @@ const OPENAI_TIMEOUT_MS = 10_000;
           },
           ...input.messages,
         ],
-      }),
-    });
+      },
+      {
+        signal: controller.signal,
+      },
+    );
+
     clearTimeout(timeout);
-
-    if (!response.ok) {
-      const details = await response.text();
-      let errorCode: string | null = null;
-      let errorType: string | null = null;
-
-      try {
-        const parsed = JSON.parse(details) as OpenAIErrorResponse;
-        errorCode = parsed.error?.code ?? null;
-        errorType = parsed.error?.type ?? null;
-      } catch {
-        errorCode = 'unknown';
-        errorType = 'unknown';
-      }
-
-      logger.error('OpenAI request failed', {
-        status: response.status,
-        details,
-      });
-      await createAILog({
-        conversationId: input.conversationId,
-        learnerId: input.learnerId,
-        provider: 'openai',
-        model: env.OPENAI_MODEL,
-        status: 'failed',
-        latencyMs: Date.now() - startedAt,
-        promptMessagesCount: input.messages.length,
-        errorStatus: response.status,
-        errorCode,
-        errorType,
-      });
-
-      throw new Error('OpenAI request failed');
-    }
-
-    const data = (await response.json()) as OpenAIResponse;
 
     await createAILog({
       conversationId: input.conversationId,
@@ -164,14 +130,30 @@ const OPENAI_TIMEOUT_MS = 10_000;
     });
 
     return {
-      content: extractText(data),
+      content: response.output_text,
       provider: 'openai',
       model: env.OPENAI_MODEL,
     };
   } catch (error) {
+    clearTimeout(timeout);
     logger.error('Failed to generate AI reply', {
       error: error instanceof Error ? error.message : error,
     });
+
+    if (error instanceof APIError) {
+      await createAILog({
+        conversationId: input.conversationId,
+        learnerId: input.learnerId,
+        provider: 'openai',
+        model: env.OPENAI_MODEL,
+        status: 'failed',
+        latencyMs: Date.now() - startedAt,
+        promptMessagesCount: input.messages.length,
+        errorStatus: error.status,
+        errorCode: error.code ?? null,
+        errorType: error.type ?? null,
+      });
+    }
 
     await createAILog({
       conversationId: input.conversationId,
