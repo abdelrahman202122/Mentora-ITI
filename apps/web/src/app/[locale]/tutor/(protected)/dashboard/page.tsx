@@ -1,5 +1,7 @@
 'use client';
 
+import { type FormEvent, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   AlertCircle,
   CheckCircle2,
@@ -8,17 +10,8 @@ import {
   Timer,
   Video,
 } from 'lucide-react';
-import StatCard from '@/components/tutor/StatCard';
 import BookingCard from '@/components/tutor/BookingCard';
-import { useMyBookings } from '@/hooks/booking/booking';
-import { useAcceptBooking } from '@/hooks/booking/approveBooking';
-import { useRejectBooking } from '@/hooks/booking/rejectBooking';
-import { useCancelBooking } from '@/hooks/booking/cancelBooking';
-import { useConfirmBookingCode } from '@/hooks/booking/useConfirmBookingCode';
-import { useCurrentUser } from '@/hooks/auth/use-auth';
-import { useTutorStats } from '@/hooks/tutor/useTutorStats';
-import type { BookingStatus } from '@/services/booking-services/getMyBooking';
-import { useState } from 'react';
+import StatCard from '@/components/tutor/StatCard';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -28,27 +21,31 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useCurrentUser } from '@/hooks/auth/use-auth';
+import { useAcceptBooking } from '@/hooks/booking/approveBooking';
+import { useMyBookings } from '@/hooks/booking/booking';
+import { useCancelBooking } from '@/hooks/booking/cancelBooking';
+import { useRejectBooking } from '@/hooks/booking/rejectBooking';
+import { useConfirmBookingCode } from '@/hooks/booking/useConfirmBookingCode';
+import { useTutorStats } from '@/hooks/tutor/useTutorStats';
+import type { BookingStatus } from '@/services/booking-services/getMyBooking';
 import type { Booking } from '@/types/booking/booking-data';
-
-// ─── helpers ────────────────────────────────────────────────────────────────
 
 function formatCurrency(
   amount: number | undefined,
   currency: string = 'USD',
 ): string {
+  if (typeof amount === 'undefined') {
+    return 'Failed to load';
+  }
+
   try {
-    if (typeof amount === 'undefined') {
-      return 'faild to load';
-    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    if (typeof amount === 'undefined') {
-      return 'faild to load';
-    }
     return `${currency} ${amount.toLocaleString()}`;
   }
 }
@@ -89,42 +86,32 @@ function getErrorMessage(error: unknown): string {
     : 'Could not verify the session code.';
 }
 
-// ─── filter tabs ─────────────────────────────────────────────────────────────
-// ─── component ───────────────────────────────────────────────────────────────
-
 export default function InstructorDashboard() {
-  const tStatus = useTranslations("bookingStatus");
+  const t = useTranslations('tutorDashboard');
+  const tStatus = useTranslations('tutorDashboard.bookingStatus');
+  const statusFilters: { label: string; value: BookingStatus | 'all' }[] = [
+    { label: tStatus('all'), value: 'all' },
+    { label: tStatus('pending'), value: 'pending' },
+    { label: tStatus('confirmed'), value: 'confirmed' },
+    { label: tStatus('completed'), value: 'completed' },
+    { label: tStatus('canceled'), value: 'canceled' },
+    { label: tStatus('rejected'), value: 'rejected' },
+    { label: tStatus('expired'), value: 'expired' },
+  ];
 
-const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
-{ label: tStatus("all"),       value: "all"       },
-  { label: tStatus("pending"),   value: "pending"   },
-  { label: tStatus("confirmed"), value: "confirmed" },
-  { label: tStatus("completed"), value: "completed" },
-  { label: tStatus("canceled"),  value: "canceled"  },
-  { label: tStatus("rejected"),  value: "rejected"  },
-  { label: tStatus("expired"),   value: "expired"   },];
-
-
-  const [activeFilter, setActiveFilter] = useState<BookingStatus | "all">("all");
-  const [currentPage, setCurrentPage]   = useState(1);
-  const [sessionCode, setSessionCode] = useState("");
+  const [activeFilter, setActiveFilter] = useState<BookingStatus | 'all'>(
+    'all',
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sessionCode, setSessionCode] = useState('');
   const [sessionSuccess, setSessionSuccess] = useState<string | null>(null);
 
-  function handleFilterChange(value: BookingStatus | 'all') {
-    setActiveFilter(value);
-    setCurrentPage(1);
-  }
-
-  // main bookings query (filtered + paginated)
   const { data, isLoading, isError } = useMyBookings(
     activeFilter !== 'all'
       ? { bookingStatus: activeFilter, page: currentPage, limit: 10 }
       : { page: currentPage, limit: 10 },
   );
-
   const { data: currentUser } = useCurrentUser();
-
-  // ── stats from dedicated endpoint ──────────────────────────────────────
   const { data: stats, isLoading: isStatsLoading } = useTutorStats();
 
   const {
@@ -132,13 +119,11 @@ const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
     isPending: isAccepting,
     variables: acceptingId,
   } = useAcceptBooking();
-
   const {
     mutate: rejectBooking,
     isPending: isRejecting,
     variables: rejectingId,
   } = useRejectBooking();
-
   const {
     mutate: cancelBooking,
     isPending: isCanceling,
@@ -154,11 +139,14 @@ const STATUS_FILTERS: { label: string; value: BookingStatus | "all" }[] = [
     .sort(
       (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
     )[0];
-
   const displayName = currentUser?.name;
 
-const t = useTranslations("tutorDashboard");
-  function handleSessionCodeSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleFilterChange(value: BookingStatus | 'all') {
+    setActiveFilter(value);
+    setCurrentPage(1);
+  }
+
+  function handleSessionCodeSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSessionSuccess(null);
 
@@ -182,52 +170,56 @@ const t = useTranslations("tutorDashboard");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-        {/* Header */}
+      <div className="mx-auto max-w-6xl space-y-10 px-6 py-8">
         <header>
-          <h1 className="text-3xl font-bold">Welcome back, {displayName}</h1>
+          <h1 className="text-3xl font-bold">
+            {t('welcomeBack')}
+            {displayName ? `, ${displayName}` : ''}
+          </h1>
         </header>
 
-        {/* Stats */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <StatCard
             icon={CreditCard}
-            label="Total Earnings"
-            value={isStatsLoading ? '…' : formatCurrency(stats?.totalEarnings)}
+            label={t('stats.totalEarnings')}
+            value={
+              isStatsLoading
+                ? '...'
+                : formatCurrency(stats?.totalEarnings, 'EGP')
+            }
           />
           <StatCard
             icon={School}
-            label="Total Sessions"
+            label={t('stats.totalSessions')}
             value={
               isStatsLoading
-                ? '…'
-                : String(stats?.totalSessions ?? 'faild to load')
+                ? '...'
+                : String(stats?.totalSessions ?? t('stats.failedToLoad'))
             }
           />
           <StatCard
             icon={Timer}
-            label="Hours Taught"
+            label={t('stats.hoursTaught')}
             value={
               isStatsLoading
-                ? '…'
+                ? '...'
                 : stats?.totalHours != null
                   ? `${stats.totalHours}h`
-                  : 'failed to load'
+                  : t('stats.failedToLoad')
             }
           />
         </section>
 
-        {/* Start Session */}
         <Card className="border-primary/15 bg-primary text-primary-foreground shadow-sm">
           <CardHeader className="gap-2">
             <div className="flex items-center gap-2">
               <Video className="size-5" />
-              <CardTitle className="text-xl">Start Your Session</CardTitle>
+              <CardTitle className="text-xl">
+                {t('startSession.title')}
+              </CardTitle>
             </div>
             <CardDescription className="max-w-2xl text-primary-foreground/80">
-              Ask the learner for the session code shown on their dashboard.
-              Verification is available only for paid bookings during the
-              scheduled session time.
+              {t('startSession.description')}
             </CardDescription>
           </CardHeader>
 
@@ -269,7 +261,7 @@ const t = useTranslations("tutorDashboard");
                   setSessionCode(event.target.value);
                   setSessionSuccess(null);
                 }}
-                placeholder="Enter learner session code"
+                placeholder={t('startSession.inputPlaceholder')}
                 disabled={!activeSession || confirmBookingCode.isPending}
                 className="h-11 border-white/20 bg-white/10 text-primary-foreground placeholder:text-primary-foreground/55 focus-visible:ring-white/40"
               />
@@ -282,7 +274,9 @@ const t = useTranslations("tutorDashboard");
                 }
                 className="h-11 bg-white px-5 font-semibold text-primary hover:bg-white/90"
               >
-                {confirmBookingCode.isPending ? 'Verifying...' : 'Verify Code'}
+                {confirmBookingCode.isPending
+                  ? 'Verifying...'
+                  : t('startSession.verifyButton')}
               </Button>
             </form>
 
@@ -302,157 +296,110 @@ const t = useTranslations("tutorDashboard");
           </CardContent>
         </Card>
 
-return (
-  <div className="min-h-screen bg-background text-foreground">
-    <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-
-      {/* Header */}
-      <header>
-        <h1 className="text-3xl font-bold">
-          {t("welcomeBack") + (displayName ? `, ${displayName}` : "")}
-        </h1>
-      </header>
-
-      {/* Stats */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard
-          icon={CreditCard}
-          label={t("stats.totalEarnings")}
-          value={isStatsLoading ? "…" : formatCurrency(stats?.totalEarnings)}
-        />
-        <StatCard
-          icon={School}
-          label={t("stats.totalSessions")}
-          value={isStatsLoading ? "…" : String(stats?.totalSessions ?? t("stats.failedToLoad"))}
-        />
-        <StatCard
-          icon={Timer}
-          label={t("stats.hoursTaught")}
-          value={isStatsLoading ? "…" : stats?.totalHours != null ? `${stats.totalHours}h` : t("stats.failedToLoad")}
-        />
-      </section>
-
-      {/* Start Session */}
-      <section className="relative overflow-hidden rounded-2xl bg-primary text-primary-foreground p-8">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-        <div className="relative space-y-4">
-          <div className="flex items-center gap-2">
-            <Video className="w-6 h-6" />
-            <h3 className="text-xl font-bold">{t("startSession.title")}</h3>
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold">{t('bookings.title')}</h2>
           </div>
-          <p className="font-medium">Organic Chemistry with Alex Harrison</p>
-          <p className="text-sm text-white/80 max-w-lg">
-            {t("startSession.description")}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <input
-              placeholder={t("startSession.inputPlaceholder")}
-              className="flex-1 rounded-xl px-4 py-3 bg-white/10 border border-white/20 placeholder:text-white/60 outline-none focus-visible:ring-primary"
-            />
-            <button className="btn-primary bg-white text-primary hover:bg-white/90">
-              {t("startSession.verifyButton")}
-            </button>
+
+          <div className="flex flex-wrap gap-2">
+            {statusFilters.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => handleFilterChange(value)}
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  activeFilter === value
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-background text-muted-foreground hover:border-primary hover:text-primary'
+                }`}
+                type="button"
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        </div>
-      </section>
 
-      {/* Bookings */}
-      <section className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">{t("bookings.title")}</h2>
-        </div>
-
-        {/* Filter tabs */}
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => handleFilterChange(value)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                activeFilter === value
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-muted-foreground border-border hover:border-primary hover:text-primary"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {isLoading && (
-          <div className="text-muted-foreground text-sm py-6 text-center">
-            {t("bookings.loading")}
-          </div>
-        )}
-        {isError && (
-          <div className="text-red-500 text-sm py-6 text-center">
-            {t("bookings.error")}
-          </div>
-        )}
-        {!isLoading && !isError && bookings.length === 0 && (
-          <div className="text-muted-foreground text-sm py-6 text-center">
-            {t("bookings.empty")}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          {bookings.map((booking) => (
-            <BookingCard
-              key={booking._id}
-              booking={booking}
-              onApprove={() => acceptBooking(booking._id)}
-              onReject={() => rejectBooking(booking._id)}
-              onCancel={() =>
-                cancelBooking({
-                  bookingId: booking._id,
-                  cancelReason: t("bookings.cancelReason"),
-                })
-              }
-              isApproving={isAccepting && acceptingId === booking._id}
-              isRejecting={isRejecting && rejectingId === booking._id}
-              isCanceling={isCanceling && cancelingVariables?.bookingId === booking._id}
-            />
-          ))}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 pt-4">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 rounded-lg border text-sm font-medium disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
-            >
-              {t("bookings.previous")}
-            </button>
-
-            <div className="flex gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 rounded-lg text-sm font-medium border transition-colors ${
-                    page === currentPage
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "hover:border-primary hover:text-primary"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+          {isLoading ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              {t('bookings.loading')}
             </div>
+          ) : null}
+          {isError ? (
+            <div className="py-6 text-center text-sm text-red-500">
+              {t('bookings.error')}
+            </div>
+          ) : null}
+          {!isLoading && !isError && bookings.length === 0 ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              {t('bookings.empty')}
+            </div>
+          ) : null}
 
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 rounded-lg border text-sm font-medium disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
-            >
-              {t("bookings.next")}
-            </button>
+          <div className="space-y-4">
+            {bookings.map((booking) => (
+              <BookingCard
+                key={booking._id}
+                booking={booking}
+                onApprove={() => acceptBooking(booking._id)}
+                onReject={() => rejectBooking(booking._id)}
+                onCancel={() =>
+                  cancelBooking({
+                    bookingId: booking._id,
+                    cancelReason: t('bookings.cancelReason'),
+                  })
+                }
+                isApproving={isAccepting && acceptingId === booking._id}
+                isRejecting={isRejecting && rejectingId === booking._id}
+                isCanceling={
+                  isCanceling && cancelingVariables?.bookingId === booking._id
+                }
+              />
+            ))}
           </div>
-        )}
-      </section>
 
+          {totalPages > 1 ? (
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <button
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary disabled:opacity-40"
+                type="button"
+              >
+                {t('bookings.previous')}
+              </button>
+
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`h-9 w-9 rounded-lg border text-sm font-medium transition-colors ${
+                        page === currentPage
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'hover:border-primary hover:text-primary'
+                      }`}
+                      type="button"
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages, page + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary disabled:opacity-40"
+                type="button"
+              >
+                {t('bookings.next')}
+              </button>
+            </div>
+          ) : null}
+        </section>
+      </div>
     </div>
-  </div>
-);}
+  );
+}
