@@ -13,11 +13,12 @@ import type {
   UpdateTutorProfileInput,
 } from '../../../validators/tutor-profile.js';
 import {
+  addUserRole,
   findUserById,
   updateUserName,
-  updateUserRole,
 } from '../../users/user.repository.js';
 import { withTransaction } from '../../../common/transactionHelper.js';
+import { UserRole } from '../../users/user.interface.js';
 
 // get full tutor profile
 export const getProfile = async (tutorId: string, approvedOnly: boolean) => {
@@ -51,7 +52,7 @@ export const createProfile = async (
     throw new ConflictError('Tutor profile already exists');
   }
 
-  // start transaction for: create profile and update user role to 'tutor'
+  // start transaction for: create profile and add tutor capability
   const profile = await withTransaction(async (session) => {
     const profile = await create(
       {
@@ -65,10 +66,9 @@ export const createProfile = async (
       session,
     );
 
-    await updateUserRole(
+    await addUserRole(
       userId,
-      'tutor',
-      // profile._id,
+      UserRole.TUTOR,
       session,
     );
     return profile;

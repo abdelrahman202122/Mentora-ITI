@@ -33,6 +33,7 @@ export type BookingStatus =
 interface GetMyBookingsParams {
   bookingStatus?: BookingStatus;
   limit?: number;
+  mode?: "learner" | "tutor" | "admin";
   page?: number;
 }
 

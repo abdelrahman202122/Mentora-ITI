@@ -1,15 +1,26 @@
 import jwt, { type SignOptions } from 'jsonwebtoken';
+import {
+  type UserRole,
+} from '../modules/users/user.interface.js';
+import {
+  getPrimaryRole,
+  normalizeRoles,
+} from '../modules/users/role.utils.js';
 
 export const generateAccessToken = (
   userId: string,
-  role: string
+  rolesOrRole: UserRole[] | UserRole | string,
 ): string => {
   const options: SignOptions = {
     expiresIn: '15m',
   };
+  const roles = normalizeRoles({
+    roles: Array.isArray(rolesOrRole) ? rolesOrRole : undefined,
+    role: Array.isArray(rolesOrRole) ? undefined : rolesOrRole,
+  });
 
   return jwt.sign(
-    { userId, role },
+    { userId, role: getPrimaryRole(roles), roles },
     process.env.JWT_ACCESS_SECRET!,
     options
   );

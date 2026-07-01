@@ -5,7 +5,8 @@ export type AuthUser = {
   name: string;
   email: string;
   phoneNumber?: string | null;
-  role: UserRole;
+  role?: UserRole;
+  roles?: UserRole[];
   avatar?: string;
   isEmailVerified?: boolean;
 };

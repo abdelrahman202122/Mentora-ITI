@@ -31,6 +31,8 @@ import type {
   ListAuditLogsQuery
 } from './admin-user.validation.js';
 import { sendResetEmail } from '../../../common/email/email.service.js';
+import { getPrimaryRole, normalizeRoles } from '../../users/role.utils.js';
+import { UserRole } from '../../users/user.interface.js';
 
 /* ═════════════════════════════════════════════════════════════════
    PRIVATE HELPERS
@@ -41,6 +43,9 @@ import { sendResetEmail } from '../../../common/email/email.service.js';
     TUTOR: 'Tutor',
     LEARNER: 'Student',
     ADMIN: 'Admin',
+    tutor: 'Tutor',
+    learner: 'Student',
+    admin: 'Admin',
   };
 
 /* Format a Date as "Jan 15, 2023" */
@@ -55,19 +60,32 @@ const formatDate = (date: Date | undefined): string => {
 
 /* Convert a raw DB user document into the AdminUserListItem shape
    that the frontend expects */
-const mapToListItem = (user: any): AdminUserListItem => ({
-  id: user._id.toString(),
-  name: user.name,
-  email: user.email,
-  role: roleToFrontend[user.role] ?? user.role,
-  status: user.adminStatus ?? (user.isActive ? 'Active' : 'Pending'),
-  regDate: formatDate(user.createdAt),
-  totalSessions: 0,
-  avgRating: null,
-  lastActivity: null,
-  avatarUrl: user.avatar ?? null,
-  roleLabel: user.roleLabel ?? null,
-});
+const mapToListItem = (user: any): AdminUserListItem => {
+  const roles = normalizeRoles(user);
+  const displayRole =
+    roles.map((role) => roleToFrontend[role] ?? role).join(', ') ||
+    roleToFrontend[getPrimaryRole(roles)];
+
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    role: displayRole,
+    status: user.adminStatus ?? (user.isActive ? 'Active' : 'Pending'),
+    regDate: formatDate(user.createdAt),
+    totalSessions: 0,
+    avgRating: null,
+    lastActivity: null,
+    avatarUrl: user.avatar ?? null,
+    roleLabel: user.roleLabel ?? null,
+  };
+};
+
+const frontendRoleToDbRoles = (role: string): UserRole[] => {
+  if (role === 'Tutor') return [UserRole.LEARNER, UserRole.TUTOR];
+  if (role === 'Admin') return [UserRole.ADMIN];
+  return [UserRole.LEARNER];
+};
 
 /* ═════════════════════════════════════════════════════════════════
    1. GET /api/admin/users — List users
@@ -149,12 +167,7 @@ export const createUser = async (
     throw new ConflictError('Email already registered');
   }
 
-  /* Map frontend role → DB role enum */
-  const roleToDb: Record<string, string> = {
-    Tutor: 'tutor',
-    Student: 'learner',
-    Admin: 'admin',
-  };
+  const roles = frontendRoleToDbRoles(data.role);
 
   /* Generate a random temp password — the user will reset it
      via the invitation email */
@@ -166,7 +179,8 @@ export const createUser = async (
   const user = await createAdminUserInDb({
     name: data.fullName,
     email: data.email,
-    role: roleToDb[data.role] ?? data.role,
+    role: getPrimaryRole(roles),
+    roles,
     adminStatus: data.status,
     isActive: data.status === 'Active',
     password: temporaryPassword,

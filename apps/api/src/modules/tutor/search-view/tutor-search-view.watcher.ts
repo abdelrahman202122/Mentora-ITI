@@ -5,6 +5,8 @@ import { TutorSubjectModel } from '../subject/tutor-subject.model.js';
 import { refreshTutorSearchView } from './tutor-search-view.service.js';
 import { TutorSearchViewModel } from './tutor-search-view.model.js';
 import type { ChangeStream } from 'mongodb';
+import { hasRole } from '../../users/role.utils.js';
+import { UserRole } from '../../users/user.interface.js';
 
 // Store active change stream watchers for graceful shutdown
 const activeWatchers: ChangeStream[] = [];
@@ -90,7 +92,7 @@ export function startTutorSearchViewWatchers() {
       ) {
         const user = change.fullDocument;
         if (user) {
-          if (user.role === 'tutor') {
+          if (hasRole(user, UserRole.TUTOR)) {
             await refreshTutorSearchView(user._id.toString());
           } else {
             await TutorSearchViewModel.deleteOne({ userId: user._id });

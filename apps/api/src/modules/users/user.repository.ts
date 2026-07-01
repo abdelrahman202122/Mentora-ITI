@@ -1,5 +1,7 @@
 import type { ClientSession } from 'mongoose';
 import { UserModel } from './user.model.js';
+import { UserRole } from './user.interface.js';
+import { getPrimaryRole, normalizeRoles } from './role.utils.js';
 
 export const findUserById = async (userId: string) => {
   return UserModel.findById(userId);
@@ -11,10 +13,13 @@ export const updateUserRole = async (
   // profileId: string,
   session?: ClientSession,
 ) => {
+  const roles = normalizeRoles({ role });
+
   return UserModel.findByIdAndUpdate(
     userId,
     {
-      role,
+      role: getPrimaryRole(roles),
+      roles,
       // tutorProfile: profileId,
     },
     {
@@ -22,7 +27,28 @@ export const updateUserRole = async (
       runValidators: true,
       session,
     },
-  );
+);
+};
+
+export const addUserRole = async (
+  userId: string,
+  role: UserRole,
+  session?: ClientSession,
+) => {
+  const user = await UserModel.findById(userId).session(session ?? null);
+  if (!user) {
+    return null;
+  }
+
+  const roles = normalizeRoles(user);
+  if (!roles.includes(role)) {
+    roles.push(role);
+  }
+
+  user.roles = roles;
+  user.role = getPrimaryRole(roles);
+
+  return user.save({ session });
 };
 
 export const updateUserName = async (

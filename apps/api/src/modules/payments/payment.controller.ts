@@ -78,7 +78,7 @@ export async function getPaymentById(
     const payment = await paymentService.getPaymentById(
       paymentObjectId,
       req.user.userId,
-      req.user.role,
+      req.user.roles,
     );
 
     sendSuccess(res, 200, 'Payment retrieved successfully', payment);

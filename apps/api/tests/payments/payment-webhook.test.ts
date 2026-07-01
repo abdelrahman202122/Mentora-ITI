@@ -44,10 +44,8 @@ vi.mock('../../src/modules/payments/earning.repository.js', () => ({
   findEarningByBookingId: vi.fn(),
 }));
 
-vi.mock('../../src/modules/users/user.model.js', () => ({
-  UserModel: {
-    findById: vi.fn(),
-  },
+vi.mock('../../src/modules/users/user.repository.js', () => ({
+  findUserById: vi.fn(),
 }));
 
 const paymentRepository = await import(
@@ -62,7 +60,7 @@ const earningRepository = await import(
 const { handlePaymobWebhook, initiateCheckout } = await import(
   '../../src/modules/payments/payment.service.js'
 );
-const { UserModel } = await import('../../src/modules/users/user.model.js');
+const userRepository = await import('../../src/modules/users/user.repository.js');
 
 const PAYMOB_HMAC_FIELDS = [
   'amount_cents',
@@ -287,12 +285,9 @@ describe('Paymob webhook handling', () => {
         providerOrderId: 'paymob_order_retry',
       } as IPayment);
     vi.mocked(bookingRepository.updateBooking).mockResolvedValue(null);
-    vi.mocked(UserModel.findById).mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      lean: vi.fn().mockResolvedValue({
-        name: 'Learner One',
-        phoneNumber: '01012345678',
-      }),
+    vi.mocked(userRepository.findUserById).mockResolvedValue({
+      name: 'Learner One',
+      phoneNumber: '01012345678',
     } as never);
 
     const result = await initiateCheckout(bookingId, learnerId);

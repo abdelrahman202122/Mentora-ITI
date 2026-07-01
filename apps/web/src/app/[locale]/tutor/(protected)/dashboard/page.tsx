@@ -108,8 +108,13 @@ export default function InstructorDashboard() {
 
   const { data, isLoading, isError } = useMyBookings(
     activeFilter !== 'all'
-      ? { bookingStatus: activeFilter, page: currentPage, limit: 10 }
-      : { page: currentPage, limit: 10 },
+      ? {
+          bookingStatus: activeFilter,
+          page: currentPage,
+          limit: 10,
+          mode: 'tutor',
+        }
+      : { page: currentPage, limit: 10, mode: 'tutor' },
   );
   const { data: currentUser } = useCurrentUser();
   const { data: stats, isLoading: isStatsLoading } = useTutorStats();

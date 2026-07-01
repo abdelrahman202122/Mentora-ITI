@@ -212,10 +212,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, Home, Loader2, LogOut } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Loader2,
+  LogOut,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useCurrentUser, useLogout } from '@/hooks/auth/use-auth';
+import { hasRole } from '@/utils/auth/role-utils';
 import { getLocalePath } from '@/utils/i18n/locale-path';
 import {
   SidebarRole,
@@ -236,9 +244,15 @@ export default function Sidebar({ role }: SidebarProps) {
   const { data: currentUser } = useCurrentUser();
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogout();
 
-  const effectiveRole = resolveRole(role, currentUser?.role);
+  const effectiveRole = resolveRole(role, currentUser?.role, currentUser?.roles);
   const navLinksByRole = getNavLinksByRole(tNav);
   const navLinks = navLinksByRole[effectiveRole];
+  const canSwitchModes =
+    hasRole(currentUser, 'learner') && hasRole(currentUser, 'tutor');
+  const switchModePath =
+    effectiveRole === 'tutor' ? '/dashboard' : '/tutor/dashboard';
+  const switchModeLabel =
+    effectiveRole === 'tutor' ? t('switchToLearner') : t('switchToTutor');
 
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
   const avatarRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -378,6 +392,21 @@ export default function Sidebar({ role }: SidebarProps) {
 
       {/* Logout */}
       <div className="mt-auto space-y-1">
+        {canSwitchModes ? (
+          <Button
+            asChild
+            className={`w-full gap-3 px-2 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 ${
+              collapsed ? 'justify-center' : 'justify-start'
+            }`}
+            variant="ghost"
+          >
+            <Link href={getLocalePath(locale, switchModePath)}>
+              <ArrowLeftRight size={18} className="shrink-0" />
+              {!collapsed && <span>{switchModeLabel}</span>}
+            </Link>
+          </Button>
+        ) : null}
+
         <NotificationBell collapsed={collapsed} role={effectiveRole} />
 
         <Button
