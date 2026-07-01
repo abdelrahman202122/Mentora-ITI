@@ -67,8 +67,10 @@ export default function PaymentDetailsPage() {
   const t = useTranslations("PaymentDetails")
 
   const [payment, setPayment] = useState<PaymentDetails | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(() => Boolean(paymentId))
+  const [error, setError] = useState<string | null>(() =>
+    paymentId ? null : "Payment ID not found in URL.",
+  )
 
   useEffect(() => {
     if (!paymentId) {

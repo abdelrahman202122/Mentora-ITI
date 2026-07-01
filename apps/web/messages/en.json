@@ -738,7 +738,179 @@
     "hourSession": "{rate} {currency} / hour session",
     "deepDive": "A deep dive into {subject} concepts for all levels.",
     "bookSession": "Book a Session — {rate} {currency}/hr"
+  "tutorDashboard": {
+    "welcomeBack": "Welcome back",
+    "stats": {
+      "totalEarnings": "Total Earnings",
+      "totalSessions": "Total Sessions",
+      "hoursTaught": "Hours Taught",
+      "failedToLoad": "Failed to load"
+    },
+    "startSession": {
+      "title": "Start Your Session",
+      "description": "Verify your student to begin the private learning session. Ensure your audio and video are working correctly.",
+      "inputPlaceholder": "Enter Student Verification Code",
+      "verifyButton": "Verify & Start Session"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "loading": "Loading bookings…",
+      "error": "Failed to load bookings. Please try again.",
+      "empty": "No bookings found.",
+      "cancelReason": "Canceled by tutor from dashboard.",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "bookingStatus": {
+    "all": "All",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "canceled": "Canceled",
+    "rejected": "Rejected",
+    "expired": "Expired"
   }
+},
+
+  "bookingCard": {
+    "sessionTitle": "Session — {subject}",
+    "today": "Today, {time}",
+    "approve": "Approve",
+    "approving": "Approving…",
+    "reject": "Reject",
+    "rejecting": "Rejecting…",
+    "cancel": "Cancel",
+    "canceling": "Canceling…"
+  },
+  "bookingStatusLabel": {
+    "expired": "Expired",
+    "pendingApproval": "Pending Approval",
+    "canceled": "Canceled",
+    "rejected": "Rejected",
+    "completed": "Completed",
+    "confirmedPaid": "Confirmed & Paid",
+    "confirmedAwaitingPayment": "Confirmed & Awaiting Payment",
+    "confirmedPaymentPending": "Confirmed & Payment Pending",
+    "confirmedPaymentFailed": "Confirmed & Payment Failed",
+    "confirmed": "Confirmed",
+    "refunded": "Refunded",
+    "awaitingPayment": "Awaiting Payment",
+    "paymentFailed": "Payment Failed",
+    "paymentPending": "Payment Pending"
+},
+
+  "payments": {
+    "pageHeader": {
+      "title": "Financial Overview",
+      "description": "Track your academic success and performance revenue.",
+      "exportDate": "Oct 2023",
+      "export": "Export"
+    },
+    "statCards": {
+      "availableBalance": "Available Balance",
+      "paidOut": "Paid Out",
+      "unavailable": "Unavailable",
+      "sessionsCount": "{count} sessions"
+    },
+    "pendingPayout": {
+      "title": "Pending Payout",
+      "session": "{count} pending session",
+      "sessions": "{count} pending sessions"
+    },
+    "transactionsTable": {
+      "title": "Recent Transactions",
+      "description": "Overview of latest payments",
+      "columns": {
+        "date": "Date",
+        "student": "Student",
+        "subject": "Subject",
+        "duration": "Duration",
+        "amount": "Amount",
+        "status": "Status"
+      },
+      "loading": "Loading transactions…",
+      "error": "Failed to load transactions.",
+      "empty": "No transactions yet.",
+      "showing": "Showing {count} of {total} transactions",
+      "defaultStudent": "Student"
+    }
+  },
+  "earningStatus": {
+    "all": "All",
+    "pending": "Pending",
+    "available": "Available",
+    "paid_out": "Paid Out",
+    "canceled": "Canceled"
+  },
+  "pendingPayout": {
+    "title": "Pending Payout",
+    "sessions": "pending sessions"
+  },
+  "availability": {
+  "page": {
+    "title": "Manage Availability",
+    "description": "Set your weekly schedule and let students find you at the right time.",
+    "scheduleActions": "Schedule Actions",
+    "setUpMyAvailability": "Set Up My Availability",
+    "editAvailability": "Edit Availability",
+    "weeklySchedule": "Weekly Schedule",
+    "weeklyDescription": "Your recurring availability across the week.",
+    "noAvailability": "No availability data found.",
+    "slotsByDate": "Available Slots by Date",
+    "slotsDescription": "View your open booking slots for the upcoming period.",
+    "noSlots": "No slot data found."
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "addSlotForm": {
+    "title": "Add Time Slot",
+    "day": "Day",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "timezone": "Timezone",
+    "cancel": "Cancel",
+    "addSlot": "Add Slot"
+  },
+  "createForm": {
+    "title": "Set Up Your First Slot",
+    "day": "Day",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "timezone": "Timezone",
+    "cancel": "Cancel",
+    "save": "Save & Get Started"
+  },
+  "editForm": {
+    "title": "Edit Availability",
+    "noSlots": "No slots yet. Use the button below to add one.",
+    "newSlot": "New Slot",
+    "start": "Start",
+    "end": "End",
+    "cancel": "Cancel",
+    "add": "Add",
+    "addAnotherSlot": "Add Another Slot",
+    "timezone": "Timezone",
+    "save": "Save Changes",
+    "requiredError": "Both start and end time are required",
+    "endTimeError": "End time must be after start time"
+  },
+  "dailySlots": {
+    "empty": "No available slots found for the selected period."
+  },
+  "daySection": {
+    "to": "to"
+  }
+},
+"weeklyAvailability": {
+  "empty": "No weekly availability set yet."
+}
 }
  
 

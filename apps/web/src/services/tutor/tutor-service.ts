@@ -22,6 +22,14 @@ export type TutorSummary = {
   isAvailable: boolean
 }
 
+export type TutorReview = {
+  id: string
+  learnerName: string
+  rating: number
+  comment: string
+  date: string
+}
+
 type TutorProfileWithUser = TutorProfileData & {
   userData?: {
     name?: string
@@ -128,16 +136,56 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
   return mockSummary.id === id ? mockSummary : null
 }
 
-export async function getTutorReviews(_id: string) {
-  void _id
+type ReviewResponse = {
+  _id: string
+  rating: number
+  comment?: string
+  createdAt: string
+}
 
-  return [
+type ReviewsData = {
+  reviews: ReviewResponse[]
+}
+
+async function resolveTutorProfileId(id: string): Promise<string> {
+  try {
+    const response = await api.get<ApiSuccess<TutorProfileWithUser>>(
+      `/tutors/${id}/profile`
+    )
+
+    return response.data.data._id
+  } catch {
+    const result = await searchTutors({ limit: 100, sortBy: "rating" })
+    const matchedTutor = result.tutors.find(
+      (tutor) =>
+        tutor.userId === id || tutor.profile.id === id || tutor._id === id
+    )
+
+    return matchedTutor?.profile.id ?? id
+  }
+}
+
+export async function getTutorReviews(id: string): Promise<TutorReview[]> {
+  const tutorProfileId = await resolveTutorProfileId(id)
+  const response = await api.get<ApiSuccess<ReviewsData>>(
+    `/reviews/tutors/${tutorProfileId}`,
     {
-      id: "r1",
-      learnerName: `${mockTutor.user.firstName} ${mockTutor.user.lastName}`,
-      rating: 5,
-      comment: "Very helpful tutor.",
-      date: "Jun 9, 2026",
-    },
-  ]
+      params: {
+        limit: 20,
+        page: 1,
+      },
+    }
+  )
+
+  return response.data.data.reviews.map((review) => ({
+    id: review._id,
+    learnerName: "Learner",
+    rating: review.rating,
+    comment: review.comment ?? "",
+    date: new Date(review.createdAt).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
+  }))
 }

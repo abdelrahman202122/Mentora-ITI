@@ -1,6 +1,7 @@
 'use client';
 
 import { Trash2, Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   type Control,
   type Path,
@@ -19,23 +20,25 @@ interface DaySectionProps {
 }
 
 export default function DaySection({ day, control, register }: DaySectionProps) {
-  const { fields, remove } = useFieldArray<FormValues>({ control, name: day });
+  const t = useTranslations('availability.daySection');
+  const tDays = useTranslations('availability.days');
+  const { fields, remove } = useFieldArray({ control, name: day });
 
   if (fields.length === 0) return null;
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-semibold capitalize text-primary">{day}</p>
+      <p className="text-sm font-semibold capitalize text-primary">{tDays(day)}</p>
       {fields.map((field, index) => (
         <div key={field.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
           <Clock className="w-4 h-4 text-primary shrink-0" />
-        <input
+          <input
             type="time"
             aria-label={`${day} slot ${index + 1} start time`}
             className="flex-1 bg-transparent text-sm border-none outline-none"
             {...register(`${day}.${index}.startTime` as Path<FormValues>)}
           />
-          <span className="text-muted-foreground text-xs">to</span>
+          <span className="text-muted-foreground text-xs">{t('to')}</span>
           <input
             type="time"
             aria-label={`${day} slot ${index + 1} end time`}
