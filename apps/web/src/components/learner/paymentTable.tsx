@@ -1,5 +1,7 @@
 
+
 import { FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Payment } from "@/services/payment/paymentHistory";
 
 interface PaymentTableProps {
@@ -30,21 +32,23 @@ export default function PaymentTable({
   handleExportInvoice,
   StatusBadge,
 }: PaymentTableProps) {
+  const t = useTranslations("Payments");
+
   if (loading || error) return null;
 
   return (
     <div className="hidden md:block">
       <div className="grid grid-cols-[120px_1fr_140px_140px_80px] px-5 py-3 text-xs text-gray-400 uppercase tracking-wide border-b border-gray-50">
-        <span>Date</span>
-        <span>Description</span>
-        <span className="text-right">Amount</span>
-        <span className="text-right">Status</span>
-        <span className="text-right">Invoice</span>
+        <span>{t("table.date")}</span>
+        <span>{t("table.description")}</span>
+        <span className="text-right">{t("table.amount")}</span>
+        <span className="text-right">{t("table.status")}</span>
+        <span className="text-right">{t("table.invoice")}</span>
       </div>
 
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm">
-          No transactions found.
+          {t("noTransactions")}
         </div>
       ) : (
         <div className="divide-y divide-gray-50">
@@ -56,12 +60,9 @@ export default function PaymentTable({
                 key={payment._id}
                 role="button"
                 tabIndex={0}
-                aria-label={`View payment details for ${title}`}
+                aria-label={t("viewDetailsFor", { title })}
                 onClick={() => handleRowClick(payment)}
                 onKeyDown={(e) => {
-                  // only treat Enter/Space as "activate this row" when the
-                  // row itself is focused — not when the nested invoice
-                  // button is focused, since that has its own handler
                   if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
                     e.preventDefault();
                     handleRowClick(payment);
@@ -101,7 +102,7 @@ export default function PaymentTable({
                       handleExportInvoice(payment);
                     }}
                     className="text-indigo-400 hover:text-indigo-600 transition-colors"
-                    title="Download invoice"
+                    title={t("downloadInvoice")}
                   >
                     <FileText size={18} />
                   </button>

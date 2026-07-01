@@ -45,6 +45,7 @@ export const TutorCard = ({ tutor, onBook }: TutorCardProps) => {
                 <div className="text-right">
                     <p className="text-2xl font-black text-slate-950">{tutor.hourlyRate} <span className="text-sm font-bold text-slate-500">{tutor.currency}</span></p>
                 </div>
+                //book 
                 <Button onClick={() => onBook(tutor.name)} className="bg-indigo-600 hover:bg-indigo-700 h-9 px-6">
                     Book Session
                 </Button>

@@ -23,7 +23,9 @@ import { paymobConfig } from '../../config/paymob.config.js';
 import { DEFAULT_CURRENCY } from './payment.model.js';
 import { DEFAULT_COMMISSION_RATE } from '../bookings/booking.model.js';
 import { logger } from '../../config/logger.js';
+import { findUserById } from '../users/user.repository.js';
 import mongoose from 'mongoose';
+import { UserModel } from '../users/user.model.js';
 
 /**
  * Payment service handles business logic for payment and Paymob checkout workflows.
@@ -36,6 +38,12 @@ import mongoose from 'mongoose';
 interface PaymobIntentionResponse {
   client_secret: string;
   id: string;
+}
+
+interface PaymobBillingData {
+  first_name: string;
+  last_name: string;
+  phone_number: string;
 }
 
 /**
@@ -51,22 +59,19 @@ async function createPaymobIntention(
   amountCents: number,
   currency: string,
   internalOrderId: string,
+  billingData: PaymobBillingData,
 ): Promise<PaymobIntentionResponse> {
   const url = `${paymobConfig.baseUrl}/v1/intention/`;
 
-  const body = {
+  const body: PaymobIntentionRequestBody = {
     amount: amountCents,
     currency,
     payment_methods: [paymobConfig.integrationId],
     items: [],
-    billing_data: {
-      first_name: 'Ahmed',
-      last_name: 'Tarek',
-      phone_number: '01553616035',
-    },
+    billing_data: billingData,
     special_reference: internalOrderId,
     notification_url: paymobConfig.notificationUrl,
-    redirection_url: paymobConfig.redirectUrl,
+    redirection_url: buildPaymobRedirectUrl(internalOrderId),
   };
 
   const controller = new AbortController();
@@ -109,6 +114,42 @@ async function createPaymobIntention(
  */
 function buildCheckoutUrl(clientSecret: string): string {
   return `${paymobConfig.baseUrl}/unifiedcheckout/?publicKey=${paymobConfig.publicKey}&clientSecret=${clientSecret}`;
+}
+
+function buildPaymobRedirectUrl(paymentId: string): string {
+  if (!paymobConfig.redirectUrl) return '';
+
+  const redirectUrl = new URL(paymobConfig.redirectUrl);
+  redirectUrl.searchParams.set('paymentId', paymentId);
+  return redirectUrl.toString();
+}
+
+async function getLearnerBillingData(
+  learnerId: Types.ObjectId,
+): Promise<PaymobBillingData> {
+  const learner = await UserModel.findById(learnerId)
+    .select('name phoneNumber')
+    .lean();
+
+  if (!learner) {
+    throw new NotFoundError('Learner not found');
+  }
+
+  if (!learner.phoneNumber) {
+    throw new AppError(
+      'Phone number is required before starting checkout',
+      400,
+      'PAYMENT_BILLING_DATA_REQUIRED',
+    );
+  }
+
+  const [firstName, ...restName] = learner.name.trim().split(/\s+/);
+
+  return {
+    first_name: firstName || 'Mentora',
+    last_name: restName.join(' ') || firstName || 'Learner',
+    phone_number: learner.phoneNumber,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -480,6 +521,8 @@ export async function initiateCheckout(
     }
   }
 
+  const learner = await findUserById(learnerId.toString());
+
   // Step 6: Derive amount server-side from booking (never trust client)
   const amount = booking.price; // decimal (e.g. 250.00)
   const currency = (booking.currency ?? DEFAULT_CURRENCY) as
@@ -487,26 +530,48 @@ export async function initiateCheckout(
     | 'USD'
     | 'EUR';
   const amountCents = Math.round(amount * 100); // Paymob expects smallest unit
+  const billingData = await getLearnerBillingData(learnerId);
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  let payment: IPayment | null = null;
 
   try {
-    // Step 7: Create a local payment record with status 'pending'
-    const payment = await paymentRepository.createPayment({
-      bookingId,
-      learnerId,
-      tutorId: booking.tutorId,
-      amount,
-      currency,
-      provider: 'paymob',
-    });
+    // Step 7: Create a local payment record, or reuse the failed attempt.
+    // Payment.bookingId is unique, so failed retries must reset the existing
+    // row instead of inserting a second document for the same booking.
+    payment =
+      existingPayment?.status === PaymentStatus.FAILED
+        ? await paymentRepository.updatePaymentById(
+            existingPayment._id as Types.ObjectId,
+            {
+              status: PaymentStatus.PENDING,
+              providerTransactionId: null,
+              providerOrderId: null,
+              providerCheckoutUrl: null,
+              paidAt: null,
+              failedAt: null,
+              failureReason: null,
+              rawProviderResponse: null,
+            },
+          )
+        : await paymentRepository.createPayment({
+            bookingId,
+            learnerId,
+            tutorId: booking.tutorId,
+            amount,
+            currency,
+            provider: 'paymob',
+          });
+
+    if (!payment) {
+      throw new AppError('Failed to prepare payment', 500, 'PAYMENT_ERROR');
+    }
 
     // Step 8: Call Paymob Intention API
     const intention = await createPaymobIntention(
       amountCents,
       currency,
       (payment._id as Types.ObjectId).toString(),
+      billingData,
     );
 
     // Step 9: Build the hosted checkout URL
@@ -527,11 +592,21 @@ export async function initiateCheckout(
       paymentId: (payment._id as Types.ObjectId).toString(),
       checkoutUrl,
     };
-  } catch {
-    await session.abortTransaction();
+  } catch (error) {
+    if (payment) {
+      await paymentRepository.updatePaymentById(payment._id as Types.ObjectId, {
+        status: PaymentStatus.FAILED,
+        failedAt: new Date(),
+        failureReason:
+          error instanceof Error ? error.message : 'Failed to create payment',
+      });
+    }
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
     throw new AppError('Failed to create payment', 500, 'PAYMENT_ERROR');
-  } finally {
-    session.endSession();
   }
 }
 

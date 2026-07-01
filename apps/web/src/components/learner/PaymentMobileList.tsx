@@ -1,7 +1,6 @@
 
-
-
 import { FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Payment } from "@/services/payment/paymentHistory";
 
 interface PaymentMobileListProps {
@@ -27,13 +26,15 @@ export default function PaymentMobileList({
   handleExportInvoice,
   StatusBadge,
 }: PaymentMobileListProps) {
+  const t = useTranslations("Payments");
+
   if (loading || error) return null;
 
   return (
     <div className="md:hidden">
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm">
-          No transactions found.
+          {t("noTransactions")}
         </div>
       ) : (
         <div className="divide-y divide-gray-100">
@@ -41,14 +42,11 @@ export default function PaymentMobileList({
             const { title, subtitle } = getDescription(payment);
 
             return (
-              // ✅ div with role="button" + tabIndex + onKeyDown — avoids the
-              // <button> inside <button> HTML violation while still giving full
-              // keyboard accessibility (Tab to focus, Enter/Space to activate)
               <div
                 key={payment._id}
                 role="button"
                 tabIndex={0}
-                aria-label={`View details for payment: ${title}`}
+                aria-label={t("viewDetailsFor", { title })}
                 onClick={() => handleRowClick(payment)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -85,13 +83,12 @@ export default function PaymentMobileList({
                   <div className="flex items-center gap-3">
                     <StatusBadge status={payment.status} />
 
-                    {/* ✅ real <button> is fine here now that the outer is a div */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExportInvoice(payment);
                       }}
-                      aria-label={`Download invoice for ${title}`}
+                      aria-label={t("downloadInvoice") + ` — ${title}`}
                       className="text-indigo-400 hover:text-indigo-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:rounded"
                     >
                       <FileText size={16} />

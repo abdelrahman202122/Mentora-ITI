@@ -1,4 +1,6 @@
+
 import { Filter, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface PaymentFilterProps {
   showFilter: boolean;
@@ -30,6 +32,8 @@ export default function PaymentFilter({
   handleApply,
   handleClear,
 }: PaymentFilterProps) {
+  const t = useTranslations("Payments.filter");
+
   return (
     <div className="relative" ref={filterRef}>
       <button
@@ -41,7 +45,7 @@ export default function PaymentFilter({
         }`}
       >
         <Filter size={13} />
-        <span className="hidden sm:inline">Filter</span>
+        <span className="hidden sm:inline">{t("filter")}</span>
 
         {isFiltered && (
           <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 ml-0.5" />
@@ -52,7 +56,7 @@ export default function PaymentFilter({
         <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-700">
-              Filter by Date
+              {t("filterByDate")}
             </span>
 
             <button onClick={() => setShowFilter(false)}>
@@ -65,7 +69,7 @@ export default function PaymentFilter({
 
           <div>
             <label className="block text-xs text-gray-500 mb-1">
-              From
+              {t("from")}
             </label>
 
             <input
@@ -78,7 +82,7 @@ export default function PaymentFilter({
 
           <div>
             <label className="block text-xs text-gray-500 mb-1">
-              To
+              {t("to")}
             </label>
 
             <input
@@ -95,14 +99,14 @@ export default function PaymentFilter({
               onClick={handleClear}
               className="flex-1 border border-gray-200 rounded-lg py-1.5 text-xs text-gray-500 hover:bg-gray-50"
             >
-              Clear
+              {t("clear")}
             </button>
 
             <button
               onClick={handleApply}
               className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg py-1.5 text-xs font-semibold"
             >
-              Apply
+              {t("apply")}
             </button>
           </div>
         </div>

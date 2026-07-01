@@ -491,6 +491,261 @@
     }
   },
   
+  "Booking": {
+    "backToTeacherProfile": "الرجوع إلى صفحة المدرّس",
+    "bookNewSession": "حجز جلسة جديدة",
+    "missingTutorSubject": "لم نتمكن من إيجاد المدرّس أو المادة الخاصة بهذا الحجز. من فضلك ارجع واختر مدرّسًا ومادة قبل حجز الجلسة.",
+    "selectDate": "اختر التاريخ",
+    "lessonDuration": "مدة الدرس",
+    "duration30": "جلسة 30 دقيقة",
+    "duration60": "جلسة 60 دقيقة",
+    "duration90": "جلسة 90 دقيقة",
+    "selectTime": "اختر الوقت",
+    "availableSlots": "المواعيد المتاحة للمدرّس",
+    "loadingSlots": "جاري تحميل المواعيد المتاحة...",
+    "noSlots": "لا توجد مواعيد متاحة في هذا اليوم. من فضلك اختر يومًا آخر.",
+    "bookingSummary": "ملخص الحجز",
+    "booking": "جاري الحجز...",
+    "sendRequest": "إرسال طلب الحجز",
+    "pageLoading": "جاري التحميل...",
+    "errors": {
+      "missingInfo": "بيانات المدرّس أو المادة غير موجودة. من فضلك ارجع واختر المدرّس والمادة مرة أخرى.",
+      "invalidDateTime": "التاريخ أو الوقت المختار غير صحيح. من فضلك حاول مرة أخرى.",
+      "pastTime": "الوقت الذي اخترته قد فات بالفعل. من فضلك اختر وقتًا في المستقبل.",
+      "generic": "حدث خطأ ما. من فضلك حاول مرة أخرى."
+    },
+    "success": {
+      "title": "تم إرسال طلب الحجز!",
+      "description": "تم إرسال طلب جلستك مع {tutorName}.",
+      "waiting": "في انتظار تأكيد المدرّس.",
+      "messageTutor": "مراسلة المدرّس",
+      "backToDashboard": "الرجوع إلى لوحة التحكم",
+      "date": "التاريخ",
+      "time": "الوقت",
+      "duration": "المدة",
+      "minutes": "دقيقة",
+      "hourlyRate": "السعر بالساعة",
+      "perHour": "/ساعة",
+      "totalPrice": "السعر الإجمالي",
+      "status": "الحالة",
+      "pending": "في انتظار التأكيد"
+    },
+    "summary": {
+      "pricePerHour": "السعر بالساعة",
+      "duration": "المدة",
+      "hour": "ساعة",
+      "mins": "دقيقة",
+      "sessionCost": "تكلفة الجلسة",
+    
+      "totalPrice": "السعر الإجمالي",
+      "termsAgree": "بتأكيدك، فإنك توافق على <terms>شروط الخدمة</terms> و<refund>سياسة الاسترجاع</refund> الخاصة بمنتورا."
+    }
+
+  },
+  
+  "Dashboard": {
+    "welcomeBack": "أهلاً بعودتك، {name}",
+    "subtitle": "أنت بتحقق تقدم رائع. مستعد للتحدي الجاي؟",
+    "stats": {
+      "sessionsCompleted": "الجلسات المكتملة",
+      "hoursLearned": "ساعات التعلّم",
+      "upcomingSessions": "الجلسات القادمة"
+    },
+    "liveSession": {
+      "startsSoon": "جلستك هتبدأ قريبًا",
+      "with": "مع {tutorName}",
+      "confirmationCode": "كود التأكيد:",
+      "copy": "نسخ",
+      "copied": "تم النسخ!",
+      "failed": "فشل النسخ",
+      "joinNow": "انضم الآن"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "canceled": "ملغي",
+      "rejected": "مرفوض",
+      "expired": "منتهي"
+    },
+    "tabs": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "canceled": "ملغي",
+      "paid": "مدفوع"
+    },
+    "bookingsList": {
+      "title": "الحجوزات القادمة",
+      "loading": "جاري تحميل الحجوزات...",
+      "empty": "لا توجد حجوزات.",
+      "with": "مع {tutorName}",
+      "paid": "مدفوع",
+      "payNow": "ادفع الآن",
+      "processing": "جاري المعالجة..."
+    },
+    "time": {
+      "tomorrow": "غدًا",
+      "sessionSuffix": "جلسة {duration} ساعة"
+    },
+    "errors": {
+      "payFailed": "فشل بدء الدفع. من فضلك حاول مرة أخرى."
+    }
+  },
+  "Payments": {
+    "recentTransactions": "أحدث المعاملات",
+    "exportCSV": "تصدير CSV",
+    "loadingTransactions": "جاري تحميل المعاملات...",
+    "noTransactions": "لا توجد معاملات.",
+    "downloadInvoice": "تحميل الفاتورة",
+    "viewDetailsFor": "عرض تفاصيل الدفع لـ {title}",
+    "sessionWith": "جلسة مع {tutorName}",
+    "session": "جلسة",
+    "table": {
+      "date": "التاريخ",
+      "description": "الوصف",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "invoice": "الفاتورة"
+    },
+    "pagination": {
+      "showing": "عرض {from}–{to} من {total}"
+    },
+    "filter": {
+      "filter": "فلترة",
+      "filterByDate": "فلترة حسب التاريخ",
+      "from": "من",
+      "to": "إلى",
+      "clear": "مسح",
+      "apply": "تطبيق"
+    },
+    "status": {
+      "success": "مكتمل",
+      "failed": "فشل",
+      "refunded": "مسترجع",
+      "pending": "قيد الانتظار"
+    }
+  },
+  
+  "PaymentDetails": {
+    "backToPayments": "الرجوع إلى المدفوعات",
+    "loading": "جاري تحميل تفاصيل الدفع...",
+    "notFoundError": "لم يتم العثور على رقم الدفعة في الرابط.",
+    "genericError": "فشل تحميل تفاصيل الدفع.",
+    "title": "تفاصيل الدفع",
+    "sections": {
+      "amount": "المبلغ",
+      "timeline": "الجدول الزمني",
+      "info": "معلومات"
+    },
+    "fields": {
+      "total": "الإجمالي",
+      "provider": "مزود الخدمة",
+      "createdAt": "تاريخ الإنشاء",
+      "paidAt": "تاريخ الدفع",
+      "failedAt": "تاريخ الفشل",
+      "refundedAt": "تاريخ الاسترجاع",
+      "failureReason": "سبب الفشل",
+      "paymentId": "رقم الدفعة",
+      "transactionId": "رقم المعاملة",
+      "relatedBooking": "الحجز المرتبط"
+    },
+    "status": {
+      "success": "مكتمل",
+      "pending": "قيد الانتظار",
+      "failed": "فشل",
+      "refunded": "مسترجع"
+    }
+  }
+  ,
+  "SettingsPage": {
+    "title": "الإعدادات",
+    "description": "إدارة تفضيلات حسابك ومعلوماتك الشخصية.",
+    "profileInfo": "معلومات الملف الشخصي",
+    "profileDesc": "تحديث صورتك وتفاصيلك الشخصية.",
+    "profilePicture": "الصورة الشخصية",
+    "avatarDesc": "سيتم عرض هذه الصورة على ملفك الشخصي ويمكن للمعلّمين رؤيتها.",
+    "uploadNew": "رفع صورة جديدة",
+    "remove": "إزالة",
+    "newPhotoSelected": "تم اختيار صورة جديدة — اضغط على حفظ التغييرات لرفعها.",
+    "photoWillBeRemoved": "سيتم حذف الصورة — اضغط على حفظ التغييرات للتأكيد.",
+    "fullName": "الاسم الكامل",
+    "nameDesc": "يرجى استخدام اسمك الحقيقي.",
+    "emptyNameError": "لا يمكن أن يكون الاسم فارغاً.",
+    "genericError": "حدث خطأ ما.",
+    "successMessage": "تم حفظ التغييرات بنجاح.",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جاري الحفظ..."
+  },
+  
+  "BookingDetails": {
+    "backToBookings": "العودة إلى حتوزاتي",
+    "loading": "جاري تحميل تفاصيل الحجز...",
+    "bookingIdNotFound": "لم يتم العثور على معرف الحجز في الرابط.",
+    "title": "تفاصيل الحجز",
+    "session": "الجلسة",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "duration": "المدة",
+    "minutes": "دقيقة",
+    "payment": "الدفع",
+    "price": "السعر",
+    "paymentStatus": "حالة الدفع",
+    "paid": "مدفوع",
+    "unpaid": "غير مدفوع",
+    "yourNote": "ملاحظتك",
+    "cancellation": "الإلغاء",
+    "canceledBy": "تم الإلغاء بواسطة",
+    "reason": "السبب",
+    "canceledAt": "تاريخ الإلغاء",
+    "info": "معلومات إضافية",
+    "bookingId": "معرف الحجز",
+    "createdAt": "تاريخ الإنشاء",
+    "payNow": "ادفع الآن",
+    "processing": "جاري المعالجة...",
+    "cancelBooking": "إلغاء الحجز",
+    "cancelModalTitle": "إلغاء الحجز",
+    "cancelModalDesc": "يرجى إخبارنا بسبب رغبتك في الإلغاء.",
+    "cancelPlaceholder": "مثال: تعارض مفاجئ في المواعيد",
+    "cancelReasonError": "يرجى تقديم سبب للإلغاء.",
+    "genericError": "حدث خطأ ما.",
+    "paymentInitError": "تعذر بدء عملية الدفع. يرجى المحاولة مرة أخرى أو الاتصال بالدعم.",
+    "paymentFailedError": "فشلت عملية الدفع. يرجى المحاولة مرة أخرى.",
+    "goBack": "العودة",
+    "confirmCancel": "تأكيد الإلغاء",
+    "canceling": "جاري الإلغاء...",
+    "statuses": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "canceled": "ملغي"
+    }
+  
+  
+},
+
+  "TutorProfile": {
+    "backToTutors": "العودة إلى المعلمين",
+    "loading": "جاري التحميل...",
+    "tutorNotFound": "المعلم غير موجود.",
+    "reviews": "({count} تقييم)",
+    "students": "{count} طالب",
+    "hourlyRate": "{rate} {currency}/ساعة",
+    "startingChat": "جاري بدء المحادثة...",
+    "chatWith": "المحادثة مع {name}",
+    "aboutMe": "نبذة عني",
+    "availability": "أوقات التوفر",
+    "coursesOffered": "الدورات المقدمة",
+    "hourSession": "{rate} {currency} / جلسة ساعة كاملة",
+    "deepDive": "شرح عميق ومكثف لمفاهيم {subject} لجميع المستويات.",
+    "bookSession": "احجز جلسة — {rate} {currency}/ساعة",
+    "noBookableSubject": "لا توجد مادة متاحة للحجز"
+  },
+
+
+
   "tutorDashboard": {
     "welcomeBack": "أهلاً بعودتك",
     "stats": {
@@ -661,5 +916,82 @@
 },
 "weeklyAvailability": {
   "empty": "لم يتم تحديد جدول أسبوعي بعد."
+},
+"nav": {
+  "learner": {
+    "dashboard": "لوحة التحكم",
+    "aiAssistant": "المساعد الذكي",
+    "findTutor": "ابحث عن مدرّس",
+    "messages": "الرسائل",
+    "payments": "المدفوعات",
+    "settings": "الإعدادات"
+  },
+  "tutor": {
+    "dashboard": "لوحة التحكم",
+    "messages": "الرسائل",
+    "earnings": "الأرباح",
+    "availability": "التوفر",
+    "profile": "الملف الشخصي",
+    "reviews": "التقييمات"
+  },
+  "admin": {
+    "dashboard": "لوحة التحكم",
+    "users": "المستخدمون",
+    "tutors": "المدرّسون",
+    "moderation": "الإشراف",
+    "payments": "المدفوعات",
+    "settings": "الإعدادات"
+  }
+},
+"sidebar": {
+  "expand": "توسيع القائمة الجانبية",
+  "collapse": "طي القائمة الجانبية",
+  "userAvatar": "صورة المستخدم",
+  "home": "الرئيسية",
+  "loggingOut": "جاري تسجيل الخروج...",
+  "logOut": "تسجيل الخروج"
+},
+"editProfile": {
+  "loading": "جاري التحميل...",
+  "error": "حدث خطأ ما.",
+  "title": "تعديل الملف الشخصي",
+  "description": "حدّث هويتك المهنية وأدر مناهجك الدراسية.",
+  "discardChanges": "تجاهل التغييرات",
+  "saveProfile": "حفظ الملف الشخصي",
+  "coursesOffered": "المواد المُقدَّمة",
+  "loadingCourses": "جاري تحميل المواد...",
+  "coursesError": "تعذر تحميل المواد. حاول مرة أخرى لاحقاً.",
+  "addNewCourse": "إضافة مادة جديدة",
+  "addNewCourseDescription": "أضف مادة جديدة لبدء تدريس المزيد من الطلاب."
+},
+"courseCard": {
+  "editSubject": "تعديل المادة",
+  "deleteSubject": "حذف المادة",
+  "deleteConfirmTitle": "هل تريد حذف هذه المادة؟",
+  "deleteConfirmDescription": "لا يمكن التراجع عن هذا الإجراء.",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "level": "المستوى",
+  "curriculum": "المنهج",
+  "created": "تاريخ الإنشاء"
+},
+"courseForm": {
+  "updateTitle": "تحديث المادة",
+  "addTitle": "إضافة مادة جديدة",
+  "titlePlaceholder": "عنوان المادة",
+  "descriptionPlaceholder": "الوصف",
+  "selectCategory": "اختر الفئة",
+  "selectEducationLevel": "اختر المستوى التعليمي",
+  "selectCurriculum": "اختر المنهج",
+  "gradeNotePlaceholder": "الصف / السنة (اختياري، مثال: إعدادي 1)",
+  "cancel": "إلغاء",
+  "updating": "جاري التحديث...",
+  "saving": "جاري الحفظ...",
+  "update": "تحديث",
+  "save": "حفظ"
 }
 }
+
+
+
+
