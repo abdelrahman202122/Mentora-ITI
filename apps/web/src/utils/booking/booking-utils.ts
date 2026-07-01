@@ -1,28 +1,31 @@
 import { Booking } from "@/types/booking/booking-data";
+import type { useTranslations } from "next-intl";
+
+type T = ReturnType<typeof useTranslations<"bookingStatusLabel">>;
 
 export function isExpired(startAt: string): boolean {
   return new Date(startAt) < new Date();
 }
 
-export function getStatusLabel(booking: Booking): string {
-  if (booking.bookingStatus === "pending" && isExpired(booking.startAt)) return "Expired";
-  if (booking.bookingStatus === "pending" ) return "Pending Approval";
-  if (booking.bookingStatus === "expired") return "Expired";
-  if (booking.bookingStatus === "canceled") return "Canceled";
-  if (booking.bookingStatus === "rejected") return "Rejected";
-  if (booking.bookingStatus === "completed") return "Completed";
-  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "paid") return "Confirmed & Paid";
-  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "unpaid") return "Confirmed & Awaiting Payment";
-  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "pending") return "Confirmed & Payment Pending";
-  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "failed") return "Confirmed & Payment Failed";
-  if (booking.bookingStatus === "confirmed") return "Confirmed";
-  if(booking.paymentStatus === "refunded") return "refunded"
-  if (booking.paymentStatus === "unpaid") return "Awaiting Payment";
-  if (booking.paymentStatus === "failed") return "Payment Failed";
-  if (booking.paymentStatus === "pending") return "Payment Pending";
-  return "Pending Approval";
-}
 
+export function getStatusLabel(booking: Booking, t: T): string {
+  if (booking.bookingStatus === "pending" && isExpired(booking.startAt)) return t("expired");
+  if (booking.bookingStatus === "pending") return t("pendingApproval");
+  if (booking.bookingStatus === "expired") return t("expired");
+  if (booking.bookingStatus === "canceled") return t("canceled");
+  if (booking.bookingStatus === "rejected") return t("rejected");
+  if (booking.bookingStatus === "completed") return t("completed");
+  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "paid") return t("confirmedPaid");
+  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "unpaid") return t("confirmedAwaitingPayment");
+  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "pending") return t("confirmedPaymentPending");
+  if (booking.bookingStatus === "confirmed" && booking.paymentStatus === "failed") return t("confirmedPaymentFailed");
+  if (booking.bookingStatus === "confirmed") return t("confirmed");
+  if (booking.paymentStatus === "refunded") return t("refunded");
+  if (booking.paymentStatus === "unpaid") return t("awaitingPayment");
+  if (booking.paymentStatus === "failed") return t("paymentFailed");
+  if (booking.paymentStatus === "pending") return t("paymentPending");
+  return t("pendingApproval");
+}
 export function getStatusColor(booking: Booking): string {
   if (booking.bookingStatus === "pending" && isExpired(booking.startAt)) return "text-muted-foreground bg-muted/40";
   if (booking.bookingStatus === "expired") return "text-muted-foreground bg-muted/40";
