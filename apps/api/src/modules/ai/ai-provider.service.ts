@@ -1,18 +1,15 @@
 import { APIError } from 'openai';
 import { env } from '../../config/env.js';
 import { logger } from '../../config/logger.js';
-import openai from '../../config/openai.config.js';
+// import openai from '../../config/openai.config.js';
+import * as openaiService from './models/openai.service.js';
 import { createAILog } from './ai-log.service.js';
-
-export type AIProviderMessage = {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-};
+import type { OpenAIMessage } from './models/openai.service.js';
 
 type GenerateAIReplyInput = {
   conversationId?: string;
   learnerId?: string;
-  messages: AIProviderMessage[];
+  messages: OpenAIMessage[];
   locale?: string;
   goal?: string | null;
 };
@@ -100,21 +97,14 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
   try {
-    const response = await openai.responses.create(
-      {
-        model: env.OPENAI_MODEL,
-        input: [
-          {
-            role: 'system',
-            content: buildSystemPrompt(input),
-          },
-          ...input.messages,
-        ],
-      },
-      {
-        signal: controller.signal,
-      },
+    const systemPrompt = buildSystemPrompt(input);
+
+    const response = await openaiService.generateResponse(
+      systemPrompt,
+      input.messages,
+      controller.signal,
     );
 
     clearTimeout(timeout);
