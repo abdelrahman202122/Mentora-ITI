@@ -740,7 +740,8 @@
     "coursesOffered": "الدورات المقدمة",
     "hourSession": "{rate} {currency} / جلسة ساعة كاملة",
     "deepDive": "شرح عميق ومكثف لمفاهيم {subject} لجميع المستويات.",
-    "bookSession": "احجز جلسة — {rate} {currency}/ساعة"
+    "bookSession": "احجز جلسة — {rate} {currency}/ساعة",
+    "noBookableSubject": "لا توجد مادة متاحة للحجز"
   },
 
 

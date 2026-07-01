@@ -143,10 +143,12 @@ export default function TutorProfilePage() {
               </span>
             </div>
             <div className="mt-2 flex flex-wrap gap-3">
-              <div className="flex items-center gap-1 text-gray-500">
-                <Users size={12} />
-                <span className="text-xs">{t("students", { count: tutor.totalStudents })}</span>
-              </div>
+              {tutor.totalStudents > 0 ? (
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Users size={12} />
+                  <span className="text-xs">{t("students", { count: tutor.totalStudents })}</span>
+                </div>
+              ) : null}
               <div className="flex items-center gap-1 text-gray-500">
                 <Clock size={12} />
                 <span className="text-xs">
@@ -230,7 +232,10 @@ export default function TutorProfilePage() {
                   {t("hourSession", { rate: tutor.hourlyRate, currency: tutor.currency })}
                 </p>
                 <p className="text-xs text-gray-400 mb-2">
-                  {t("deepDive", { subject: subject.title.toLowerCase() })}
+                  {subject.description ||
+                    [subject.educationLevel, subject.curriculum, subject.gradeNote]
+                      .filter(Boolean)
+                      .join(" • ")}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {tutor.availability.slice(0, 3).map((day) => (
@@ -263,7 +268,7 @@ export default function TutorProfilePage() {
             disabled
             type="button"
           >
-            No bookable subject available
+            {t("noBookableSubject")}
           </button>
         )}
       </div>
