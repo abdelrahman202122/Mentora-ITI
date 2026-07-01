@@ -21,8 +21,8 @@ export function TransactionsTable({ stats, loading }: TransactionsTableProps) {
 
   if (!stats) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white py-12 shadow-sm">
-        <EmptyState message="No transaction data available yet." colSpan={6} />
+      <div className="rounded-xl border border-gray-200 bg-white py-12 text-center text-sm text-gray-500 shadow-sm">
+        No transaction data available yet.
       </div>
     );
   }

@@ -63,7 +63,7 @@ function resolveBookingStatus(status: string): string | undefined {
     Cancelled: "canceled",
     Expired: "expired",
   };
-  return map[status] ?? status.toLowerCase();
+  return map[status];
 }
 
 export function useAdminBookings({
