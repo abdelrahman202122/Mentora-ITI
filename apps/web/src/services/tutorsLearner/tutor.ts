@@ -188,7 +188,7 @@ export async function getTutors(): Promise<TutorSummary[]> {
 }
 
 async function getSearchTutorById(id: string): Promise<TutorSearchItem | null> {
-  const result = await searchTutors({ limit: 100, sortBy: "rating" })
+  const result = await searchTutors({ limit: 50, sortBy: "rating" })
   return (
     result.tutors.find(
       (tutor) =>
@@ -313,7 +313,7 @@ async function resolveTutorProfileId(id: string): Promise<string> {
 
     return response.data.data._id
   } catch {
-    const result = await searchTutors({ limit: 100, sortBy: "rating" })
+    const result = await searchTutors({ limit: 50, sortBy: "rating" })
     const matchedTutor = result.tutors.find(
       (tutor) =>
         tutor.userId === id || tutor.profile.id === id || tutor._id === id
