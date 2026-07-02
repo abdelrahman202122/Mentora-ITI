@@ -666,7 +666,7 @@
       "backToTop": "العودة للأعلى"
     }
   },
-  
+
   "Booking": {
     "backToTeacherProfile": "الرجوع إلى صفحة المدرّس",
     "backToTutorResults": "الرجوع إلى نتائج المدرّسين",
@@ -716,13 +716,12 @@
       "hour": "ساعة",
       "mins": "دقيقة",
       "sessionCost": "تكلفة الجلسة",
-    
+
       "totalPrice": "السعر الإجمالي",
       "termsAgree": "بتأكيدك، فإنك توافق على <terms>شروط الخدمة</terms> و<refund>سياسة الاسترجاع</refund> الخاصة بمنتورا."
     }
-
   },
-  
+
   "Dashboard": {
     "welcomeBack": "أهلاً بعودتك، {name}",
     "subtitle": "أنت بتحقق تقدم رائع.هل أنت مستعد للتحدي القادم؟",
@@ -812,7 +811,7 @@
       "pending": "قيد الانتظار"
     }
   },
-  
+
   "PaymentDetails": {
     "backToPayments": "الرجوع إلى المدفوعات",
     "loading": "جاري تحميل تفاصيل الدفع...",
@@ -842,8 +841,7 @@
       "failed": "فشل",
       "refunded": "مسترجع"
     }
-  }
-  ,
+  },
   "PaymentSuccess": {
     "loading": "جاري التحميل...",
     "checking": "جاري تأكيد حالة الدفع...",
@@ -973,7 +971,7 @@
     "saveChanges": "حفظ التغييرات",
     "saving": "جاري الحفظ..."
   },
-  
+
   "BookingDetails": {
     "backToBookings": "العودة إلى حجوزاتي",
     "loading": "جاري تحميل تفاصيل الحجز...",
@@ -1031,9 +1029,7 @@
       "completed": "مكتمل",
       "canceled": "ملغي"
     }
-  
-  
-},
+  },
 
   "TutorProfile": {
     "backToTutors": "العودة إلى المعلمين",
@@ -1055,8 +1051,6 @@
     "noSubjects": "لم يضف هذا المعلم مواد قابلة للحجز بعد.",
     "noBookableSubject": "لا توجد مادة متاحة للحجز"
   },
-
-
 
   "tutorDashboard": {
     "welcomeBack": "أهلاً بعودتك",
@@ -1085,17 +1079,18 @@
       "cancelReason": "تم الإلغاء بواسطة المدرّس من لوحة التحكم.",
       "previous": "السابق",
       "next": "التالي"
+    },
+    "bookingStatus": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "canceled": "ملغي",
+      "rejected": "مرفوض",
+      "expired": "منتهي الصلاحية"
     }
   },
-  "bookingStatus": {
-    "all": "الكل",
-    "pending": "قيد الانتظار",
-    "confirmed": "مؤكد",
-    "completed": "مكتمل",
-    "canceled": "ملغي",
-    "rejected": "مرفوض",
-    "expired": "منتهي الصلاحية"
-  },
+
   "bookingCard": {
     "sessionTitle": "جلسة — {subject}",
     "today": "اليوم، {time}",
@@ -1121,7 +1116,7 @@
     "awaitingPayment": "في انتظار الدفع",
     "paymentFailed": "فشل الدفع",
     "paymentPending": "الدفع قيد المعالجة"
-  }, 
+  },
   "payments": {
     "pageHeader": {
       "title": "نظرة عامة على الأمور المالية",
@@ -1265,147 +1260,143 @@
     "sessions": "جلسات معلّقة"
   },
   "availability": {
-  "page": {
-    "title": "إدارة أوقات التوفر",
-    "description": "حدد جدولك الأسبوعي ليتمكن الطلاب من إيجادك في الوقت المناسب.",
-    "scheduleActions": "إجراءات الجدول",
-    "setUpMyAvailability": "إعداد أوقات توفري",
-    "editAvailability": "تعديل التوفر",
-    "weeklySchedule": "الجدول الأسبوعي",
-    "weeklyDescription": "أوقات توفرك المتكررة خلال الأسبوع.",
-    "noAvailability": "لا توجد بيانات توفر.",
-    "slotsByDate": "الأوقات المتاحة حسب التاريخ",
-    "slotsDescription": "عرض أوقات الحجز المتاحة للفترة القادمة.",
-    "noSlots": "لا توجد بيانات أوقات."
+    "page": {
+      "title": "إدارة أوقات التوفر",
+      "description": "حدد جدولك الأسبوعي ليتمكن الطلاب من إيجادك في الوقت المناسب.",
+      "scheduleActions": "إجراءات الجدول",
+      "setUpMyAvailability": "إعداد أوقات توفري",
+      "editAvailability": "تعديل التوفر",
+      "weeklySchedule": "الجدول الأسبوعي",
+      "weeklyDescription": "أوقات توفرك المتكررة خلال الأسبوع.",
+      "noAvailability": "لا توجد بيانات توفر.",
+      "slotsByDate": "الأوقات المتاحة حسب التاريخ",
+      "slotsDescription": "عرض أوقات الحجز المتاحة للفترة القادمة.",
+      "noSlots": "لا توجد بيانات أوقات."
+    },
+    "days": {
+      "monday": "الإثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت",
+      "sunday": "الأحد"
+    },
+    "addSlotForm": {
+      "title": "إضافة وقت",
+      "day": "اليوم",
+      "startTime": "وقت البدء",
+      "endTime": "وقت الانتهاء",
+      "timezone": "المنطقة الزمنية",
+      "cancel": "إلغاء",
+      "addSlot": "إضافة الوقت"
+    },
+    "createForm": {
+      "title": "إعداد أول وقت توفر",
+      "day": "اليوم",
+      "startTime": "وقت البدء",
+      "endTime": "وقت الانتهاء",
+      "timezone": "المنطقة الزمنية",
+      "cancel": "إلغاء",
+      "save": "حفظ والبدء"
+    },
+    "editForm": {
+      "title": "تعديل التوفر",
+      "noSlots": "لا توجد أوقات حتى الآن. استخدم الزر أدناه لإضافة وقت.",
+      "newSlot": "وقت جديد",
+      "start": "البدء",
+      "end": "الانتهاء",
+      "cancel": "إلغاء",
+      "add": "إضافة",
+      "addAnotherSlot": "إضافة وقت آخر",
+      "timezone": "المنطقة الزمنية",
+      "save": "حفظ التغييرات",
+      "requiredError": "وقت البدء والانتهاء مطلوبان",
+      "endTimeError": "يجب أن يكون وقت الانتهاء بعد وقت البدء"
+    },
+    "dailySlots": {
+      "empty": "لا توجد أوقات متاحة للفترة المحددة."
+    },
+    "daySection": {
+      "to": "إلى"
+    }
   },
-  "days": {
-    "monday": "الإثنين",
-    "tuesday": "الثلاثاء",
-    "wednesday": "الأربعاء",
-    "thursday": "الخميس",
-    "friday": "الجمعة",
-    "saturday": "السبت",
-    "sunday": "الأحد"
+  "weeklyAvailability": {
+    "empty": "لم يتم تحديد جدول أسبوعي بعد."
   },
-  "addSlotForm": {
-    "title": "إضافة وقت",
-    "day": "اليوم",
-    "startTime": "وقت البدء",
-    "endTime": "وقت الانتهاء",
-    "timezone": "المنطقة الزمنية",
+  "nav": {
+    "learner": {
+      "dashboard": "لوحة التحكم",
+      "aiAssistant": "المساعد الذكي",
+      "findTutor": "ابحث عن مدرّس",
+      "messages": "الرسائل",
+      "payments": "المدفوعات",
+      "settings": "الإعدادات"
+    },
+    "tutor": {
+      "dashboard": "لوحة التحكم",
+      "messages": "الرسائل",
+      "earnings": "الأرباح",
+      "availability": "التوفر",
+      "profile": "الملف الشخصي",
+      "reviews": "التقييمات"
+    },
+    "admin": {
+      "dashboard": "لوحة التحكم",
+      "users": "المستخدمون",
+      "tutors": "المدرّسون",
+      "moderation": "الإشراف",
+      "payments": "المدفوعات",
+      "settings": "الإعدادات"
+    }
+  },
+  "sidebar": {
+    "expand": "توسيع القائمة الجانبية",
+    "collapse": "طي القائمة الجانبية",
+    "userAvatar": "صورة المستخدم",
+    "home": "الرئيسية",
+    "switchToTutor": "التبديل إلى وضع المدرس",
+    "switchToLearner": "التبديل إلى وضع الطالب",
+    "loggingOut": "جاري تسجيل الخروج...",
+    "logOut": "تسجيل الخروج"
+  },
+  "editProfile": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ ما.",
+    "title": "تعديل الملف الشخصي",
+    "description": "حدّث هويتك المهنية وأدر مناهجك الدراسية.",
+    "discardChanges": "تجاهل التغييرات",
+    "saveProfile": "حفظ الملف الشخصي",
+    "coursesOffered": "المواد المُقدَّمة",
+    "loadingCourses": "جاري تحميل المواد...",
+    "coursesError": "تعذر تحميل المواد. حاول مرة أخرى لاحقاً.",
+    "addNewCourse": "إضافة مادة جديدة",
+    "addNewCourseDescription": "أضف مادة جديدة لبدء تدريس المزيد من الطلاب."
+  },
+  "courseCard": {
+    "editSubject": "تعديل المادة",
+    "deleteSubject": "حذف المادة",
+    "deleteConfirmTitle": "هل تريد حذف هذه المادة؟",
+    "deleteConfirmDescription": "لا يمكن التراجع عن هذا الإجراء.",
     "cancel": "إلغاء",
-    "addSlot": "إضافة الوقت"
+    "delete": "حذف",
+    "level": "المستوى",
+    "curriculum": "المنهج",
+    "created": "تاريخ الإنشاء"
   },
-  "createForm": {
-    "title": "إعداد أول وقت توفر",
-    "day": "اليوم",
-    "startTime": "وقت البدء",
-    "endTime": "وقت الانتهاء",
-    "timezone": "المنطقة الزمنية",
+  "courseForm": {
+    "updateTitle": "تحديث المادة",
+    "addTitle": "إضافة مادة جديدة",
+    "titlePlaceholder": "عنوان المادة",
+    "descriptionPlaceholder": "الوصف",
+    "selectCategory": "اختر الفئة",
+    "selectEducationLevel": "اختر المستوى التعليمي",
+    "selectCurriculum": "اختر المنهج",
+    "gradeNotePlaceholder": "الصف / السنة (اختياري، مثال: إعدادي 1)",
     "cancel": "إلغاء",
-    "save": "حفظ والبدء"
-  },
-  "editForm": {
-    "title": "تعديل التوفر",
-    "noSlots": "لا توجد أوقات حتى الآن. استخدم الزر أدناه لإضافة وقت.",
-    "newSlot": "وقت جديد",
-    "start": "البدء",
-    "end": "الانتهاء",
-    "cancel": "إلغاء",
-    "add": "إضافة",
-    "addAnotherSlot": "إضافة وقت آخر",
-    "timezone": "المنطقة الزمنية",
-    "save": "حفظ التغييرات",
-    "requiredError": "وقت البدء والانتهاء مطلوبان",
-    "endTimeError": "يجب أن يكون وقت الانتهاء بعد وقت البدء"
-  },
-  "dailySlots": {
-    "empty": "لا توجد أوقات متاحة للفترة المحددة."
-  },
-  "daySection": {
-    "to": "إلى"
+    "updating": "جاري التحديث...",
+    "saving": "جاري الحفظ...",
+    "update": "تحديث",
+    "save": "حفظ"
   }
-},
-"weeklyAvailability": {
-  "empty": "لم يتم تحديد جدول أسبوعي بعد."
-},
-"nav": {
-  "learner": {
-    "dashboard": "لوحة التحكم",
-    "aiAssistant": "المساعد الذكي",
-    "findTutor": "ابحث عن مدرّس",
-    "messages": "الرسائل",
-    "payments": "المدفوعات",
-    "settings": "الإعدادات"
-  },
-  "tutor": {
-    "dashboard": "لوحة التحكم",
-    "messages": "الرسائل",
-    "earnings": "الأرباح",
-    "availability": "التوفر",
-    "profile": "الملف الشخصي",
-    "reviews": "التقييمات"
-  },
-  "admin": {
-    "dashboard": "لوحة التحكم",
-    "users": "المستخدمون",
-    "tutors": "المدرّسون",
-    "moderation": "الإشراف",
-    "payments": "المدفوعات",
-    "settings": "الإعدادات"
-  }
-},
-"sidebar": {
-  "expand": "توسيع القائمة الجانبية",
-  "collapse": "طي القائمة الجانبية",
-  "userAvatar": "صورة المستخدم",
-  "home": "الرئيسية",
-  "switchToTutor": "التبديل إلى وضع المدرس",
-  "switchToLearner": "التبديل إلى وضع الطالب",
-  "loggingOut": "جاري تسجيل الخروج...",
-  "logOut": "تسجيل الخروج"
-},
-"editProfile": {
-  "loading": "جاري التحميل...",
-  "error": "حدث خطأ ما.",
-  "title": "تعديل الملف الشخصي",
-  "description": "حدّث هويتك المهنية وأدر مناهجك الدراسية.",
-  "discardChanges": "تجاهل التغييرات",
-  "saveProfile": "حفظ الملف الشخصي",
-  "coursesOffered": "المواد المُقدَّمة",
-  "loadingCourses": "جاري تحميل المواد...",
-  "coursesError": "تعذر تحميل المواد. حاول مرة أخرى لاحقاً.",
-  "addNewCourse": "إضافة مادة جديدة",
-  "addNewCourseDescription": "أضف مادة جديدة لبدء تدريس المزيد من الطلاب."
-},
-"courseCard": {
-  "editSubject": "تعديل المادة",
-  "deleteSubject": "حذف المادة",
-  "deleteConfirmTitle": "هل تريد حذف هذه المادة؟",
-  "deleteConfirmDescription": "لا يمكن التراجع عن هذا الإجراء.",
-  "cancel": "إلغاء",
-  "delete": "حذف",
-  "level": "المستوى",
-  "curriculum": "المنهج",
-  "created": "تاريخ الإنشاء"
-},
-"courseForm": {
-  "updateTitle": "تحديث المادة",
-  "addTitle": "إضافة مادة جديدة",
-  "titlePlaceholder": "عنوان المادة",
-  "descriptionPlaceholder": "الوصف",
-  "selectCategory": "اختر الفئة",
-  "selectEducationLevel": "اختر المستوى التعليمي",
-  "selectCurriculum": "اختر المنهج",
-  "gradeNotePlaceholder": "الصف / السنة (اختياري، مثال: إعدادي 1)",
-  "cancel": "إلغاء",
-  "updating": "جاري التحديث...",
-  "saving": "جاري الحفظ...",
-  "update": "تحديث",
-  "save": "حفظ"
 }
-}
-
-
-
-

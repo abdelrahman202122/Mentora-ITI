@@ -91,6 +91,7 @@ export default function InstructorDashboard() {
   const locale = useLocale();
   const t = useTranslations('tutorDashboard');
   const tStatus = useTranslations('tutorDashboard.bookingStatus');
+
   const statusFilters: { label: string; value: BookingStatus | 'all' }[] = [
     { label: tStatus('all'), value: 'all' },
     { label: tStatus('pending'), value: 'pending' },
@@ -370,19 +371,20 @@ export default function InstructorDashboard() {
               </Button>
 
               <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
-                    <Button
-                      variant={page === currentPage ? 'default' : 'outline'}
-                      size="icon"
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      type="button"
-                    >
-                      {page}
-                    </Button>
-                  ),
-                )}
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1,
+                ).map((page) => (
+                  <Button
+                    variant={page === currentPage ? 'default' : 'outline'}
+                    size="icon"
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    type="button"
+                  >
+                    {page}
+                  </Button>
+                ))}
               </div>
 
               <Button
