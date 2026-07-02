@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,23 +11,29 @@ import {
   Loader2,
   AlertCircle,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Booking } from '@/types/bookingProcess/booking';
 import { getMyBookings } from '@/services/booking-services/getMyBookingService';
 import { getSubjectTitle } from '@/services/booking-services/getSubjectTitleService';
 import { getTutorName } from '@/services/booking-services/getTutorNameService';
-import { initiateCheckout } from "@/services/payment/paymentService"; 
+import { initiateCheckout } from '@/services/payment/paymentService';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 
-function formatDisplayTime(iso: string, duration: number) {
+function formatDisplayTime(
+  iso: string,
+  duration: number,
+  t: ReturnType<typeof useTranslations<'Dashboard'>>,
+  locale: string,
+) {
   const dateObj = new Date(iso);
-  const timeString = dateObj.toLocaleTimeString('en-US', {
+  const timeString = dateObj.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   });
 
   const hours = duration / 60;
-  const durationText = hours % 1 === 0 ? `${hours}h` : `${hours}h`;
+  const durationText = t('time.sessionSuffix', { duration: hours });
 
   const today = new Date();
   const tomorrow = new Date(today);
@@ -34,63 +41,106 @@ function formatDisplayTime(iso: string, duration: number) {
 
   const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
   const datePrefix = isTomorrow
-    ? 'Tomorrow'
-    : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    ? t('time.tomorrow')
+    : dateObj.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 
-  return `${datePrefix}, ${timeString} (${durationText} session)`;
+  return `${datePrefix}, ${timeString} (${durationText})`;
 }
 
-function isSessionLive(booking: Booking): boolean {
-  if (booking.bookingStatus !== "confirmed") return false
-  const now = Date.now()
-  const start = new Date(booking.startAt).getTime()
-  const end = new Date(booking.endAt).getTime()
-  return now >= start && now <= end
+function isSessionLive(booking: Booking, now: number): boolean {
+  if (booking.bookingStatus !== 'confirmed') return false;
+  if (booking.paymentStatus !== 'paid') return false;
+  const start = new Date(booking.startAt).getTime();
+  const end = new Date(booking.endAt).getTime();
+  const threeHoursMs = 3 * 60 * 60 * 1000;
+  return now >= start - threeHoursMs && now <= end;
 }
 
-function BookingStatusBadge({ status }: { status: string }) {
-  const config: Record<string, { label: string; dot: string; className: string }> = {
-    pending:   { label: "Pending",   dot: "bg-amber-400",  className: "bg-amber-50 text-amber-700 border-amber-200" },
-    confirmed: { label: "Confirmed", dot: "bg-green-500",  className: "bg-green-50 text-green-700 border-green-200" },
-    completed: { label: "Completed", dot: "bg-blue-500",   className: "bg-blue-50 text-blue-700 border-blue-200" },
-    canceled:  { label: "Canceled",  dot: "bg-red-400",    className: "bg-red-50 text-red-600 border-red-200" },
-    rejected:  { label: "Rejected",  dot: "bg-orange-400", className: "bg-orange-50 text-orange-700 border-orange-200" },
-    expired:   { label: "Expired",   dot: "bg-gray-400",   className: "bg-gray-50 text-gray-500 border-gray-200" },
-  }
+function shouldShowConfirmationCode(booking: Booking): boolean {
+  return (
+    booking.bookingStatus === 'confirmed' &&
+    booking.paymentStatus === 'paid' &&
+    Boolean(booking.confirmationCode)
+  );
+}
 
-  const current = config[status] ?? { label: status, dot: "bg-gray-400", className: "bg-gray-50 text-gray-500 border-gray-200" }
+function BookingStatusBadge({
+  status,
+  t,
+}: {
+  status: Booking['bookingStatus'];
+  t: ReturnType<typeof useTranslations<'Dashboard'>>;
+}) {
+  const config: Record<string, { dot: string; className: string }> = {
+    pending: { dot: 'bg-amber-400', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+    confirmed: { dot: 'bg-green-500', className: 'bg-green-50 text-green-700 border-green-200' },
+    completed: { dot: 'bg-blue-500', className: 'bg-blue-50 text-blue-700 border-blue-200' },
+    canceled: { dot: 'bg-red-400', className: 'bg-red-50 text-red-600 border-red-200' },
+    rejected: { dot: 'bg-orange-400', className: 'bg-orange-50 text-orange-700 border-orange-200' },
+    expired: { dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' },
+  };
+
+  const current = config[status] ?? { dot: 'bg-gray-400', className: 'bg-gray-50 text-gray-500 border-gray-200' };
+  const label = t(`status.${status}`);
 
   return (
     <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full border text-[11px] font-semibold w-fit ${current.className}`}>
-      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${current.dot} ${status === "pending" ? "animate-pulse" : ""}`} />
-      {current.label}
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${current.dot} ${status === 'pending' ? 'animate-pulse' : ''}`} />
+      {label}
     </span>
-  )
-
- }
+  );
+}
 
 export default function LearnerDashboardPage() {
   const router = useRouter();
   const params = useParams();
   const locale = (params.locale as string) ?? 'en';
-  const{ data: currentUser }=useCurrentUser();
+  const { data: currentUser } = useCurrentUser();
+  const t = useTranslations('Dashboard');
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [payError, setPayError] = useState<string | null>(null)
-  // ✅ tracks which booking is currently being checked out to prevent duplicate requests
-  const [pendingCheckoutId, setPendingCheckoutId] = useState<string | null>(null)
+  const [payError, setPayError] = useState<string | null>(null);
+  const [pendingCheckoutId, setPendingCheckoutId] = useState<string | null>(null);
 
-  const [subjectTitles, setSubjectTitles] = useState<Record<string, string>>({})
-  const [tutorNames, setTutorNames] = useState<Record<string, string>>({})
+  const [subjectTitles, setSubjectTitles] = useState<Record<string, string>>({});
+  const [tutorNames, setTutorNames] = useState<Record<string, string>>({});
+
+ const [statusFilter, setStatusFilter] = useState
+  <'all' | 'pending' | 'confirmed' | 'completed' | 'canceled' | 'paid'>('all');
+
+  const [now, setNow] = useState(() => Date.now());
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   useEffect(() => {
-    getMyBookings()
+    const interval = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  function refetchBookings() {
+    return getMyBookings()
       .then(setBookings)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      .catch((err) => setError(err.message));
+  }
+
+  useEffect(() => {
+    refetchBookings().finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    function handleVisibilityOrFocus() {
+      if (document.visibilityState === 'visible') {
+        refetchBookings();
+      }
+    }
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    return () => {
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+    };
   }, []);
 
   useEffect(() => {
@@ -130,17 +180,44 @@ export default function LearnerDashboardPage() {
   function getDisplaySubject(subjectId: string): string {
     return subjectTitles[subjectId] ?? subjectId;
   }
-
   function getDisplayTutor(tutorId: string): string {
     return tutorNames[tutorId] ?? tutorId;
   }
- 
+
+  async function handleCopyConfirmationCode(code: string) {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        throw new Error('Clipboard not supported');
+      }
+      await navigator.clipboard.writeText(code);
+      setCopyStatus('copied');
+    } catch (err) {
+      console.error('Failed to copy confirmation code:', err);
+      setCopyStatus('error');
+    } finally {
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    }
+  }
+
+  async function handlePayNow(bookingId: string) {
+    if (pendingCheckoutId) return;
+
+    setPayError(null);
+    setPendingCheckoutId(bookingId);
+
+    try {
+      const { checkoutUrl } = await initiateCheckout(bookingId);
+      window.location.href = checkoutUrl;
+    } catch (err: unknown) {
+      console.error(err);
+      setPayError(err instanceof Error ? err.message : t('errors.payFailed'));
+      setPendingCheckoutId(null);
+    }
+  }
 
   const upcomingBookings = bookings.filter(
     (b) => b.bookingStatus === 'pending' || b.bookingStatus === 'confirmed',
   );
-  // real values only — 0 completed sessions or 0 hours learned are legitimate
-  // states for a new learner, not bugs to be masked with placeholder numbers
   const totalCompleted = bookings.filter(
     (b) => b.bookingStatus === 'completed',
   ).length;
@@ -149,9 +226,23 @@ export default function LearnerDashboardPage() {
     .reduce((acc, curr) => acc + curr.durationMinutes / 60, 0);
   const upcomingCount = upcomingBookings.length;
 
-  // only a session that's actually happening right now qualifies for the
-  // "Join Now" banner — not merely the next confirmed booking on the calendar
-  const currentActiveSession = upcomingBookings.find(isSessionLive);
+  const currentActiveSession = upcomingBookings.find((b) => isSessionLive(b, now));
+
+  const filteredBookings =
+    statusFilter === 'all'
+      ? bookings
+      : statusFilter === 'paid'
+      ? bookings.filter((b) => b.paymentStatus === 'paid')
+      : bookings.filter((b) => b.bookingStatus === statusFilter);
+
+  const statusTabs: { key: typeof statusFilter; label: string }[] = [
+    { key: 'all', label: t('tabs.all') },
+    { key: 'pending', label: t('tabs.pending') },
+    { key: 'confirmed', label: t('tabs.confirmed') },
+    { key: 'completed', label: t('tabs.completed') },
+    { key: 'canceled', label: t('tabs.canceled') },
+    { key: 'paid', label: t('tabs.paid') },
+  ];
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#1E2240] p-4 md:p-8">
@@ -160,10 +251,10 @@ export default function LearnerDashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[#11142D]">
-            Welcome back, {currentUser?.name ?? ""}
+            {t('welcomeBack', { name: currentUser?.name ?? '' })}
           </h1>
           <p className="text-sm text-[#68718B] mt-1">
-            You&apos;re making great progress. Ready for your next challenge?
+            {t('subtitle')}
           </p>
         </div>
 
@@ -172,7 +263,7 @@ export default function LearnerDashboardPage() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
-                Sessions Completed
+                {t('stats.sessionsCompleted')}
               </p>
               <p className="text-3xl font-black text-[#5051F9]">
                 {totalCompleted}
@@ -186,7 +277,7 @@ export default function LearnerDashboardPage() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
-                Hours Learned
+                {t('stats.hoursLearned')}
               </p>
               <p className="text-3xl font-black text-[#5051F9]">
                 {totalHours}h
@@ -200,7 +291,7 @@ export default function LearnerDashboardPage() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
             <div>
               <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
-                Upcoming Sessions
+                {t('stats.upcomingSessions')}
               </p>
               <p className="text-3xl font-black text-[#5051F9]">
                 {upcomingCount}
@@ -214,42 +305,45 @@ export default function LearnerDashboardPage() {
 
         {/* Live Session Banner */}
         {currentActiveSession && (
-          <div className="bg-[#5051F9] text-white rounded-2xl p-6 shadow-xl shadow-indigo-100 relative overflow-hidden">
+          <div className="bg-[#5051F9] text-white rounded-2xl p-6 shadow-xl shadow-indigo-100 relative overflow-hidden ">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 relative">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-white/90">
                   <Video size={18} />
-                  <span>Start Your Session</span>
+                  <span>{t('liveSession.startsSoon')}</span>
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">
                     {getDisplaySubject(currentActiveSession.subjectId)}
                   </h3>
                   <p className="text-sm text-white/80">
-                    with {getDisplayTutor(currentActiveSession.tutorId)}
+                    {t('liveSession.with', { tutorName: getDisplayTutor(currentActiveSession.tutorId) })}
                   </p>
                 </div>
                 {currentActiveSession.confirmationCode && (
-                  <div className="inline-block bg-black/20 rounded-lg px-3 py-1.5 text-xs font-mono tracking-wide">
-                    SESSION CODE:{' '}
-                    <span className="font-bold text-lg ml-1">
-                      {currentActiveSession.confirmationCode}
+                  <div className="inline-flex items-center gap-2 bg-black/20 rounded-lg px-3 py-1.5 text-xs font-mono tracking-wide">
+                    <span>
+                      {t('liveSession.confirmationCode')}{' '}
+                      <span className="font-bold text-lg ml-1">
+                        {currentActiveSession.confirmationCode}
+                      </span>
                     </span>
+                    <button
+                      onClick={() =>
+                        handleCopyConfirmationCode(currentActiveSession.confirmationCode!)
+                      }
+                      className="ml-2 bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors shrink-0"
+                    >
+                      {copyStatus === 'copied'
+                        ? t('liveSession.copied')
+                        : copyStatus === 'error'
+                        ? t('liveSession.failed')
+                        : t('liveSession.copy')}
+                    </button>
                   </div>
                 )}
               </div>
-              <div>
-                <Button
-                  onClick={() =>
-                    router.push(
-                      `/${locale}/booking/${currentActiveSession._id}`,
-                    )
-                  }
-                  className="bg-white text-[#5051F9] hover:bg-white/90 font-bold px-8 py-6 rounded-xl shadow-md text-sm transition-all w-full md:w-auto"
-                >
-                  Join Now
-                </Button>
-              </div>
+             
             </div>
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           </div>
@@ -266,13 +360,30 @@ export default function LearnerDashboardPage() {
         {/* Bookings List */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-[#11142D]">
-            Upcoming Bookings
+            {t('bookingsList.title')}
           </h2>
+
+          {/* Status filter tabs */}
+          <div className="flex flex-wrap gap-2">
+            {statusTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setStatusFilter(tab.key)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  statusFilter === tab.key
+                    ? 'bg-[#5051F9] text-white border-[#5051F9]'
+                    : 'bg-white text-[#68718B] border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
           {loading && (
             <div className="flex items-center gap-2 text-gray-400 text-sm py-8 justify-center">
               <Loader2 size={20} className="animate-spin text-[#5051F9]" />
-              <span>Loading bookings...</span>
+              <span>{t('bookingsList.loading')}</span>
             </div>
           )}
 
@@ -283,18 +394,19 @@ export default function LearnerDashboardPage() {
             </div>
           )}
 
-          {!loading && !error && bookings.length === 0 && (
+          {!loading && !error && filteredBookings.length === 0 && (
             <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
-              No bookings found.
+              {t('bookingsList.empty')}
             </div>
           )}
 
-          {!loading && !error && bookings.length > 0 && (
+          {!loading && !error && filteredBookings.length > 0 && (
             <div className="flex flex-col gap-3">
-              {bookings.map((booking) => {
-                const showPayNow = booking.paymentStatus === "unpaid" && booking.bookingStatus === "confirmed"
-                // ✅ button is disabled while this specific booking is being checked out
-                const isCheckingOut = pendingCheckoutId === booking._id
+              {filteredBookings.map((booking) => {
+                const showPayNow = booking.paymentStatus === 'unpaid' && booking.bookingStatus === 'confirmed';
+                const isPaid = booking.paymentStatus === 'paid';
+                const isCheckingOut = pendingCheckoutId === booking._id;
+                const showConfirmationCode = shouldShowConfirmationCode(booking);
 
                 return (
                   <div
@@ -312,49 +424,115 @@ export default function LearnerDashboardPage() {
                         <h4 className="font-bold text-[#11142D] text-[15px]">
                           {getDisplaySubject(booking.subjectId)}
                         </h4>
-                        <p className="text-xs text-[#68718B]">with {getDisplayTutor(booking.tutorId)}</p>
-                        <BookingStatusBadge status={booking.bookingStatus} />
-                      
-                        {booking.bookingStatus === 'pending' && (
-                          <span className="inline-flex items-center text-[11px] text-amber-600 font-semibold gap-1 mt-1 bg-amber-50 px-2 py-0.5 rounded-full">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                            Pending Approval
-                          </span>
+                        <p className="text-xs text-[#68718B]">
+                          {t('bookingsList.with', { tutorName: getDisplayTutor(booking.tutorId) })}
+                        </p>
+                        <BookingStatusBadge status={booking.bookingStatus} t={t} />
+                        {showConfirmationCode && (
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-mono text-xs font-bold tracking-wider text-[#5051F9]">
+                              {t('liveSession.confirmationCode')}{' '}
+                              {booking.confirmationCode}
+                            </span>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleCopyConfirmationCode(booking.confirmationCode!);
+                              }}
+                              className="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-[#68718B] transition-colors hover:bg-gray-50"
+                              type="button"
+                            >
+                              {copyStatus === 'copied'
+                                ? t('liveSession.copied')
+                                : copyStatus === 'error'
+                                ? t('liveSession.failed')
+                                : t('liveSession.copy')}
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 ml-auto sm:ml-0">
+                    {/* <div className="flex items-center gap-4 ml-auto sm:ml-0">
                       <div className="flex items-center gap-2 text-xs font-semibold text-[#68718B] bg-gray-50 px-3 py-2 rounded-xl border border-gray-100/80">
                         <Calendar size={14} className="text-[#5051F9]" />
                         <span>
                           {formatDisplayTime(
                             booking.startAt,
                             booking.durationMinutes,
+                            t,
                           )}
                         </span>
                       </div>
 
+                      {isPaid && (
+                        <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-2 rounded-xl shrink-0">
+                          <CheckCircle2 size={14} className="text-green-600" />
+                          {t('bookingsList.paid')}
+                        </span>
+                      )}
+
                       {showPayNow && (
                         <Button
-                          // ✅ disabled while checkout is in flight for this booking
                           disabled={isCheckingOut}
-                         
-                         
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/${locale}/checkout/${booking._id}`);
+                            handlePayNow(booking._id);
                           }}
                           className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           {isCheckingOut ? (
-                            <><Loader2 size={12} className="animate-spin mr-1" /> Processing...</>
+                            <>
+                              <Loader2 size={12} className="animate-spin mr-1" /> {t('bookingsList.processing')}
+                            </>
                           ) : (
-                            "Pay Now"
+                            t('bookingsList.payNow')
                           )}
                         </Button>
                       )}
-                    </div>
+                    </div> */}
+
+
+
+                    <div className="flex items-center gap-4 ml-auto sm:ml-0">
+  <div className="flex items-center gap-2 text-xs font-semibold text-[#68718B] bg-gray-50 px-3 py-2 rounded-xl border border-gray-100/80">
+    <Calendar size={14} className="text-[#5051F9]" />
+    <span>
+      {formatDisplayTime(
+        booking.startAt,
+        booking.durationMinutes,
+        t,
+        locale // 👈 تم إضافة متغير الـ locale هنا كمعامل رابع
+      )}
+    </span>
+  </div>
+
+  {isPaid && (
+    <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-2 rounded-xl shrink-0">
+      <CheckCircle2 size={14} className="text-green-600" />
+      {t('bookingsList.paid')}
+    </span>
+  )}
+
+  {showPayNow && (
+    <Button
+      disabled={isCheckingOut}
+      onClick={(e) => {
+        e.stopPropagation();
+        handlePayNow(booking._id);
+      }}
+      className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      {isCheckingOut ? (
+        <>
+          <Loader2 size={12} className="animate-spin mr-1" /> {t('bookingsList.processing')}
+        </>
+      ) : (
+        t('bookingsList.payNow')
+      )}
+    </Button>
+  )}
+</div>
                   </div>
                 );
               })}

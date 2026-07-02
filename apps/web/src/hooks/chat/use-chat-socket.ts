@@ -6,6 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { getChatSocket } from "@/services/chat/chat-socket";
 import type {
+  Chat,
+  ChatListData,
   ChatMessage,
   MessageListData,
   MessageReceiptPayload,
@@ -96,6 +98,56 @@ function updateMessageReceiptInCache(
   };
 }
 
+function updateChatListLastMessageInCache(
+  currentData: InfiniteData<ChatListData, number> | undefined,
+  payload: NewMessagePayload
+) {
+  if (!currentData?.pages.length) {
+    return currentData;
+  }
+
+  return {
+    ...currentData,
+    pages: currentData.pages.map((page) => ({
+      ...page,
+      chats: page.chats.map((chat) =>
+        chat.id === payload.chatId
+          ? {
+              ...chat,
+              lastMessage: {
+                id: payload.id,
+                senderId: payload.senderId,
+                preview: payload.content,
+                sentAt: payload.createdAt,
+              },
+              updatedAt: payload.createdAt,
+            }
+          : chat
+      ),
+    })),
+  };
+}
+
+function updateChatDetailLastMessageInCache(
+  currentChat: Chat | undefined,
+  payload: NewMessagePayload
+) {
+  if (!currentChat || currentChat.id !== payload.chatId) {
+    return currentChat;
+  }
+
+  return {
+    ...currentChat,
+    lastMessage: {
+      id: payload.id,
+      senderId: payload.senderId,
+      preview: payload.content,
+      sentAt: payload.createdAt,
+    },
+    updatedAt: payload.createdAt,
+  };
+}
+
 export function useChatSocket(chatId: string) {
   const queryClient = useQueryClient();
   const [connectionStatus, setConnectionStatus] =
@@ -108,7 +160,14 @@ export function useChatSocket(chatId: string) {
         chatKeys.messageList(payload.chatId),
         (currentData) => appendMessageToCache(currentData, payload)
       );
-      void queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      queryClient.setQueriesData<InfiniteData<ChatListData, number>>(
+        { queryKey: chatKeys.lists() },
+        (currentData) => updateChatListLastMessageInCache(currentData, payload)
+      );
+      queryClient.setQueryData<Chat>(
+        chatKeys.detail(payload.chatId),
+        (currentChat) => updateChatDetailLastMessageInCache(currentChat, payload)
+      );
     },
     [queryClient]
   );
@@ -119,6 +178,10 @@ export function useChatSocket(chatId: string) {
         chatKeys.messageList(payload.chatId),
         (currentData) => updateMessageReceiptInCache(currentData, payload)
       );
+      void queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      void queryClient.invalidateQueries({
+        queryKey: chatKeys.detail(payload.chatId),
+      });
     },
     [queryClient]
   );

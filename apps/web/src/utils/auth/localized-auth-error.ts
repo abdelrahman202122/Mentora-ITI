@@ -37,5 +37,9 @@ export function getLocalizedAuthError(
     return t("unauthorized");
   }
 
+  if (lower.includes("invalid or expired reset token")) {
+    return t("invalidResetToken");
+  }
+
   return t("generic");
 }

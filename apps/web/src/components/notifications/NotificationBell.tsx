@@ -14,6 +14,7 @@ import {
   useNotifications,
   useUnreadNotificationCount,
 } from "@/hooks/notifications/use-notifications";
+import { chatKeys } from "@/hooks/chat/use-chat";
 import { useNotificationSocket } from "@/hooks/notifications/use-notification-socket";
 import { cn } from "@/lib/utils";
 import type {
@@ -22,6 +23,7 @@ import type {
   NotificationType,
 } from "@/types/notifications/notification-types";
 import { getLocalePath } from "@/utils/i18n/locale-path";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NotificationBellProps {
   collapsed?: boolean;
@@ -60,6 +62,7 @@ export function NotificationBell({
 }: NotificationBellProps) {
   const locale = useLocale();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const t = useTranslations("notifications");
   const [open, setOpen] = useState(false);
 
@@ -87,6 +90,7 @@ export function NotificationBell({
 
   function handleNotificationClick(notification: NotificationItem) {
     const href = getNotificationHref(notification, locale, role);
+    const chatId = getNotificationChatId(notification);
 
     if (notification.status === "unread") {
       void markRead.mutateAsync(notification.id).catch((error) => {
@@ -95,6 +99,15 @@ export function NotificationBell({
     }
 
     if (href) {
+      if (chatId) {
+        void queryClient.invalidateQueries({
+          queryKey: chatKeys.messageList(chatId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: chatKeys.detail(chatId),
+        });
+        void queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      }
       setOpen(false);
       router.push(href);
     }

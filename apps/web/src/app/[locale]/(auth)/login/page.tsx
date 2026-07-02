@@ -25,6 +25,7 @@ import {
 } from '@/schemas/auth/auth-schema';
 import { getLocalePath } from '@/utils/i18n/locale-path';
 import { getLocalizedAuthError } from '@/utils/auth/localized-auth-error';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function LoginPage() {
   const tValidation = useTranslations('auth.validation');
   const tErrors = useTranslations('auth.errors');
   const loginMutation = useLogin();
+  const isRtl = locale === 'ar';
 
   const loginSchema = useMemo(
     () => createLoginSchema(tValidation),
@@ -64,7 +66,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-slate-950 sm:px-6">
+    <main
+      className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-start text-slate-950 sm:px-6"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center">
         <Card className="w-full rounded-lg border-slate-200 bg-white/90 p-0 shadow-sm ring-slate-200">
           <CardHeader className="gap-2 px-7 pt-7">
@@ -102,7 +107,10 @@ export default function LoginPage() {
                     {t('login.emailLabel')}
                   </label>
                   <Input
-                    className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
+                    className={cn(
+                      'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
+                      isRtl && 'text-right',
+                    )}
                     id="email"
                     autoComplete="email"
                     placeholder={t('login.emailPlaceholder')}
@@ -119,7 +127,10 @@ export default function LoginPage() {
                     {t('login.passwordLabel')}
                   </label>
                   <Input
-                    className="mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm"
+                    className={cn(
+                      'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
+                      isRtl && 'text-right',
+                    )}
                     id="password"
                     autoComplete="current-password"
                     placeholder={t('login.passwordPlaceholder')}
@@ -127,6 +138,15 @@ export default function LoginPage() {
                     {...form.register('password')}
                   />
                 </FieldError>
+              </div>
+
+              <div className="flex justify-end">
+                <Link
+                  className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                  href={getLocalePath(locale, '/forgot-password')}
+                >
+                  {t('login.forgotPassword')}
+                </Link>
               </div>
 
               <Button

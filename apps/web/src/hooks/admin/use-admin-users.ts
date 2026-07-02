@@ -53,6 +53,7 @@ export function useAdminUsers({
 
   // ── Reset to page 1 whenever filters change ──────────────────────
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [debouncedSearch, role, status]);
 
@@ -88,6 +89,7 @@ export function useAdminUsers({
   }, [page, perPage, debouncedSearch, role, status]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers();
   }, [fetchUsers]);
 

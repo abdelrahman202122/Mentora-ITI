@@ -16,11 +16,11 @@ export interface User {
   role: Role;
   status: Status;
   regDate: string;
-  totalSessions: number;
-  avgRating: number | null;
-  lastActivity: string | null;
-  avatarUrl: string | null;
-  roleLabel: string | null;
+  totalSessions?: number;
+  avgRating?: number | null;
+  lastActivity?: string | null;
+  avatarUrl?: string | null;
+  roleLabel?: string | null;
   // ✅ Only present in detail response (GET /:id)
   reviews?: UserReview[];
 }
@@ -92,8 +92,13 @@ export interface Withdrawal {
   requestDate: string;
   status: WithdrawalStatus;
 }
-
-export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "REFUNDED";
+export type BookingStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "REJECTED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "EXPIRED";
 export type PaymentStatus = "PAID" | "PENDING" | "REFUNDED" | "FAILED";
 
 export interface Booking {

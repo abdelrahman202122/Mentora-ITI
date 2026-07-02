@@ -55,11 +55,12 @@ export const withdrawalStatusBadgeClasses: Record<WithdrawalStatus, string> = {
 
 /* ----------------------------- Bookings ------------------------------ */
 export const bookingStatusBadgeClasses: Record<BookingStatus, string> = {
-  PENDING: "bg-amber-500 text-white",
-  CONFIRMED: "bg-blue-500 text-white",
-  COMPLETED: "bg-emerald-500 text-white",
-  CANCELLED: "bg-red-500 text-white",
-  REFUNDED: "bg-gray-400 text-white",
+    PENDING: "bg-amber-500 text-white",
+    CONFIRMED: "bg-blue-500 text-white",
+    REJECTED: "bg-rose-500 text-white",
+    COMPLETED: "bg-emerald-500 text-white",
+    CANCELLED: "bg-red-500 text-white",
+    EXPIRED: "bg-gray-400 text-white",
 };
 
 /* ----------------------------- Reviews ------------------------------- */

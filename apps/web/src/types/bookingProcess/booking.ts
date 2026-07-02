@@ -70,6 +70,7 @@ export interface BookingDetails {
   canceledBy?: string | null
   canceledAt?: string | null
   completedAt?: string | null
+  reviewId?: string | null
   createdAt: string
   updatedAt: string
 }

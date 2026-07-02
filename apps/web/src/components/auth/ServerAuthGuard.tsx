@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUserServer } from "@/services/auth/auth-server-service";
 import type { UserRole } from "@/types/auth/auth-types";
+import { hasAnyRole } from "@/utils/auth/role-utils";
 import { getLocalePath } from "@/utils/i18n/locale-path";
 
 type ServerAuthGuardProps = {
@@ -31,7 +32,7 @@ export async function ServerAuthGuard({
     redirect(loginPath);
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !hasAnyRole(user, allowedRoles)) {
     redirect(getLocalePath(locale, "/"));
   }
 

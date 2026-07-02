@@ -233,6 +233,15 @@
       "emptyTitle": "No tutors matched this search",
       "emptyDescription": "Try a broader subject, another curriculum, or clear the filters to browse more tutors.",
       "clearFilters": "Clear filters",
+      "generalTutoring": "General tutoring",
+      "profileFallback": "Tutor",
+      "headlineFallback": "Experienced tutor",
+      "bioFallback": "This tutor has not added a detailed bio yet.",
+      "noSubjects": "Subjects will appear here once this tutor adds them.",
+      "noLanguages": "Languages not listed",
+      "reviewsCount": "{count, plural, one {(# review)} other {(# reviews)}}",
+      "subjectsCount": "{count, plural, one {# subject} other {# subjects}}",
+      "moreSubjects": "{count, plural, one {+ # more subject} other {+ # more subjects}}",
       "perHour": "per hour",
       "available": "Available",
       "availabilityVaries": "Availability varies",
@@ -360,7 +369,8 @@
       "signUpLink": "Sign Up",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
-      "helpCenter": "Help Center"
+      "helpCenter": "Help Center",
+      "forgotPassword": "Forgot password?"
     },
     "register": {
       "title": "Join Mentora",
@@ -384,13 +394,41 @@
       "nameMin": "Name must be at least 2 characters",
       "phoneInvalid": "Enter a valid Egyptian phone number (e.g. 01012345678)",
       "roleInvalid": "Please choose a valid account type",
-      "passwordRequired": "Password is required"
+      "passwordRequired": "Password is required",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMustMatch": "Passwords must match"
     },
     "errors": {
       "invalidCredentials": "Invalid email or password",
       "emailAlreadyExists": "An account with this email already exists",
       "unauthorized": "You are not authorized to perform this action",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "invalidResetToken": "This reset link is invalid or expired. Please request a new password reset email."
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "description": "Enter your email and we will send a secure reset link if an account exists.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@company.com",
+      "submit": "Send reset link",
+      "submitting": "Sending reset link",
+      "checkEmailTitle": "Check your email",
+      "successMessage": "If an account with that email exists, a reset link has been sent.",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "description": "Create a new password for your Mentora account.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Enter a new password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Re-enter the new password",
+      "submit": "Reset password",
+      "submitting": "Resetting password",
+      "missingToken": "This reset link is missing a token. Please request a new password reset email.",
+      "successTitle": "Password reset",
+      "successMessage": "Password reset successfully. Please log in with your new password.",
+      "backToLogin": "Back to login"
     }
   },
   "home": {
@@ -480,5 +518,527 @@
       "madeAt": "at ITI Lab",
       "backToTop": "Back to top"
     }
+  },
+  
+  "Booking": {
+    "backToTeacherProfile": "Back to Teacher Profile",
+    "bookNewSession": "Book New Session",
+    "missingTutorSubject": "We couldn't find the tutor or subject for this booking. Please go back and pick a tutor and subject before booking a session.",
+    "selectDate": "Select Date",
+    "lessonDuration": "Lesson Duration",
+    "duration30": "30 minutes session",
+    "duration60": "60 minutes session",
+    "duration90": "90 minutes session",
+    "selectTime": "Select Time",
+    "availableSlots": "Tutor Available Slots",
+    "loadingSlots": "Loading available slots...",
+    "noSlots": "No available slots for this day. Please select another date.",
+    "bookingSummary": "Booking Summary",
+    "booking": "Booking...",
+    "sendRequest": "Send Booking Request",
+    "pageLoading": "Loading...",
+    "errors": {
+      "missingInfo": "Missing tutor or subject information. Please go back and select a tutor and subject again.",
+      "invalidDateTime": "Invalid date or time selected. Please try again.",
+      "pastTime": "The selected time has already passed. Please choose a future time.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "success": {
+      "title": "Booking Request Sent!",
+      "description": "Your session with {tutorName} has been requested.",
+      "waiting": "Waiting for the tutor to confirm.",
+      "messageTutor": "Message Tutor",
+      "backToDashboard": "Back to Dashboard",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "minutes": "minutes",
+      "hourlyRate": "Hourly Rate",
+      "perHour": "/hr",
+      "totalPrice": "Total Price",
+      "status": "Status",
+      "pending": "Pending confirmation"
+    },
+    "summary": {
+      "pricePerHour": "Price per hour",
+      "duration": "Duration",
+      "hour": "Hour",
+      "mins": "mins",
+      "sessionCost": "Session cost",
+      
+      "totalPrice": "Total Price",
+      "termsAgree": "By confirming, you agree to Mentora's <terms>Terms of Service</terms> and <refund>Refund Policy</refund>."
+    }
   }
+  ,
+  "Dashboard": {
+    "welcomeBack": "Welcome back, {name}",
+    "subtitle": "You're making great progress. Ready for your next challenge?",
+    "stats": {
+      "sessionsCompleted": "Sessions Completed",
+      "hoursLearned": "Hours Learned",
+      "upcomingSessions": "Upcoming Sessions"
+    },
+    "liveSession": {
+      "startsSoon": "Your session starts soon",
+      "with": "with {tutorName}",
+      "confirmationCode": "CONFIRMATION CODE:",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "failed": "Failed",
+      "joinNow": "Join Now"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "tabs": {
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "paid": "Paid"
+    },
+    "bookingsList": {
+      "title": "Upcoming Bookings",
+      "loading": "Loading bookings...",
+      "empty": "No bookings found.",
+      "with": "with {tutorName}",
+      "paid": "Paid",
+      "payNow": "Pay Now",
+      "processing": "Processing..."
+    },
+    "time": {
+      "tomorrow": "Tomorrow",
+      "sessionSuffix": "{duration}h session"
+    },
+    "errors": {
+      "payFailed": "Failed to start checkout. Please try again."
+    }
+  },
+  
+  "Payments": {
+    "recentTransactions": "Recent Transactions",
+    "exportCSV": "Export CSV",
+    "loadingTransactions": "Loading transactions...",
+    "noTransactions": "No transactions found.",
+    "downloadInvoice": "Download invoice",
+    "viewDetailsFor": "View payment details for {title}",
+    "sessionWith": "Session with {tutorName}",
+    "downloadInvoiceFor": "Download invoice for {title}",
+    "session": "Session",
+    "table": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "invoice": "Invoice"
+    },
+    "pagination": {
+      "showing": "Showing {from}–{to} of {total}"
+    },
+    "filter": {
+      "filter": "Filter",
+      "filterByDate": "Filter by Date",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear",
+      "apply": "Apply"
+    },
+    "status": {
+      "success": "Completed",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "pending": "Pending"
+    }
+  },
+  
+  "PaymentDetails": {
+    "backToPayments": "Back to Payments",
+    "loading": "Loading payment details...",
+    "notFoundError": "Payment ID not found in URL.",
+    "genericError": "Failed to load payment details.",
+    "title": "Payment Details",
+    "sections": {
+      "amount": "Amount",
+      "timeline": "Timeline",
+      "info": "Info"
+    },
+    "fields": {
+      "total": "Total",
+      "provider": "Provider",
+      "createdAt": "Created At",
+      "paidAt": "Paid At",
+      "failedAt": "Failed At",
+      "refundedAt": "Refunded At",
+      "failureReason": "Failure Reason",
+      "paymentId": "Payment ID",
+      "transactionId": "Transaction ID",
+      "relatedBooking": "Related Booking"
+    },
+    "status": {
+      "success": "Completed",
+      "pending": "Pending",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    }
+  },
+  
+  "SettingsPage": {
+    "title": "Settings",
+    "description": "Manage your account preferences and personal information.",
+    "profileInfo": "Profile Information",
+    "profileDesc": "Update your photo and personal details.",
+    "profilePicture": "Profile Picture",
+    "avatarDesc": "This will be displayed on your profile and can be seen by tutors.",
+    "uploadNew": "Upload New",
+    "remove": "Remove",
+    "newPhotoSelected": "New photo selected — click Save Changes to upload it.",
+    "photoWillBeRemoved": "Photo will be removed — click Save Changes to confirm.",
+    "fullName": "Full Name",
+    "nameDesc": "Please use your real name.",
+    "emptyNameError": "Name cannot be empty.",
+    "genericError": "Something went wrong.",
+    "successMessage": "Changes saved.",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving..."
+  },
+  
+  "BookingDetails": {
+    "backToBookings": "Back to My Bookings",
+    "loading": "Loading booking details...",
+    "bookingIdNotFound": "Booking ID not found in URL.",
+    "title": "Booking Details",
+    "session": "Session",
+    "date": "Date",
+    "time": "Time",
+    "duration": "Duration",
+    "minutes": "minutes",
+    "payment": "Payment",
+    "price": "Price",
+    "paymentStatus": "Payment Status",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "yourNote": "Your Note",
+    "cancellation": "Cancellation",
+    "canceledBy": "Canceled By",
+    "reason": "Reason",
+    "canceledAt": "Canceled At",
+    "info": "Info",
+    "bookingId": "Booking ID",
+    "createdAt": "Created At",
+    "payNow": "Pay Now",
+    "processing": "Processing...",
+    "cancelBooking": "Cancel Booking",
+    "cancelModalTitle": "Cancel Booking",
+    "cancelModalDesc": "Please tell us why you want to cancel.",
+    "cancelPlaceholder": "e.g. Sudden schedule conflict",
+    "cancelReasonError": "Please provide a reason for cancellation.",
+    "genericError": "Something went wrong.",
+    "paymentInitError": "Payment could not be initiated. Please try again or contact support.",
+    "paymentFailedError": "Payment failed. Please try again.",
+    "goBack": "Go Back",
+    "confirmCancel": "Confirm Cancel",
+    "canceling": "Canceling...",
+    "review": {
+      "title": "Review your tutor",
+      "description": "Your session is complete. Share your feedback to help other learners choose the right tutor.",
+      "ratingLabel": "Rating",
+      "ratingRequired": "Please choose a rating before submitting your review.",
+      "ratingOption": "{count, plural, one {# star} other {# stars}}",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "What went well? Was the tutor clear, prepared, and helpful?",
+      "commentCount": "{count}/1000 characters",
+      "submit": "Submit review",
+      "submitting": "Submitting...",
+      "submitError": "Could not submit your review. Please try again.",
+      "submittedTitle": "Review submitted",
+      "submittedDescription": "Thank you. Your feedback is now linked to this completed session."
+    },
+    "statuses": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled"
+    }
+  },
+  "TutorProfile": {
+    "backToTutors": "Back to Tutors",
+    "loading": "Loading...",
+    "tutorNotFound": "Tutor not found.",
+   "reviews": "({count, plural, one {# review} other {# reviews}})",
+    "students": "{count, plural, one {# student} other {# students}}",
+    "hourlyRate": "{rate} {currency}/hr",
+    "startingChat": "Starting chat...",
+    "chatWith": "Chat with {name}",
+    "aboutMe": "About Me",
+    "availability": "Availability",
+    "coursesOffered": "Courses Offered",
+    "hourSession": "{rate} {currency} / hour session",
+    "deepDive": "A deep dive into {subject} concepts for all levels.",
+    "bookSession": "Book a Session — {rate} {currency}/hr",
+    "noBookableSubject": "No bookable subject available"
+  },
+  "tutorDashboard": {
+    "welcomeBack": "Welcome back",
+    "stats": {
+      "totalEarnings": "Total Earnings",
+      "totalSessions": "Total Sessions",
+      "hoursTaught": "Hours Taught",
+      "failedToLoad": "Failed to load"
+    },
+    "startSession": {
+      "title": "Start Your Session",
+      "description": "Verify your student to begin the private learning session. Ensure your audio and video are working correctly.",
+      "inputPlaceholder": "Enter Student Verification Code",
+      "verifyButton": "Verify & Start Session"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "loading": "Loading bookings…",
+      "error": "Failed to load bookings. Please try again.",
+      "empty": "No bookings found.",
+      "cancelReason": "Canceled by tutor from dashboard.",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "bookingStatus": {
+    "all": "All",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
+    "canceled": "Canceled",
+    "rejected": "Rejected",
+    "expired": "Expired"
+  }
+},
+
+  "bookingCard": {
+    "sessionTitle": "Session — {subject}",
+    "today": "Today, {time}",
+    "approve": "Approve",
+    "approving": "Approving…",
+    "reject": "Reject",
+    "rejecting": "Rejecting…",
+    "cancel": "Cancel",
+    "canceling": "Canceling…"
+  },
+  "bookingStatusLabel": {
+    "expired": "Expired",
+    "pendingApproval": "Pending Approval",
+    "canceled": "Canceled",
+    "rejected": "Rejected",
+    "completed": "Completed",
+    "confirmedPaid": "Confirmed & Paid",
+    "confirmedAwaitingPayment": "Confirmed & Awaiting Payment",
+    "confirmedPaymentPending": "Confirmed & Payment Pending",
+    "confirmedPaymentFailed": "Confirmed & Payment Failed",
+    "confirmed": "Confirmed",
+    "refunded": "Refunded",
+    "awaitingPayment": "Awaiting Payment",
+    "paymentFailed": "Payment Failed",
+    "paymentPending": "Payment Pending"
+},
+
+  "payments": {
+    "pageHeader": {
+      "title": "Financial Overview",
+      "description": "Track your academic success and performance revenue.",
+      "exportDate": "Oct 2023",
+      "export": "Export"
+    },
+    "statCards": {
+      "availableBalance": "Available Balance",
+      "paidOut": "Paid Out",
+      "unavailable": "Unavailable",
+      "sessionsCount": "{count} sessions"
+    },
+    "pendingPayout": {
+      "title": "Pending Payout",
+      "session": "{count} pending session",
+      "sessions": "{count} pending sessions"
+    },
+    "transactionsTable": {
+      "title": "Recent Transactions",
+      "description": "Overview of latest payments",
+      "columns": {
+        "date": "Date",
+        "student": "Student",
+        "subject": "Subject",
+        "duration": "Duration",
+        "amount": "Amount",
+        "status": "Status"
+      },
+      "loading": "Loading transactions…",
+      "error": "Failed to load transactions.",
+      "empty": "No transactions yet.",
+      "showing": "Showing {count} of {total} transactions",
+      "defaultStudent": "Student"
+    }
+  },
+  "earningStatus": {
+    "all": "All",
+    "pending": "Pending",
+    "available": "Available",
+    "paid_out": "Paid Out",
+    "canceled": "Canceled"
+  },
+  "pendingPayout": {
+    "title": "Pending Payout",
+    "sessions": "pending sessions"
+  },
+  "availability": {
+  "page": {
+    "title": "Manage Availability",
+    "description": "Set your weekly schedule and let students find you at the right time.",
+    "scheduleActions": "Schedule Actions",
+    "setUpMyAvailability": "Set Up My Availability",
+    "editAvailability": "Edit Availability",
+    "weeklySchedule": "Weekly Schedule",
+    "weeklyDescription": "Your recurring availability across the week.",
+    "noAvailability": "No availability data found.",
+    "slotsByDate": "Available Slots by Date",
+    "slotsDescription": "View your open booking slots for the upcoming period.",
+    "noSlots": "No slot data found."
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "addSlotForm": {
+    "title": "Add Time Slot",
+    "day": "Day",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "timezone": "Timezone",
+    "cancel": "Cancel",
+    "addSlot": "Add Slot"
+  },
+  "createForm": {
+    "title": "Set Up Your First Slot",
+    "day": "Day",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "timezone": "Timezone",
+    "cancel": "Cancel",
+    "save": "Save & Get Started"
+  },
+  "editForm": {
+    "title": "Edit Availability",
+    "noSlots": "No slots yet. Use the button below to add one.",
+    "newSlot": "New Slot",
+    "start": "Start",
+    "end": "End",
+    "cancel": "Cancel",
+    "add": "Add",
+    "addAnotherSlot": "Add Another Slot",
+    "timezone": "Timezone",
+    "save": "Save Changes",
+    "requiredError": "Both start and end time are required",
+    "endTimeError": "End time must be after start time"
+  },
+  "dailySlots": {
+    "empty": "No available slots found for the selected period."
+  },
+  "daySection": {
+    "to": "to"
+  }
+},
+"weeklyAvailability": {
+  "empty": "No weekly availability set yet."
+},
+"nav": {
+  "learner": {
+    "dashboard": "Dashboard",
+    "aiAssistant": "AI Assistant",
+    "findTutor": "Find Tutor",
+    "messages": "Messages",
+    "payments": "Payments",
+    "settings": "Settings"
+  },
+  "tutor": {
+    "dashboard": "Dashboard",
+    "messages": "Messages",
+    "earnings": "Earnings",
+    "availability": "Availability",
+    "profile": "Profile",
+    "reviews": "Reviews"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "tutors": "Tutors",
+    "moderation": "Moderation",
+    "payments": "Payments",
+    "settings": "Settings"
+  }
+},
+"sidebar": {
+  "expand": "Expand sidebar",
+  "collapse": "Collapse sidebar",
+  "userAvatar": "User Avatar",
+  "home": "Home",
+  "switchToTutor": "Switch to tutor mode",
+  "switchToLearner": "Switch to learner mode",
+  "loggingOut": "Logging out...",
+  "logOut": "Log Out"
+},
+"editProfile": {
+  "loading": "Loading...",
+  "error": "Something went wrong.",
+  "title": "Edit Profile",
+  "description": "Update your professional identity and manage your curriculum.",
+  "discardChanges": "Discard Changes",
+  "saveProfile": "Save Profile",
+  "coursesOffered": "Courses Offered",
+  "loadingCourses": "Loading courses...",
+  "coursesError": "Couldn't load courses. Try again later.",
+  "addNewCourse": "Add New Course",
+  "addNewCourseDescription": "List a new subject to start teaching more students."
+},
+"courseCard": {
+  "editSubject": "Edit subject",
+  "deleteSubject": "Delete subject",
+  "deleteConfirmTitle": "Delete this subject?",
+  "deleteConfirmDescription": "This action cannot be undone.",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "level": "Level",
+  "curriculum": "Curriculum",
+  "created": "Created"
+},
+"courseForm": {
+  "updateTitle": "Update Course",
+  "addTitle": "Add New Course",
+  "titlePlaceholder": "Course Title",
+  "descriptionPlaceholder": "Description",
+  "selectCategory": "Select Category",
+  "selectEducationLevel": "Select Education Level",
+  "selectCurriculum": "Select Curriculum",
+  "gradeNotePlaceholder": "Grade / Year (optional, e.g. Preparatory 1)",
+  "cancel": "Cancel",
+  "updating": "Updating...",
+  "saving": "Saving...",
+  "update": "Update",
+  "save": "Save"
 }
+}
+ 
+
+
+
+
+
+
+

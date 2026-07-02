@@ -1,8 +1,9 @@
+
 "use client"
 
 import { initiateCheckout } from "@/services/payment/paymentService"
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import { Calendar, Clock, Hourglass, ArrowLeft, AlertCircle, Loader2, BadgeCheck, XCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,22 +11,31 @@ import Link from "next/link"
 import { BookingDetails } from "@/types/bookingProcess/booking"
 import { getBookingById } from "@/services/booking-services/bookingDetailsService"
 import { cancelBooking } from "@/services/booking-services/cancelBooking"
+import { useTranslations } from "next-intl"
+import { LearnerReviewCard } from "@/components/reviews/LearnerReviewCard"
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", { 
+    day: "2-digit", 
+    month: "long", 
+    year: "numeric" 
+  })
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+function formatTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale === "ar" ? "ar-EG" : "en-GB", { 
+    hour: "2-digit", 
+    minute: "2-digit" 
+  })
 }
 
-// ... StatusBadge and Row helper components remain exactly as they were ...
 function StatusBadge({ status }: { status: BookingDetails["bookingStatus"] }) {
+  const t = useTranslations("BookingDetails")
   const map: Record<string, { label: string; className: string }> = {
-    pending:   { label: "Pending",   className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-    confirmed: { label: "Confirmed", className: "bg-green-100 text-green-700 border-green-200" },
-    completed: { label: "Completed", className: "bg-blue-100 text-blue-700 border-blue-200" },
-    canceled:  { label: "Canceled",  className: "bg-red-100 text-red-600 border-red-200" },
+    pending:   { label: t("statuses.pending"),   className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
+    confirmed: { label: t("statuses.confirmed"), className: "bg-green-100 text-green-700 border-green-200" },
+    completed: { label: t("statuses.completed"), className: "bg-blue-100 text-blue-700 border-blue-200" },
+    canceled:  { label: t("statuses.canceled"),  className: "bg-red-100 text-red-600 border-red-200" },
   }
   const s = map[status] ?? map.pending
   return (
@@ -45,14 +55,16 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default function BookingDetailsPage() {
+  const t = useTranslations("BookingDetails")
   const params = useParams()
-  const router = useRouter()
-  const bookingId = params.bookingId as string
+  const bookingId = params.bookingId as string | undefined
   const locale = (params.locale as string) ?? "en"
 
   const [booking, setBooking] = useState<BookingDetails | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(Boolean(bookingId))
+  const [error, setError] = useState<string | null>(() =>
+    bookingId ? null : t("bookingIdNotFound")
+  )
 
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
@@ -64,8 +76,6 @@ export default function BookingDetailsPage() {
 
   useEffect(() => {
     if (!bookingId) {
-      setError("Booking ID not found in URL.")
-      setLoading(false)
       return
     }
 
@@ -73,11 +83,16 @@ export default function BookingDetailsPage() {
       .then(setBooking)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [bookingId])
+  }, [bookingId, t])
 
   async function handleCancel() {
+    if (!bookingId) {
+      setCancelError(t("bookingIdNotFound"))
+      return
+    }
+
     if (!cancelReason.trim()) {
-      setCancelError("Please provide a reason for cancellation.")
+      setCancelError(t("cancelReasonError"))
       return
     }
 
@@ -87,13 +102,11 @@ export default function BookingDetailsPage() {
     try {
       const updatedData = await cancelBooking(bookingId, cancelReason)
       
-      // FIX: Functional state update to cleanly merge payload and preserve the legacy shape fields
       setBooking((prevBooking) => {
         if (!prevBooking) return null
         return {
           ...prevBooking,
           ...updatedData,
-          // Explicitly ensuring core metadata fields match the incoming payload fallback to current state
           bookingStatus: updatedData?.bookingStatus ?? "canceled",
           canceledBy: updatedData?.canceledBy ?? prevBooking.canceledBy,
           cancelReason: updatedData?.cancelReason ?? cancelReason,
@@ -104,7 +117,7 @@ export default function BookingDetailsPage() {
       setShowCancelModal(false)
       setCancelReason("")
     } catch (err) {
-      setCancelError(err instanceof Error ? err.message : "Something went wrong.")
+      setCancelError(err instanceof Error ? err.message : t("genericError"))
     } finally {
       setCanceling(false)
     }
@@ -116,9 +129,16 @@ export default function BookingDetailsPage() {
     setPayError(null)
     try {
       const { checkoutUrl } = await initiateCheckout(booking._id)
-      window.location.href = checkoutUrl
+
+      if (!checkoutUrl || typeof checkoutUrl !== "string" || !checkoutUrl.startsWith("http")) {
+        setPayError(t("paymentInitError"))
+        setIsPaying(false)
+        return
+      }
+
+      window.location.assign(checkoutUrl)
     } catch (err) {
-      setPayError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+      setPayError(err instanceof Error ? err.message : t("paymentFailedError"))
       setIsPaying(false)
     }
   }
@@ -130,7 +150,7 @@ export default function BookingDetailsPage() {
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
             <Link href={`/${locale}/dashboard`}>
-              <ArrowLeft size={16} /> Back to My Bookings
+              <ArrowLeft size={16} className="rtl:rotate-180" /> {t("backToBookings")}
             </Link>
           </Button>
         </div>
@@ -138,7 +158,7 @@ export default function BookingDetailsPage() {
         {loading && (
           <div className="flex items-center justify-center py-24 text-muted-foreground gap-2">
             <Loader2 size={20} className="animate-spin" />
-            <span>Loading booking details...</span>
+            <span>{t("loading")}</span>
           </div>
         )}
 
@@ -152,67 +172,67 @@ export default function BookingDetailsPage() {
         {!loading && !error && booking && (
           <>
             <Card className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-xl font-bold">Booking Details</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xl font-bold">{t("title")}</CardTitle>
                 <StatusBadge status={booking.bookingStatus} />
               </CardHeader>
 
               <CardContent className="space-y-1">
 
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Session</p>
-                <Row label="Date" value={
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t("session")}</p>
+                <Row label={t("date")} value={
                   <span className="flex items-center gap-2">
                     <Calendar size={14} className="text-muted-foreground" />
-                    {formatDate(booking.startAt)}
+                    {formatDate(booking.startAt, locale)}
                   </span>
                 } />
-                <Row label="Time" value={
+                <Row label={t("time")} value={
                   <span className="flex items-center gap-2">
                     <Clock size={14} className="text-muted-foreground" />
-                    {formatTime(booking.startAt)} – {formatTime(booking.endAt)}
+                    {formatTime(booking.startAt, locale)} – {formatTime(booking.endAt, locale)}
                   </span>
                 } />
-                <Row label="Duration" value={
+                <Row label={t("duration")} value={
                   <span className="flex items-center gap-2">
                     <Hourglass size={14} className="text-muted-foreground" />
-                    {booking.durationMinutes} minutes
+                    {booking.durationMinutes} {t("minutes")}
                   </span>
                 } />
 
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Payment</p>
-                <Row label="Price" value={`${booking.price} ${booking.currency}`} />
-                <Row label="Payment Status" value={
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("payment")}</p>
+                <Row label={t("price")} value={`${booking.price} ${booking.currency}`} />
+                <Row label={t("paymentStatus")} value={
                   <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                     booking.paymentStatus === "paid"
                       ? "bg-green-100 text-green-700 border-green-200"
                       : "bg-gray-100 text-gray-600 border-gray-200"
                   }`}>
                     {booking.paymentStatus === "paid"
-                      ? <><BadgeCheck size={12} /> Paid</>
-                      : <><XCircle size={12} /> Unpaid</>
+                      ? <><BadgeCheck size={12} /> {t("paid")}</>
+                      : <><XCircle size={12} /> {t("unpaid")}</>
                     }
                   </span>
                 } />
 
                 {booking.learnerNote && (
                   <>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Your Note</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("yourNote")}</p>
                     <p className="text-sm text-foreground bg-sidebar/30 rounded-xl px-4 py-3">{booking.learnerNote}</p>
                   </>
                 )}
 
                 {booking.bookingStatus === "canceled" && (
                   <>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Cancellation</p>
-                    {booking.canceledBy && <Row label="Canceled By" value={booking.canceledBy} />}
-                    {booking.cancelReason && <Row label="Reason" value={booking.cancelReason} />}
-                    {booking.canceledAt && <Row label="Canceled At" value={formatDate(booking.canceledAt)} />}
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("cancellation")}</p>
+                    {booking.canceledBy && <Row label={t("canceledBy")} value={booking.canceledBy} />}
+                    {booking.cancelReason && <Row label={t("reason")} value={booking.cancelReason} />}
+                    {booking.canceledAt && <Row label={t("canceledAt")} value={formatDate(booking.canceledAt, locale)} />}
                   </>
                 )}
 
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Info</p>
-                <Row label="Booking ID" value={<span className="font-mono text-xs">{booking._id}</span>} />
-                <Row label="Created At" value={formatDate(booking.createdAt)} />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("info")}</p>
+                <Row label={t("bookingId")} value={<span className="font-mono text-xs">{booking._id}</span>} />
+                <Row label={t("createdAt")} value={formatDate(booking.createdAt, locale)} />
 
               </CardContent>
             </Card>
@@ -229,12 +249,13 @@ export default function BookingDetailsPage() {
                 {booking.bookingStatus === "confirmed" && booking.paymentStatus === "unpaid" && (
                   <Button onClick={handlePayNow} disabled={isPaying} className="flex-1 h-12 rounded-xl">
                     {isPaying ? (
-                      <><Loader2 size={16} className="animate-spin mr-2" /> Processing...</>
+                      <><Loader2 size={16} className="animate-spin mr-2 ltr:mr-2 rtl:ml-2" /> {t("processing")}</>
                     ) : (
-                      "Pay Now"
+                      t("payNow")
                     )}
                   </Button>
                 )}
+
                 {(booking.bookingStatus === "pending" || booking.bookingStatus === "confirmed") && (
                   <Button
                     variant="outline"
@@ -242,10 +263,22 @@ export default function BookingDetailsPage() {
                     className="flex-1 h-12 rounded-xl border-red-200 text-red-600 hover:bg-red-50"
                     disabled={isPaying}
                   >
-                    Cancel Booking
+                    {t("cancelBooking")}
                   </Button>
                 )}
               </div>
+            )}
+
+            {booking.bookingStatus === "completed" && (
+              <LearnerReviewCard
+                bookingId={booking._id}
+                alreadyReviewed={Boolean(booking.reviewId)}
+                onReviewCreated={(reviewId) => {
+                  setBooking((currentBooking) =>
+                    currentBooking ? { ...currentBooking, reviewId } : currentBooking
+                  )
+                }}
+              />
             )}
           </>
         )}
@@ -263,16 +296,16 @@ export default function BookingDetailsPage() {
                 id="cancel-modal-title"
                 className="text-lg font-bold text-foreground mb-1"
               >
-                Cancel Booking
+                {t("cancelModalTitle")}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Please tell us why you want to cancel.
+                {t("cancelModalDesc")}
               </p>
 
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                placeholder="e.g. Sudden schedule conflict"
+                placeholder={t("cancelPlaceholder")}
                 className="w-full border border-input rounded-xl px-4 py-3 text-sm resize-none h-24 focus:outline-none focus:border-sidebar-primary"
               />
 
@@ -287,7 +320,7 @@ export default function BookingDetailsPage() {
                   className="flex-1 h-11 rounded-xl"
                   disabled={canceling}
                 >
-                  Go Back
+                  {t("goBack")}
                 </Button>
                 <Button
                   onClick={handleCancel}
@@ -295,9 +328,9 @@ export default function BookingDetailsPage() {
                   className="flex-1 h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white"
                 >
                   {canceling ? (
-                    <><Loader2 size={14} className="animate-spin mr-2" /> Canceling...</>
+                    <><Loader2 size={14} className="animate-spin mr-2 ltr:mr-2 rtl:ml-2" /> {t("canceling")}</>
                   ) : (
-                    "Confirm Cancel"
+                    t("confirmCancel")
                   )}
                 </Button>
               </div>

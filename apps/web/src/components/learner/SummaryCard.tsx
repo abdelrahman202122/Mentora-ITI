@@ -1,4 +1,7 @@
+
+
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 interface SummaryCardProps {
   tutorName: string
@@ -8,10 +11,10 @@ interface SummaryCardProps {
   currency: string
   date?: string
   time?: string
-  showTerms?: boolean // ميزة اختيارية لعرض الشروط فقط في صفحة الدفع
+  showTerms?: boolean
 }
 
-const SERVICE_FEE = 2.5
+
 
 export function SummaryCard({
   tutorName,
@@ -23,10 +26,11 @@ export function SummaryCard({
   time,
   showTerms = false,
 }: SummaryCardProps) {
-  
+  const t = useTranslations("Booking.summary")
+
   const numericDuration = Number(duration || 0)
   const sessionCost = (hourlyRate * numericDuration) / 60
-  const total = sessionCost + SERVICE_FEE
+  const total = sessionCost 
 
   return (
     <div>
@@ -49,35 +53,31 @@ export function SummaryCard({
       {/* Pricing Details */}
       <div className="flex flex-col gap-3 mb-4 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Price per hour</span>
+          <span className="text-muted-foreground">{t("pricePerHour")}</span>
           <span className="font-medium text-foreground">
             {currency}{hourlyRate.toFixed(2)}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Duration</span>
+          <span className="text-muted-foreground">{t("duration")}</span>
           <span className="text-foreground">
-            {numericDuration >= 60 ? `${numericDuration / 60} Hour` : `${numericDuration} mins`}
+            {numericDuration >= 60
+              ? `${numericDuration / 60} ${t("hour")}`
+              : `${numericDuration} ${t("mins")}`}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Session cost</span>
+          <span className="text-muted-foreground">{t("sessionCost")}</span>
           <span className="text-foreground">
             {currency}{sessionCost.toFixed(2)}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Service fee</span>
-          <span className="text-foreground">
-            {currency}{SERVICE_FEE.toFixed(2)}
-          </span>
-        </div>
-      </div>
-
+      
+</div>
       {/* Total section */}
       <div className="border-t border-border pt-4 mb-6">
         <div className="flex justify-between items-center">
-          <span className="text-base font-bold text-foreground">Total Price</span>
+          <span className="text-base font-bold text-foreground">{t("totalPrice")}</span>
           <span className="text-xl font-bold text-indigo-600">
             {currency}{total.toFixed(2)}
           </span>
@@ -87,9 +87,14 @@ export function SummaryCard({
       {/* Conditional Terms Policy (Only for Payment Page) */}
       {showTerms && (
         <p className="text-xs text-center text-gray-400 mt-3">
-          By confirming, you agree to Mentora's{" "}
-          <Link href="#" className="underline">Terms of Service</Link> and{" "}
-          <Link href="#" className="underline">Refund Policy</Link>.
+          {t.rich("termsAgree", {
+            terms: (chunks) => (
+              <Link href="#" className="underline">{chunks}</Link>
+            ),
+            refund: (chunks) => (
+              <Link href="#" className="underline">{chunks}</Link>
+            ),
+          })}
         </p>
       )}
     </div>

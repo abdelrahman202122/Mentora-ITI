@@ -1,6 +1,7 @@
 import { AuditModel } from '../../audit/audit.model.js';
 import Booking from '../../bookings/booking.model.js';
 import { UserModel } from '../../users/user.model.js';
+import type { UserRole } from '../../users/user.interface.js';
 import type { ListAdminUsersQuery } from './admin-user.validation.js';
 import {formatRelativeTime, formatTime} from '../../../utils/timeHelper.js';
 import ReviewModel from '../../reviews/review.model.js';
@@ -25,7 +26,7 @@ const buildFilter = (query: ListAdminUsersQuery) => {
       Student: 'learner',
       Admin: 'admin',
     };
-    filter.role = roleMap[query.role] ?? query.role.toLowerCase();
+    filter.roles = roleMap[query.role] ?? query.role.toLowerCase();
   }
 
 
@@ -53,7 +54,7 @@ export const findAdminUsers = async (query: ListAdminUsersQuery) => {
   const [users, total] = await Promise.all([
     UserModel.find(filter)
       .select(
-        'name email role avatar isActive adminStatus roleLabel createdAt updatedAt',
+        'name email role roles avatar isActive adminStatus roleLabel createdAt updatedAt',
       )
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -70,7 +71,7 @@ export const findAdminUsers = async (query: ListAdminUsersQuery) => {
 export const findAdminUserById = async (userId: string) => {
   return UserModel.findById(userId)
     .select(
-      'name email role avatar isActive adminStatus roleLabel createdAt updatedAt',
+      'name email role roles avatar isActive adminStatus roleLabel createdAt updatedAt',
     )
     .lean();
 };
@@ -87,7 +88,7 @@ export const updateAdminUserFields = async (
     { new: true },
   )
     .select(
-      'name email role avatar isActive adminStatus roleLabel createdAt updatedAt',
+      'name email role roles avatar isActive adminStatus roleLabel createdAt updatedAt',
     )
     .lean();
 };
@@ -118,6 +119,7 @@ export const createAdminUserInDb = async (data: {
   name: string;
   email: string;
   role: string;
+  roles?: UserRole[];
   adminStatus: string;
   isActive: boolean;
   password: string;

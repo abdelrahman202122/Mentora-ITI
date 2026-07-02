@@ -81,6 +81,7 @@ export function StatusChangeModal({
 
   useEffect(() => {
     if (user && targetStatus) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReason("");
     }
   }, [user, targetStatus]);

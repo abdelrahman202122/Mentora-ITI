@@ -1,40 +1,49 @@
 'use client';
 
 import { Trash2, Clock } from 'lucide-react';
-import { useFieldArray } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
+import {
+  type Control,
+  type Path,
+  type UseFormRegister,
+  useFieldArray,
+} from 'react-hook-form';
+import type { FormValues } from '@/schemas/availability/availability-schema';
 
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as const;
 type Day = typeof DAYS[number];
 
 interface DaySectionProps {
   day: Day;
-  control: any;
-  register: any;
+  control: Control<FormValues>;
+  register: UseFormRegister<FormValues>;
 }
 
 export default function DaySection({ day, control, register }: DaySectionProps) {
+  const t = useTranslations('availability.daySection');
+  const tDays = useTranslations('availability.days');
   const { fields, remove } = useFieldArray({ control, name: day });
 
   if (fields.length === 0) return null;
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-semibold capitalize text-primary">{day}</p>
+      <p className="text-sm font-semibold capitalize text-primary">{tDays(day)}</p>
       {fields.map((field, index) => (
         <div key={field.id} className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
           <Clock className="w-4 h-4 text-primary shrink-0" />
-        <input
+          <input
             type="time"
             aria-label={`${day} slot ${index + 1} start time`}
             className="flex-1 bg-transparent text-sm border-none outline-none"
-            {...register(`${day}.${index}.startTime`)}
+            {...register(`${day}.${index}.startTime` as Path<FormValues>)}
           />
-          <span className="text-muted-foreground text-xs">to</span>
+          <span className="text-muted-foreground text-xs">{t('to')}</span>
           <input
             type="time"
             aria-label={`${day} slot ${index + 1} end time`}
             className="flex-1 bg-transparent text-sm border-none outline-none"
-            {...register(`${day}.${index}.endTime`)}
+            {...register(`${day}.${index}.endTime` as Path<FormValues>)}
           />
           <button
             type="button"

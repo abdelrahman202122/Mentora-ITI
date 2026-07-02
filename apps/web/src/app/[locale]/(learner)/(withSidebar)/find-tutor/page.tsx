@@ -5,6 +5,16 @@ import Stepper from "@/components/findTutor/Stepper";
 type FindTutorPageProps = {
   searchParams?: Promise<{
     mode?: string;
+    q?: string;
+    curriculum?: string;
+    level?: string;
+    subject?: string;
+    languages?: string;
+    minHourlyRate?: string;
+    maxHourlyRate?: string;
+    minRating?: string;
+    sortBy?: string;
+    page?: string;
   }>;
 };
 
@@ -25,7 +35,21 @@ export default async function FindTutorPage({
           {t("description")}
         </p>
       </div>
-      <Stepper initialStep={initialStep} />
+      <Stepper
+        initialStep={initialStep}
+        initialFilters={{
+          curriculum: resolvedSearchParams?.curriculum ?? null,
+          languageQuery: resolvedSearchParams?.languages ?? "",
+          level: resolvedSearchParams?.level ?? null,
+          maxHourlyRate: resolvedSearchParams?.maxHourlyRate ?? "",
+          minHourlyRate: resolvedSearchParams?.minHourlyRate ?? "",
+          minRating: resolvedSearchParams?.minRating ?? "all",
+          page: resolvedSearchParams?.page ?? "1",
+          searchQuery: resolvedSearchParams?.q ?? "",
+          sortBy: resolvedSearchParams?.sortBy ?? "relevance",
+          subject: resolvedSearchParams?.subject ?? null,
+        }}
+      />
     </div>
   );
 }

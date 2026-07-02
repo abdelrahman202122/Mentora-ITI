@@ -35,6 +35,7 @@ export function EditTutorDrawer({
 
   useEffect(() => {
     if (!tutor) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({
       name: tutor.name,
       bio: tutor.bio ?? "",
@@ -86,7 +87,7 @@ export function EditTutorDrawer({
 
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
           <div className="flex items-center gap-4">
-            <Avatar name={tutor.name} seed={tutor.id} avatarUrl={tutor.avatarUrl} size="lg" />
+            <Avatar name={tutor.name} seed={tutor.id} avatarUrl={tutor.avatarUrl ?? undefined} size="lg" />
             <button
               type="button"
               disabled={mutating}

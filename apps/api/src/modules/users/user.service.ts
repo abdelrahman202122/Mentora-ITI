@@ -41,6 +41,7 @@ import { sendResetEmail } from '../../common/email/email.service.js';
 import mongoose from 'mongoose';
 import { normalizePhoneNumber } from '../../utils/normalizePhoneNumber.js';
 import { verifyEmail } from '../../utils/emailValidation.js';
+import { getPrimaryRole, normalizeRoles } from './role.utils.js';
 
 /* ═══════════════════════════════════════════════════════════════════
    HELPER: Revoke all refresh tokens for a user
@@ -57,6 +58,38 @@ const revokeAllUserSessions = async (userId: string, reason: string) => {
   });
 };
 
+type UserResponseSource = {
+  _id: { toString(): string };
+  name: string;
+  email: string;
+  phoneNumber?: string | null;
+  role?: UserRole;
+  roles?: UserRole[];
+  avatar?: string | null;
+  isEmailVerified?: boolean;
+  isActive?: boolean;
+  adminStatus?: string;
+  roleLabel?: string | null;
+};
+
+const toSafeUserResponse = (user: UserResponseSource) => {
+  const roles = normalizeRoles(user);
+
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    phoneNumber: user.phoneNumber ?? null,
+    role: getPrimaryRole(roles),
+    roles,
+    avatar: user.avatar ?? undefined,
+    isEmailVerified: user.isEmailVerified,
+    isActive: user.isActive,
+    adminStatus: user.adminStatus,
+    roleLabel: user.roleLabel ?? null,
+  };
+};
+
 /* ═══════════════════════════════════════════════════════════════════
    1. REGISTER
    ═══════════════════════════════════════════════════════════════════ */
@@ -68,17 +101,19 @@ export const register = async (data: RegisterInput): Promise<AuthResult> => {
       emailHash: emailHash(data.email),
     });
 
-  const normalizedPhoneNumber = normalizePhoneNumber(data.phoneNumber);
+    const normalizedPhoneNumber = normalizePhoneNumber(data.phoneNumber);
 
-  const user = await UserModel.create({
-    name: data.name,
-    email: data.email,
-    phoneNumber: normalizedPhoneNumber,
-    password: data.password,
-    role: UserRole.LEARNER,
-  })
+    const user = await UserModel.create({
+      name: data.name,
+      email: data.email,
+      phoneNumber: normalizedPhoneNumber,
+      password: data.password,
+      role: UserRole.LEARNER,
+      roles: [UserRole.LEARNER],
+    });
 
-    const accessToken = generateAccessToken(user._id.toString(), user.role);
+    const roles = normalizeRoles(user);
+    const accessToken = generateAccessToken(user._id.toString(), roles);
     const refreshToken = generateRefreshToken(user._id.toString());
 
     await RefreshTokenModel.create({
@@ -87,23 +122,7 @@ export const register = async (data: RegisterInput): Promise<AuthResult> => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    const emailValidation = await verifyEmail(data.email);
 
-    if (!emailValidation.is_valid_format.value) {
-      throw new BadRequestError("Invalid email format");
-    }
-
-    if (!emailValidation.is_mx_found.value) {
-      throw new BadRequestError("Email domain cannot receive emails");
-    }
-
-    if (
-      emailValidation.deliverability !== "DELIVERABLE"
-    ) {
-      throw new BadRequestError(
-        "Email address does not appear to exist"
-      );
-    }
 
     logger.info({
       event: 'registration.success',
@@ -116,20 +135,15 @@ export const register = async (data: RegisterInput): Promise<AuthResult> => {
       'User',
       {
         email: user.email,
-        role: user.role,
+        role: getPrimaryRole(roles),
+        roles,
       },
     );
 
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-      },
+      user: toSafeUserResponse(user),
     };
   } catch (error: unknown) {
     if (
@@ -180,7 +194,8 @@ export const login = async (
     );
   }
 
-  const accessToken = generateAccessToken(user._id.toString(), user.role);
+  const roles = normalizeRoles(user);
+  const accessToken = generateAccessToken(user._id.toString(), roles);
   const refreshToken = generateRefreshToken(user._id.toString());
 
   await RefreshTokenModel.create({
@@ -203,13 +218,7 @@ export const login = async (
   return {
     accessToken,
     refreshToken,
-    user: {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      role: user.role,
-    },
+    user: toSafeUserResponse(user),
   };
 };
 
@@ -289,7 +298,10 @@ export const refreshToken = async (
   }
 
   // ─── Step 5: Generate new tokens ───────────────────────────────────
-  const accessToken = generateAccessToken(user._id.toString(), user.role);
+  const accessToken = generateAccessToken(
+    user._id.toString(),
+    normalizeRoles(user),
+  );
   const newRefreshToken = generateRefreshToken(user._id.toString());
 
   // ─── Step 6: ATOMIC rotation — create new, then delete old ─────────
@@ -344,7 +356,8 @@ const findUserProfile = async (
     id: user._id.toString(),
     name: user.name,
     email: user.email,
-    role: user.role,
+    role: getPrimaryRole(normalizeRoles(user)),
+    roles: normalizeRoles(user),
     avatar: user.avatar ?? undefined,
     isEmailVerified: user.isEmailVerified,
     adminStatus: user.adminStatus,
@@ -390,7 +403,7 @@ export const getUsers = async (adminId: string, query: ListUsersQuery) => {
   const [users, total] = await Promise.all([
     UserModel.find()
       .select(
-        'name email role avatar isEmailVerified isActive adminStatus roleLabel',
+        'name email role roles avatar isEmailVerified isActive adminStatus roleLabel',
       )
       .skip(skip)
       .limit(limit)
@@ -409,7 +422,8 @@ export const getUsers = async (adminId: string, query: ListUsersQuery) => {
       id: user._id.toString(),
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: getPrimaryRole(normalizeRoles(user)),
+      roles: normalizeRoles(user),
       avatar: user.avatar ?? null,
       isEmailVerified: user.isEmailVerified,
       isActive: user.isActive,
@@ -449,7 +463,13 @@ export const updateUserById = async (
   if (updateData.name !== undefined) user.name = updateData.name;
   if (updateData.email !== undefined) user.email = updateData.email;
   if (updateData.avatar !== undefined) user.avatar = updateData.avatar;
-  if (updateData.role !== undefined) user.role = updateData.role;
+  if (updateData.role !== undefined) {
+    user.role = updateData.role;
+    user.roles =
+      updateData.role === UserRole.TUTOR
+        ? [UserRole.LEARNER, UserRole.TUTOR]
+        : [updateData.role];
+  }
   if (updateData.isActive !== undefined) user.isActive = updateData.isActive;
   if (updateData.isEmailVerified !== undefined)
     user.isEmailVerified = updateData.isEmailVerified;
@@ -509,7 +529,8 @@ export const updateUserById = async (
     id: user._id.toString(),
     name: user.name,
     email: user.email,
-    role: user.role,
+    role: getPrimaryRole(normalizeRoles(user)),
+    roles: normalizeRoles(user),
     avatar: user.avatar,
     isEmailVerified: user.isEmailVerified,
     isActive: user.isActive,
@@ -709,7 +730,8 @@ export const updateProfile = async (
     name: user.name,
     email: user.email,
     phoneNumber: user.phoneNumber,
-    role: user.role,
+    role: getPrimaryRole(normalizeRoles(user)),
+    roles: normalizeRoles(user),
     avatar: user.avatar,
     isEmailVerified: user.isEmailVerified,
     adminStatus: user.adminStatus,
@@ -730,7 +752,8 @@ export const getUserProfileById = async (userId: string) => {
     id: user._id.toString(),
     name: user.name,
     avatar: user.avatar,
-    role: user.role,
+    role: getPrimaryRole(normalizeRoles(user)),
+    roles: normalizeRoles(user),
   };
 };
 
@@ -800,7 +823,8 @@ export const uploadAvatar = async (
     id: updatedUser._id.toString(),
     name: updatedUser.name,
     email: updatedUser.email,
-    role: updatedUser.role,
+    role: getPrimaryRole(normalizeRoles(updatedUser)),
+    roles: normalizeRoles(updatedUser),
     avatar: updatedUser.avatar,
     isEmailVerified: updatedUser.isEmailVerified,
     adminStatus: updatedUser.adminStatus,
@@ -838,7 +862,8 @@ export const deleteAvatar = async (userId: string) => {
     id: updatedUser._id.toString(),
     name: updatedUser.name,
     email: updatedUser.email,
-    role: updatedUser.role,
+    role: getPrimaryRole(normalizeRoles(updatedUser)),
+    roles: normalizeRoles(updatedUser),
     avatar: updatedUser.avatar,
     isEmailVerified: updatedUser.isEmailVerified,
     adminStatus: updatedUser.adminStatus,

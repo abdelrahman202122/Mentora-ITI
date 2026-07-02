@@ -1,8 +1,15 @@
-import { Star, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TutorCardProps {
-    tutor: any;
+    tutor: {
+        avatarGradient: string;
+        bio: string;
+        currency: string;
+        hourlyRate: number;
+        name: string;
+        subjects: string[];
+        title: string;
+    };
     onBook: (name: string) => void;
 }
 

@@ -5,8 +5,11 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import {
+  BookOpen,
   Calendar,
   Eye,
+  GraduationCap,
+  Languages,
   RefreshCcw,
   Search,
   SlidersHorizontal,
@@ -15,7 +18,6 @@ import {
 } from "lucide-react";
 
 import { AIFinderCta } from "@/components/ai/AIFinderCta";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -76,6 +78,13 @@ type ResultsStepProps = {
   setCurriculum?: (value: string | null) => void;
   setLevel?: (value: string | null) => void;
   setSubject?: (value: string | null) => void;
+  initialLanguageQuery?: string;
+  initialMaxHourlyRate?: string;
+  initialMinHourlyRate?: string;
+  initialMinRating?: string;
+  initialPage?: number;
+  initialSearchQuery?: string;
+  initialSortBy?: TutorSearchSort;
 };
 
 function normalizeFilterValue(value: string | null | undefined) {
@@ -104,7 +113,31 @@ function getTutorInitials(name: string) {
 }
 
 function getPrimarySubject(tutor: TutorSearchItem) {
-  return tutor.subjects[0]?.title ?? "General tutoring";
+  return tutor.subjects[0] ?? null;
+}
+
+function getTranslatedOptionLabel(value: string, t: ReturnType<typeof useTranslations>) {
+  const normalizedValue = value.trim().toLowerCase();
+  const optionKeys: Record<string, string> = {
+    american: "options.american",
+    british: "options.british",
+    ib: "options.ib",
+    igcse: "options.igcse",
+    languages: "options.languages",
+    mathematics: "options.mathematics",
+    national_new: "options.national",
+    none: "options.noCurriculum",
+    preparatory: "options.preparatory",
+    primary: "options.primary",
+    professional: "options.professional",
+    sciences: "options.sciences",
+    secondary: "options.secondary",
+    technology: "options.technology",
+    university: "options.university",
+  };
+  const key = optionKeys[normalizedValue];
+
+  return key ? t(key) : value.replaceAll("_", " ");
 }
 
 function TutorResultsSkeleton() {
@@ -139,21 +172,28 @@ export default function ResultsStep({
   setCurriculum,
   setLevel,
   setSubject,
+  initialLanguageQuery = "",
+  initialMaxHourlyRate = "",
+  initialMinHourlyRate = "",
+  initialMinRating = ALL_VALUE,
+  initialPage = 1,
+  initialSearchQuery = "",
+  initialSortBy = "relevance",
 }: ResultsStepProps) {
   const locale = useLocale();
   const t = useTranslations("findTutor");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCurriculum, setSelectedCurriculum] = useState(
     curriculum || ALL_VALUE,
   );
   const [selectedLevel, setSelectedLevel] = useState(level || ALL_VALUE);
   const [selectedSubject, setSelectedSubject] = useState(subject || ALL_VALUE);
-  const [sortBy, setSortBy] = useState<TutorSearchSort>("relevance");
-  const [languageQuery, setLanguageQuery] = useState("");
-  const [minHourlyRate, setMinHourlyRate] = useState("");
-  const [maxHourlyRate, setMaxHourlyRate] = useState("");
-  const [minRating, setMinRating] = useState(ALL_VALUE);
-  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState<TutorSearchSort>(initialSortBy);
+  const [languageQuery, setLanguageQuery] = useState(initialLanguageQuery);
+  const [minHourlyRate, setMinHourlyRate] = useState(initialMinHourlyRate);
+  const [maxHourlyRate, setMaxHourlyRate] = useState(initialMaxHourlyRate);
+  const [minRating, setMinRating] = useState(initialMinRating || ALL_VALUE);
+  const [page, setPage] = useState(initialPage);
 
   const queryParams = useMemo(() => {
     const trimmedSearch = searchQuery.trim();
@@ -192,6 +232,39 @@ export default function ResultsStep({
 
   const tutors = data?.tutors ?? [];
   const pagination = data?.pagination;
+  const returnQueryString = useMemo(() => {
+    const params = new URLSearchParams({ mode: "browse" });
+    const trimmedSearch = searchQuery.trim();
+    const trimmedLanguages = languageQuery.trim();
+
+    if (trimmedSearch) params.set("q", trimmedSearch);
+    if (normalizeFilterValue(selectedCurriculum)) {
+      params.set("curriculum", selectedCurriculum);
+    }
+    if (normalizeFilterValue(selectedLevel)) params.set("level", selectedLevel);
+    if (normalizeFilterValue(selectedSubject)) {
+      params.set("subject", selectedSubject);
+    }
+    if (trimmedLanguages) params.set("languages", trimmedLanguages);
+    if (minHourlyRate) params.set("minHourlyRate", minHourlyRate);
+    if (maxHourlyRate) params.set("maxHourlyRate", maxHourlyRate);
+    if (normalizeFilterValue(minRating)) params.set("minRating", minRating);
+    if (sortBy !== "relevance") params.set("sortBy", sortBy);
+    if (page > 1) params.set("page", String(page));
+
+    return params.toString();
+  }, [
+    languageQuery,
+    maxHourlyRate,
+    minHourlyRate,
+    minRating,
+    page,
+    searchQuery,
+    selectedCurriculum,
+    selectedLevel,
+    selectedSubject,
+    sortBy,
+  ]);
 
   function handleReset() {
     setSearchQuery("");
@@ -464,6 +537,7 @@ export default function ResultsStep({
             <TutorResultCard
               key={`${tutor.profile.id || tutor._id || tutor.userId}-${index}`}
               locale={locale}
+              returnQueryString={returnQueryString}
               tutor={tutor}
             />
           ))}
@@ -508,20 +582,31 @@ export default function ResultsStep({
 
 function TutorResultCard({
   locale,
+  returnQueryString,
   tutor,
 }: {
   locale: string;
+  returnQueryString: string;
   tutor: TutorSearchItem;
 }) {
+  const tFindTutor = useTranslations("findTutor");
   const t = useTranslations("findTutor.results");
   const primarySubject = getPrimarySubject(tutor);
+  const tutorProfileId = tutor.profile.id || tutor._id || tutor.userId;
+  const tutorUserId = tutor.userId;
+  const primarySubjectTitle = primarySubject?.title ?? t("generalTutoring");
+  const visibleSubjects = tutor.subjects.slice(0, 3);
+  const remainingSubjectCount = Math.max(0, tutor.subjects.length - visibleSubjects.length);
+  const visibleLanguages = tutor.profile.languages.slice(0, 3);
   const bookingHref =
     getLocalePath(locale, "/booking") +
-    `?tutorId=${tutor.userId}` +
+    `?tutorProfileId=${tutorProfileId}` +
+    `&tutorId=${tutor.userId}` +
     `&tutorName=${encodeURIComponent(tutor.name)}` +
     `&hourlyRate=${tutor.profile.hourlyRate}` +
     "&currency=EGP" +
-    `&subject=${encodeURIComponent(primarySubject)}`;
+    `&subject=${encodeURIComponent(primarySubjectTitle)}` +
+    `&subjectId=${primarySubject?.id ?? ""}`;
 
   return (
     <Card>
@@ -534,10 +619,10 @@ function TutorResultCard({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h3 className="text-base font-semibold text-slate-900">
-                {tutor.name}
+                {tutor.name || t("profileFallback")}
               </h3>
               <p className="mt-1 text-sm text-slate-600">
-                {tutor.profile.headline}
+                {tutor.profile.headline || t("headlineFallback")}
               </p>
             </div>
 
@@ -550,21 +635,54 @@ function TutorResultCard({
           </div>
 
           <p className="mt-3 line-clamp-2 text-sm text-slate-600">
-            {tutor.profile.bio}
+            {tutor.profile.bio || t("bioFallback")}
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {tutor.subjects.slice(0, 4).map((subject) => (
-              <Badge key={subject.id} variant="secondary">
-                {subject.title}
-              </Badge>
-            ))}
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {visibleSubjects.length > 0 ? (
+              visibleSubjects.map((subject) => (
+                <div
+                  key={subject.id}
+                  className="rounded-lg border bg-muted/30 px-3 py-2"
+                >
+                  <p className="line-clamp-1 text-sm font-medium text-slate-900">
+                    {subject.title}
+                  </p>
+                  <p className="mt-1 line-clamp-1 text-xs text-slate-500">
+                    {[
+                      subject.category
+                        ? getTranslatedOptionLabel(subject.category, tFindTutor)
+                        : null,
+                      subject.educationLevel
+                        ? getTranslatedOptionLabel(subject.educationLevel, tFindTutor)
+                        : null,
+                      subject.curriculum
+                        ? getTranslatedOptionLabel(subject.curriculum, tFindTutor)
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" • ")}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-lg border bg-muted/30 px-3 py-2 text-sm text-slate-600">
+                {t("noSubjects")}
+              </div>
+            )}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+          {remainingSubjectCount > 0 ? (
+            <p className="mt-2 text-xs font-medium text-slate-500">
+              {t("moreSubjects", { count: remainingSubjectCount })}
+            </p>
+          ) : null}
+
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-600">
             <span className="flex items-center gap-1">
               <Star className="size-4 fill-yellow-400 text-yellow-400" />
-              {tutor.profile.rating ?? 0} ({tutor.profile.totalReviews ?? 0})
+              {tutor.profile.rating ?? 0}{" "}
+              {t("reviewsCount", { count: tutor.profile.totalReviews ?? 0 })}
             </span>
             <span className="flex items-center gap-1">
               <Calendar className="size-4 text-slate-400" />
@@ -572,12 +690,30 @@ function TutorResultCard({
                 ? t("available")
                 : t("availabilityVaries")}
             </span>
+            <span className="flex items-center gap-1">
+              <BookOpen className="size-4 text-slate-400" />
+              {t("subjectsCount", { count: tutor.subjects.length })}
+            </span>
+            <span className="flex items-center gap-1">
+              <Languages className="size-4 text-slate-400" />
+              {visibleLanguages.length > 0
+                ? visibleLanguages.join(", ")
+                : t("noLanguages")}
+            </span>
+            {primarySubject?.educationLevel ? (
+              <span className="flex items-center gap-1">
+                <GraduationCap className="size-4 text-slate-400" />
+                {getTranslatedOptionLabel(primarySubject.educationLevel, tFindTutor)}
+              </span>
+            ) : null}
           </div>
         </div>
 
         <div className="grid shrink-0 grid-cols-2 gap-2 md:w-40 md:grid-cols-1">
           <Button asChild variant="outline">
-            <Link href={getLocalePath(locale, `/tutor-match/${tutor.userId}`)}>
+            <Link
+              href={`${getLocalePath(locale, `/tutor-match/${tutorUserId}`)}?${returnQueryString}`}
+            >
               <Eye className="size-4" />
               {t("viewProfile")}
             </Link>

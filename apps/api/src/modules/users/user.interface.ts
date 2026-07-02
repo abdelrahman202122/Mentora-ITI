@@ -27,6 +27,7 @@ export interface IUser extends Document {
   password: string;
 
   role: UserRole;
+  roles: UserRole[];
 
   isEmailVerified: boolean;
   isActive: boolean;
@@ -46,6 +47,7 @@ export interface IUser extends Document {
 export interface AuthPayload {
   userId: string;
   role: UserRole;
+  roles: UserRole[];
 }
 
 export interface IRefreshToken extends Document {
@@ -65,6 +67,7 @@ export interface AuthResult {
     email: string;
     phoneNumber: string | null;
     role: UserRole;
+    roles: UserRole[];
   };
 }
 
@@ -73,6 +76,7 @@ export interface UserProfileDTO {
   name: string;
   email: string;
   role: UserRole;
+  roles: UserRole[];
   avatar?: string;
   isEmailVerified: boolean;
   phoneNumber: string | null;
