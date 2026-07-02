@@ -85,7 +85,7 @@ export function useAdminTutors({
       };
       const result = await listTutors(params);
       setTutors(result.tutors);
-      setTotalPages(result.meta.pages ?? 1);
+      setTotalPages(result.meta.totalPages ?? 1);
       setTotalItems(result.meta.total ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load tutors");

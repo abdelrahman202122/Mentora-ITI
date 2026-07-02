@@ -32,6 +32,7 @@ export default function FinancePage() {
     approve,
     cancel,
     mutating,
+    mutatingId,
   } = useAdminFinance();
 
   const statsCards = [
@@ -156,6 +157,7 @@ export default function FinancePage() {
             onApprove={approve}
             onCancel={cancel}
             mutating={mutating}
+            mutatingId={mutatingId}
           />
         )}
       </div>

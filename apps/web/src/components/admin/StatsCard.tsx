@@ -1,13 +1,16 @@
-// components/admin/StatsCard.tsx
+"use client";
+
+import { motion } from "framer-motion";
 import React from "react";
 
 interface StatsCardProps {
   title: string;
   value: string | number;
-  change?: number; // percentage change, e.g. +12.5 or -3.2
-  changeLabel?: string; // e.g. "vs last month"
+  change?: number;
+  changeLabel?: string;
   icon: React.ReactNode;
   trend?: "up" | "down" | "neutral";
+  delay?: number;
 }
 
 export default function StatsCard({
@@ -17,6 +20,7 @@ export default function StatsCard({
   changeLabel,
   icon,
   trend = "neutral",
+  delay = 0,
 }: StatsCardProps) {
   const trendColor =
     trend === "up"
@@ -37,37 +41,43 @@ export default function StatsCard({
     ) : null;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-lg">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay }}
+      whileHover={{ y: -4 }}
+      className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+    >
       <div className="flex items-start justify-between">
         {/* Left: title + value */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="text-3xl font-bold tracking-tight text-gray-900">
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="text-3xl font-bold tracking-tight text-slate-900">
             {value}
           </p>
         </div>
 
         {/* Right: icon */}
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
-            {icon}
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          {icon}
         </div>
       </div>
 
       {/* Trend row */}
-      {change !== undefined && (
-        <div className="mt-4 flex items-center gap-1.5">
+      <div className="mt-6 flex items-center gap-2">
+        {change !== undefined && (
           <span
-            className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold ${trendColor}`}
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${trendColor}`}
           >
             {trendIcon}
             {change > 0 ? "+" : ""}
             {change}%
           </span>
-          {changeLabel && (
-            <span className="text-xs text-gray-500">{changeLabel}</span>
-          )}
-        </div>
-      )}
-    </div>
+        )}
+        {changeLabel && (
+          <span className="text-xs text-slate-400">{changeLabel}</span>
+        )}
+      </div>
+    </motion.div>
   );
 }
