@@ -6,7 +6,7 @@ import { AILogModel, type AILogStatus } from './ai-log.model.js';
 const { Types } = mongoose;
 type ObjectId = MongooseTypes.ObjectId;
 
-type CreateAILogInput = {
+export type CreateAILogInput = {
   conversationId?: string | ObjectId | null;
   learnerId?: string | ObjectId | null;
   provider: string;

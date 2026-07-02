@@ -3,7 +3,7 @@ import { env } from '../../config/env.js';
 import { logger } from '../../config/logger.js';
 import * as openaiService from './models/openai.service.js';
 import * as geminiService from './models/gemini.service.js';
-import { createAILog } from './ai-log.service.js';
+import { createAILog, type CreateAILogInput } from './ai-log.service.js';
 import type { OpenAIMessage } from './models/openai.service.js';
 
 type GenerateAIReplyInput = {
@@ -38,19 +38,11 @@ function buildSystemPrompt(input: GenerateAIReplyInput) {
 export async function generateAIReply(input: GenerateAIReplyInput) {
   const startedAt: number = Date.now();
 
-  // missing api keys, return fallback
+  // missing api keys, return fallback reply
   if (!env.OPENAI_API_KEY && !env.GEMINI_API_KEY) {
-    await createAILog({
-      conversationId: input.conversationId,
-      learnerId: input.learnerId,
-      provider: 'fallback',
-      model: null,
-      status: 'fallback',
-      latencyMs: Date.now() - startedAt,
-      promptMessagesCount: input.messages.length,
-      errorCode: 'missing_api_key',
-      errorType: 'configuration',
-    });
+    await createAILog(
+      buildFallbackLog(input, startedAt, 'missing_api_key', 'configuration'),
+    );
 
     return {
       content: fallbackReply,
@@ -59,124 +51,190 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
     };
   }
 
-  // call llm api
   const TIMEOUT_MS = 10_000;
   const systemPrompt = buildSystemPrompt(input);
 
-  let output_text: string;
-  let provider: string;
-  let model: string;
-
-  // try calling OpenAI API
-  try {
-    const response = await openaiService.generateResponse(
-      systemPrompt,
-      input.messages,
-      TIMEOUT_MS,
+  // OPTION 1: OpenAI API
+  if (!env.OPENAI_API_KEY) {
+    // log missing openai api key
+    await createAILog(
+      buildModelFailedLog(
+        input,
+        startedAt,
+        'openai',
+        env.OPENAI_MODEL,
+        null,
+        'missing_api_key',
+        'configuration',
+      ),
     );
-    output_text = response.output_text;
-    provider = 'openai';
-    model = response.model;
+  } else {
+    try {
+      const response = await openaiService.generateResponse(
+        systemPrompt,
+        input.messages,
+        TIMEOUT_MS,
+      );
 
-    await createAILog({
-      conversationId: input.conversationId,
-      learnerId: input.learnerId,
-      provider: provider,
-      model: model,
-      status: 'success',
-      latencyMs: Date.now() - startedAt,
-      promptMessagesCount: input.messages.length,
-    });
+      // log openai success
+      await createAILog(
+        buildModelSuccessLog(input, startedAt, 'openai', response.model),
+      );
 
-    return {
-      content: output_text,
-      provider: provider,
-      model: model,
-    };
-  } catch (error) {
-    // log openapi failure
-    logger.warn('OpenAI request failed, trying Gemini..', {
-      error: error instanceof Error ? error.message : error,
-    });
-    if (error instanceof OpenAIAPIError) {
-      await createAILog({
-        conversationId: input.conversationId,
-        learnerId: input.learnerId,
+      // return, skip gemini call
+      return {
+        content: response.output_text,
         provider: 'openai',
-        model: env.OPENAI_MODEL,
-        status: 'failed',
-        latencyMs: Date.now() - startedAt,
-        promptMessagesCount: input.messages.length,
-        errorStatus: error.status,
-        errorCode: error.code ?? null,
-        errorType: error.type ?? null,
+        model: response.model,
+      };
+    } catch (error) {
+      // log openai failure
+      logger.warn('OpenAI request failed, trying Gemini..', {
+        error: error instanceof Error ? error.message : error,
       });
+      if (error instanceof OpenAIAPIError) {
+        await createAILog(
+          buildModelFailedLog(
+            input,
+            startedAt,
+            'openai',
+            env.OPENAI_MODEL,
+            error.status,
+            error.code ?? null,
+            error.type ?? null,
+          ),
+        );
+      }
     }
+  }
 
-    // fallback to Gemini API
+  // OPTION 2: Gemini API
+  if (!env.GEMINI_API_KEY) {
+    // log missing gemini api key
+    await createAILog(
+      buildModelFailedLog(
+        input,
+        startedAt,
+        'gemini',
+        env.GEMINI_MODEL,
+        null,
+        'missing_api_key',
+        'configuration',
+      ),
+    );
+  } else {
     try {
       const interaction = await geminiService.generateResponse(
         systemPrompt,
         geminiService.formatGeminiMessages(input.messages),
         TIMEOUT_MS,
       );
-      output_text = interaction.output_text ?? '';
-      provider = 'gemini';
-      model = interaction.model ?? env.GEMINI_MODEL;
 
-      await createAILog({
-        conversationId: input.conversationId,
-        learnerId: input.learnerId,
-        provider: provider,
-        model: model,
-        status: 'success',
-        latencyMs: Date.now() - startedAt,
-        promptMessagesCount: input.messages.length,
-      });
+      // log gemini success
+      await createAILog(
+        buildModelSuccessLog(
+          input,
+          startedAt,
+          'gemini',
+          interaction.model ?? env.GEMINI_MODEL,
+        ),
+      );
 
+      // return, skip fallback reply
       return {
-        content: output_text,
-        provider: provider,
-        model: model,
+        content: interaction.output_text ?? '',
+        provider: 'gemini',
+        model: interaction.model ?? env.GEMINI_MODEL,
       };
     } catch (error) {
-      // if they both fail, fallback to generic message
+      // log gemini failure
       logger.error('Failed to generate AI reply', {
         error: error instanceof Error ? error.message : error,
       });
 
       if (geminiService.isGeminiError(error)) {
-        await createAILog({
-          conversationId: input.conversationId,
-          learnerId: input.learnerId,
-          provider: 'gemini',
-          model: env.GEMINI_MODEL,
-          status: 'failed',
-          latencyMs: Date.now() - startedAt,
-          promptMessagesCount: input.messages.length,
-          errorStatus: error.rawResponse?.status ?? null,
-          errorCode: error.rawResponse?.statusText ?? null,
-          errorType: error.rawResponse?.type ?? null,
-        });
+        await createAILog(
+          buildModelFailedLog(
+            input,
+            startedAt,
+            'gemini',
+            env.GEMINI_MODEL,
+            error.rawResponse?.status ?? null,
+            error.rawResponse?.statusText ?? null,
+            error.rawResponse?.type ?? null,
+          ),
+        );
       }
-
-      await createAILog({
-        conversationId: input.conversationId,
-        learnerId: input.learnerId,
-        provider: 'fallback',
-        model: null,
-        status: 'fallback',
-        latencyMs: Date.now() - startedAt,
-        promptMessagesCount: input.messages.length,
-        errorCode: 'provider_failed',
-        errorType: 'exception',
-      });
-
-      return {
-        content: fallbackReply,
-        provider: 'fallback',
-        model: null,
-      };
     }
   }
+
+  // OPTION 3: Fallback reply
+  await createAILog(
+    buildFallbackLog(input, startedAt, 'provider_failed', 'exception'),
+  );
+
+  return {
+    content: fallbackReply,
+    provider: 'fallback',
+    model: null,
+  };
+}
+
+function buildFallbackLog(
+  input: GenerateAIReplyInput,
+  startedAt: number,
+  errorCode: string,
+  errorType: string,
+): CreateAILogInput {
+  return {
+    conversationId: input.conversationId,
+    learnerId: input.learnerId,
+    provider: 'fallback',
+    model: null,
+    status: 'fallback',
+    latencyMs: Date.now() - startedAt,
+    promptMessagesCount: input.messages.length,
+    errorCode: errorCode,
+    errorType: errorType,
+  };
+}
+
+function buildModelSuccessLog(
+  input: GenerateAIReplyInput,
+  startedAt: number,
+  provider: string,
+  model: string | null | undefined,
+): CreateAILogInput {
+  return {
+    conversationId: input.conversationId,
+    learnerId: input.learnerId,
+    provider: provider,
+    model: model,
+    status: 'success',
+    latencyMs: Date.now() - startedAt,
+    promptMessagesCount: input.messages.length,
+  };
+}
+
+function buildModelFailedLog(
+  input: GenerateAIReplyInput,
+  startedAt: number,
+  provider: string,
+  model: string | null | undefined,
+  errorStatus: number | null | undefined,
+  errorCode: string | null | undefined,
+  errorType: string | null | undefined,
+): CreateAILogInput {
+  return {
+    conversationId: input.conversationId,
+    learnerId: input.learnerId,
+    provider: provider,
+    model: model,
+    status: 'failed',
+    latencyMs: Date.now() - startedAt,
+    promptMessagesCount: input.messages.length,
+    errorStatus: errorStatus,
+    errorCode: errorCode,
+    errorType: errorType,
+  };
 }
