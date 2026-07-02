@@ -5,6 +5,31 @@ const { model, models, Schema } = mongoose;
 export const aiLogStatuses = ['success', 'fallback', 'failed'] as const;
 export type AILogStatus = (typeof aiLogStatuses)[number];
 
+export const aiUsageSchema = new Schema(
+  {
+    inputTokens: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+    outputTokens: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+    totalTokens: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+  },
+  {
+    _id: false,
+  },
+);
+
+export type AIUsage = InferSchemaType<typeof aiUsageSchema>;
+
 const aiLogSchema = new Schema(
   {
     conversationId: {
@@ -59,6 +84,10 @@ const aiLogSchema = new Schema(
     errorType: {
       type: String,
       trim: true,
+      default: null,
+    },
+    usage: {
+      type: aiUsageSchema,
       default: null,
     },
   },

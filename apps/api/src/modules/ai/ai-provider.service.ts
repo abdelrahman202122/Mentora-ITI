@@ -5,6 +5,7 @@ import * as openaiService from './models/openai.service.js';
 import * as geminiService from './models/gemini.service.js';
 import { createAILog, type CreateAILogInput } from './ai-log.service.js';
 import type { OpenAIMessage } from './models/openai.service.js';
+import { AIUsage } from './ai-log.model.js';
 
 type GenerateAIReplyInput = {
   conversationId?: string;
@@ -78,7 +79,11 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
 
       // log openai success
       await createAILog(
-        buildModelSuccessLog(input, startedAt, 'openai', response.model),
+        buildModelSuccessLog(input, startedAt, 'openai', response.model, {
+          inputTokens: response.usage?.input_tokens ?? null,
+          outputTokens: response.usage?.output_tokens ?? null,
+          totalTokens: response.usage?.total_tokens ?? null,
+        }),
       );
 
       // return, skip gemini call
@@ -137,6 +142,11 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
           startedAt,
           'gemini',
           interaction.model ?? env.GEMINI_MODEL,
+          {
+            inputTokens: interaction.usage?.total_input_tokens ?? null,
+            outputTokens: interaction.usage?.total_output_tokens ?? null,
+            totalTokens: interaction.usage?.total_tokens ?? null,
+          },
         ),
       );
 
@@ -204,6 +214,7 @@ function buildModelSuccessLog(
   startedAt: number,
   provider: string,
   model: string | null | undefined,
+  usage: AIUsage,
 ): CreateAILogInput {
   return {
     conversationId: input.conversationId,
@@ -213,6 +224,7 @@ function buildModelSuccessLog(
     status: 'success',
     latencyMs: Date.now() - startedAt,
     promptMessagesCount: input.messages.length,
+    usage: usage,
   };
 }
 

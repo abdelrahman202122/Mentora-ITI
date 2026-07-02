@@ -1,7 +1,7 @@
 import mongoose, { type Types as MongooseTypes } from 'mongoose';
 
 import { logger } from '../../config/logger.js';
-import { AILogModel, type AILogStatus } from './ai-log.model.js';
+import { AILogModel, type AIUsage, type AILogStatus } from './ai-log.model.js';
 
 const { Types } = mongoose;
 type ObjectId = MongooseTypes.ObjectId;
@@ -17,6 +17,7 @@ export type CreateAILogInput = {
   errorStatus?: number | null;
   errorCode?: string | null;
   errorType?: string | null;
+  usage?: AIUsage | null;
 };
 
 function toOptionalObjectId(value?: string | ObjectId | null) {
@@ -48,6 +49,7 @@ export async function createAILog(input: CreateAILogInput) {
       errorStatus: input.errorStatus ?? null,
       errorCode: input.errorCode ?? null,
       errorType: input.errorType ?? null,
+      usage: input.usage ?? null,
     });
   } catch (error) {
     logger.error('Failed to create AI log', {
