@@ -10,3 +10,22 @@ apps/api/logs/
 # Local team-lead planning notes
 docs/concrete-team-tasks.md
 apps/api/logs/combined.log
+
+
+
+node_modules/
+dist/
+coverage/
+.env
+*.tsbuildinfo
+npm-debug.log*
+*.log
+logs/
+
+# AI stuff
+docs/
+AGENTS.md
+
+# multer uploads
+uploads/*
+!uploads/.gitkeep
