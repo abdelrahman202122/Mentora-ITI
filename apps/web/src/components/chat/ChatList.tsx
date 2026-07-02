@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,11 +40,12 @@ function ChatListSkeleton() {
 }
 
 export function ChatList({
-  title = "Messages",
-  description = "Continue your tutor conversations.",
+  title,
+  description,
   status = "active",
   getChatHref,
 }: ChatListProps) {
+  const t = useTranslations("Chat");
   const {
     data,
     error,
@@ -61,8 +63,10 @@ export function ChatList({
   return (
     <Card className="mx-auto w-full max-w-2xl rounded-lg bg-white">
       <CardHeader className="border-b">
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle>{title ?? t("list.title")}</CardTitle>
+        <CardDescription>
+          {description ?? t("list.description")}
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="p-0">
@@ -79,14 +83,14 @@ export function ChatList({
             <MessageSquare className="size-8 text-gray-300" />
             <div>
               <p className="text-sm font-medium text-gray-900">
-                Could not load chats
+                {t("list.errorTitle")}
               </p>
               <p className="mt-1 text-xs text-gray-500">
                 {error.message}
               </p>
             </div>
             <Button type="button" variant="outline" onClick={() => void refetch()}>
-              Try again
+              {t("actions.tryAgain")}
             </Button>
           </div>
         ) : null}
@@ -96,10 +100,10 @@ export function ChatList({
             <MessageSquare className="size-9 text-gray-300" />
             <div>
               <p className="text-sm font-medium text-gray-900">
-                No conversations yet
+                {t("list.emptyTitle")}
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                Your chat history will appear here after a conversation starts.
+                {t("list.emptyDescription")}
               </p>
             </div>
           </div>
@@ -125,10 +129,10 @@ export function ChatList({
                       restoreChatMutation.variables === chat.id ? (
                         <>
                           <Loader2 className="size-4 animate-spin" />
-                          Restoring
+                          {t("actions.restoring")}
                         </>
                       ) : (
-                        "Restore"
+                        t("actions.restore")
                       )}
                     </Button>
                   ) : undefined
@@ -150,10 +154,10 @@ export function ChatList({
               {isFetchingNextPage ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Loading
+                  {t("actions.loading")}
                 </>
               ) : (
-                "Load more"
+                t("actions.loadMore")
               )}
             </Button>
           </div>

@@ -15,21 +15,42 @@ import {
   Star,
   Users,
 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import { useCreateChat } from "@/hooks/chat/use-chat"
 import { getTutorById, type TutorSummary } from "@/services/tutorsLearner/tutor"
 import { getLocalePath } from "@/utils/i18n/locale-path"
 import { useTranslations } from "next-intl"
 
 function getAvatarSrc(avatar?: string) {
-  if (!avatar) {
+  const rawAvatar = avatar?.trim()
+
+  if (!rawAvatar) {
     return null
   }
 
-  if (avatar.startsWith("http") || avatar.startsWith("/")) {
-    return avatar
+  if (rawAvatar.startsWith("http")) {
+    try {
+      const url = new URL(rawAvatar)
+      return `${url.pathname}${url.search}`
+    } catch {
+      return rawAvatar
+    }
   }
 
-  return `/api/files/avatars/${avatar}`
+  if (rawAvatar.startsWith("/api/files/avatars/")) {
+    return rawAvatar
+  }
+
+  if (rawAvatar.startsWith("/files/avatars/")) {
+    return `/api${rawAvatar}`
+  }
+
+  if (rawAvatar.startsWith("/")) {
+    return rawAvatar
+  }
+
+  return `/api/files/avatars/${rawAvatar}`
 }
 
 export default function TutorProfilePage() {
@@ -45,7 +66,7 @@ export default function TutorProfilePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const tutorData = await getTutorById(params.id as string)
+        const tutorData = await getTutorById(params.id as string, locale)
         setTutor(tutorData)
       } finally {
         setLoading(false)
@@ -53,7 +74,7 @@ export default function TutorProfilePage() {
     }
 
     fetchData()
-  }, [params.id])
+  }, [locale, params.id])
 
   if (loading) {
     return (
@@ -88,6 +109,7 @@ export default function TutorProfilePage() {
   const avatarSrc = getAvatarSrc(tutor.avatar)
   const primarySubject = tutor.subjects[0]
   const canBook = Boolean(tutor.profileId && primarySubject?.id)
+  const generalSessionLabel = t("generalSession")
   const bookingHref =
     getLocalePath(locale, "/booking") +
     `?tutorProfileId=${tutor.profileId}` +
@@ -95,7 +117,7 @@ export default function TutorProfilePage() {
     `&tutorName=${encodeURIComponent(tutor.name)}` +
     `&hourlyRate=${tutor.hourlyRate}` +
     `&currency=${encodeURIComponent(tutor.currency)}` +
-    `&subject=${encodeURIComponent(primarySubject?.title || "General Session")}` +
+    `&subject=${encodeURIComponent(primarySubject?.title || generalSessionLabel)}` +
     `&subjectId=${primarySubject?.id ?? ""}`
   const backToTutorsHref = `${getLocalePath(locale, "/find-tutor")}?${
     searchParams.toString() || "mode=browse"
@@ -104,13 +126,16 @@ export default function TutorProfilePage() {
   return (
     <div className="mx-auto max-w-3xl">
       {/* Back to Tutors Link */}
-      <Link
-        href={backToTutorsHref}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 mb-4 inline-flex"
+      <Button
+        asChild
+        variant="ghost"
+        className="mb-4 px-0 text-muted-foreground hover:text-primary"
       >
-        <ArrowLeft size={16} className="rtl:rotate-180" />
-        {t("backToTutors")}
-      </Link>
+        <Link href={backToTutorsHref}>
+          <ArrowLeft className="size-4 rtl:rotate-180" />
+          {t("backToTutors")}
+        </Link>
+      </Button>
 
       <div className="mb-4 rounded-xl bg-white p-4 shadow-sm md:p-6">
         <div className="mb-4 flex items-start gap-3">
@@ -120,6 +145,7 @@ export default function TutorProfilePage() {
                 src={avatarSrc}
                 alt={`${tutor.name} avatar`}
                 fill
+                unoptimized
                 sizes="80px"
                 className="object-cover"
               />
@@ -163,19 +189,20 @@ export default function TutorProfilePage() {
           </div>
         </div>
 
-        <button
+        <Button
           disabled={createChat.isPending}
           onClick={() => void handleStartChat()}
-          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
+          variant="outline"
+          className="w-full"
         >
           {createChat.isPending ? (
-            <Loader2 size={15} className="animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <MessageSquare size={15} />
+            <MessageSquare className="size-4" />
           )}
           {createChat.isPending ? t("startingChat") : t("chatWith", { name: tutor.name })}
-        </button>
+        </Button>
 
         {createChat.error ? (
           <p className="mt-2 text-sm font-medium text-red-600">
@@ -207,7 +234,7 @@ export default function TutorProfilePage() {
               ))
             ) : (
               <span className="text-xs text-gray-400">
-                Availability not published yet.
+                {t("availabilityEmpty")}
               </span>
             )}
           </div>
@@ -220,7 +247,7 @@ export default function TutorProfilePage() {
           {t("coursesOffered")}
         </h2>
         <div className="flex flex-col gap-4">
-          {tutor.subjects.map((subject) => (
+          {tutor.subjects.length > 0 ? tutor.subjects.map((subject) => (
             <div
               key={subject.id || subject.title}
               className="flex items-start gap-3 rounded-xl border border-gray-100 p-3"
@@ -253,27 +280,30 @@ export default function TutorProfilePage() {
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <p className="text-sm text-muted-foreground">{t("noSubjects")}</p>
+          )}
         </div>
       </div>
 
       {/* Booking Floating Action Button */}
       <div className="fixed bottom-6 ltr:right-6 rtl:left-6 z-50 animate-fade-in">
         {canBook ? (
-          <Link
-            href={bookingHref}
-            className="bg-sidebar-primary text-sidebar-primary-foreground px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-sm md:text-base"
-          >
-            <span>{t("bookSession", { rate: tutor.hourlyRate, currency: tutor.currency })}</span>
-          </Link>
+          <Button asChild size="lg" className="h-auto px-6 py-4 shadow-xl">
+            <Link href={bookingHref}>
+              <span>{t("bookSession", { rate: tutor.hourlyRate, currency: tutor.currency })}</span>
+            </Link>
+          </Button>
         ) : (
-          <button
-            className="bg-gray-300 text-gray-600 px-6 py-4 rounded-xl shadow-xl font-bold flex items-center gap-2 text-sm md:text-base cursor-not-allowed"
+          <Button
             disabled
             type="button"
+            size="lg"
+            variant="secondary"
+            className="h-auto px-6 py-4 shadow-xl"
           >
             {t("noBookableSubject")}
-          </button>
+          </Button>
         )}
       </div>
     </div>

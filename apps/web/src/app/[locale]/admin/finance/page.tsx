@@ -10,13 +10,16 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { TransactionsTable } from "@/components/admin/finance/components/TransactionsTable";
 import { WithdrawalsTable } from "@/components/admin/finance/components/WithdrawalsTable";
 import { PageHeader, StatCard } from "@/components/admin/shared";
 import { useAdminFinance } from "@/hooks/admin/use-admin-finance";
 import { formatCurrency } from "@/lib/api/admin-finance";
+import { Button } from "@/components/ui/button";
 
 export default function FinancePage() {
+  const t = useTranslations("admin.finance");
   const [tab, setTab] = useState<"transactions" | "withdrawals">("transactions");
 
   const {
@@ -37,27 +40,27 @@ export default function FinancePage() {
 
   const statsCards = [
     {
-      label: "Gross Revenue",
+      label: t("stats.grossRevenue"),
       value: stats ? formatCurrency(stats.earnings.totalPaidRevenue) : "—",
-      subtext: stats ? `${stats.bookings.total} total bookings` : "Loading...",
+      subtext: stats ? t("stats.totalBookings", { count: stats.bookings.total }) : t("loading"),
       icon: DollarSign,
       iconBg: "bg-blue-500/10",
       iconColor: "text-blue-600",
     },
     {
-      label: "Platform Commission",
+      label: t("stats.platformCommission"),
       value: stats ? formatCurrency(stats.earnings.platformCommissionTotal) : "—",
-      subtext: "Commission from all earnings",
+      subtext: t("stats.commissionDescription"),
       icon: Percent,
       iconBg: "bg-purple-500/10",
       iconColor: "text-purple-600",
     },
     {
-      label: "Available for Payout",
+      label: t("stats.availableForPayout"),
       value: stats ? formatCurrency(stats.earnings.available.amount) : "—",
       subtext: stats
-        ? `${stats.earnings.available.count} earning${stats.earnings.available.count === 1 ? "" : "s"} ready`
-        : "Loading...",
+        ? t("stats.earningsReady", { count: stats.earnings.available.count })
+        : t("loading"),
       subtextClassName: "text-red-600",
       valueClassName: "text-red-600",
       icon: Clock,
@@ -65,11 +68,11 @@ export default function FinancePage() {
       iconColor: "text-red-600",
     },
     {
-      label: "Completed Payouts",
+      label: t("stats.completedPayouts"),
       value: stats ? formatCurrency(stats.earnings.paidOut.amount) : "—",
       subtext: stats
-        ? `${stats.earnings.paidOut.count} payout${stats.earnings.paidOut.count === 1 ? "" : "s"} completed`
-        : "Loading...",
+        ? t("stats.payoutsCompleted", { count: stats.earnings.paidOut.count })
+        : t("loading"),
       icon: CheckCircle2,
       iconBg: "bg-emerald-500/10",
       iconColor: "text-emerald-600",
@@ -80,16 +83,15 @@ export default function FinancePage() {
     <div className="flex flex-col bg-gray-50 min-h-full">
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
-          title="Finance & Payments"
-          description="Oversee global revenue flow and manage tutor withdrawal requests."
+          title={t("title")}
+          description={t("description")}
           actions={
-            <button
+            <Button
               type="button"
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-3 sm:px-4 text-sm font-medium text-white transition-colors hover:bg-blue-700"
             >
               <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Export Report</span>
-            </button>
+              <span className="hidden sm:inline">{t("exportReport")}</span>
+            </Button>
           }
         />
 
@@ -99,13 +101,13 @@ export default function FinancePage() {
               <AlertCircle className="h-4 w-4" />
               <span>{statsError}</span>
             </div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={refetchStats}
-              className="text-sm font-medium text-red-700 underline hover:text-red-800"
             >
-              Retry
-            </button>
+              {t("retry")}
+            </Button>
           </div>
         )}
 
@@ -130,7 +132,7 @@ export default function FinancePage() {
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
-            Transactions
+            {t("tabs.transactions")}
           </button>
           <button
             type="button"
@@ -141,7 +143,7 @@ export default function FinancePage() {
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
-            Withdrawal Requests
+            {t("tabs.withdrawals")}
           </button>
         </div>
 

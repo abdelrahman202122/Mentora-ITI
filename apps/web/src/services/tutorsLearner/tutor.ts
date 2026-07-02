@@ -60,14 +60,25 @@ type TutorSubjectResponse = TutorSearchSubject & {
   _id?: string
 }
 
-const dayLabels: Record<string, string> = {
-  friday: "Friday",
-  monday: "Monday",
-  saturday: "Saturday",
-  sunday: "Sunday",
-  thursday: "Thursday",
-  tuesday: "Tuesday",
-  wednesday: "Wednesday",
+const dayLabels: Record<string, Record<"ar" | "en", string>> = {
+  friday: { ar: "الجمعة", en: "Friday" },
+  monday: { ar: "الاثنين", en: "Monday" },
+  saturday: { ar: "السبت", en: "Saturday" },
+  sunday: { ar: "الأحد", en: "Sunday" },
+  thursday: { ar: "الخميس", en: "Thursday" },
+  tuesday: { ar: "الثلاثاء", en: "Tuesday" },
+  wednesday: { ar: "الأربعاء", en: "Wednesday" },
+}
+
+function getLocalizedDayLabel(day: string, locale?: string): string {
+  const labels = dayLabels[day.toLowerCase()]
+  if (!labels) return day
+
+  return locale === "ar" ? labels.ar : labels.en
+}
+
+function getAvailableLabel(locale?: string): string {
+  return locale === "ar" ? "متاح" : "Available"
 }
 
 function toSubjectSummary(subject: TutorSearchSubject): TutorSubjectSummary {
@@ -197,7 +208,10 @@ async function getSearchTutorById(id: string): Promise<TutorSearchItem | null> {
   )
 }
 
-async function getAvailabilityLabels(tutorId: string): Promise<string[]> {
+async function getAvailabilityLabels(
+  tutorId: string,
+  locale?: string
+): Promise<string[]> {
   try {
     const response = await api.get<ApiSuccess<TutorAvailabilityResponse>>(
       `/tutors/${tutorId}/availability`
@@ -208,7 +222,7 @@ async function getAvailabilityLabels(tutorId: string): Promise<string[]> {
       .filter(([, daySlots]) => daySlots.length > 0)
       .map(([day, daySlots]) => {
         const firstSlot = daySlots[0]
-        return `${dayLabels[day] ?? day} ${firstSlot.startTime}-${firstSlot.endTime}`
+        return `${getLocalizedDayLabel(day, locale)} ${firstSlot.startTime}-${firstSlot.endTime}`
       })
   } catch (error) {
     console.error("Failed to fetch tutor availability", { error, tutorId })
@@ -233,7 +247,10 @@ async function getTutorSubjectSummaries(
   }
 }
 
-export async function getTutorById(id: string): Promise<TutorSummary | null> {
+export async function getTutorById(
+  id: string,
+  locale?: string
+): Promise<TutorSummary | null> {
   let searchTutor: TutorSearchItem | null = null
 
   try {
@@ -251,7 +268,7 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
     )
 
     const summary = toTutorSummary(response.data.data, id, searchTutor ?? undefined)
-    const availability = await getAvailabilityLabels(summary.id)
+    const availability = await getAvailabilityLabels(summary.id, locale)
     const subjects = await getTutorSubjectSummaries(summary.id)
 
     return {
@@ -264,7 +281,7 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
         availability.length > 0
           ? availability
           : summary.isAvailable
-            ? ["Available"]
+            ? [getAvailableLabel(locale)]
             : [],
     }
   } catch (error) {
@@ -276,7 +293,7 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
 
   if (searchTutor) {
     const summary = toTutorSummaryFromSearch(searchTutor)
-    const availability = await getAvailabilityLabels(summary.id)
+    const availability = await getAvailabilityLabels(summary.id, locale)
     const subjects = await getTutorSubjectSummaries(summary.id)
 
     return {
@@ -286,7 +303,7 @@ export async function getTutorById(id: string): Promise<TutorSummary | null> {
         availability.length > 0
           ? availability
           : summary.isAvailable
-            ? ["Available"]
+            ? [getAvailableLabel(locale)]
             : [],
     }
   }

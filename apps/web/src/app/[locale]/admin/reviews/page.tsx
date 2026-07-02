@@ -3,13 +3,16 @@
 
 import { useState } from "react";
 import { Download, RefreshCw, BarChart3, Star, AlertTriangle, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ReviewDrawer } from "@/components/admin/reviews/components/ReviewDrawer";
 import { ReviewsTable } from "@/components/admin/reviews/components/ReviewsTable";
 import { REVIEWS, TOTAL_REVIEWS } from "@/mocks/mock-data";
 import type { Review } from "@/types/admin";
 import { PageHeader, StatCard, TablePagination, Dropdown } from "@/components/admin/shared";
+import { Button } from "@/components/ui/button";
 
 export default function ReviewsPage() {
+  const t = useTranslations("admin.reviews");
   const [ratingFilter, setRatingFilter] = useState("");
   const [page, setPage] = useState(1);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -37,16 +40,18 @@ export default function ReviewsPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
         <PageHeader
-          title="Reviews Moderation"
-          description="Monitor and manage educational quality through peer feedback."
+          title={t("title")}
+          description={t("description")}
           actions={
             <>
-              <button type="button" className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-blue-600 transition-colors hover:bg-gray-50">
-                <Download className="h-4 w-4" />Export Report
-              </button>
-              <button type="button" className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-700">
-                <RefreshCw className="h-4 w-4" />Refresh Feed
-              </button>
+              <Button type="button" variant="outline">
+                <Download className="h-4 w-4" />
+                {t("exportReport")}
+              </Button>
+              <Button type="button">
+                <RefreshCw className="h-4 w-4" />
+                {t("refreshFeed")}
+              </Button>
             </>
           }
         />
@@ -60,8 +65,8 @@ export default function ReviewsPage() {
 
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-base font-semibold text-gray-900">Recent Feedback</h2>
-            <Dropdown label="All Ratings" options={["5", "4", "3", "2", "1"]} value={ratingFilter} onChange={setRatingFilter} />
+            <h2 className="text-base font-semibold text-gray-900">{t("recentFeedback")}</h2>
+            <Dropdown label={t("allRatings")} options={["5", "4", "3", "2", "1"]} value={ratingFilter} onChange={setRatingFilter} />
           </div>
           <ReviewsTable reviews={filtered} onView={setSelectedReview} />
           <TablePagination page={page} totalPages={3} onPageChange={setPage} variant="rounded" />

@@ -36,50 +36,50 @@ Goal: clean Mentora page by page for localization, responsive behavior, RTL/LTR 
 | Status | Page | Route |
 |---|---|---|
 | Done | Learner dashboard | `/en/dashboard`, `/ar/dashboard` |
-| In Progress | Find tutor flow | `/en/find-tutor`, `/ar/find-tutor` |
-| Pending | Legacy FindTutor redirect/cleanup | `/en/FindTutor`, `/ar/FindTutor` |
-| Pending | Tutor match list | `/en/tutor-match`, `/ar/tutor-match` |
-| Pending | Tutor profile/details | `/en/tutor-match/[id]`, `/ar/tutor-match/[id]` |
-| Pending | Booking create | `/en/booking`, `/ar/booking` |
-| Pending | Booking details | `/en/booking/[bookingId]`, `/ar/booking/[bookingId]` |
-| Pending | Payment checkout/mock cleanup | `/en/payment`, `/ar/payment` |
-| Pending | Payment success | `/en/payment/success`, `/ar/payment/success` |
-| Pending | Payment history list | `/en/paymentHistory`, `/ar/paymentHistory` |
-| Pending | Payment history detail | `/en/paymentHistory/[paymentId]`, `/ar/paymentHistory/[paymentId]` |
-| Pending | Settings | `/en/settings`, `/ar/settings` |
+| Done | Find tutor flow | `/en/find-tutor`, `/ar/find-tutor` |
+| Done | Legacy FindTutor redirect/cleanup | `/en/FindTutor`, `/ar/FindTutor` |
+| Done | Tutor match list | `/en/tutor-match`, `/ar/tutor-match` |
+| Done | Tutor profile/details | `/en/tutor-match/[id]`, `/ar/tutor-match/[id]` |
+| Done | Booking create | `/en/booking`, `/ar/booking` |
+| Done | Booking details | `/en/booking/[bookingId]`, `/ar/booking/[bookingId]` |
+| Done | Payment checkout/mock cleanup | `/en/payment`, `/ar/payment` |
+| Done | Payment success | `/en/payment/success`, `/ar/payment/success` |
+| Done | Payment history list | `/en/paymentHistory`, `/ar/paymentHistory` |
+| Done | Payment history detail | `/en/paymentHistory/[paymentId]`, `/ar/paymentHistory/[paymentId]` |
+| Done | Settings | `/en/settings`, `/ar/settings` |
 
 ## Phase 4 - Chat, AI, Notifications
 
 | Status | Page / Surface | Route |
 |---|---|---|
-| Pending | AI assistant | `/en/ai-assistant`, `/ar/ai-assistant` |
-| Pending | Learner messages list | `/en/messages`, `/ar/messages` |
-| Pending | Learner conversation | `/en/messages/[id]`, `/ar/messages/[id]` |
-| Pending | Tutor messages list | `/en/tutor/messages`, `/ar/tutor/messages` |
-| Pending | Tutor conversation | `/en/tutor/messages/[id]`, `/ar/tutor/messages/[id]` |
-| Pending | Notification panel | Sidebar notification bell |
+| Done | AI assistant | `/en/ai-assistant`, `/ar/ai-assistant` |
+| Done | Learner messages list | `/en/messages`, `/ar/messages` |
+| Done | Learner conversation | `/en/messages/[id]`, `/ar/messages/[id]` |
+| Done | Tutor messages list | `/en/tutor/messages`, `/ar/tutor/messages` |
+| Done | Tutor conversation | `/en/tutor/messages/[id]`, `/ar/tutor/messages/[id]` |
+| Done | Notification panel | Sidebar notification bell |
 
 ## Phase 5 - Tutor Pages
 
 | Status | Page | Route |
 |---|---|---|
-| Pending | Create tutor profile | `/en/tutor/profile/create`, `/ar/tutor/profile/create` |
-| Pending | Tutor dashboard | `/en/tutor/dashboard`, `/ar/tutor/dashboard` |
-| Pending | Tutor availability | `/en/tutor/availability`, `/ar/tutor/availability` |
-| Pending | Edit tutor profile | `/en/tutor/profile/edit`, `/ar/tutor/profile/edit` |
-| Pending | Tutor earnings/payment | `/en/tutor/payment`, `/ar/tutor/payment` |
-| Pending | Tutor reviews | `/en/tutor/reviews`, `/ar/tutor/reviews` |
+| Done | Create tutor profile | `/en/tutor/profile/create`, `/ar/tutor/profile/create` |
+| Done | Tutor dashboard | `/en/tutor/dashboard`, `/ar/tutor/dashboard` |
+| Done | Tutor availability | `/en/tutor/availability`, `/ar/tutor/availability` |
+| Done | Edit tutor profile | `/en/tutor/profile/edit`, `/ar/tutor/profile/edit` |
+| Done | Tutor earnings/payment | `/en/tutor/payment`, `/ar/tutor/payment` |
+| Done | Tutor reviews | `/en/tutor/reviews`, `/ar/tutor/reviews` |
 
 ## Phase 6 - Admin Pages
 
 | Status | Page | Route |
 |---|---|---|
-| Pending | Admin dashboard | `/en/admin`, `/ar/admin` |
-| Pending | Admin users | `/en/admin/users`, `/ar/admin/users` |
-| Pending | Admin tutors | `/en/admin/tutors`, `/ar/admin/tutors` |
-| Pending | Admin bookings | `/en/admin/bookings`, `/ar/admin/bookings` |
-| Pending | Admin finance | `/en/admin/finance`, `/ar/admin/finance` |
-| Pending | Admin reviews | `/en/admin/reviews`, `/ar/admin/reviews` |
+| Done | Admin dashboard | `/en/admin`, `/ar/admin` |
+| Done | Admin users | `/en/admin/users`, `/ar/admin/users` |
+| Done | Admin tutors | `/en/admin/tutors`, `/ar/admin/tutors` |
+| Done | Admin bookings | `/en/admin/bookings`, `/ar/admin/bookings` |
+| Done | Admin finance | `/en/admin/finance`, `/ar/admin/finance` |
+| Done | Admin reviews | `/en/admin/reviews`, `/ar/admin/reviews` |
 
 ## Per-Page Definition Of Done
 

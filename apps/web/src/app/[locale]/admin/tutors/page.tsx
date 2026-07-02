@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   SlidersHorizontal,
   Loader2,
@@ -25,10 +26,13 @@ import {
   TablePagination,
 } from "@/components/admin/shared";
 import { useAdminTutors } from "@/hooks/admin/use-admin-tutors";
+import { Button } from "@/components/ui/button";
 
 const PER_PAGE = 10;
 
 export default function TutorsPage() {
+  const locale = useLocale();
+  const t = useTranslations("admin.tutors");
   const {
     tutors, loading, error, mutating,
     page, totalPages, totalItems, setPage,
@@ -98,15 +102,19 @@ export default function TutorsPage() {
 
   const start = totalItems === 0 ? 0 : (page - 1) * PER_PAGE + 1;
   const end = Math.min(page * PER_PAGE, totalItems);
-  const showingText = `Showing ${start}-${end} of ${totalItems.toLocaleString()} tutors`;
+  const showingText = t("showing", {
+    start,
+    end,
+    total: totalItems.toLocaleString(locale === "ar" ? "ar-EG" : "en-US"),
+  });
 
   return (
     <div className="flex flex-col bg-gray-50 min-h-full">
      
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
-          title="Tutor Management"
-          description="Review, approve, and manage the mentor community."
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -121,9 +129,9 @@ export default function TutorsPage() {
               <AlertCircle className="h-4 w-4" />
               <span>{error}</span>
             </div>
-            <button type="button" onClick={refetch} className="text-sm font-medium text-red-700 underline hover:text-red-800">
-              Retry
-            </button>
+            <Button type="button" variant="ghost" onClick={refetch}>
+              {t("retry")}
+            </Button>
           </div>
         )}
 

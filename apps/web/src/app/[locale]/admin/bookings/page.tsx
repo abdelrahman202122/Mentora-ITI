@@ -1,14 +1,18 @@
 "use client";
 
 import { Download, Loader2, AlertCircle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { PageHeader, TablePagination } from "@/components/admin/shared";
 import { BookingFilters } from "@/components/admin/bookings/components/BookingFilters";
 import { BookingsTable } from "@/components/admin/bookings/components/BookingsTable";
 import { useAdminBookings } from "@/hooks/admin/use-admin-bookings";
+import { Button } from "@/components/ui/button";
 
 const PER_PAGE = 10;
 
 export default function BookingsPage() {
+  const locale = useLocale();
+  const t = useTranslations("admin.bookings");
   const {
     bookings,
     loading,
@@ -24,22 +28,26 @@ export default function BookingsPage() {
 
   const start = totalItems === 0 ? 0 : (page - 1) * PER_PAGE + 1;
   const end = Math.min(page * PER_PAGE, totalItems);
-  const showingText = `Showing ${start}-${end} of ${totalItems.toLocaleString()} bookings`;
+  const showingText = t("showing", {
+    start,
+    end,
+    total: totalItems.toLocaleString(locale === "ar" ? "ar-EG" : "en-US"),
+  });
 
   return (
     <div className="flex flex-col bg-gray-50 min-h-full">
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
-          title="Bookings Management"
-          description="Manage and monitor all tutor sessions and payments across the platform."
+          title={t("title")}
+          description={t("description")}
           actions={
-            <button
+            <Button
               type="button"
-              className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 sm:px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              variant="outline"
             >
               <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Export CSV</span>
-            </button>
+              <span className="hidden sm:inline">{t("exportCsv")}</span>
+            </Button>
           }
         />
 
@@ -49,13 +57,13 @@ export default function BookingsPage() {
               <AlertCircle className="h-4 w-4" />
               <span>{error}</span>
             </div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={refetch}
-              className="text-sm font-medium text-red-700 underline hover:text-red-800"
             >
-              Retry
-            </button>
+              {t("retry")}
+            </Button>
           </div>
         )}
 

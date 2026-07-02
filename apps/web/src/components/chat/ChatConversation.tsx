@@ -14,6 +14,7 @@ import {
   SmilePlus,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,11 +39,6 @@ type ChatConversationProps = {
   subtitle?: string;
 };
 
-const messageTimeFormatter = new Intl.DateTimeFormat('en', {
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
 const QUICK_REACTION_EMOJIS = [
   '😀',
   '😂',
@@ -62,14 +58,17 @@ const QUICK_REACTION_EMOJIS = [
   '❤️',
 ];
 
-function formatMessageTime(value: string) {
+function formatMessageTime(value: string, locale: string) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return '';
   }
 
-  return messageTimeFormatter.format(date);
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 }
 
 function sortMessagesByCreatedAt(messages: ChatMessage[]) {
@@ -89,20 +88,29 @@ function getInitials(name: string) {
     .join('');
 }
 
-function getMessageStatusLabel(status: ChatMessage['status']) {
+function getMessageStatusLabel(
+  status: ChatMessage['status'],
+  t: ReturnType<typeof useTranslations<'Chat'>>,
+) {
   if (status === 'read') {
-    return 'Read';
+    return t('status.read');
   }
 
   if (status === 'delivered') {
-    return 'Delivered';
+    return t('status.delivered');
   }
 
-  return 'Sent';
+  return t('status.sent');
 }
 
-function MessageStatusIcon({ status }: { status: ChatMessage['status'] }) {
-  const label = getMessageStatusLabel(status);
+function MessageStatusIcon({
+  status,
+  t,
+}: {
+  status: ChatMessage['status'];
+  t: ReturnType<typeof useTranslations<'Chat'>>;
+}) {
+  const label = getMessageStatusLabel(status, t);
 
   if (status === 'sent') {
     return (
@@ -132,9 +140,11 @@ export function ChatConversation({
   archiveRedirectHref = backHref,
   restoreRedirectHref = backHref,
   status = 'active',
-  title = 'Messages',
-  subtitle = 'Conversation history',
+  title,
+  subtitle,
 }: ChatConversationProps) {
+  const locale = useLocale();
+  const t = useTranslations('Chat');
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
@@ -177,17 +187,17 @@ export function ChatConversation({
   const participantInitials = participantName
     ? getInitials(participantName)
     : 'M';
-  const headerTitle = participantName ?? title;
+  const headerTitle = participantName ?? title ?? t('conversation.title');
   const headerSubtitle = chat?.participant.role
     ? chat.participant.role === 'tutor'
-      ? 'Tutor'
-      : 'Learner'
-    : subtitle;
+      ? t('roles.tutor')
+      : t('roles.learner')
+    : subtitle ?? t('conversation.subtitle');
   const messagePlaceholder = isArchived
-    ? 'Restore this chat to send messages'
+    ? t('composer.archivedPlaceholder')
     : connectionStatus === 'connecting'
-      ? 'Connecting...'
-      : 'Type a message...';
+      ? t('composer.connectingPlaceholder')
+      : t('composer.placeholder');
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -230,7 +240,7 @@ export function ChatConversation({
       setSendError(
         sendMessageError instanceof Error
           ? sendMessageError.message
-          : 'Could not send message',
+          : t('errors.send'),
       );
     } finally {
       setIsSending(false);
@@ -266,7 +276,7 @@ export function ChatConversation({
       router.replace(archiveRedirectHref);
     } catch (error) {
       setArchiveError(
-        error instanceof Error ? error.message : 'Could not archive chat',
+        error instanceof Error ? error.message : t('errors.archive'),
       );
     }
   }
@@ -279,7 +289,7 @@ export function ChatConversation({
       router.replace(restoreRedirectHref);
     } catch (error) {
       setArchiveError(
-        error instanceof Error ? error.message : 'Could not restore chat',
+        error instanceof Error ? error.message : t('errors.restore'),
       );
     }
   }
@@ -288,8 +298,8 @@ export function ChatConversation({
     <div className="mx-auto flex h-full max-w-2xl flex-col">
       <div className="mb-4 flex items-center gap-3">
         <Button asChild size="icon" variant="ghost">
-          <Link href={backHref} aria-label="Back to messages">
-            <ArrowLeft className="size-5" />
+          <Link href={backHref} aria-label={t('actions.back')}>
+            <ArrowLeft className={cn('size-5', locale === 'ar' && 'rotate-180')} />
           </Link>
         </Button>
 
@@ -306,7 +316,7 @@ export function ChatConversation({
 
         {isArchived ? (
           <Button
-            aria-label="Restore chat"
+            aria-label={t('actions.restore')}
             disabled={restoreChatMutation.isPending}
             onClick={() => void handleRestoreChat()}
             size="sm"
@@ -316,18 +326,18 @@ export function ChatConversation({
             {restoreChatMutation.isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Restoring
+                {t('actions.restoring')}
               </>
             ) : (
               <>
                 <RotateCcw className="size-4" />
-                Restore
+                {t('actions.restore')}
               </>
             )}
           </Button>
         ) : (
           <Button
-            aria-label="Archive chat"
+            aria-label={t('actions.archive')}
             disabled={archiveChatMutation.isPending}
             onClick={() => void handleArchiveChat()}
             size="sm"
@@ -337,12 +347,12 @@ export function ChatConversation({
             {archiveChatMutation.isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Archiving
+                {t('actions.archiving')}
               </>
             ) : (
               <>
                 <Archive className="size-4" />
-                Archive
+                {t('actions.archive')}
               </>
             )}
           </Button>
@@ -362,10 +372,10 @@ export function ChatConversation({
             {isFetchingNextPage ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Loading
+                {t('actions.loading')}
               </>
             ) : (
-              'Load older messages'
+              t('actions.loadOlder')
             )}
           </Button>
         ) : null}
@@ -373,7 +383,7 @@ export function ChatConversation({
         {isPending ? (
           <div className="flex flex-1 items-center justify-center gap-2 text-sm text-gray-500">
             <Loader2 className="size-4 animate-spin" />
-            Loading messages
+            {t('states.loadingMessages')}
           </div>
         ) : null}
 
@@ -381,7 +391,7 @@ export function ChatConversation({
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
             <div>
               <p className="text-sm font-medium text-gray-900">
-                Could not load messages
+                {t('states.loadMessagesError')}
               </p>
               <p className="mt-1 text-xs text-gray-500">{error.message}</p>
             </div>
@@ -390,14 +400,14 @@ export function ChatConversation({
               variant="outline"
               onClick={() => void refetch()}
             >
-              Try again
+              {t('actions.tryAgain')}
             </Button>
           </div>
         ) : null}
 
         {!isPending && !isError && messages.length === 0 ? (
           <div className="flex flex-1 items-center justify-center text-center text-sm text-gray-500">
-            No messages yet.
+            {t('states.emptyMessages')}
           </div>
         ) : null}
 
@@ -406,6 +416,8 @@ export function ChatConversation({
             key={message.id}
             message={message}
             isOwnMessage={message.senderId === currentUser?.id}
+            locale={locale}
+            t={t}
           />
         ))}
 
@@ -423,7 +435,7 @@ export function ChatConversation({
           <div className="grid grid-cols-8 gap-1 rounded-lg bg-white p-2 shadow-sm ring-1 ring-gray-100">
             {QUICK_REACTION_EMOJIS.map((emoji) => (
               <Button
-                aria-label={`Add ${emoji}`}
+                aria-label={t('actions.addEmoji', { emoji })}
                 className="h-9 text-lg"
                 disabled={!isConnected || isSending}
                 key={emoji}
@@ -443,7 +455,7 @@ export function ChatConversation({
           onSubmit={handleSendMessage}
         >
           <Button
-            aria-label={isEmojiPickerOpen ? 'Close emoji picker' : 'Open emoji picker'}
+            aria-label={isEmojiPickerOpen ? t('actions.closeEmoji') : t('actions.openEmoji')}
             disabled={isArchived || !isConnected || isSending}
             onClick={() => setIsEmojiPickerOpen((isOpen) => !isOpen)}
             size="icon"
@@ -453,7 +465,7 @@ export function ChatConversation({
             <SmilePlus className="size-4" />
           </Button>
           <Input
-            aria-label="Message"
+            aria-label={t('composer.label')}
             className="h-10 flex-1"
             disabled={isArchived || !isConnected || isSending}
             onChange={(event) => setMessageInput(event.target.value)}
@@ -483,12 +495,16 @@ export function ChatConversation({
 
 function MessageBubble({
   isOwnMessage,
+  locale,
   message,
+  t,
 }: {
   isOwnMessage: boolean;
+  locale: string;
   message: ChatMessage;
+  t: ReturnType<typeof useTranslations<'Chat'>>;
 }) {
-  const messageTime = formatMessageTime(message.createdAt);
+  const messageTime = formatMessageTime(message.createdAt, locale);
 
   return (
     <div className={cn('flex', isOwnMessage ? 'justify-end' : 'justify-start')}>
@@ -510,7 +526,7 @@ function MessageBubble({
           {messageTime ? (
             <time dateTime={message.createdAt}>{messageTime}</time>
           ) : null}
-          {isOwnMessage ? <MessageStatusIcon status={message.status} /> : null}
+          {isOwnMessage ? <MessageStatusIcon status={message.status} t={t} /> : null}
         </div>
       </div>
     </div>
