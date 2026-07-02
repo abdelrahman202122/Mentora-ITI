@@ -20,7 +20,8 @@ export function useAdminFinance() {
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(true);
   const [withdrawalsError, setWithdrawalsError] = useState<string | null>(null);
 
-  const [mutating, setMutating] = useState(false);
+  const [mutating, setMutating] = useState(false); // For "Approve All"
+  const [mutatingId, setMutatingId] = useState<string | null>(null); // For single row
 
   /* ── Fetch stats ────────────────────────────────────────────────── */
   const fetchStats = useCallback(async () => {
@@ -40,12 +41,13 @@ export function useAdminFinance() {
     fetchStats();
   }, [fetchStats]);
 
-  /* ── Fetch withdrawals ──────────────────────────────────────────── */
+  /* ── Fetch withdrawals (ONLY AVAILABLE) ─────────────────────────── */
   const fetchWithdrawals = useCallback(async () => {
     setWithdrawalsLoading(true);
     setWithdrawalsError(null);
     try {
-      const result = await listWithdrawals({ limit: 100 });
+      // ✅ FIX: Only fetch 'available' earnings so admins can act on them
+      const result = await listWithdrawals({ limit: 100, status: "available" });
       setWithdrawals(result.withdrawals);
     } catch (err) {
       setWithdrawalsError(
@@ -66,35 +68,33 @@ export function useAdminFinance() {
     setMutating(true);
     try {
       await approveAllWithdrawals();
-      await fetchWithdrawals();
+      // ✅ FIX: Clear the list since all available items are now paid out
+      setWithdrawals([]);
       await fetchStats();
-      } catch (err) {
-        setWithdrawalsError(
-          err instanceof Error ? err.message : "Failed to approve all withdrawals",
-        );
+    } catch (err) {
+      setWithdrawalsError(
+        err instanceof Error ? err.message : "Failed to approve all withdrawals",
+      );
     } finally {
       setMutating(false);
     }
-  }, [fetchWithdrawals, fetchStats]);
+  }, [fetchStats]);
 
   /* ── Approve single withdrawal ──────────────────────────────────── */
   const handleApprove = useCallback(
     async (earningId: string): Promise<void> => {
-      setMutating(true);
+      setMutatingId(earningId);
       try {
         await approveWithdrawal(earningId);
-        setWithdrawals((prev) =>
-          prev.map((w) =>
-            w.id === earningId ? { ...w, status: "PAID_OUT" } : w,
-          ),
-        );
+        // ✅ FIX: Remove the item from the list instead of updating status
+        setWithdrawals((prev) => prev.filter((w) => w.id !== earningId));
         await fetchStats();
-        } catch (err) {
-          setWithdrawalsError(
-          err instanceof Error ? err.message : "Failed to approve withdrawl",
+      } catch (err) {
+        setWithdrawalsError(
+          err instanceof Error ? err.message : "Failed to approve withdrawal",
         );
       } finally {
-        setMutating(false);
+        setMutatingId(null);
       }
     },
     [fetchStats],
@@ -103,17 +103,19 @@ export function useAdminFinance() {
   /* ── Cancel single withdrawal ───────────────────────────────────── */
   const handleCancel = useCallback(
     async (earningId: string): Promise<void> => {
-      setMutating(true);
+      setMutatingId(earningId);
       try {
         await cancelWithdrawal(earningId);
-        setWithdrawals((prev) =>
-          prev.map((w) =>
-            w.id === earningId ? { ...w, status: "CANCELED" } : w,
-          ),
-        );
+        // ✅ FIX: Remove the item from the list
+        setWithdrawals((prev) => prev.filter((w) => w.id !== earningId));
         await fetchStats();
+      } catch (err) {
+        // ✅ FIX: Added missing error handling
+        setWithdrawalsError(
+          err instanceof Error ? err.message : "Failed to cancel withdrawal",
+        );
       } finally {
-        setMutating(false);
+        setMutatingId(null);
       }
     },
     [fetchStats],
@@ -135,5 +137,6 @@ export function useAdminFinance() {
     approve: handleApprove,
     cancel: handleCancel,
     mutating,
+    mutatingId,
   };
 }

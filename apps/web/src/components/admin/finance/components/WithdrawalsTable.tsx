@@ -13,7 +13,8 @@ interface WithdrawalsTableProps {
   onApproveAll: () => Promise<void>;
   onApprove: (earningId: string) => Promise<void>;
   onCancel: (earningId: string) => Promise<void>;
-  mutating: boolean;
+  mutating: boolean; // For "Approve All"
+  mutatingId: string | null; // For single row
 }
 
 export function WithdrawalsTable({
@@ -25,6 +26,7 @@ export function WithdrawalsTable({
   onApprove,
   onCancel,
   mutating,
+  mutatingId,
 }: WithdrawalsTableProps) {
   if (loading) {
     return (
@@ -141,15 +143,16 @@ export function WithdrawalsTable({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-2">
-                    {w.status !== "PAID_OUT" && w.status !== "CANCELED" && (
+                    {/* ✅ FIX: Only show buttons if status is AVAILABLE */}
+                    {w.status === "AVAILABLE" && (
                       <>
                         <button
                           type="button"
                           onClick={() => onApprove(w.id)}
-                          disabled={mutating}
+                          disabled={mutatingId === w.id || mutating}
                           className="inline-flex h-8 items-center gap-1 rounded-md bg-blue-600 px-3 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {mutating ? (
+                          {mutatingId === w.id ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
                             <Check className="h-3 w-3" />
@@ -159,10 +162,10 @@ export function WithdrawalsTable({
                         <button
                           type="button"
                           onClick={() => onCancel(w.id)}
-                          disabled={mutating}
+                          disabled={mutatingId === w.id || mutating}
                           className="inline-flex h-8 items-center gap-1 rounded-md border border-red-500 bg-white px-3 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {mutating ? (
+                          {mutatingId === w.id ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
                             <X className="h-3 w-3" />
