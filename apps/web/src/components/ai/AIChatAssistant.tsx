@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAIChat } from "@/hooks/ai/use-ai-chat";
 import { cn } from "@/lib/utils";
 import type { AIConversationMessage } from "@/types/ai/ai-types";
+import type { TutorRecommendation } from "@/types/ai/ai-types";
 import { getLocalePath } from "@/utils/i18n/locale-path";
 
 const exampleKeys = ["algebra", "tutorLevel", "igcse"] as const;
@@ -202,8 +203,10 @@ function MessageBubble({
   message: AIConversationMessage;
   t: ReturnType<typeof useTranslations<"aiAssistant">>;
 }) {
+  const locale = useLocale();
   const isUser = message.role === "user";
   const provider = message.metadata?.provider;
+  const recommendedTutors = getRecommendedTutors(message.metadata);
 
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
@@ -221,9 +224,63 @@ function MessageBubble({
             {t("provider", { provider: String(provider) })}
           </p>
         ) : null}
+
+        {!isUser && recommendedTutors.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {recommendedTutors.map((tutor) => (
+              <Button
+                asChild
+                key={tutor.tutorProfileId}
+                size="sm"
+                variant="outline"
+                className="h-8 bg-background"
+              >
+                <Link href={getLocalePath(locale, tutor.profilePath ?? `/tutor-match/${tutor.tutorId}`)}>
+                  {t("actions.viewProfile")}
+                </Link>
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );
+}
+
+function getRecommendedTutors(
+  metadata: AIConversationMessage["metadata"],
+): Array<
+  Pick<
+    TutorRecommendation,
+    | "tutorProfileId"
+    | "tutorId"
+    | "profilePath"
+    | "profile"
+  >
+> {
+  const value = metadata?.recommendedTutors;
+
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is Pick<
+    TutorRecommendation,
+    "tutorProfileId" | "tutorId" | "profilePath" | "profile"
+  > => {
+    if (!item || typeof item !== "object") {
+      return false;
+    }
+
+    const record = item as Record<string, unknown>;
+    return (
+      typeof record.tutorProfileId === "string" &&
+      typeof record.tutorId === "string" &&
+      (!record.profilePath || typeof record.profilePath === "string") &&
+      !!record.profile &&
+      typeof record.profile === "object"
+    );
+  });
 }
 
 function TypingBubble({

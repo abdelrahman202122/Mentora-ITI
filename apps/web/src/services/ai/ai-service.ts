@@ -2,6 +2,8 @@ import api from "@/lib/axios";
 import type { ApiSuccess } from "@/types/apis/api-success";
 import type {
   AIConversation,
+  AIChatInput,
+  AIChatResult,
   SendAIConversationMessageInput,
   SendAIConversationMessageResult,
   StartAIConversationInput,
@@ -39,6 +41,12 @@ export async function getTutorRecommendations(
     "/ai/recommendations",
     input
   );
+
+  return response.data.data;
+}
+
+export async function sendAIChat(input: AIChatInput): Promise<AIChatResult> {
+  const response = await api.post<ApiSuccess<AIChatResult>>("/ai/chat", input);
 
   return response.data.data;
 }

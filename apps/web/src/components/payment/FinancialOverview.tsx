@@ -289,7 +289,7 @@ function TransactionRow({ earning }: { earning: Earning }) {
   });
 
   const amount = new Intl.NumberFormat(formattedLocale, {
-    style: "currency", currency: earning.currency ?? "USD",
+    style: "currency", currency: "EGP",
   }).format(earning.tutorAmount);
 
   const statusLabel = tStatus(earning.status ?? "pending");

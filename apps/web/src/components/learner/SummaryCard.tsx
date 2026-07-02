@@ -27,6 +27,7 @@ export function SummaryCard({
   const numericDuration = Number(duration || 0)
   const sessionCost = (hourlyRate * numericDuration) / 60
   const total = sessionCost 
+  const formatMoney = (amount: number) => `${currency} ${amount.toFixed(2)}`
 
   return (
     <div>
@@ -49,7 +50,7 @@ export function SummaryCard({
         <div className="flex justify-between">
           <span className="text-muted-foreground">{t("pricePerHour")}</span>
           <span className="font-medium text-foreground">
-            {currency}{hourlyRate.toFixed(2)}
+            {formatMoney(hourlyRate)}
           </span>
         </div>
         <div className="flex justify-between">
@@ -63,7 +64,7 @@ export function SummaryCard({
         <div className="flex justify-between">
           <span className="text-muted-foreground">{t("sessionCost")}</span>
           <span className="text-foreground">
-            {currency}{sessionCost.toFixed(2)}
+            {formatMoney(sessionCost)}
           </span>
         </div>
       </div>
@@ -72,7 +73,7 @@ export function SummaryCard({
         <div className="flex justify-between items-center">
           <span className="text-base font-bold text-foreground">{t("totalPrice")}</span>
           <span className="text-xl font-bold text-indigo-600">
-            {currency}{total.toFixed(2)}
+            {formatMoney(total)}
           </span>
         </div>
       </div>

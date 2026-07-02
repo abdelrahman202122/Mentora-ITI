@@ -29,7 +29,7 @@ type TutorSubjectResult = {
 
 type TutorSubjectFilter = FilterQuery<TutorSubjectResult>;
 
-type TutorRecommendation = {
+export type TutorRecommendation = {
   tutorProfileId: string;
   tutorId: string;
   score: number;

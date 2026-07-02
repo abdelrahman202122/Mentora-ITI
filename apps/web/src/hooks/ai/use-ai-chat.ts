@@ -4,12 +4,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 import {
-  sendAIConversationMessage,
+  sendAIChat,
   startAIConversation,
 } from "@/services/ai/ai-service";
 import type {
   AIConversationMessage,
-  SendAIConversationMessageResult,
+  AIChatResult,
 } from "@/types/ai/ai-types";
 
 function getErrorMessage(error: unknown) {
@@ -42,7 +42,7 @@ export function useAIChat(locale: string) {
   }, [conversationId]);
 
   const sendMessageMutation = useMutation<
-    SendAIConversationMessageResult,
+    AIChatResult,
     Error,
     string
   >({
@@ -57,18 +57,36 @@ export function useAIChat(locale: string) {
         throw new Error("Message is required.");
       }
 
-      return sendAIConversationMessage(conversationId, {
-        content: trimmedContent,
-        metadata: {
-          source: "ai_assistant_chat",
-        },
+      return sendAIChat({
+        conversationId,
+        locale,
+        message: trimmedContent,
       });
     },
-    onSuccess: (result) => {
+    onSuccess: (result, content) => {
+      const now = new Date().toISOString();
       setMessages((currentMessages) => [
         ...currentMessages,
-        result.userMessage,
-        result.assistantMessage,
+        {
+          _id: `local-user-${now}`,
+          conversationId: result.conversationId,
+          role: "user",
+          content,
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          _id: `local-assistant-${now}`,
+          conversationId: result.conversationId,
+          role: "assistant",
+          content: result.reply,
+          metadata: {
+            provider: "gemini",
+            recommendedTutors: result.recommendedTutors,
+          },
+          createdAt: now,
+          updatedAt: now,
+        },
       ]);
     },
   });

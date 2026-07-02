@@ -35,7 +35,6 @@ export default function BookingSuccess({
   time,
   duration,
   hourlyRate,
-  currency,
 }: BookingSuccessProps) {
   const router = useRouter();
   const params = useParams();
@@ -46,6 +45,7 @@ export default function BookingSuccess({
 
   const sessionPrice = (hourlyRate * Number(duration)) / 60;
   const displayPrice = Math.round(sessionPrice * 100) / 100;
+  const formatMoney = (amount: number) => `EGP ${amount.toFixed(2)}`;
 
   async function handleMessageTutor() {
     if (!tutorId) {
@@ -173,7 +173,7 @@ export default function BookingSuccess({
                     <span>{t('hourlyRate')}</span>
                   </div>
                   <span className="font-semibold text-[#11142D]">
-                    {hourlyRate} {currency}
+                    {formatMoney(hourlyRate)}
                     {t('perHour')}
                   </span>
                 </div>
@@ -184,7 +184,7 @@ export default function BookingSuccess({
                     <span>{t('totalPrice')}</span>
                   </div>
                   <span className="font-semibold text-[#11142D]">
-                    {displayPrice} {currency}
+                    {formatMoney(displayPrice)}
                   </span>
                 </div>
               </div>

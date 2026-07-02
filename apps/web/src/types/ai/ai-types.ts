@@ -56,6 +56,7 @@ export interface TutorRecommendationInput {
 export interface TutorRecommendation {
   tutorProfileId: string;
   tutorId: string;
+  profilePath?: string;
   score: number;
   matchStrength: TutorMatchStrength;
   scoreBreakdown: {
@@ -95,4 +96,18 @@ export interface TutorRecommendationFlowResult
   conversation: AIConversation;
   userMessage?: AIConversationMessage;
   assistantMessage?: AIConversationMessage;
+}
+
+export interface AIChatInput {
+  message: string;
+  conversationId?: string;
+  locale?: string;
+}
+
+export interface AIChatResult {
+  reply: string;
+  recommendedTutors: Array<
+    Pick<TutorRecommendation, "tutorProfileId" | "tutorId" | "profilePath" | "score" | "matchStrength" | "reasons" | "profile" | "matchedSubjects">
+  >;
+  conversationId: string;
 }

@@ -70,8 +70,7 @@ export default function PaymentMobileList({
                   </div>
 
                   <span className="font-semibold text-gray-800 text-sm shrink-0">
-                    {payment.currency}
-                    {payment.amount.toFixed(2)}
+                    EGP {payment.amount.toFixed(2)}
                   </span>
                 </div>
 

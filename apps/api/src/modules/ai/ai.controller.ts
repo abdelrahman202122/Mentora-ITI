@@ -11,6 +11,7 @@ import {
   generateAIReply,
   type AIProviderMessage,
 } from './ai-provider.service.js';
+import { runAIChat } from './ai.service.js';
 import { recommendTutors } from './tutor-recommendation.service.js';
 
 type ConversationMessage = {
@@ -129,6 +130,26 @@ export async function recommendTutorsController(req: Request, res: Response) {
     res,
     200,
     'Tutor recommendations fetched successfully',
+    result,
+  );
+}
+
+export async function aiChatController(req: Request, res: Response) {
+  const learnerId = req.user?.userId;
+
+  if (!learnerId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+    });
+  }
+
+  const result = await runAIChat(learnerId, req.body);
+
+  return sendSuccess(
+    res,
+    200,
+    'AI response generated successfully.',
     result,
   );
 }

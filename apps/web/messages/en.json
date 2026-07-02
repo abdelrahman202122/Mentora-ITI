@@ -18,7 +18,8 @@
     },
     "actions": {
       "send": "Send message",
-      "findTutor": "Find tutors"
+      "findTutor": "Find tutors",
+      "viewProfile": "View profile"
     },
     "empty": {
       "title": "Start with what you are trying to learn",
@@ -533,6 +534,7 @@
     "validation": {
       "emailInvalid": "Email not valid",
       "passwordMin": "Password must be at least 6 characters",
+      "passwordStrong": "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (!@#$%^&*-_=+)",
       "nameMin": "Name must be at least 2 characters",
       "phoneInvalid": "Enter a valid Egyptian phone number (e.g. 01012345678)",
       "roleInvalid": "Please choose a valid account type",
@@ -666,7 +668,6 @@
       "backToTop": "Back to top"
     }
   },
-  
   "Booking": {
     "backToTeacherProfile": "Back to Teacher Profile",
     "backToTutorResults": "Back to Tutor Results",
@@ -716,12 +717,10 @@
       "hour": "Hour",
       "mins": "mins",
       "sessionCost": "Session cost",
-      
       "totalPrice": "Total Price",
       "termsAgree": "By confirming, you agree to Mentora's <terms>Terms of Service</terms> and <refund>Refund Policy</refund>."
     }
-  }
-  ,
+  },
   "Dashboard": {
     "welcomeBack": "Welcome back, {name}",
     "subtitle": "You're making great progress. Ready for your next challenge?",
@@ -772,7 +771,6 @@
       "payFailed": "Failed to start checkout. Please try again."
     }
   },
-  
   "Payments": {
     "recentTransactions": "Recent Transactions",
     "exportCSV": "Export CSV",
@@ -812,7 +810,6 @@
       "pending": "Pending"
     }
   },
-  
   "PaymentDetails": {
     "backToPayments": "Back to Payments",
     "loading": "Loading payment details...",
@@ -951,7 +948,6 @@
       "read": "Read"
     }
   },
-  
   "SettingsPage": {
     "title": "Settings",
     "description": "Manage your account preferences and personal information.",
@@ -973,7 +969,6 @@
     "saveChanges": "Save Changes",
     "saving": "Saving..."
   },
-  
   "BookingDetails": {
     "backToBookings": "Back to My Bookings",
     "loading": "Loading booking details...",
@@ -1036,7 +1031,7 @@
     "backToTutors": "Back to Tutors",
     "loading": "Loading...",
     "tutorNotFound": "Tutor not found.",
-   "reviews": "({count, plural, one {# review} other {# reviews}})",
+    "reviews": "({count, plural, one {# review} other {# reviews}})",
     "students": "{count, plural, one {# student} other {# students}}",
     "hourlyRate": "{rate} {currency}/hr",
     "startingChat": "Starting chat...",
@@ -1081,16 +1076,15 @@
       "next": "Next"
     },
     "bookingStatus": {
-    "all": "All",
-    "pending": "Pending",
-    "confirmed": "Confirmed",
-    "completed": "Completed",
-    "canceled": "Canceled",
-    "rejected": "Rejected",
-    "expired": "Expired"
-  }
-},
-
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    }
+  },
   "bookingCard": {
     "sessionTitle": "Session — {subject}",
     "today": "Today, {time}",
@@ -1116,8 +1110,7 @@
     "awaitingPayment": "Awaiting Payment",
     "paymentFailed": "Payment Failed",
     "paymentPending": "Payment Pending"
-},
-
+  },
   "payments": {
     "pageHeader": {
       "title": "Financial Overview",
@@ -1261,151 +1254,143 @@
     "sessions": "pending sessions"
   },
   "availability": {
-  "page": {
-    "title": "Manage Availability",
-    "description": "Set your weekly schedule and let students find you at the right time.",
-    "scheduleActions": "Schedule Actions",
-    "setUpMyAvailability": "Set Up My Availability",
-    "editAvailability": "Edit Availability",
-    "weeklySchedule": "Weekly Schedule",
-    "weeklyDescription": "Your recurring availability across the week.",
-    "noAvailability": "No availability data found.",
-    "slotsByDate": "Available Slots by Date",
-    "slotsDescription": "View your open booking slots for the upcoming period.",
-    "noSlots": "No slot data found."
+    "page": {
+      "title": "Manage Availability",
+      "description": "Set your weekly schedule and let students find you at the right time.",
+      "scheduleActions": "Schedule Actions",
+      "setUpMyAvailability": "Set Up My Availability",
+      "editAvailability": "Edit Availability",
+      "weeklySchedule": "Weekly Schedule",
+      "weeklyDescription": "Your recurring availability across the week.",
+      "noAvailability": "No availability data found.",
+      "slotsByDate": "Available Slots by Date",
+      "slotsDescription": "View your open booking slots for the upcoming period.",
+      "noSlots": "No slot data found."
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "addSlotForm": {
+      "title": "Add Time Slot",
+      "day": "Day",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "timezone": "Timezone",
+      "cancel": "Cancel",
+      "addSlot": "Add Slot"
+    },
+    "createForm": {
+      "title": "Set Up Your First Slot",
+      "day": "Day",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "timezone": "Timezone",
+      "cancel": "Cancel",
+      "save": "Save & Get Started"
+    },
+    "editForm": {
+      "title": "Edit Availability",
+      "noSlots": "No slots yet. Use the button below to add one.",
+      "newSlot": "New Slot",
+      "start": "Start",
+      "end": "End",
+      "cancel": "Cancel",
+      "add": "Add",
+      "addAnotherSlot": "Add Another Slot",
+      "timezone": "Timezone",
+      "save": "Save Changes",
+      "requiredError": "Both start and end time are required",
+      "endTimeError": "End time must be after start time"
+    },
+    "dailySlots": {
+      "empty": "No available slots found for the selected period."
+    },
+    "daySection": {
+      "to": "to"
+    }
   },
-  "days": {
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "sunday": "Sunday"
+  "weeklyAvailability": {
+    "empty": "No weekly availability set yet."
   },
-  "addSlotForm": {
-    "title": "Add Time Slot",
-    "day": "Day",
-    "startTime": "Start Time",
-    "endTime": "End Time",
-    "timezone": "Timezone",
+  "nav": {
+    "learner": {
+      "dashboard": "Dashboard",
+      "aiAssistant": "AI Assistant",
+      "findTutor": "Find Tutor",
+      "messages": "Messages",
+      "payments": "Payments",
+      "settings": "Settings"
+    },
+    "tutor": {
+      "dashboard": "Dashboard",
+      "messages": "Messages",
+      "earnings": "Earnings",
+      "availability": "Availability",
+      "profile": "Profile",
+      "reviews": "Reviews"
+    },
+    "admin": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "tutors": "Tutors",
+      "moderation": "Moderation",
+      "payments": "Payments",
+      "settings": "Settings"
+    }
+  },
+  "sidebar": {
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "userAvatar": "User Avatar",
+    "home": "Home",
+    "switchToTutor": "Switch to tutor mode",
+    "switchToLearner": "Switch to learner mode",
+    "loggingOut": "Logging out...",
+    "logOut": "Log Out"
+  },
+  "editProfile": {
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "title": "Edit Profile",
+    "description": "Update your professional identity and manage your curriculum.",
+    "discardChanges": "Discard Changes",
+    "saveProfile": "Save Profile",
+    "coursesOffered": "Courses Offered",
+    "loadingCourses": "Loading courses...",
+    "coursesError": "Couldn't load courses. Try again later.",
+    "addNewCourse": "Add New Course",
+    "addNewCourseDescription": "List a new subject to start teaching more students."
+  },
+  "courseCard": {
+    "editSubject": "Edit subject",
+    "deleteSubject": "Delete subject",
+    "deleteConfirmTitle": "Delete this subject?",
+    "deleteConfirmDescription": "This action cannot be undone.",
     "cancel": "Cancel",
-    "addSlot": "Add Slot"
+    "delete": "Delete",
+    "level": "Level",
+    "curriculum": "Curriculum",
+    "created": "Created"
   },
-  "createForm": {
-    "title": "Set Up Your First Slot",
-    "day": "Day",
-    "startTime": "Start Time",
-    "endTime": "End Time",
-    "timezone": "Timezone",
+  "courseForm": {
+    "updateTitle": "Update Course",
+    "addTitle": "Add New Course",
+    "titlePlaceholder": "Course Title",
+    "descriptionPlaceholder": "Description",
+    "selectCategory": "Select Category",
+    "selectEducationLevel": "Select Education Level",
+    "selectCurriculum": "Select Curriculum",
+    "gradeNotePlaceholder": "Grade / Year (optional, e.g. Preparatory 1)",
     "cancel": "Cancel",
-    "save": "Save & Get Started"
-  },
-  "editForm": {
-    "title": "Edit Availability",
-    "noSlots": "No slots yet. Use the button below to add one.",
-    "newSlot": "New Slot",
-    "start": "Start",
-    "end": "End",
-    "cancel": "Cancel",
-    "add": "Add",
-    "addAnotherSlot": "Add Another Slot",
-    "timezone": "Timezone",
-    "save": "Save Changes",
-    "requiredError": "Both start and end time are required",
-    "endTimeError": "End time must be after start time"
-  },
-  "dailySlots": {
-    "empty": "No available slots found for the selected period."
-  },
-  "daySection": {
-    "to": "to"
+    "updating": "Updating...",
+    "saving": "Saving...",
+    "update": "Update",
+    "save": "Save"
   }
-},
-"weeklyAvailability": {
-  "empty": "No weekly availability set yet."
-},
-"nav": {
-  "learner": {
-    "dashboard": "Dashboard",
-    "aiAssistant": "AI Assistant",
-    "findTutor": "Find Tutor",
-    "messages": "Messages",
-    "payments": "Payments",
-    "settings": "Settings"
-  },
-  "tutor": {
-    "dashboard": "Dashboard",
-    "messages": "Messages",
-    "earnings": "Earnings",
-    "availability": "Availability",
-    "profile": "Profile",
-    "reviews": "Reviews"
-  },
-  "admin": {
-    "dashboard": "Dashboard",
-    "users": "Users",
-    "tutors": "Tutors",
-    "moderation": "Moderation",
-    "payments": "Payments",
-    "settings": "Settings"
-  }
-},
-"sidebar": {
-  "expand": "Expand sidebar",
-  "collapse": "Collapse sidebar",
-  "userAvatar": "User Avatar",
-  "home": "Home",
-  "switchToTutor": "Switch to tutor mode",
-  "switchToLearner": "Switch to learner mode",
-  "loggingOut": "Logging out...",
-  "logOut": "Log Out"
-},
-"editProfile": {
-  "loading": "Loading...",
-  "error": "Something went wrong.",
-  "title": "Edit Profile",
-  "description": "Update your professional identity and manage your curriculum.",
-  "discardChanges": "Discard Changes",
-  "saveProfile": "Save Profile",
-  "coursesOffered": "Courses Offered",
-  "loadingCourses": "Loading courses...",
-  "coursesError": "Couldn't load courses. Try again later.",
-  "addNewCourse": "Add New Course",
-  "addNewCourseDescription": "List a new subject to start teaching more students."
-},
-"courseCard": {
-  "editSubject": "Edit subject",
-  "deleteSubject": "Delete subject",
-  "deleteConfirmTitle": "Delete this subject?",
-  "deleteConfirmDescription": "This action cannot be undone.",
-  "cancel": "Cancel",
-  "delete": "Delete",
-  "level": "Level",
-  "curriculum": "Curriculum",
-  "created": "Created"
-},
-"courseForm": {
-  "updateTitle": "Update Course",
-  "addTitle": "Add New Course",
-  "titlePlaceholder": "Course Title",
-  "descriptionPlaceholder": "Description",
-  "selectCategory": "Select Category",
-  "selectEducationLevel": "Select Education Level",
-  "selectCurriculum": "Select Curriculum",
-  "gradeNotePlaceholder": "Grade / Year (optional, e.g. Preparatory 1)",
-  "cancel": "Cancel",
-  "updating": "Updating...",
-  "saving": "Saving...",
-  "update": "Update",
-  "save": "Save"
 }
-}
- 
-
-
-
-
-
-
-

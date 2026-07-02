@@ -61,7 +61,7 @@ function BookSessionContent() {
   const tutorName = searchParams.get('tutorName') ?? t('fallbackTutor');
   const subjectParam = searchParams.get('subject') ?? t('fallbackSubject');
   const hourlyRate = Number(searchParams.get('hourlyRate') ?? 45);
-  const currency = searchParams.get('currency') ?? t('fallbackCurrency');
+  const currency = 'EGP';
   const subjectId = searchParams.get('subjectId');
   const isRtl = locale === 'ar';
 

@@ -51,7 +51,7 @@ export default function PendingPayoutCard({ amount, count }: PendingPayoutCardPr
   const t = useTranslations("payments.pendingPayout");
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground shadow-lg">
       <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
 
       <div className="relative z-10">
@@ -63,9 +63,9 @@ export default function PendingPayoutCard({ amount, count }: PendingPayoutCardPr
 
         <h2 className="mt-2 text-3xl font-bold">{amount}</h2>
 
-      <p className="mt-4 text-sm text-primary-foreground/80">
-        {count} {t("sessions")}
-      </p>
+        <p className="mt-4 text-sm text-primary-foreground/80">
+          {t(count === 1 ? "session" : "sessions", { count })}
+        </p>
       </div>
     </div>
   );

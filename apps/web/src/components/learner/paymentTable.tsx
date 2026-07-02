@@ -87,8 +87,7 @@ export default function PaymentTable({
                 </div>
 
                 <span className="text-right text-sm font-semibold text-gray-800">
-                  {payment.currency}
-                  {payment.amount.toFixed(2)}
+                  EGP {payment.amount.toFixed(2)}
                 </span>
 
                 <span className="flex justify-end">
