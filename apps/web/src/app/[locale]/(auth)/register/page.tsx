@@ -110,6 +110,7 @@ export default function RegisterPage() {
                   {getLocalizedAuthError(
                     registerMutation.error.message,
                     tErrors,
+                    registerMutation.error.status,
                   )}
                 </div>
               )}

@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import { useAcceptBooking } from '@/hooks/booking/approveBooking';
-import { useMyBookings } from '@/hooks/booking/booking';
+import { useTutorBookings } from '@/hooks/booking/booking';
 import { useCancelBooking } from '@/hooks/booking/cancelBooking';
 import { useRejectBooking } from '@/hooks/booking/rejectBooking';
 import { useConfirmBookingCode } from '@/hooks/booking/useConfirmBookingCode';
@@ -106,15 +106,14 @@ export default function InstructorDashboard() {
   const [sessionCode, setSessionCode] = useState('');
   const [sessionSuccess, setSessionSuccess] = useState<string | null>(null);
 
-  const { data, isLoading, isError } = useMyBookings(
+  const { data, isLoading, isError } = useTutorBookings(
     activeFilter !== 'all'
       ? {
           bookingStatus: activeFilter,
           page: currentPage,
           limit: 10,
-          mode: 'tutor',
         }
-      : { page: currentPage, limit: 10, mode: 'tutor' },
+      : { page: currentPage, limit: 10 },
   );
   const { data: currentUser } = useCurrentUser();
   const { data: stats, isLoading: isStatsLoading } = useTutorStats();

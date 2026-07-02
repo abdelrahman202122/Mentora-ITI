@@ -21,7 +21,6 @@ export default function CurriculumStep({
   const t = useTranslations("findTutor.curriculum");
   const { data: curricula, isLoading, error } = useCurricula();
 
-  // Helper to assign icons to different curricula
   const getIcon = (value: string) => {
     const val = value.toLowerCase();
     if (val.includes("british") || val.includes("igcse")) {
@@ -66,7 +65,7 @@ export default function CurriculumStep({
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -75,9 +74,7 @@ export default function CurriculumStep({
     >
       <div>
         <h2 className="text-2xl font-semibold mb-2">{t("title")}</h2>
-        <p className="text-slate-600">
-          {t("description")}
-        </p>
+        <p className="text-slate-600">{t("description")}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

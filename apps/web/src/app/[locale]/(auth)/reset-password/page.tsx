@@ -65,12 +65,12 @@ export default function ResetPasswordPage() {
 
   return (
     <main
-      className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-start text-slate-950 sm:px-6"
+      className="min-h-screen bg-background px-4 py-6 text-start text-slate-950 sm:px-6 sm:py-8"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center">
         <Card className="w-full rounded-lg border-slate-200 bg-white/90 p-0 shadow-sm ring-slate-200">
-          <CardHeader className="gap-2 px-7 pt-7">
+          <CardHeader className="gap-2 px-5 pt-6 sm:px-7 sm:pt-7">
             <div className="flex items-center gap-2 text-indigo-600">
               <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                 <GraduationCap className="size-5" />
@@ -88,10 +88,13 @@ export default function ResetPasswordPage() {
             </div>
           </CardHeader>
 
-          <CardContent className="px-7 pb-7">
+          <CardContent className="px-5 pb-6 sm:px-7 sm:pb-7">
             {resetPasswordMutation.isSuccess ? (
               <div className="space-y-6">
-                <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-3 text-sm font-medium text-green-800">
+                <div
+                  className="rounded-lg border border-green-200 bg-green-50 px-3 py-3 text-sm font-medium text-green-800"
+                  role="status"
+                >
                   <div className="mb-2 flex items-center gap-2">
                     <ShieldCheck className="size-4" />
                     <span>{t('resetPassword.successTitle')}</span>
@@ -114,22 +117,30 @@ export default function ResetPasswordPage() {
                 onSubmit={form.handleSubmit(handleResetPassword)}
               >
                 {!token && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                  <div
+                    className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+                    role="alert"
+                  >
                     {t('resetPassword.missingToken')}
                   </div>
                 )}
 
                 {resetPasswordMutation.error && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                  <div
+                    className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+                    role="alert"
+                  >
                     {getLocalizedAuthError(
                       resetPasswordMutation.error.message,
                       tErrors,
+                      resetPasswordMutation.error.status,
                     )}
                   </div>
                 )}
 
                 <div className="space-y-4">
                   <FieldError
+                    id="reset-password-new-password-error"
                     message={form.formState.errors.newPassword?.message}
                   >
                     <label
@@ -139,6 +150,14 @@ export default function ResetPasswordPage() {
                       {t('resetPassword.newPasswordLabel')}
                     </label>
                     <Input
+                      aria-describedby={
+                        form.formState.errors.newPassword
+                          ? 'reset-password-new-password-error'
+                          : undefined
+                      }
+                      aria-invalid={Boolean(
+                        form.formState.errors.newPassword,
+                      )}
                       className={cn(
                         'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
                         isRtl && 'text-right',
@@ -152,6 +171,7 @@ export default function ResetPasswordPage() {
                   </FieldError>
 
                   <FieldError
+                    id="reset-password-confirm-password-error"
                     message={form.formState.errors.confirmPassword?.message}
                   >
                     <label
@@ -161,6 +181,14 @@ export default function ResetPasswordPage() {
                       {t('resetPassword.confirmPasswordLabel')}
                     </label>
                     <Input
+                      aria-describedby={
+                        form.formState.errors.confirmPassword
+                          ? 'reset-password-confirm-password-error'
+                          : undefined
+                      }
+                      aria-invalid={Boolean(
+                        form.formState.errors.confirmPassword,
+                      )}
                       className={cn(
                         'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
                         isRtl && 'text-right',
@@ -189,7 +217,7 @@ export default function ResetPasswordPage() {
                   )}
                 </Button>
 
-                <p className="text-center text-sm text-slate-600">
+                <p className="text-center text-sm text-slate-600 sm:text-start">
                   <Link
                     className="font-semibold text-indigo-600 hover:text-indigo-700"
                     href={getLocalePath(locale, '/login')}
@@ -208,16 +236,20 @@ export default function ResetPasswordPage() {
 
 function FieldError({
   children,
+  id,
   message,
 }: {
   children: React.ReactNode;
+  id: string;
   message?: string;
 }) {
   return (
     <div>
       {children}
       {message && (
-        <p className="mt-2 text-xs font-medium text-red-600">{message}</p>
+        <p className="mt-2 text-xs font-medium text-red-600" id={id}>
+          {message}
+        </p>
       )}
     </div>
   );

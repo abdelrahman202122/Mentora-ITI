@@ -1,50 +1,32 @@
-import Link from "next/link";
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { ChevronDown, GraduationCap, HelpCircle, Mail } from 'lucide-react';
 
-import { GraduationCap, HelpCircle, Mail } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { getLocalePath } from '@/utils/i18n/locale-path';
 
 export const metadata = {
-  title: "Help Center — Mentora",
+  title: 'Help Center - Mentora',
   description:
-    "Find answers to common questions about using the Mentora tutoring platform.",
+    'Find answers to common questions about using the Mentora tutoring platform.',
 };
 
-const faqs: { question: string; answer: string }[] = [
-  {
-    question: "How do I create an account?",
-    answer:
-      'Click "Sign Up" on the login page, enter your name, email, and a password. You will be logged in automatically after registration.',
-  },
-  {
-    question: "How do I find a tutor?",
-    answer:
-      "Use the Find a Tutor feature to filter by subject, curriculum, and grade level. Browse tutor profiles, check availability, and book a session directly.",
-  },
-  {
-    question: "How do payments work?",
-    answer:
-      "Payments are processed securely through our payment provider at the time of booking. You will receive a receipt by email after the transaction is complete.",
-  },
-  {
-    question: "Can I cancel a session?",
-    answer:
-      "Yes. Cancellations made more than 24 hours before the session start time receive a full refund. Late cancellations may forfeit the session fee.",
-  },
-  {
-    question: "How do I become a tutor?",
-    answer:
-      "Register as a tutor, complete your profile with your qualifications and availability, and you will appear in learner search results once approved.",
-  },
-  {
-    question: "I forgot my password. What do I do?",
-    answer:
-      "Contact support@mentora.com with the email address on your account and we will help you regain access.",
-  },
-  {
-    question: "How do I contact support?",
-    answer:
-      "Email us at support@mentora.com. We aim to respond within 24 hours on business days.",
-  },
-];
+const faqKeys = [
+  'account',
+  'findTutor',
+  'payments',
+  'cancel',
+  'becomeTutor',
+  'forgotPassword',
+  'support',
+] as const;
 
 export default async function HelpPage({
   params,
@@ -52,74 +34,83 @@ export default async function HelpPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations('helpPage');
+  const isRtl = locale === 'ar';
+  const supportEmail = t('supportEmail');
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] px-4 py-12 text-slate-950 sm:px-6">
-      <div className="mx-auto max-w-3xl">
-        {/* Header */}
-        <div className="mb-10">
+    <main
+      className="min-h-screen bg-background px-4 py-8 text-start text-slate-950 sm:px-6 sm:py-12"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
+      <div className="mx-auto w-full max-w-3xl">
+        <header className="mb-8 sm:mb-10">
           <Link
-            href={`/${locale}`}
+            href={getLocalePath(locale, '/')}
             className="group mb-8 inline-flex items-center gap-2 text-indigo-600"
           >
-            <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white transition-colors group-hover:bg-indigo-500">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white transition-colors group-hover:bg-indigo-500">
               <GraduationCap className="size-5" />
-            </div>
-            <span className="text-lg font-semibold">Mentora</span>
+            </span>
+            <span className="text-lg font-semibold">{t('brandName')}</span>
           </Link>
 
           <div className="mt-6 flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
               <HelpCircle className="size-5" />
+            </span>
+            <div>
+              <h1 className="text-2xl font-bold tracking-normal text-slate-900 sm:text-3xl">
+                {t('title')}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                {t('description')}
+              </p>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-              Help Center
-            </h1>
           </div>
-          <p className="mt-3 text-sm text-slate-500">
-            Answers to the most common questions about Mentora.
-          </p>
-        </div>
+        </header>
 
-        {/* FAQ list */}
-        <div className="space-y-4">
-          {faqs.map(({ question, answer }) => (
+        <section className="space-y-3" aria-labelledby="help-faqs-title">
+          <h2 className="sr-only" id="help-faqs-title">
+            {t('title')}
+          </h2>
+          {faqKeys.map((key) => (
             <details
-              key={question}
-              className="group rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+              key={key}
+              className="group rounded-lg border border-slate-200 bg-white transition-colors hover:border-slate-300"
             >
-              <summary className="flex cursor-pointer select-none items-center justify-between px-6 py-5 text-sm font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
-                {question}
-                <span className="ml-4 text-indigo-500 transition-transform duration-200 group-open:rotate-45">
-                  +
-                </span>
+              <summary className="flex cursor-pointer select-none items-center justify-between gap-4 px-4 py-4 text-sm font-semibold text-slate-900 [&::-webkit-details-marker]:hidden sm:px-5">
+                <span>{t(`faqs.${key}.question`)}</span>
+                <ChevronDown className="size-4 shrink-0 text-indigo-600 transition-transform duration-200 group-open:rotate-180" />
               </summary>
-              <div className="border-t border-slate-100 px-6 pb-5 pt-4 text-sm leading-relaxed text-slate-600">
-                {answer}
+              <div className="border-t border-slate-100 px-4 pb-4 pt-3 text-sm leading-6 text-slate-600 sm:px-5">
+                {t(`faqs.${key}.answer`, { email: supportEmail })}
               </div>
             </details>
           ))}
-        </div>
+        </section>
 
-        {/* Contact CTA */}
-        <div className="mt-12 rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
-            <Mail className="size-5" />
-          </div>
-          <h2 className="text-lg font-semibold text-slate-900">
-            Still need help?
-          </h2>
-          <p className="mt-2 text-sm text-slate-500">
-            Our support team is here for you.
-          </p>
-          <a
-            href="mailto:support@mentora.com"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
-          >
-            <Mail className="size-4" />
-            Email Support
-          </a>
-        </div>
+        <Card className="mt-10 rounded-lg border-slate-200 bg-white text-center shadow-none">
+          <CardHeader className="items-center px-5 pt-6">
+            <span className="flex size-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+              <Mail className="size-5" />
+            </span>
+            <CardTitle className="text-lg font-semibold">
+              {t('contact.title')}
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-600">
+              {t('contact.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5 pb-6">
+            <Button asChild className="h-11 rounded-lg bg-indigo-600 px-5">
+              <a href={`mailto:${supportEmail}`}>
+                <Mail className="size-4" />
+                {t('contact.email')}
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

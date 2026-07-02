@@ -79,6 +79,7 @@ const Linkedin = ({ className }: { className?: string }) => (
 export default function Footer() {
   const locale = useLocale();
   const t = useTranslations("home.footer");
+  const isRtl = locale === "ar";
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -156,7 +157,7 @@ export default function Footer() {
               ))}
               <li className="flex items-center justify-center gap-2 pt-2 text-slate-400 sm:justify-start">
                 <Mail className="size-4 shrink-0 text-indigo-400" />
-                <span className="text-xs">support@mentora.com</span>
+                <span className="text-xs">{t("supportEmail")}</span>
               </li>
             </ul>
           </div>
@@ -173,6 +174,7 @@ export default function Footer() {
                 type="email"
                 required
                 placeholder={t("emailPlaceholder")}
+                dir={isRtl ? "rtl" : "ltr"}
                 className="h-11 w-full rounded-lg border-slate-800 bg-slate-900 text-white placeholder:text-slate-500 focus-visible:border-indigo-500 focus-visible:ring-indigo-500"
               />
               <Button
