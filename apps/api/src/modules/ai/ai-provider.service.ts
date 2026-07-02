@@ -10,7 +10,7 @@ import type { AIProviderMessage } from './ai.types.js';
 type GenerateAIReplyInput = {
   conversationId?: string;
   learnerId?: string;
-  messages: OpenAIMessage[];
+  messages: AIProviderMessage[];
   locale?: string;
   goal?: string | null;
 };
@@ -21,7 +21,7 @@ const fallbackReply =
 export type { AIProviderMessage };
 
 export async function generateAIReply(input: GenerateAIReplyInput) {
-  const startedAt: number = Date.now();
+  const startedAt = Date.now();
 
   try {
     const result = await generateGeminiText({
@@ -72,44 +72,10 @@ export async function generateAIReply(input: GenerateAIReplyInput) {
       errorType: 'exception',
     });
 
-function buildModelSuccessLog(
-  input: GenerateAIReplyInput,
-  startedAt: number,
-  provider: string,
-  model: string | null | undefined,
-  usage: AIUsage,
-): CreateAILogInput {
-  return {
-    conversationId: input.conversationId,
-    learnerId: input.learnerId,
-    provider: provider,
-    model: model,
-    status: 'success',
-    latencyMs: Date.now() - startedAt,
-    promptMessagesCount: input.messages.length,
-    usage: usage,
-  };
-}
-
-function buildModelFailedLog(
-  input: GenerateAIReplyInput,
-  startedAt: number,
-  provider: string,
-  model: string | null | undefined,
-  errorStatus: number | null | undefined,
-  errorCode: string | null | undefined,
-  errorType: string | null | undefined,
-): CreateAILogInput {
-  return {
-    conversationId: input.conversationId,
-    learnerId: input.learnerId,
-    provider: provider,
-    model: model,
-    status: 'failed',
-    latencyMs: Date.now() - startedAt,
-    promptMessagesCount: input.messages.length,
-    errorStatus: errorStatus,
-    errorCode: errorCode,
-    errorType: errorType,
-  };
+    return {
+      content: fallbackReply,
+      provider: 'fallback',
+      model: null,
+    };
+  }
 }

@@ -531,8 +531,6 @@ export async function initiateCheckout(
     }
   }
 
-  const learner = await findUserById(learnerId.toString());
-
   // Step 6: Derive amount server-side from booking (never trust client)
   const amount = booking.price; // decimal (e.g. 250.00)
   const currency = (booking.currency ?? DEFAULT_CURRENCY) as

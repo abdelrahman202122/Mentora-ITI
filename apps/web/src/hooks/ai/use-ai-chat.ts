@@ -12,12 +12,75 @@ import type {
   AIChatResult,
 } from "@/types/ai/ai-types";
 
+type StoredAIChat = {
+  conversationId: string;
+  messages: AIConversationMessage[];
+};
+
+function getStorageKey(locale: string) {
+  return `mentora:ai-assistant:${locale}`;
+}
+
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Request failed";
 }
 
+function readStoredChat(locale: string): StoredAIChat | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const rawValue = window.sessionStorage.getItem(getStorageKey(locale));
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsed = JSON.parse(rawValue) as Partial<StoredAIChat>;
+
+    if (
+      typeof parsed.conversationId !== "string" ||
+      !Array.isArray(parsed.messages)
+    ) {
+      return null;
+    }
+
+    return {
+      conversationId: parsed.conversationId,
+      messages: parsed.messages.filter(
+        (message): message is AIConversationMessage =>
+          !!message &&
+          typeof message === "object" &&
+          typeof message._id === "string" &&
+          typeof message.conversationId === "string" &&
+          typeof message.content === "string"
+      ),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredChat(locale: string, chat: StoredAIChat) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(getStorageKey(locale), JSON.stringify(chat));
+  } catch {
+    // If browser storage is unavailable, the chat still works for this mount.
+  }
+}
+
 export function useAIChat(locale: string) {
-  const [messages, setMessages] = useState<AIConversationMessage[]>([]);
+  const [storedConversationId] = useState<string | null>(
+    () => readStoredChat(locale)?.conversationId ?? null
+  );
+  const [messages, setMessages] = useState<AIConversationMessage[]>(
+    () => readStoredChat(locale)?.messages ?? []
+  );
 
   const conversationQuery = useQuery({
     queryKey: ["ai-assistant", "conversation", locale],
@@ -32,14 +95,21 @@ export function useAIChat(locale: string) {
     refetchOnWindowFocus: false,
     retry: false,
     staleTime: Infinity,
+    enabled: !storedConversationId,
   });
 
-  const conversationId = conversationQuery.data?._id;
+  const conversationId = storedConversationId ?? conversationQuery.data?._id;
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMessages([]);
-  }, [conversationId]);
+    if (!conversationId) {
+      return;
+    }
+
+    writeStoredChat(locale, {
+      conversationId,
+      messages,
+    });
+  }, [conversationId, locale, messages]);
 
   const sendMessageMutation = useMutation<
     AIChatResult,
