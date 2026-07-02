@@ -126,9 +126,12 @@ export function getNavLinksByRole(
 
 export function resolveRole(
   propRole: SidebarRole | undefined,
-  userRole: string | undefined
+  userRole: string | undefined,
+  userRoles: string[] | undefined = undefined,
 ): SidebarRole {
   if (propRole) return propRole
+  if (userRoles?.includes("admin")) return "admin"
+  if (userRoles?.includes("tutor")) return "tutor"
   if (userRole === "tutor" || userRole === "admin") return userRole
   return "learner"
 }

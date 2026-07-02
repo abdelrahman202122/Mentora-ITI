@@ -4,6 +4,7 @@ import {
   Response,
   NextFunction,
 } from 'express';
+import { hasAnyRole } from '../modules/users/role.utils.js';
 
 export const roleMiddleware =
   (...roles: string[]) =>
@@ -19,9 +20,7 @@ export const roleMiddleware =
       });
     }
 
-    if (
-      !roles.includes(req.user.role)
-    ) {
+    if (!hasAnyRole(req.user, roles)) {
       return res.status(403).json({
         success: false,
         message: 'Forbidden',

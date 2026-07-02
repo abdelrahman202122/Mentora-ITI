@@ -20,6 +20,7 @@ import {
 interface UseMyBookingsProps {
   bookingStatus?: BookingStatus
   limit?: number
+  mode?: "learner" | "tutor" | "admin";
   page?: number;
 }
 

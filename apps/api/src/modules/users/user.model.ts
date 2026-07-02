@@ -3,6 +3,7 @@
 import mongoose from 'mongoose';
 import { IUser, UserRole } from './user.interface.js';
 import { hashPassword } from '../../utils/hashPassword.js';
+import { getPrimaryRole, normalizeRoles } from './role.utils.js';
 
 const { Schema, model } = mongoose;
 
@@ -25,9 +26,9 @@ const userSchema = new Schema(
       trim: true,
     },
     phoneNumber: {
-    type: String,
-    trim: true,
-    default: null,
+      type: String,
+      trim: true,
+      default: null,
     },
     password: {
       type: String,
@@ -40,6 +41,13 @@ const userSchema = new Schema(
       type: String,
       enum: Object.values(UserRole),
       default: UserRole.LEARNER,
+      required: true,
+    },
+
+    roles: {
+      type: [String],
+      enum: Object.values(UserRole),
+      default: [UserRole.LEARNER],
       required: true,
     },
 
@@ -93,6 +101,7 @@ const userSchema = new Schema(
  */
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1 });
+userSchema.index({ roles: 1 });
 userSchema.index({ adminStatus: 1 });
 
 /* ═══ YOUR EXISTING HOOK — password hashing (keep as-is) ═══ */
@@ -101,6 +110,13 @@ userSchema.pre('save', async function (next) {
 
   this.password = await hashPassword(this.password);
 
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  const roles = normalizeRoles(this);
+  this.roles = roles;
+  this.role = getPrimaryRole(roles);
   next();
 });
 
@@ -136,6 +152,23 @@ userSchema.pre('findOneAndUpdate', async function (next) {
     update.$setOnInsert.password = await hashPassword(
       update.$setOnInsert.password as string,
     );
+  }
+
+  const requestedRoles = update.roles ?? update.$set?.roles;
+  const requestedRole = update.role ?? update.$set?.role;
+  if (requestedRoles || requestedRole) {
+    const roles = normalizeRoles({
+      roles: requestedRoles as UserRole[] | undefined,
+      role: requestedRole as UserRole | undefined,
+    });
+
+    update.$set = {
+      ...(update.$set ?? {}),
+      roles,
+      role: getPrimaryRole(roles),
+    };
+    delete update.roles;
+    delete update.role;
   }
 
   next();

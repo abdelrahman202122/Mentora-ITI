@@ -16,6 +16,7 @@ import LevelStep from './LevelStep';
 import SubjectStep from './SubjectStep';
 import ResultsStep from './ResultsStep';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { TutorSearchSort } from '@/services/tutorsLearner/tutor-search';
 
 interface StepperSidebarProps {
   currentStep: number;
@@ -146,16 +147,47 @@ function StepperSidebar({
 
 type FindTutorProps = {
   initialStep?: number;
+  initialFilters?: {
+    curriculum: string | null;
+    languageQuery: string;
+    level: string | null;
+    maxHourlyRate: string;
+    minHourlyRate: string;
+    minRating: string;
+    page: string;
+    searchQuery: string;
+    sortBy: string;
+    subject: string | null;
+  };
 };
 
-export default function FindTutor({ initialStep = 1 }: FindTutorProps) {
+function normalizeInitialPage(page: string) {
+  const parsed = Number(page);
+
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function normalizeInitialSort(sortBy: string): TutorSearchSort {
+  return ['relevance', 'rating', 'price_asc', 'price_desc'].includes(sortBy)
+    ? (sortBy as TutorSearchSort)
+    : 'relevance';
+}
+
+export default function FindTutor({
+  initialStep = 1,
+  initialFilters,
+}: FindTutorProps) {
   const t = useTranslations('findTutor.steps');
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [selectedCurriculum, setSelectedCurriculum] = useState<string | null>(
-    null,
+    initialFilters?.curriculum ?? null,
   );
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(
+    initialFilters?.level ?? null,
+  );
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(
+    initialFilters?.subject ?? null,
+  );
 
   // Checks if the user is allowed to proceed to the next step
   const isStepComplete = () => {
@@ -228,6 +260,15 @@ export default function FindTutor({ initialStep = 1 }: FindTutorProps) {
             setCurriculum={setSelectedCurriculum}
             setLevel={setSelectedLevel}
             setSubject={setSelectedSubject}
+            initialLanguageQuery={initialFilters?.languageQuery ?? ''}
+            initialMaxHourlyRate={initialFilters?.maxHourlyRate ?? ''}
+            initialMinHourlyRate={initialFilters?.minHourlyRate ?? ''}
+            initialMinRating={initialFilters?.minRating ?? 'all'}
+            initialPage={normalizeInitialPage(initialFilters?.page ?? '1')}
+            initialSearchQuery={initialFilters?.searchQuery ?? ''}
+            initialSortBy={normalizeInitialSort(
+              initialFilters?.sortBy ?? 'relevance',
+            )}
           />
         );
       default:

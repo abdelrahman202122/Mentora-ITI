@@ -369,7 +369,8 @@
       "signUpLink": "Sign Up",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
-      "helpCenter": "Help Center"
+      "helpCenter": "Help Center",
+      "forgotPassword": "Forgot password?"
     },
     "register": {
       "title": "Join Mentora",
@@ -393,13 +394,41 @@
       "nameMin": "Name must be at least 2 characters",
       "phoneInvalid": "Enter a valid Egyptian phone number (e.g. 01012345678)",
       "roleInvalid": "Please choose a valid account type",
-      "passwordRequired": "Password is required"
+      "passwordRequired": "Password is required",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMustMatch": "Passwords must match"
     },
     "errors": {
       "invalidCredentials": "Invalid email or password",
       "emailAlreadyExists": "An account with this email already exists",
       "unauthorized": "You are not authorized to perform this action",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "invalidResetToken": "This reset link is invalid or expired. Please request a new password reset email."
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "description": "Enter your email and we will send a secure reset link if an account exists.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@company.com",
+      "submit": "Send reset link",
+      "submitting": "Sending reset link",
+      "checkEmailTitle": "Check your email",
+      "successMessage": "If an account with that email exists, a reset link has been sent.",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "description": "Create a new password for your Mentora account.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Enter a new password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Re-enter the new password",
+      "submit": "Reset password",
+      "submitting": "Resetting password",
+      "missingToken": "This reset link is missing a token. Please request a new password reset email.",
+      "successTitle": "Password reset",
+      "successMessage": "Password reset successfully. Please log in with your new password.",
+      "backToLogin": "Back to login"
     }
   },
   "home": {
@@ -601,6 +630,7 @@
     "downloadInvoice": "Download invoice",
     "viewDetailsFor": "View payment details for {title}",
     "sessionWith": "Session with {tutorName}",
+    "downloadInvoiceFor": "Download invoice for {title}",
     "session": "Session",
     "table": {
       "date": "Date",
@@ -716,6 +746,21 @@
     "goBack": "Go Back",
     "confirmCancel": "Confirm Cancel",
     "canceling": "Canceling...",
+    "review": {
+      "title": "Review your tutor",
+      "description": "Your session is complete. Share your feedback to help other learners choose the right tutor.",
+      "ratingLabel": "Rating",
+      "ratingRequired": "Please choose a rating before submitting your review.",
+      "ratingOption": "{count, plural, one {# star} other {# stars}}",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "What went well? Was the tutor clear, prepared, and helpful?",
+      "commentCount": "{count}/1000 characters",
+      "submit": "Submit review",
+      "submitting": "Submitting...",
+      "submitError": "Could not submit your review. Please try again.",
+      "submittedTitle": "Review submitted",
+      "submittedDescription": "Thank you. Your feedback is now linked to this completed session."
+    },
     "statuses": {
       "pending": "Pending",
       "confirmed": "Confirmed",
@@ -727,8 +772,8 @@
     "backToTutors": "Back to Tutors",
     "loading": "Loading...",
     "tutorNotFound": "Tutor not found.",
-    "reviews": "({count} reviews)",
-    "students": "{count} students",
+   "reviews": "({count, plural, one {# review} other {# reviews}})",
+    "students": "{count, plural, one {# student} other {# students}}",
     "hourlyRate": "{rate} {currency}/hr",
     "startingChat": "Starting chat...",
     "chatWith": "Chat with {name}",
@@ -944,6 +989,8 @@
   "collapse": "Collapse sidebar",
   "userAvatar": "User Avatar",
   "home": "Home",
+  "switchToTutor": "Switch to tutor mode",
+  "switchToLearner": "Switch to learner mode",
   "loggingOut": "Logging out...",
   "logOut": "Log Out"
 },

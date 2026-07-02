@@ -1,6 +1,10 @@
 import { type Socket } from 'socket.io';
 
 import { type AuthPayload, UserRole } from '../modules/users/user.interface.js';
+import {
+  getPrimaryRole,
+  normalizeRoles,
+} from '../modules/users/role.utils.js';
 import { verifyAccessToken } from '../utils/JWT.js';
 
 function getCookieValue(cookieHeader: string | undefined, name: string) {
@@ -31,10 +35,12 @@ function isAuthPayload(value: unknown): value is AuthPayload {
   }
 
   const payload = value as Partial<AuthPayload>;
+  const roles = normalizeRoles(payload);
 
   return (
     typeof payload.userId === 'string' &&
-    Object.values(UserRole).includes(payload.role as UserRole)
+    roles.length > 0 &&
+    roles.every((role) => Object.values(UserRole).includes(role))
   );
 }
 
@@ -58,9 +64,12 @@ export function authenticateSocket(
       return next(new Error('Invalid access token'));
     }
 
+    const roles = normalizeRoles(decoded as Partial<AuthPayload>);
+
     socket.data.user = {
       userId: decoded.userId,
-      role: decoded.role,
+      role: getPrimaryRole(roles),
+      roles,
     } satisfies AuthPayload;
 
     return next();

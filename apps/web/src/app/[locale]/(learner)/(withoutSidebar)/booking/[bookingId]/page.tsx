@@ -3,7 +3,7 @@
 
 import { initiateCheckout } from "@/services/payment/paymentService"
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import { Calendar, Clock, Hourglass, ArrowLeft, AlertCircle, Loader2, BadgeCheck, XCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { BookingDetails } from "@/types/bookingProcess/booking"
 import { getBookingById } from "@/services/booking-services/bookingDetailsService"
 import { cancelBooking } from "@/services/booking-services/cancelBooking"
 import { useTranslations } from "next-intl"
+import { LearnerReviewCard } from "@/components/reviews/LearnerReviewCard"
 
 function formatDate(iso: string, locale: string) {
   return new Date(iso).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", { 
@@ -56,13 +57,14 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 export default function BookingDetailsPage() {
   const t = useTranslations("BookingDetails")
   const params = useParams()
-  const router = useRouter()
-  const bookingId = params.bookingId as string
+  const bookingId = params.bookingId as string | undefined
   const locale = (params.locale as string) ?? "en"
 
   const [booking, setBooking] = useState<BookingDetails | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(Boolean(bookingId))
+  const [error, setError] = useState<string | null>(() =>
+    bookingId ? null : t("bookingIdNotFound")
+  )
 
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
@@ -74,8 +76,6 @@ export default function BookingDetailsPage() {
 
   useEffect(() => {
     if (!bookingId) {
-      setError(t("bookingIdNotFound"))
-      setLoading(false)
       return
     }
 
@@ -86,6 +86,11 @@ export default function BookingDetailsPage() {
   }, [bookingId, t])
 
   async function handleCancel() {
+    if (!bookingId) {
+      setCancelError(t("bookingIdNotFound"))
+      return
+    }
+
     if (!cancelReason.trim()) {
       setCancelError(t("cancelReasonError"))
       return
@@ -131,7 +136,7 @@ export default function BookingDetailsPage() {
         return
       }
 
-      window.location.href = checkoutUrl
+      window.location.assign(checkoutUrl)
     } catch (err) {
       setPayError(err instanceof Error ? err.message : t("paymentFailedError"))
       setIsPaying(false)
@@ -262,6 +267,18 @@ export default function BookingDetailsPage() {
                   </Button>
                 )}
               </div>
+            )}
+
+            {booking.bookingStatus === "completed" && (
+              <LearnerReviewCard
+                bookingId={booking._id}
+                alreadyReviewed={Boolean(booking.reviewId)}
+                onReviewCreated={(reviewId) => {
+                  setBooking((currentBooking) =>
+                    currentBooking ? { ...currentBooking, reviewId } : currentBooking
+                  )
+                }}
+              />
             )}
           </>
         )}

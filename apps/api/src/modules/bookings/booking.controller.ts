@@ -4,6 +4,8 @@ import { sendSuccess } from '../../utils/api-response.js';
 import { AppError, UnauthorizedError } from '../../common/errors/AppError.js';
 import type { CreateBookingInput } from '../../validators/booking.js';
 import * as bookingService from './booking.service.js';
+import { hasRole } from '../users/role.utils.js';
+import { UserRole } from '../users/user.interface.js';
 
 const { Types } = mongoose;
 
@@ -30,6 +32,7 @@ export async function createBooking(
     bookingService.validateLearnerRole({
       id: req.user.userId,
       role: req.user.role,
+      roles: req.user.roles,
     });
 
     // Get request body
@@ -94,19 +97,36 @@ export async function listMyBookings(
       subjectId: req.query.subjectId as string | undefined,
     };
 
-    const userRole = req.user.role;
     const userId = new Types.ObjectId(req.user.userId);
+    const mode =
+      req.query.mode === 'tutor' || req.query.mode === 'admin'
+        ? req.query.mode
+        : 'learner';
 
     let result;
-    if (userRole === 'tutor') {
+    if (mode === 'tutor') {
+      if (!hasRole(req.user, UserRole.TUTOR)) {
+        throw new AppError('Only tutors can list tutor bookings', 403, 'FORBIDDEN');
+      }
+
       result = await bookingService.listTutorBookings(userId, page, limit, {
         bookingStatus: filters.bookingStatus,
         paymentStatus: filters.paymentStatus,
         subjectId: filters.subjectId,
       });
-    } else if (userRole === 'admin') {
+    } else if (mode === 'admin') {
+      if (!hasRole(req.user, UserRole.ADMIN)) {
+        throw new AppError('Only admins can list all bookings', 403, 'FORBIDDEN');
+      }
+
       result = await bookingService.listAdminBookings(page, limit, filters);
     } else {
+      bookingService.validateLearnerRole({
+        id: req.user.userId,
+        role: req.user.role,
+        roles: req.user.roles,
+      });
+
       result = await bookingService.listLearnerBookings(
         userId,
         page,
@@ -152,7 +172,7 @@ export async function getBookingById(
     const booking = await bookingService.getBookingByIdWithAuth(
       bookingObjectId,
       req.user.userId,
-      req.user.role,
+      req.user.roles,
     );
 
     sendSuccess(res, 200, 'Booking retrieved successfully', booking);
@@ -180,6 +200,7 @@ export async function acceptBooking(
     bookingService.validateTutorRole({
       id: req.user.userId,
       role: req.user.role,
+      roles: req.user.roles,
     });
 
     // Get booking ID from params
@@ -217,6 +238,7 @@ export async function rejectBooking(
     bookingService.validateTutorRole({
       id: req.user.userId,
       role: req.user.role,
+      roles: req.user.roles,
     });
 
     // Get booking ID from params
@@ -259,7 +281,7 @@ export async function cancelBooking(
     const booking = await bookingService.cancelBooking(
       bookingObjectId,
       req.user.userId,
-      req.user.role,
+      req.user.roles,
       cancelReason,
     );
 
@@ -288,6 +310,7 @@ export async function confirmBookingCode(
     bookingService.validateTutorRole({
       id: req.user.userId,
       role: req.user.role,
+      roles: req.user.roles,
     });
 
     // Get booking ID from params

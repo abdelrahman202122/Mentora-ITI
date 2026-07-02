@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encryptConfirmationCode } from '../../src/modules/bookings/confirmation-code.util.js';
 import { BookingStatus, PaymentStatus } from '../../src/modules/bookings/booking.types.js';
 import { EarningStatus } from '../../src/modules/payments/earning.types.js';
@@ -27,12 +27,19 @@ describe('confirmBookingCode', () => {
   const bookingId = new mongoose.Types.ObjectId();
   const tutorId = new mongoose.Types.ObjectId();
   const plainCode = 'AB12CD34';
-  const completedAt = new Date('2026-07-01T12:00:00.000Z');
+  const now = new Date('2026-07-01T12:00:00.000Z');
+  const completedAt = now;
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
     vi.mocked(bookingRepository.findBookingById).mockReset();
     vi.mocked(bookingRepository.completeConfirmedBooking).mockReset();
     vi.mocked(earningRepository.updateEarningAtomically).mockReset();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('marks the booking completed and promotes the related earning to available', async () => {

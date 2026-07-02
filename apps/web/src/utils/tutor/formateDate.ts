@@ -9,7 +9,11 @@ export function formatDate(iso: string, locale: string) {
   });
 }
 
-export function formatTime(isoString: string, locale: string, t: (key: string, values?: any) => string): string {
+export function formatTime(
+  isoString: string,
+  locale: string,
+  t: (key: string, values?: Record<string, string>) => string,
+): string {
   const date = new Date(isoString);
   const today = new Date();
 

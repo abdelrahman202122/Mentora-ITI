@@ -113,8 +113,8 @@ describe('Payment checkout', () => {
     };
 
     expect(requestBody.billing_data).toEqual({
-      first_name: 'Sara Ahmed',
-      last_name: 'Sara Ahmed',
+      first_name: 'Sara',
+      last_name: 'Ahmed',
       phone_number: '01012345678',
     });
   });

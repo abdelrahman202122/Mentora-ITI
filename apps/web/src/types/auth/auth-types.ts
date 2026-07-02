@@ -5,7 +5,8 @@ export type AuthUser = {
   name: string;
   email: string;
   phoneNumber?: string | null;
-  role: UserRole;
+  role?: UserRole;
+  roles?: UserRole[];
   avatar?: string;
   isEmailVerified?: boolean;
 };
@@ -22,8 +23,22 @@ export type RegisterInput = {
   phoneNumber: string;
 };
 
+export type ForgotPasswordInput = {
+  email: string;
+};
+
+export type ResetPasswordInput = {
+  token: string;
+  newPassword: string;
+};
+
 export type ApiSuccess<T> = {
   success: true;
   message?: string;
   data: T;
+};
+
+export type ApiMessageSuccess = {
+  success: true;
+  message?: string;
 };

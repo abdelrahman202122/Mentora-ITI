@@ -140,6 +140,15 @@ export default function LoginPage() {
                 </FieldError>
               </div>
 
+              <div className="flex justify-end">
+                <Link
+                  className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                  href={getLocalePath(locale, '/forgot-password')}
+                >
+                  {t('login.forgotPassword')}
+                </Link>
+              </div>
+
               <Button
                 className="h-12 w-full bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-700"
                 disabled={loginMutation.isPending}

@@ -83,12 +83,12 @@ export default function PaymentMobileList({
                   <div className="flex items-center gap-3">
                     <StatusBadge status={payment.status} />
 
-                    <button
+                   =<button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExportInvoice(payment);
                       }}
-                      aria-label={t("downloadInvoice") + ` — ${title}`}
+                      aria-label={t("downloadInvoiceFor", { title })}
                       className="text-indigo-400 hover:text-indigo-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:rounded"
                     >
                       <FileText size={16} />

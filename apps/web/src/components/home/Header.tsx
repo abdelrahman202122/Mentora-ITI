@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { useCurrentUser, useLogout } from "@/hooks/auth/use-auth";
+import { hasRole } from "@/utils/auth/role-utils";
 import { getLocalePath } from "@/utils/i18n/locale-path";
 
 /** Swap the locale prefix in a full pathname, preserving the rest of the path. */
@@ -46,13 +47,15 @@ export default function Header() {
   const dashboardPath = user
     ? getLocalePath(
         locale,
-        user.role === "tutor" ? "/tutor/dashboard" : "/dashboard",
+        hasRole(user, "tutor") && !hasRole(user, "learner")
+          ? "/tutor/dashboard"
+          : "/dashboard",
       )
     : "";
   const tutorProfilePath = getLocalePath(locale, "/tutor/profile/create");
 
   const becomeTutorLoginHref = `${loginPath}?next=${encodeURIComponent(tutorProfilePath)}`;
-  const showBecomeTutor = !isPending && (!user || user.role === "learner");
+  const showBecomeTutor = !isPending && (!user || !hasRole(user, "tutor"));
 
   const targetLocale = locale === "en" ? "ar" : "en";
   const targetLabel = locale === "en" ? "العربية" : "English";
