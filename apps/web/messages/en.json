@@ -58,6 +58,148 @@
       "system": "System"
     }
   },
+  "helpPage": {
+    "meta": {
+      "title": "Help Center - Mentora",
+      "description": "Find answers to common questions about using the Mentora tutoring platform."
+    },
+    "brandName": "Mentora",
+    "title": "Help Center",
+    "description": "Answers to the most common questions about Mentora.",
+    "contact": {
+      "title": "Still need help?",
+      "description": "Our support team is here for you.",
+      "email": "Email Support"
+    },
+    "supportEmail": "mentora.egy@gmail.com",
+    "faqs": {
+      "account": {
+        "question": "How do I create an account?",
+        "answer": "Open the register page, enter your name, email, phone number, and password. You can start as a learner, then create a tutor profile later if you want to teach."
+      },
+      "findTutor": {
+        "question": "How do I find a tutor?",
+        "answer": "Use Find Tutor to choose your curriculum, level, and subject. Then refine results by language, price, rating, and keywords before opening a tutor profile."
+      },
+      "payments": {
+        "question": "How do payments work?",
+        "answer": "Payments are processed securely through the payment provider after a tutor confirms your booking. Your dashboard will show the payment status for each session."
+      },
+      "cancel": {
+        "question": "Can I cancel a session?",
+        "answer": "You can cancel eligible bookings from your booking details page. The available actions depend on the booking status and session time."
+      },
+      "becomeTutor": {
+        "question": "How do I become a tutor?",
+        "answer": "Log in, choose Become a Tutor, and complete your tutor profile with your headline, bio, hourly rate, languages, education, and experience."
+      },
+      "forgotPassword": {
+        "question": "I forgot my password. What do I do?",
+        "answer": "Open Forgot Password from the login page and enter your email. If an account exists, Mentora will send a secure reset link."
+      },
+      "support": {
+        "question": "How do I contact support?",
+        "answer": "Email us at {email}. We aim to respond within 24 hours on business days."
+      }
+    }
+  },
+  "privacyPage": {
+    "brandName": "Mentora",
+    "title": "Privacy Policy",
+    "description": "How Mentora handles account, learning, booking, payment, chat, and support data.",
+    "lastUpdated": "Last updated: July 2026",
+    "supportEmail": "mentora.egy@gmail.com",
+    "sections": {
+      "collect": {
+        "title": "1. Information We Collect",
+        "body": "Mentora collects the information needed to operate a tutoring marketplace. This can include your name, email address, phone number, password credentials, roles, avatar, learner profile activity, tutor profile details, subjects, availability, bookings, payments, reviews, messages, notifications, and support requests."
+      },
+      "use": {
+        "title": "2. How We Use Information",
+        "intro": "We use your information to:",
+        "auth": "Create accounts, authenticate users, and protect sessions.",
+        "matching": "Help learners find tutors by subject, level, curriculum, language, price, rating, and availability.",
+        "booking": "Create, confirm, cancel, complete, and review tutoring sessions.",
+        "payment": "Start Paymob checkout, track payment status, and keep booking/payment records consistent.",
+        "chat": "Deliver chat messages, notifications, and real-time updates between learners and tutors.",
+        "ai": "Support AI-assisted study guidance and tutor recommendations when you use AI features.",
+        "support": "Respond to support, account, and safety requests."
+      },
+      "sharing": {
+        "title": "3. Data Sharing",
+        "body": "We do not sell personal data. We share only what is needed to run the service: with Paymob or payment providers for checkout, between matched learners and tutors for bookings and communication, with hosting/database providers for platform operation, and with authorities only when legally required."
+      },
+      "cookies": {
+        "title": "4. Cookies",
+        "body": "Mentora uses essential cookies for secure login sessions and locale-aware navigation. We do not use cookies to store JWTs in browser localStorage or sessionStorage."
+      },
+      "retention": {
+        "title": "5. Data Retention",
+        "body": "We keep account, booking, payment, review, and message records while they are needed for platform operation, legal, financial, safety, or dispute-resolution purposes. You can request account support or deletion by contacting {email}."
+      },
+      "rights": {
+        "title": "6. Your Rights",
+        "body": "You may request access, correction, or deletion of your personal information. Some records, such as completed payments or booking history, may need to be retained when required for accounting, security, or legal reasons."
+      },
+      "security": {
+        "title": "7. Security",
+        "body": "We use secure cookies, authentication checks, authorization by role, and server-side validation to protect accounts and platform data. No online system is perfect, so please keep your login details private and contact us if you notice unusual activity."
+      },
+      "contact": {
+        "title": "8. Contact",
+        "body": "Questions about privacy or data requests can be sent to {email}."
+      }
+    }
+  },
+  "termsPage": {
+    "brandName": "Mentora",
+    "title": "Terms of Service",
+    "description": "The rules for using Mentora as a learner, tutor, or platform operator.",
+    "lastUpdated": "Last updated: July 2026",
+    "supportEmail": "mentora.egy@gmail.com",
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "body": "By creating an account or using Mentora, you agree to these terms. If you do not agree, please do not use the platform."
+      },
+      "accounts": {
+        "title": "2. Accounts and Roles",
+        "body": "You must provide accurate account information and keep your login credentials secure. A user may act as a learner, tutor, or both when the platform enables those roles. Tutor capability requires a completed tutor profile and may be reviewed by the platform."
+      },
+      "tutors": {
+        "title": "3. Tutor Profiles and Discovery",
+        "body": "Tutors are responsible for accurate profile information, subjects, hourly rates, languages, education, experience, and availability. Mentora may use this information to power tutor search, AI-assisted recommendations, and booking flows."
+      },
+      "bookings": {
+        "title": "4. Bookings and Sessions",
+        "body": "Learners can request sessions with tutors. Tutors can accept, reject, cancel, or complete eligible bookings. Session start and completion features may require booking status, payment status, and a learner confirmation code."
+      },
+      "payments": {
+        "title": "5. Payments",
+        "body": "Payments are processed through Paymob or another configured payment provider. Payment status may depend on provider redirects and webhooks. Do not attempt to bypass Mentora payment flows for platform sessions."
+      },
+      "cancellations": {
+        "title": "6. Cancellations and Refunds",
+        "body": "Cancellation and refund handling depends on booking status, payment status, session timing, and platform policy. If there is a dispute or payment issue, contact {email}."
+      },
+      "communication": {
+        "title": "7. Messages, Notifications, Reviews, and AI",
+        "body": "Mentora provides chat, notifications, reviews, and AI-assisted guidance to support learning and tutor selection. Users must not send abusive, misleading, spam, or unsafe content. AI output is guidance only and should not be treated as a guarantee."
+      },
+      "prohibited": {
+        "title": "8. Prohibited Conduct",
+        "body": "You may not impersonate others, misrepresent qualifications, harass users, upload harmful content, misuse payments, scrape the platform, attempt unauthorized access, or move platform sessions outside Mentora to avoid fees."
+      },
+      "liability": {
+        "title": "9. Limitation of Liability",
+        "body": "Mentora helps connect learners and tutors, but tutors are independent educators. Mentora is not responsible for every learning outcome, scheduling conflict, or indirect loss caused by platform use."
+      },
+      "contact": {
+        "title": "10. Contact",
+        "body": "Questions about these terms can be sent to {email}."
+      }
+    }
+  },
   "aiTutorFinder": {
     "badge": "AI Tutor Finder",
     "title": "Find a tutor that matches your learning needs",
@@ -402,6 +544,7 @@
       "invalidCredentials": "Invalid email or password",
       "emailAlreadyExists": "An account with this email already exists",
       "unauthorized": "You are not authorized to perform this action",
+      "rateLimited": "Too many attempts. Please wait a few minutes, then try again.",
       "generic": "Something went wrong. Please try again.",
       "invalidResetToken": "This reset link is invalid or expired. Please request a new password reset email."
     },
@@ -438,7 +581,10 @@
       "logOut": "Log out",
       "loggingOut": "Logging out...",
       "logIn": "Log in",
-      "loadingAccount": "Loading account"
+      "loadingAccount": "Loading account",
+      "openMenu": "Open navigation menu",
+      "closeMenu": "Close navigation menu",
+      "switchLanguage": "Switch language"
     },
     "hero": {
       "badge": "Tutoring that fits",
@@ -509,6 +655,7 @@
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "helpCenter": "Help Center",
+      "supportEmail": "mentora.egy@gmail.com",
       "newsletter": "Newsletter",
       "newsletterDescription": "Get tutor-search tips, platform updates, and learning resources in your inbox.",
       "emailPlaceholder": "Enter your email",

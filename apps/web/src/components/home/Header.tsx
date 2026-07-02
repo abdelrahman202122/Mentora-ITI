@@ -98,6 +98,7 @@ export default function Header() {
             onClick={handleSwitchLocale}
             variant="ghost"
             size="sm"
+            aria-label={t("switchLanguage")}
             className="gap-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600"
           >
             <Globe className="size-4" />
@@ -160,7 +161,7 @@ export default function Header() {
 
         <Button
           aria-expanded={isMenuOpen}
-          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={isMenuOpen ? t("closeMenu") : t("openMenu")}
           className="md:hidden"
           onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
           size="icon"
@@ -178,6 +179,7 @@ export default function Header() {
             <Button
               onClick={handleSwitchLocale}
               variant="ghost"
+              aria-label={t("switchLanguage")}
               className="justify-start gap-1.5 text-sm font-medium text-slate-600 hover:text-indigo-600"
             >
               <Globe className="size-4" />

@@ -21,7 +21,6 @@ export default function LevelStep({
   const t = useTranslations("findTutor.level");
   const { data: levels, isLoading, error } = useEducationLevels();
 
-  // Helper to assign icons to different levels
   const getIcon = (value: string) => {
     const val = value.toLowerCase();
     if (val.includes("primary")) {
@@ -65,8 +64,9 @@ export default function LevelStep({
     );
   }
 
-  // Sort levels by order if available
-  const sortedLevels = [...levels].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const sortedLevels = [...levels].sort(
+    (a, b) => (a.order || 0) - (b.order || 0),
+  );
 
   return (
     <motion.div
@@ -78,9 +78,7 @@ export default function LevelStep({
     >
       <div>
         <h2 className="text-2xl font-semibold mb-2">{t("title")}</h2>
-        <p className="text-slate-600">
-          {t("description")}
-        </p>
+        <p className="text-slate-600">{t("description")}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">

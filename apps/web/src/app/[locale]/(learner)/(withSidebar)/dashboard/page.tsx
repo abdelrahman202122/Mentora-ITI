@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -13,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Booking } from '@/types/bookingProcess/booking';
+import type { Booking } from '@/types/bookingProcess/booking';
 import { getMyBookings } from '@/services/booking-services/getMyBookingService';
 import { getSubjectTitle } from '@/services/booking-services/getSubjectTitleService';
 import { getTutorName } from '@/services/booking-services/getTutorNameService';
@@ -108,8 +107,9 @@ export default function LearnerDashboardPage() {
   const [subjectTitles, setSubjectTitles] = useState<Record<string, string>>({});
   const [tutorNames, setTutorNames] = useState<Record<string, string>>({});
 
- const [statusFilter, setStatusFilter] = useState
-  <'all' | 'pending' | 'confirmed' | 'completed' | 'canceled' | 'paid'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'pending' | 'confirmed' | 'completed' | 'canceled' | 'paid'
+  >('all');
 
   const [now, setNow] = useState(() => Date.now());
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
@@ -207,7 +207,7 @@ export default function LearnerDashboardPage() {
 
     try {
       const { checkoutUrl } = await initiateCheckout(bookingId);
-      window.location.href = checkoutUrl;
+      window.location.assign(checkoutUrl);
     } catch (err: unknown) {
       console.error(err);
       setPayError(err instanceof Error ? err.message : t('errors.payFailed'));
@@ -245,59 +245,59 @@ export default function LearnerDashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#1E2240] p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background p-4 text-slate-950 md:p-8">
+      <div className="mx-auto max-w-5xl space-y-8">
 
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#11142D]">
+          <h1 className="text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">
             {t('welcomeBack', { name: currentUser?.name ?? '' })}
           </h1>
-          <p className="text-sm text-[#68718B] mt-1">
+          <p className="mt-1 text-sm text-slate-600">
             {t('subtitle')}
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="flex items-start justify-between rounded-lg border border-slate-200 bg-white p-5">
             <div>
-              <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                 {t('stats.sessionsCompleted')}
               </p>
-              <p className="text-3xl font-black text-[#5051F9]">
+              <p className="text-3xl font-black text-indigo-600">
                 {totalCompleted}
               </p>
             </div>
-            <div className="bg-[#EEF2FF] p-2.5 rounded-full text-[#5051F9]">
+            <div className="rounded-full bg-indigo-50 p-2.5 text-indigo-600">
               <CheckCircle2 size={18} className="stroke-[2.5]" />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
+          <div className="flex items-start justify-between rounded-lg border border-slate-200 bg-white p-5">
             <div>
-              <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                 {t('stats.hoursLearned')}
               </p>
-              <p className="text-3xl font-black text-[#5051F9]">
+              <p className="text-3xl font-black text-indigo-600">
                 {totalHours}h
               </p>
             </div>
-            <div className="bg-[#EEF2FF] p-2.5 rounded-full text-[#5051F9]">
+            <div className="rounded-full bg-indigo-50 p-2.5 text-indigo-600">
               <Clock size={18} className="stroke-[2.5]" />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex justify-between items-start">
+          <div className="flex items-start justify-between rounded-lg border border-slate-200 bg-white p-5">
             <div>
-              <p className="text-xs font-bold text-[#68718B] uppercase tracking-wider mb-2">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                 {t('stats.upcomingSessions')}
               </p>
-              <p className="text-3xl font-black text-[#5051F9]">
+              <p className="text-3xl font-black text-indigo-600">
                 {upcomingCount}
               </p>
             </div>
-            <div className="bg-[#EEF2FF] p-2.5 rounded-full text-[#5051F9]">
+            <div className="rounded-full bg-indigo-50 p-2.5 text-indigo-600">
               <Calendar size={14} className="stroke-[2.5]" />
             </div>
           </div>
@@ -305,8 +305,8 @@ export default function LearnerDashboardPage() {
 
         {/* Live Session Banner */}
         {currentActiveSession && (
-          <div className="bg-[#5051F9] text-white rounded-2xl p-6 shadow-xl shadow-indigo-100 relative overflow-hidden ">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 relative">
+          <div className="relative overflow-hidden rounded-lg bg-indigo-600 p-6 text-white">
+            <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-white/90">
                   <Video size={18} />
@@ -321,37 +321,39 @@ export default function LearnerDashboardPage() {
                   </p>
                 </div>
                 {currentActiveSession.confirmationCode && (
-                  <div className="inline-flex items-center gap-2 bg-black/20 rounded-lg px-3 py-1.5 text-xs font-mono tracking-wide">
+                  <div className="inline-flex flex-wrap items-center gap-2 rounded-lg bg-black/20 px-3 py-1.5 font-mono text-xs tracking-wide">
                     <span>
                       {t('liveSession.confirmationCode')}{' '}
-                      <span className="font-bold text-lg ml-1">
+                      <span className="ms-1 text-lg font-bold">
                         {currentActiveSession.confirmationCode}
                       </span>
                     </span>
-                    <button
+                    <Button
+                      type="button"
+                      variant="ghost"
                       onClick={() =>
                         handleCopyConfirmationCode(currentActiveSession.confirmationCode!)
                       }
-                      className="ml-2 bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-md transition-colors shrink-0"
+                      className="h-7 shrink-0 rounded-md bg-white/20 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-white/30 hover:text-white"
                     >
                       {copyStatus === 'copied'
                         ? t('liveSession.copied')
                         : copyStatus === 'error'
                         ? t('liveSession.failed')
                         : t('liveSession.copy')}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
              
             </div>
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+            <div className="absolute -bottom-10 end-[-2.5rem] size-40 rounded-full bg-white/10 blur-2xl" />
           </div>
         )}
 
         {/* Pay error */}
         {payError && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
+          <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             <AlertCircle size={16} />
             <span>{payError}</span>
           </div>
@@ -359,43 +361,45 @@ export default function LearnerDashboardPage() {
 
         {/* Bookings List */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-[#11142D]">
+          <h2 className="text-xl font-bold text-slate-950">
             {t('bookingsList.title')}
           </h2>
 
           {/* Status filter tabs */}
           <div className="flex flex-wrap gap-2">
             {statusTabs.map((tab) => (
-              <button
+              <Button
                 key={tab.key}
+                type="button"
+                variant="outline"
                 onClick={() => setStatusFilter(tab.key)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                className={`h-9 rounded-lg px-4 text-xs font-bold transition-colors ${
                   statusFilter === tab.key
-                    ? 'bg-[#5051F9] text-white border-[#5051F9]'
-                    : 'bg-white text-[#68718B] border-gray-200 hover:bg-gray-50'
+                    ? 'border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 {tab.label}
-              </button>
+              </Button>
             ))}
           </div>
 
           {loading && (
-            <div className="flex items-center gap-2 text-gray-400 text-sm py-8 justify-center">
-              <Loader2 size={20} className="animate-spin text-[#5051F9]" />
+            <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-500">
+              <Loader2 size={20} className="animate-spin text-indigo-600" />
               <span>{t('bookingsList.loading')}</span>
             </div>
           )}
 
           {error && (
-            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
+            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               <AlertCircle size={16} />
               <span>{error}</span>
             </div>
           )}
 
           {!loading && !error && filteredBookings.length === 0 && (
-            <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
+            <div className="rounded-lg border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
               {t('bookingsList.empty')}
             </div>
           )}
@@ -414,89 +418,49 @@ export default function LearnerDashboardPage() {
                     onClick={() =>
                       router.push(`/${locale}/booking/${booking._id}`)
                     }
-                    className="bg-white hover:bg-gray-50/50 rounded-2xl p-4 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.01)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer transition-all duration-200"
+                    className="flex cursor-pointer flex-col justify-between gap-4 rounded-lg border border-slate-200 bg-white p-4 transition-colors duration-200 hover:bg-slate-50 sm:flex-row sm:items-center"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#E0E7FF] text-[#5051F9] flex items-center justify-center font-bold text-sm uppercase shrink-0">
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-sm font-bold uppercase text-indigo-600">
                         {getDisplaySubject(booking.subjectId).substring(0, 2)}
                       </div>
                       <div className="flex flex-col">
-                        <h4 className="font-bold text-[#11142D] text-[15px]">
+                        <h4 className="text-[15px] font-bold text-slate-950">
                           {getDisplaySubject(booking.subjectId)}
                         </h4>
-                        <p className="text-xs text-[#68718B]">
+                        <p className="text-xs text-slate-500">
                           {t('bookingsList.with', { tutorName: getDisplayTutor(booking.tutorId) })}
                         </p>
                         <BookingStatusBadge status={booking.bookingStatus} t={t} />
                         {showConfirmationCode && (
                           <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <span className="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-mono text-xs font-bold tracking-wider text-[#5051F9]">
+                            <span className="rounded-lg bg-indigo-50 px-3 py-1.5 font-mono text-xs font-bold tracking-wider text-indigo-600">
                               {t('liveSession.confirmationCode')}{' '}
                               {booking.confirmationCode}
                             </span>
-                            <button
+                            <Button
+                              type="button"
+                              variant="outline"
                               onClick={(event) => {
                                 event.stopPropagation();
                                 handleCopyConfirmationCode(booking.confirmationCode!);
                               }}
-                              className="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-[#68718B] transition-colors hover:bg-gray-50"
-                              type="button"
+                              className="h-7 rounded-lg border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50"
                             >
                               {copyStatus === 'copied'
                                 ? t('liveSession.copied')
                                 : copyStatus === 'error'
                                 ? t('liveSession.failed')
                                 : t('liveSession.copy')}
-                            </button>
+                            </Button>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* <div className="flex items-center gap-4 ml-auto sm:ml-0">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-[#68718B] bg-gray-50 px-3 py-2 rounded-xl border border-gray-100/80">
-                        <Calendar size={14} className="text-[#5051F9]" />
-                        <span>
-                          {formatDisplayTime(
-                            booking.startAt,
-                            booking.durationMinutes,
-                            t,
-                          )}
-                        </span>
-                      </div>
-
-                      {isPaid && (
-                        <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-2 rounded-xl shrink-0">
-                          <CheckCircle2 size={14} className="text-green-600" />
-                          {t('bookingsList.paid')}
-                        </span>
-                      )}
-
-                      {showPayNow && (
-                        <Button
-                          disabled={isCheckingOut}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePayNow(booking._id);
-                          }}
-                          className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          {isCheckingOut ? (
-                            <>
-                              <Loader2 size={12} className="animate-spin mr-1" /> {t('bookingsList.processing')}
-                            </>
-                          ) : (
-                            t('bookingsList.payNow')
-                          )}
-                        </Button>
-                      )}
-                    </div> */}
-
-
-
-                    <div className="flex items-center gap-4 ml-auto sm:ml-0">
-  <div className="flex items-center gap-2 text-xs font-semibold text-[#68718B] bg-gray-50 px-3 py-2 rounded-xl border border-gray-100/80">
-    <Calendar size={14} className="text-[#5051F9]" />
+                    <div className="ms-auto flex flex-wrap items-center gap-3 sm:ms-0 sm:justify-end">
+  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+    <Calendar size={14} className="text-indigo-600" />
     <span>
       {formatDisplayTime(
         booking.startAt,
@@ -508,7 +472,7 @@ export default function LearnerDashboardPage() {
   </div>
 
   {isPaid && (
-    <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-bold px-3 py-2 rounded-xl shrink-0">
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
       <CheckCircle2 size={14} className="text-green-600" />
       {t('bookingsList.paid')}
     </span>
@@ -521,11 +485,11 @@ export default function LearnerDashboardPage() {
         e.stopPropagation();
         handlePayNow(booking._id);
       }}
-      className="bg-[#5051F9] hover:bg-[#4041DB] text-white text-xs font-bold px-4 py-2 h-9 rounded-xl transition-all shadow-sm shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+      className="h-9 shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {isCheckingOut ? (
         <>
-          <Loader2 size={12} className="animate-spin mr-1" /> {t('bookingsList.processing')}
+          <Loader2 size={12} className="me-1 animate-spin" /> {t('bookingsList.processing')}
         </>
       ) : (
         t('bookingsList.payNow')
