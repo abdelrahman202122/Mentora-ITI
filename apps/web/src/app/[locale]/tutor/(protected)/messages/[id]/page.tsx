@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 
 import { ChatConversation } from "@/components/chat/ChatConversation";
@@ -11,6 +11,7 @@ export default function TutorChatPage() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const locale = useLocale();
+  const t = useTranslations("Chat.tutor");
   const status: ChatStatus =
     searchParams.get("status") === "archived" ? "archived" : "active";
   const messagesHref = getLocalePath(locale, "/tutor/messages");
@@ -22,8 +23,8 @@ export default function TutorChatPage() {
       chatId={params.id}
       restoreRedirectHref={messagesHref}
       status={status}
-      subtitle="Learner conversation history"
-      title="Learner messages"
+      subtitle={t("conversationSubtitle")}
+      title={t("title")}
     />
   );
 }

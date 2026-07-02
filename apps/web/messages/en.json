@@ -669,7 +669,11 @@
   
   "Booking": {
     "backToTeacherProfile": "Back to Teacher Profile",
+    "backToTutorResults": "Back to Tutor Results",
     "bookNewSession": "Book New Session",
+    "fallbackTutor": "Tutor",
+    "fallbackSubject": "Session",
+    "fallbackCurrency": "EGP",
     "missingTutorSubject": "We couldn't find the tutor or subject for this booking. Please go back and pick a tutor and subject before booking a session.",
     "selectDate": "Select Date",
     "lessonDuration": "Lesson Duration",
@@ -779,6 +783,8 @@
     "sessionWith": "Session with {tutorName}",
     "downloadInvoiceFor": "Download invoice for {title}",
     "session": "Session",
+    "fallbackTutor": "Tutor",
+    "durationHours": "{count, plural, one {# hour} other {# hours}}",
     "table": {
       "date": "Date",
       "description": "Description",
@@ -787,7 +793,9 @@
       "invoice": "Invoice"
     },
     "pagination": {
-      "showing": "Showing {from}–{to} of {total}"
+      "showing": "Showing {from}–{to} of {total}",
+      "previous": "Previous page",
+      "next": "Next page"
     },
     "filter": {
       "filter": "Filter",
@@ -835,6 +843,114 @@
       "refunded": "Refunded"
     }
   },
+  "PaymentSuccess": {
+    "loading": "Loading...",
+    "checking": "Confirming your payment status...",
+    "dashboard": "Go to Dashboard",
+    "fallbackTutor": "your tutor",
+    "fallbackSubject": "Session",
+    "states": {
+      "timeout": {
+        "title": "Still confirming your payment",
+        "description": "This is taking longer than expected. Your payment may still be processing. Check your dashboard in a moment."
+      },
+      "failed": {
+        "title": "Payment was not successful",
+        "description": "Your payment did not go through, or it was refunded. Please try again or contact support if you were charged."
+      },
+      "error": {
+        "title": "Could not verify payment",
+        "description": "Something went wrong while checking your payment status. Please check your dashboard or contact support."
+      }
+    },
+    "paid": {
+      "title": "Payment Received",
+      "description": "Contact details are now available. You can now message <tutorName></tutorName> directly to coordinate your lesson.",
+      "chat": "Go to Chat",
+      "email": "A confirmation email has been sent to your inbox.",
+      "date": "Session Date",
+      "time": "Session Time",
+      "status": "Status",
+      "confirmed": "Confirmed"
+    }
+  },
+  "PaymentPage": {
+    "title": "Pay From Your Booking",
+    "description": "Mentora payments start from a confirmed booking. Open your dashboard, choose the confirmed unpaid booking, and use Pay Now to continue through the secure Paymob checkout.",
+    "actions": {
+      "dashboard": "Go to Dashboard",
+      "history": "Payment History"
+    }
+  },
+  "Chat": {
+    "learner": {
+      "title": "Messages",
+      "description": "Continue your tutor conversations.",
+      "archivedTitle": "Archived messages",
+      "archivedDescription": "Restore conversations you want to continue.",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "tutor": {
+      "title": "Learner messages",
+      "description": "Continue your learner conversations.",
+      "conversationSubtitle": "Learner conversation history",
+      "archivedTitle": "Archived learner messages",
+      "archivedDescription": "Restore learner conversations you want to continue.",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "list": {
+      "title": "Messages",
+      "description": "Continue your tutor conversations.",
+      "errorTitle": "Could not load chats",
+      "emptyTitle": "No conversations yet",
+      "emptyDescription": "Your chat history will appear here after a conversation starts."
+    },
+    "conversation": {
+      "title": "Messages",
+      "subtitle": "Conversation history"
+    },
+    "roles": {
+      "tutor": "Tutor",
+      "learner": "Learner"
+    },
+    "composer": {
+      "label": "Message",
+      "placeholder": "Type a message...",
+      "connectingPlaceholder": "Connecting...",
+      "archivedPlaceholder": "Restore this chat to send messages"
+    },
+    "actions": {
+      "back": "Back to messages",
+      "tryAgain": "Try again",
+      "restore": "Restore",
+      "restoring": "Restoring",
+      "archive": "Archive",
+      "archiving": "Archiving",
+      "loading": "Loading",
+      "loadMore": "Load more",
+      "loadOlder": "Load older messages",
+      "openEmoji": "Open emoji picker",
+      "closeEmoji": "Close emoji picker",
+      "addEmoji": "Add {emoji}"
+    },
+    "states": {
+      "loadingMessages": "Loading messages",
+      "loadMessagesError": "Could not load messages",
+      "emptyMessages": "No messages yet."
+    },
+    "errors": {
+      "send": "Could not send message",
+      "archive": "Could not archive chat",
+      "restore": "Could not restore chat"
+    },
+    "status": {
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read"
+    }
+  },
   
   "SettingsPage": {
     "title": "Settings",
@@ -842,6 +958,7 @@
     "profileInfo": "Profile Information",
     "profileDesc": "Update your photo and personal details.",
     "profilePicture": "Profile Picture",
+    "avatarAlt": "Profile picture",
     "avatarDesc": "This will be displayed on your profile and can be seen by tutors.",
     "uploadNew": "Upload New",
     "remove": "Remove",
@@ -926,10 +1043,13 @@
     "chatWith": "Chat with {name}",
     "aboutMe": "About Me",
     "availability": "Availability",
+    "availabilityEmpty": "Availability not published yet.",
     "coursesOffered": "Courses Offered",
+    "generalSession": "General Session",
     "hourSession": "{rate} {currency} / hour session",
     "deepDive": "A deep dive into {subject} concepts for all levels.",
     "bookSession": "Book a Session — {rate} {currency}/hr",
+    "noSubjects": "This tutor has not added bookable subjects yet.",
     "noBookableSubject": "No bookable subject available"
   },
   "tutorDashboard": {
@@ -944,7 +1064,12 @@
       "title": "Start Your Session",
       "description": "Verify your student to begin the private learning session. Ensure your audio and video are working correctly.",
       "inputPlaceholder": "Enter Student Verification Code",
-      "verifyButton": "Verify & Start Session"
+      "verifyButton": "Verify & Start Session",
+      "verifying": "Verifying...",
+      "verified": "Session code verified. Booking marked completed.",
+      "nextStarts": "Your next paid session starts on",
+      "fieldAvailable": ". The verification field will become available during the session time.",
+      "noLiveSession": "No paid session is live right now."
     },
     "bookings": {
       "title": "Bookings",
@@ -1027,6 +1152,101 @@
       "empty": "No transactions yet.",
       "showing": "Showing {count} of {total} transactions",
       "defaultStudent": "Student"
+    }
+  },
+  "tutorReviews": {
+    "title": "My Reviews",
+    "description": "Monitor student feedback and reputation.",
+    "loadingSummary": "Loading rating summary...",
+    "loadingReviews": "Loading reviews...",
+    "error": "Failed to load reviews. Please try again.",
+    "empty": "No reviews yet.",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {totalPages}"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "System Overview",
+      "description": "Real-time platform metrics",
+      "retry": "Retry",
+      "stats": {
+        "learners": {
+          "title": "Total Learners",
+          "description": "Total registered users"
+        },
+        "tutors": {
+          "title": "Total Tutors",
+          "description": "Active and pending"
+        },
+        "bookings": {
+          "title": "Total Bookings",
+          "description": "All-time bookings"
+        },
+        "revenue": {
+          "title": "Revenue",
+          "description": "Gross revenue"
+        },
+        "approvals": {
+          "title": "Pending Approvals",
+          "description": "Tutors awaiting review"
+        },
+        "withdrawals": {
+          "title": "Withdrawal Requests",
+          "description": "Pending payouts"
+        }
+      }
+    },
+    "users": {
+      "title": "User Management",
+      "description": "Monitor, manage, and audit all platform participants.",
+      "exportCsv": "Export CSV",
+      "addUser": "Add User",
+      "retry": "Retry",
+      "showing": "Showing {start}-{end} of {total} users"
+    },
+    "bookings": {
+      "title": "Bookings Management",
+      "description": "Manage and monitor all tutor sessions and payments across the platform.",
+      "exportCsv": "Export CSV",
+      "retry": "Retry",
+      "showing": "Showing {start}-{end} of {total} bookings"
+    },
+    "tutors": {
+      "title": "Tutor Management",
+      "description": "Review, approve, and manage the mentor community.",
+      "retry": "Retry",
+      "filter": "Filter",
+      "showing": "Showing {start}-{end} of {total} tutors"
+    },
+    "finance": {
+      "title": "Finance & Payments",
+      "description": "Oversee global revenue flow and manage tutor withdrawal requests.",
+      "exportReport": "Export Report",
+      "retry": "Retry",
+      "loading": "Loading...",
+      "tabs": {
+        "transactions": "Transactions",
+        "withdrawals": "Withdrawal Requests"
+      },
+      "stats": {
+        "grossRevenue": "Gross Revenue",
+        "platformCommission": "Platform Commission",
+        "commissionDescription": "Commission from all earnings",
+        "availableForPayout": "Available for Payout",
+        "completedPayouts": "Completed Payouts",
+        "totalBookings": "{count, plural, one {# total booking} other {# total bookings}}",
+        "earningsReady": "{count, plural, one {# earning ready} other {# earnings ready}}",
+        "payoutsCompleted": "{count, plural, one {# payout completed} other {# payouts completed}}"
+      }
+    },
+    "reviews": {
+      "title": "Reviews Moderation",
+      "description": "Monitor and manage educational quality through peer feedback.",
+      "exportReport": "Export Report",
+      "refreshFeed": "Refresh Feed",
+      "recentFeedback": "Recent Feedback",
+      "allRatings": "All Ratings"
     }
   },
   "earningStatus": {

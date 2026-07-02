@@ -7,6 +7,8 @@ import { useParams } from "next/navigation"
 import { Calendar, Clock, Hourglass, ArrowLeft, AlertCircle, Loader2, BadgeCheck, XCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { BookingDetails } from "@/types/bookingProcess/booking"
 import { getBookingById } from "@/services/booking-services/bookingDetailsService"
@@ -47,9 +49,9 @@ function StatusBadge({ status }: { status: BookingDetails["bookingStatus"] }) {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b last:border-0 gap-1">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b last:border-0 gap-1 sm:gap-4">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
+      <span className="text-sm font-medium text-foreground sm:text-end">{value}</span>
     </div>
   )
 }
@@ -59,6 +61,7 @@ export default function BookingDetailsPage() {
   const params = useParams()
   const bookingId = params.bookingId as string | undefined
   const locale = (params.locale as string) ?? "en"
+  const isRtl = locale === "ar"
 
   const [booking, setBooking] = useState<BookingDetails | null>(null)
   const [loading, setLoading] = useState(Boolean(bookingId))
@@ -144,13 +147,14 @@ export default function BookingDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
+    <div className="min-h-screen bg-white p-4 sm:p-6 md:p-12 font-sans">
       <div className="max-w-2xl mx-auto">
 
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
             <Link href={`/${locale}/dashboard`}>
-              <ArrowLeft size={16} className="rtl:rotate-180" /> {t("backToBookings")}
+              <ArrowLeft size={16} className={cn(isRtl && "rotate-180")} aria-hidden />
+              {t("backToBookings")}
             </Link>
           </Button>
         </div>
@@ -189,7 +193,7 @@ export default function BookingDetailsPage() {
                 <Row label={t("time")} value={
                   <span className="flex items-center gap-2">
                     <Clock size={14} className="text-muted-foreground" />
-                    {formatTime(booking.startAt, locale)} – {formatTime(booking.endAt, locale)}
+                    {formatTime(booking.startAt, locale)} - {formatTime(booking.endAt, locale)}
                   </span>
                 } />
                 <Row label={t("duration")} value={
@@ -249,7 +253,7 @@ export default function BookingDetailsPage() {
                 {booking.bookingStatus === "confirmed" && booking.paymentStatus === "unpaid" && (
                   <Button onClick={handlePayNow} disabled={isPaying} className="flex-1 h-12 rounded-xl">
                     {isPaying ? (
-                      <><Loader2 size={16} className="animate-spin mr-2 ltr:mr-2 rtl:ml-2" /> {t("processing")}</>
+                      <><Loader2 size={16} className="animate-spin" /> {t("processing")}</>
                     ) : (
                       t("payNow")
                     )}
@@ -302,11 +306,11 @@ export default function BookingDetailsPage() {
                 {t("cancelModalDesc")}
               </p>
 
-              <textarea
+              <Textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder={t("cancelPlaceholder")}
-                className="w-full border border-input rounded-xl px-4 py-3 text-sm resize-none h-24 focus:outline-none focus:border-sidebar-primary"
+                className="min-h-24 resize-none rounded-xl"
               />
 
               {cancelError && (
@@ -328,7 +332,7 @@ export default function BookingDetailsPage() {
                   className="flex-1 h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white"
                 >
                   {canceling ? (
-                    <><Loader2 size={14} className="animate-spin mr-2 ltr:mr-2 rtl:ml-2" /> {t("canceling")}</>
+                    <><Loader2 size={14} className="animate-spin" /> {t("canceling")}</>
                   ) : (
                     t("confirmCancel")
                   )}

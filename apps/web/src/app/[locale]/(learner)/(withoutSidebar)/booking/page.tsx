@@ -20,6 +20,8 @@ import BookingSuccess from '@/components/learner/BookingSuccess';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 import { createBooking } from '@/services/booking-services/bookingService';
 import { getTutorAvailability } from '@/services/booking-services/slots-service';
@@ -56,11 +58,12 @@ function BookSessionContent() {
 
   const tutorProfileId = searchParams.get('tutorProfileId');
   const tutorId = searchParams.get('tutorId') ?? '';
-  const tutorName = searchParams.get('tutorName') ?? 'Tutor';
-  const subjectParam = searchParams.get('subject') ?? 'Session';
+  const tutorName = searchParams.get('tutorName') ?? t('fallbackTutor');
+  const subjectParam = searchParams.get('subject') ?? t('fallbackSubject');
   const hourlyRate = Number(searchParams.get('hourlyRate') ?? 45);
-  const currency = searchParams.get('currency') ?? '$';
+  const currency = searchParams.get('currency') ?? t('fallbackCurrency');
   const subjectId = searchParams.get('subjectId');
+  const isRtl = locale === 'ar';
 
   const missingRequiredParams = !tutorProfileId || !subjectId;
 
@@ -170,11 +173,20 @@ function BookSessionContent() {
     );
   }
 
-  const inputClass =
-    'w-full h-12 pl-12 pr-4 bg-blue-50 border border-blue-200 text-foreground text-sm focus:outline-none focus:border-blue-400 rounded-lg';
+  const inputClass = cn(
+    'h-12 w-full bg-blue-50 border-blue-200 text-foreground focus-visible:border-blue-400 focus-visible:ring-blue-100',
+    isRtl ? 'pr-12 pl-4' : 'pl-12 pr-4',
+  );
+  const fieldIconClass = cn(
+    'absolute top-1/2 -translate-y-1/2 text-blue-400 z-10',
+    isRtl ? 'right-4' : 'left-4',
+  );
+  const backHref = tutorId
+    ? `/${locale}/tutor-match/${tutorId}`
+    : `/${locale}/find-tutor?mode=browse`;
 
   return (
-    <div className="min-h-screen bg-white text-foreground p-6 md:p-12 font-sans">
+    <div className="min-h-screen bg-white text-foreground p-4 sm:p-6 md:p-12 font-sans">
       <div className="max-w-6xl mx-auto mb-6">
         <Button
           variant="ghost"
@@ -182,14 +194,13 @@ function BookSessionContent() {
           asChild
           className="gap-2 text-sidebar-primary hover:underline px-0"
         >
-          <Link
-            href={
-              tutorProfileId
-                ? `/${locale}/tutor-match/${tutorProfileId}`
-                : `/${locale}/find-tutor?mode=browse`
-            }
-          >
-            <ArrowLeft size={16} /> {t('backToTeacherProfile')}
+          <Link href={backHref}>
+            <ArrowLeft
+              size={16}
+              className={cn(isRtl && 'rotate-180')}
+              aria-hidden
+            />
+            {t(tutorId ? 'backToTeacherProfile' : 'backToTutorResults')}
           </Link>
         </Button>
       </div>
@@ -220,11 +231,11 @@ function BookSessionContent() {
               </label>
               <div className="relative flex items-center">
                 <Calendar
-                  className="absolute left-4 text-blue-400 z-10"
+                  className={fieldIconClass}
                   size={20}
                   aria-hidden
                 />
-                <input
+                <Input
                   id="session-date"
                   type="date"
                   min={getLocalDateString(new Date())}
@@ -246,7 +257,7 @@ function BookSessionContent() {
               </label>
               <div className="relative flex items-center">
                 <Hourglass
-                  className="absolute left-4 text-blue-400"
+                  className={fieldIconClass}
                   size={20}
                   aria-hidden
                 />
@@ -255,15 +266,15 @@ function BookSessionContent() {
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                   disabled={missingRequiredParams}
-                  className="w-full h-12 bg-blue-50 border border-blue-200 rounded-lg pl-12 pr-4 text-foreground focus:outline-none focus:border-blue-400 text-sm appearance-none cursor-pointer"
+                  className={cn(
+                    'w-full h-12 bg-blue-50 border border-blue-200 rounded-lg text-foreground focus:outline-none focus:border-blue-400 text-sm cursor-pointer',
+                    isRtl ? 'pr-12 pl-4' : 'pl-12 pr-4',
+                  )}
                 >
                   <option value="30">{t('duration30')}</option>
                   <option value="60">{t('duration60')}</option>
                   <option value="90">{t('duration90')}</option>
                 </select>
-                <div className="absolute right-4 pointer-events-none text-blue-400">
-                  ▼
-                </div>
               </div>
             </div>
 
@@ -277,11 +288,11 @@ function BookSessionContent() {
               </label>
               <div className="relative flex items-center">
                 <Clock
-                  className="absolute left-4 text-blue-400 z-10"
+                  className={fieldIconClass}
                   size={20}
                   aria-hidden
                 />
-                <input
+                <Input
                   id="session-time"
                   type="time"
                   value={time}
@@ -313,7 +324,7 @@ function BookSessionContent() {
                         key={slot.startTime}
                         className="px-4 py-2 text-sm border border-blue-200 bg-blue-50 text-blue-700 font-medium rounded-lg"
                       >
-                        {convertTo12Hour(slot.startTime)} –{' '}
+                        {convertTo12Hour(slot.startTime)} -{' '}
                         {convertTo12Hour(slot.endTime)}
                       </div>
                     ))}

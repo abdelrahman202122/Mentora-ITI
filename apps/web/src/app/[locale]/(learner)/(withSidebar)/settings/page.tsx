@@ -3,6 +3,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
+import Image from "next/image"
 import { Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +21,26 @@ function getInitials(name: string): string {
     .join("")
     .slice(0, 2)
     .toUpperCase()
+}
+
+function getAvatarSrc(avatarUrl: string): string {
+  if (avatarUrl.startsWith("http") || avatarUrl.startsWith("blob:")) {
+    return avatarUrl
+  }
+
+  if (avatarUrl.startsWith("/api/files/avatars/")) {
+    return avatarUrl
+  }
+
+  if (avatarUrl.startsWith("/files/avatars/")) {
+    return `/api${avatarUrl}`
+  }
+
+  if (avatarUrl.startsWith("/")) {
+    return avatarUrl
+  }
+
+  return `/api/files/avatars/${avatarUrl}`
 }
 
 export default function SettingsPage() {
@@ -195,15 +216,13 @@ export default function SettingsPage() {
             <div className="flex flex-wrap items-center gap-4 w-full">
               <div className="w-14 h-14 rounded-full bg-[#E0E7FF] overflow-hidden flex items-center justify-center shrink-0">
                 {displayedAvatarUrl ? (
-                  <img
-                    src={
-                      displayedAvatarUrl.startsWith("http") ||
-                      displayedAvatarUrl.startsWith("blob:")
-                        ? displayedAvatarUrl
-                        : `/api/files/avatars/${displayedAvatarUrl}`
-                    }
+                  <Image
+                    src={getAvatarSrc(displayedAvatarUrl)}
                     className="w-full h-full object-cover"
-                    alt="avatar"
+                    alt={t("avatarAlt")}
+                    width={56}
+                    height={56}
+                    unoptimized={displayedAvatarUrl.startsWith("blob:")}
                   />
                 ) : (
                   <span className="text-[#5051F9] font-bold text-sm">
@@ -228,12 +247,14 @@ export default function SettingsPage() {
                   <Upload size={14} /> {t("uploadNew")}
                 </Button>
 
-                <button
+                <Button
+                  type="button"
+                  variant="secondary"
                   onClick={handleRemove}
-                  className="text-sm font-semibold px-3 sm:px-4 h-9 rounded-lg bg-[#EEF2FF] text-[#5051F9] hover:bg-[#E0E7FF] transition-colors"
+                  className="h-9 px-3 sm:px-4 text-sm font-semibold"
                 >
                   {t("remove")}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -278,8 +299,9 @@ export default function SettingsPage() {
 
           {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8 pt-4 border-t border-gray-50">
-            <button
-              className="text-sm font-semibold text-[#5051F9] h-10 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+            <Button
+              type="button"
+              variant="ghost"
               onClick={() => {
                 if (previewUrl) URL.revokeObjectURL(previewUrl)
                 setFullName(currentUser?.name ?? "")
@@ -291,7 +313,7 @@ export default function SettingsPage() {
               }}
             >
               {t("cancel")}
-            </button>
+            </Button>
 
             <Button
               onClick={handleSaveChanges}

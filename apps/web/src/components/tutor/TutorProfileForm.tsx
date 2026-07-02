@@ -63,6 +63,32 @@ type Props = {
   tutorId?: string;
 };
 
+function getAvatarSrc(avatar?: string) {
+  if (!avatar) return "/profile-default.jpeg";
+
+  if (
+    avatar.startsWith("http") ||
+    avatar.startsWith("blob:") ||
+    avatar.startsWith("/profile-default.jpeg")
+  ) {
+    return avatar;
+  }
+
+  if (avatar.startsWith("/api/files/avatars/")) {
+    return avatar;
+  }
+
+  if (avatar.startsWith("/files/avatars/")) {
+    return `/api${avatar}`;
+  }
+
+  if (avatar.startsWith("/")) {
+    return avatar;
+  }
+
+  return `/api/files/avatars/${avatar}`;
+}
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="mt-1.5 text-xs font-medium text-red-600">{message}</p>;
@@ -144,9 +170,7 @@ export default function TutorProfileForm({ mode, data, tutorId }: Props) {
 
   const currentAvatar =
     avatarPreview ??
-    (data?.userData?.avatar
-      ? `/api/files/avatars/${data.userData.avatar}`
-      : "/profile-default.jpeg");
+    getAvatarSrc(data?.userData?.avatar);
 
   function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -217,6 +241,7 @@ export default function TutorProfileForm({ mode, data, tutorId }: Props) {
                   className="object-cover"
                   fill
                   src={currentAvatar}
+                  unoptimized={currentAvatar.startsWith("blob:")}
                 />
                 <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/55 text-xs font-medium text-white opacity-0 transition group-hover:opacity-100">
                   <Camera className="size-5" />

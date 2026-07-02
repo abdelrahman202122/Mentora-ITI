@@ -669,7 +669,11 @@
   
   "Booking": {
     "backToTeacherProfile": "الرجوع إلى صفحة المدرّس",
+    "backToTutorResults": "الرجوع إلى نتائج المدرّسين",
     "bookNewSession": "حجز جلسة جديدة",
+    "fallbackTutor": "المدرّس",
+    "fallbackSubject": "جلسة",
+    "fallbackCurrency": "جنيه",
     "missingTutorSubject": "لم نتمكن من إيجاد المدرّس أو المادة الخاصة بهذا الحجز. من فضلك ارجع واختر مدرّسًا ومادة قبل حجز الجلسة.",
     "selectDate": "اختر التاريخ",
     "lessonDuration": "مدة الدرس",
@@ -779,6 +783,8 @@
     "viewDetailsFor": "عرض تفاصيل الدفع لـ {title}",
     "sessionWith": "جلسة مع {tutorName}",
     "session": "جلسة",
+    "fallbackTutor": "المعلم",
+    "durationHours": "{count, plural, one {# ساعة} two {# ساعتان} few {# ساعات} many {# ساعة} other {# ساعة}}",
     "table": {
       "date": "التاريخ",
       "description": "الوصف",
@@ -787,7 +793,9 @@
       "invoice": "الفاتورة"
     },
     "pagination": {
-      "showing": "عرض {from}–{to} من {total}"
+      "showing": "عرض {from}–{to} من {total}",
+      "previous": "الصفحة السابقة",
+      "next": "الصفحة التالية"
     },
     "filter": {
       "filter": "فلترة",
@@ -836,12 +844,121 @@
     }
   }
   ,
+  "PaymentSuccess": {
+    "loading": "جاري التحميل...",
+    "checking": "جاري تأكيد حالة الدفع...",
+    "dashboard": "الذهاب إلى لوحة التحكم",
+    "fallbackTutor": "المعلم",
+    "fallbackSubject": "جلسة",
+    "states": {
+      "timeout": {
+        "title": "ما زلنا نؤكد عملية الدفع",
+        "description": "تستغرق عملية التأكيد وقتاً أطول من المتوقع. قد تكون عملية الدفع قيد المعالجة، تحقق من لوحة التحكم بعد قليل."
+      },
+      "failed": {
+        "title": "لم تنجح عملية الدفع",
+        "description": "لم تكتمل عملية الدفع أو تم استرجاعها. حاول مرة أخرى أو تواصل مع الدعم إذا تم خصم المبلغ."
+      },
+      "error": {
+        "title": "تعذر تأكيد الدفع",
+        "description": "حدث خطأ أثناء التحقق من حالة الدفع. يرجى مراجعة لوحة التحكم أو التواصل مع الدعم."
+      }
+    },
+    "paid": {
+      "title": "تم استلام الدفع",
+      "description": "أصبحت بيانات التواصل متاحة الآن. يمكنك الآن مراسلة <tutorName></tutorName> مباشرة لتنسيق الجلسة.",
+      "chat": "اذهب إلى المحادثة",
+      "email": "تم إرسال رسالة تأكيد إلى بريدك الإلكتروني.",
+      "date": "تاريخ الجلسة",
+      "time": "وقت الجلسة",
+      "status": "الحالة",
+      "confirmed": "مؤكد"
+    }
+  },
+  "PaymentPage": {
+    "title": "ادفع من صفحة الحجز",
+    "description": "تبدأ مدفوعات منتورا من حجز مؤكد. افتح لوحة التحكم، اختر الحجز المؤكد غير المدفوع، ثم استخدم زر ادفع الآن للمتابعة عبر دفع Paymob الآمن.",
+    "actions": {
+      "dashboard": "الذهاب إلى لوحة التحكم",
+      "history": "سجل المدفوعات"
+    }
+  },
+  "Chat": {
+    "learner": {
+      "title": "الرسائل",
+      "description": "تابع محادثاتك مع المعلمين.",
+      "archivedTitle": "الرسائل المؤرشفة",
+      "archivedDescription": "استعد المحادثات التي تريد متابعتها.",
+      "active": "نشطة",
+      "archived": "مؤرشفة"
+    },
+    "tutor": {
+      "title": "رسائل الطلاب",
+      "description": "تابع محادثاتك مع الطلاب.",
+      "conversationSubtitle": "سجل محادثة الطالب",
+      "archivedTitle": "رسائل الطلاب المؤرشفة",
+      "archivedDescription": "استعد محادثات الطلاب التي تريد متابعتها.",
+      "active": "نشطة",
+      "archived": "مؤرشفة"
+    },
+    "list": {
+      "title": "الرسائل",
+      "description": "تابع محادثاتك مع المعلمين.",
+      "errorTitle": "تعذر تحميل المحادثات",
+      "emptyTitle": "لا توجد محادثات بعد",
+      "emptyDescription": "ستظهر محادثاتك هنا بعد بدء أول محادثة."
+    },
+    "conversation": {
+      "title": "الرسائل",
+      "subtitle": "سجل المحادثة"
+    },
+    "roles": {
+      "tutor": "معلم",
+      "learner": "طالب"
+    },
+    "composer": {
+      "label": "الرسالة",
+      "placeholder": "اكتب رسالة...",
+      "connectingPlaceholder": "جاري الاتصال...",
+      "archivedPlaceholder": "استعد هذه المحادثة لإرسال رسائل"
+    },
+    "actions": {
+      "back": "الرجوع إلى الرسائل",
+      "tryAgain": "حاول مرة أخرى",
+      "restore": "استعادة",
+      "restoring": "جاري الاستعادة",
+      "archive": "أرشفة",
+      "archiving": "جاري الأرشفة",
+      "loading": "جاري التحميل",
+      "loadMore": "تحميل المزيد",
+      "loadOlder": "تحميل رسائل أقدم",
+      "openEmoji": "فتح اختيار الرموز",
+      "closeEmoji": "إغلاق اختيار الرموز",
+      "addEmoji": "إضافة {emoji}"
+    },
+    "states": {
+      "loadingMessages": "جاري تحميل الرسائل",
+      "loadMessagesError": "تعذر تحميل الرسائل",
+      "emptyMessages": "لا توجد رسائل بعد."
+    },
+    "errors": {
+      "send": "تعذر إرسال الرسالة",
+      "archive": "تعذر أرشفة المحادثة",
+      "restore": "تعذر استعادة المحادثة"
+    },
+    "status": {
+      "sent": "تم الإرسال",
+      "delivered": "تم التسليم",
+      "read": "تمت القراءة"
+    }
+  },
   "SettingsPage": {
     "title": "الإعدادات",
     "description": "إدارة تفضيلات حسابك ومعلوماتك الشخصية.",
     "profileInfo": "معلومات الملف الشخصي",
     "profileDesc": "تحديث صورتك وتفاصيلك الشخصية.",
     "profilePicture": "الصورة الشخصية",
+    "avatarAlt": "الصورة الشخصية",
     "avatarDesc": "سيتم عرض هذه الصورة على ملفك الشخصي ويمكن للمعلّمين رؤيتها.",
     "uploadNew": "رفع صورة جديدة",
     "remove": "إزالة",
@@ -922,17 +1039,20 @@
     "backToTutors": "العودة إلى المعلمين",
     "loading": "جاري التحميل...",
     "tutorNotFound": "المعلم غير موجود.",
-    "reviews": "({count} تقييم)",
-    "students": "{count} طالب",
+    "reviews": "({count, plural, zero {لا توجد تقييمات} one {تقييم واحد} two {تقييمان} few {# تقييمات} many {# تقييما} other {# تقييم}})",
+    "students": "{count, plural, one {طالب واحد} two {طالبان} few {# طلاب} many {# طالبا} other {# طالب}}",
     "hourlyRate": "{rate} {currency}/ساعة",
     "startingChat": "جاري بدء المحادثة...",
     "chatWith": "المحادثة مع {name}",
     "aboutMe": "نبذة عني",
     "availability": "أوقات التوفر",
+    "availabilityEmpty": "لم ينشر المعلم مواعيد التوفر بعد.",
     "coursesOffered": "الدورات المقدمة",
+    "generalSession": "جلسة عامة",
     "hourSession": "{rate} {currency} / جلسة ساعة كاملة",
     "deepDive": "شرح عميق ومكثف لمفاهيم {subject} لجميع المستويات.",
     "bookSession": "احجز جلسة — {rate} {currency}/ساعة",
+    "noSubjects": "لم يضف هذا المعلم مواد قابلة للحجز بعد.",
     "noBookableSubject": "لا توجد مادة متاحة للحجز"
   },
 
@@ -950,7 +1070,12 @@
       "title": "ابدأ جلستك",
       "description": "تحقق من الطالب لبدء جلسة التعلّم الخاصة. تأكد من أن الصوت والفيديو يعملان بشكل صحيح.",
       "inputPlaceholder": "أدخل رمز التحقق الخاص بالطالب",
-      "verifyButton": "تحقق وابدأ الجلسة"
+      "verifyButton": "تحقق وابدأ الجلسة",
+      "verifying": "جاري التحقق...",
+      "verified": "تم التحقق من الرمز وتم وضع الحجز كمكتمل.",
+      "nextStarts": "تبدأ جلستك المدفوعة التالية في",
+      "fieldAvailable": ". سيصبح حقل التحقق متاحاً أثناء وقت الجلسة.",
+      "noLiveSession": "لا توجد جلسة مدفوعة مباشرة الآن."
     },
     "bookings": {
       "title": "الحجوزات",
@@ -1031,6 +1156,101 @@
       "empty": "لا توجد معاملات حتى الآن.",
       "showing": "عرض {count} من {total} معاملة",
       "defaultStudent": "طالب"
+    }
+  },
+  "tutorReviews": {
+    "title": "تقييماتي",
+    "description": "تابع آراء الطلاب وسمعتك على المنصة.",
+    "loadingSummary": "جاري تحميل ملخص التقييم...",
+    "loadingReviews": "جاري تحميل التقييمات...",
+    "error": "فشل تحميل التقييمات. حاول مرة أخرى.",
+    "empty": "لا توجد تقييمات بعد.",
+    "previous": "السابق",
+    "next": "التالي",
+    "pageOf": "صفحة {page} من {totalPages}"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "نظرة عامة على النظام",
+      "description": "مؤشرات المنصة في الوقت الحالي",
+      "retry": "إعادة المحاولة",
+      "stats": {
+        "learners": {
+          "title": "إجمالي الطلاب",
+          "description": "إجمالي المستخدمين المسجلين"
+        },
+        "tutors": {
+          "title": "إجمالي المعلمين",
+          "description": "نشطون وقيد المراجعة"
+        },
+        "bookings": {
+          "title": "إجمالي الحجوزات",
+          "description": "كل الحجوزات منذ بداية المنصة"
+        },
+        "revenue": {
+          "title": "الإيرادات",
+          "description": "إجمالي الإيرادات"
+        },
+        "approvals": {
+          "title": "الموافقات المعلّقة",
+          "description": "معلمون في انتظار المراجعة"
+        },
+        "withdrawals": {
+          "title": "طلبات السحب",
+          "description": "دفعات معلّقة"
+        }
+      }
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "description": "راقب وأدر وراجع كل المشاركين على المنصة.",
+      "exportCsv": "تصدير CSV",
+      "addUser": "إضافة مستخدم",
+      "retry": "إعادة المحاولة",
+      "showing": "عرض {start}-{end} من {total} مستخدم"
+    },
+    "bookings": {
+      "title": "إدارة الحجوزات",
+      "description": "إدارة ومراقبة كل جلسات المعلمين والمدفوعات على المنصة.",
+      "exportCsv": "تصدير CSV",
+      "retry": "إعادة المحاولة",
+      "showing": "عرض {start}-{end} من {total} حجز"
+    },
+    "tutors": {
+      "title": "إدارة المعلمين",
+      "description": "راجع واعتمد وأدر مجتمع المعلمين.",
+      "retry": "إعادة المحاولة",
+      "filter": "فلترة",
+      "showing": "عرض {start}-{end} من {total} معلم"
+    },
+    "finance": {
+      "title": "الماليات والمدفوعات",
+      "description": "راقب تدفق الإيرادات وطلبات سحب المعلمين.",
+      "exportReport": "تصدير التقرير",
+      "retry": "إعادة المحاولة",
+      "loading": "جاري التحميل...",
+      "tabs": {
+        "transactions": "المعاملات",
+        "withdrawals": "طلبات السحب"
+      },
+      "stats": {
+        "grossRevenue": "إجمالي الإيرادات",
+        "platformCommission": "عمولة المنصة",
+        "commissionDescription": "العمولة من كل الأرباح",
+        "availableForPayout": "متاح للدفع",
+        "completedPayouts": "الدفعات المكتملة",
+        "totalBookings": "{count, plural, one {حجز واحد إجمالاً} two {حجزان إجمالاً} few {# حجوزات إجمالاً} many {# حجزاً إجمالاً} other {# حجز إجمالاً}}",
+        "earningsReady": "{count, plural, one {ربح واحد جاهز} two {ربحان جاهزان} few {# أرباح جاهزة} many {# ربحاً جاهزاً} other {# ربح جاهز}}",
+        "payoutsCompleted": "{count, plural, one {دفعة واحدة مكتملة} two {دفعتان مكتملتان} few {# دفعات مكتملة} many {# دفعة مكتملة} other {# دفعة مكتملة}}"
+      }
+    },
+    "reviews": {
+      "title": "مراجعة التقييمات",
+      "description": "راقب وأدر جودة التعليم من خلال آراء المستخدمين.",
+      "exportReport": "تصدير التقرير",
+      "refreshFeed": "تحديث القائمة",
+      "recentFeedback": "أحدث الآراء",
+      "allRatings": "كل التقييمات"
     }
   },
   "earningStatus": {

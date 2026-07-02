@@ -13,12 +13,13 @@ import PaymentTable from "@/components/learner/paymentTable"
 import PaymentMobileList from "@/components/learner/PaymentMobileList"
 import { exportCSV, exportInvoicePDF } from "@/utils/learner/exportUtils"
 import { type Transaction } from "@/services/paymentHistory/payment-history-service"
+import { Button } from "@/components/ui/button"
 
 const ITEMS_PER_PAGE = 4
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "—"
-  return new Date(iso).toLocaleDateString("en-US", {
+function formatDate(iso: string | null, locale = "en"): string {
+  if (!iso) return "-"
+  return new Date(iso).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -198,20 +199,19 @@ export default function PaymentsPage() {
     const tutor = tutorNames[payment._id]
     const subject = subjectTitles[payment._id]
     const duration = durations[payment._id]
-    const durationText = duration ? `${duration / 60}h` : ""
+    const durationText = duration ? t("durationHours", { count: duration / 60 }) : ""
     return {
       title: tutor ? t("sessionWith", { tutorName: tutor }) : t("session"),
       subtitle: [subject, durationText].filter(Boolean).join(" · "),
     }
   }
 
-  // ... باقي الدوال والـ Handlers كما هي دون تغيير
   function toTransaction(payment: Payment): Transaction {
     return {
       id: payment._id,
-      date: formatDate(payment.paidAt ?? payment.createdAt),
-      tutorName: tutorNames[payment._id] ?? "Tutor",
-      subject: subjectTitles[payment._id] ?? "Session",
+      date: formatDate(payment.paidAt ?? payment.createdAt, locale),
+      tutorName: tutorNames[payment._id] ?? t("fallbackTutor"),
+      subject: subjectTitles[payment._id] ?? t("session"),
       duration: durations[payment._id] ?? 0,
       amount: payment.amount,
       currency: payment.currency,
@@ -245,14 +245,17 @@ export default function PaymentsPage() {
               handleClear={handleClear}
             />
 
-            <button
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
               onClick={handleExportCSV}
               disabled={filtered.length === 0}
-              className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="gap-1.5"
             >
               <Download size={13} />
               <span className="hidden sm:inline">{t("exportCSV")}</span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -279,7 +282,7 @@ export default function PaymentsPage() {
             error={error}
             filtered={filtered}
             currentPayments={currentPayments}
-            formatDate={formatDate}
+            formatDate={(iso) => formatDate(iso, locale)}
             getDescription={getDescription}
             handleRowClick={handleRowClick}
             handleExportInvoice={handleExportInvoice}
@@ -292,7 +295,7 @@ export default function PaymentsPage() {
             error={error}
             filtered={filtered}
             currentPayments={currentPayments}
-            formatDate={formatDate}
+            formatDate={(iso) => formatDate(iso, locale)}
             getDescription={getDescription}
             handleRowClick={handleRowClick}
             handleExportInvoice={handleExportInvoice}
@@ -311,16 +314,22 @@ export default function PaymentsPage() {
               })}
             </p>
             <div className="flex items-center gap-1">
-              <button
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-sm"
-              >‹</button>
-              <button
+                aria-label={t("pagination.previous")}
+              >‹</Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-sm"
-              >›</button>
+                aria-label={t("pagination.next")}
+              >›</Button>
             </div>
           </div>
         )}

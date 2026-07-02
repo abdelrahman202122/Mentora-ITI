@@ -6,6 +6,8 @@ import FinancialChart from "@/components/admin/FinancialChart";
 import { useAdminDashboard } from "@/hooks/admin/use-admin-dashboard";
 import { formatCurrency } from "@/lib/api/admin-finance";
 import { motion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import {
   Users,
   GraduationCap,
@@ -18,7 +20,10 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
+  const locale = useLocale();
+  const t = useTranslations("admin.dashboard");
   const { stats, loading, error, refetch } = useAdminDashboard();
+  const numberFormat = new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-US");
 
   if (loading && !stats) {
     return (
@@ -39,9 +44,9 @@ export default function Dashboard() {
       >
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            System Overview
+            {t("title")}
           </h1>
-          <p className="text-sm text-gray-500">Real-time platform metrics</p>
+          <p className="text-sm text-gray-500">{t("description")}</p>
         </div>
         {loading && stats && (
           <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />
@@ -55,62 +60,62 @@ export default function Dashboard() {
             <AlertCircle className="h-4 w-4" />
             <span>{error}</span>
           </div>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={refetch}
-            className="text-sm font-medium text-red-700 underline hover:text-red-800"
           >
-            Retry
-          </button>
+            {t("retry")}
+          </Button>
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <StatsCard
-          title="Total Learners"
-          value={stats ? stats.totalLearners.toLocaleString() : "—"}
-          changeLabel="Total registered users"
+          title={t("stats.learners.title")}
+          value={stats ? numberFormat.format(stats.totalLearners) : "-"}
+          changeLabel={t("stats.learners.description")}
           icon={<Users className="h-6 w-6" />}
           trend="neutral"
           delay={0}
         />
         <StatsCard
-          title="Total Tutors"
-          value={stats ? stats.totalTutors.toLocaleString() : "—"}
-          changeLabel="Active and pending"
+          title={t("stats.tutors.title")}
+          value={stats ? numberFormat.format(stats.totalTutors) : "-"}
+          changeLabel={t("stats.tutors.description")}
           icon={<GraduationCap className="h-6 w-6" />}
           trend="neutral"
           delay={0.05}
         />
         <StatsCard
-          title="Total Bookings"
-          value={stats ? stats.totalBookings.toLocaleString() : "—"}
-          changeLabel="All-time bookings"
+          title={t("stats.bookings.title")}
+          value={stats ? numberFormat.format(stats.totalBookings) : "-"}
+          changeLabel={t("stats.bookings.description")}
           icon={<Calendar className="h-6 w-6" />}
           trend="neutral"
           delay={0.1}
         />
         <StatsCard
-          title="Revenue"
-          value={stats ? formatCurrency(stats.totalRevenue) : "—"}
-          changeLabel="Gross revenue"
+          title={t("stats.revenue.title")}
+          value={stats ? formatCurrency(stats.totalRevenue) : "-"}
+          changeLabel={t("stats.revenue.description")}
           icon={<DollarSign className="h-6 w-6" />}
           trend="up"
           delay={0.15}
         />
         <StatsCard
-          title="Pending Approvals"
-          value={stats ? stats.pendingApprovals.toLocaleString() : "—"}
-          changeLabel="Tutors awaiting review"
+          title={t("stats.approvals.title")}
+          value={stats ? numberFormat.format(stats.pendingApprovals) : "-"}
+          changeLabel={t("stats.approvals.description")}
           icon={<FileCheck className="h-6 w-6" />}
           trend="neutral"
           delay={0.2}
         />
         <StatsCard
-          title="Withdrawal Requests"
-          value={stats ? stats.withdrawalRequests.toLocaleString() : "—"}
-          changeLabel="Pending payouts"
+          title={t("stats.withdrawals.title")}
+          value={stats ? numberFormat.format(stats.withdrawalRequests) : "-"}
+          changeLabel={t("stats.withdrawals.description")}
           icon={<Wallet className="h-6 w-6" />}
           trend="neutral"
           delay={0.25}
