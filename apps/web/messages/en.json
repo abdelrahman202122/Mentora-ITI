@@ -18,7 +18,8 @@
     },
     "actions": {
       "send": "Send message",
-      "findTutor": "Find tutors"
+      "findTutor": "Find tutors",
+      "viewProfile": "View profile"
     },
     "empty": {
       "title": "Start with what you are trying to learn",
@@ -667,7 +668,6 @@
       "backToTop": "Back to top"
     }
   },
-
   "Booking": {
     "backToTeacherProfile": "Back to Teacher Profile",
     "backToTutorResults": "Back to Tutor Results",
@@ -717,7 +717,6 @@
       "hour": "Hour",
       "mins": "mins",
       "sessionCost": "Session cost",
-
       "totalPrice": "Total Price",
       "termsAgree": "By confirming, you agree to Mentora's <terms>Terms of Service</terms> and <refund>Refund Policy</refund>."
     }
@@ -772,7 +771,6 @@
       "payFailed": "Failed to start checkout. Please try again."
     }
   },
-
   "Payments": {
     "recentTransactions": "Recent Transactions",
     "exportCSV": "Export CSV",
@@ -812,7 +810,6 @@
       "pending": "Pending"
     }
   },
-
   "PaymentDetails": {
     "backToPayments": "Back to Payments",
     "loading": "Loading payment details...",
@@ -951,7 +948,6 @@
       "read": "Read"
     }
   },
-
   "SettingsPage": {
     "title": "Settings",
     "description": "Manage your account preferences and personal information.",
@@ -973,7 +969,6 @@
     "saveChanges": "Save Changes",
     "saving": "Saving..."
   },
-
   "BookingDetails": {
     "backToBookings": "Back to My Bookings",
     "loading": "Loading booking details...",
@@ -1090,7 +1085,6 @@
       "expired": "Expired"
     }
   },
-
   "bookingCard": {
     "sessionTitle": "Session — {subject}",
     "today": "Today, {time}",
@@ -1117,7 +1111,6 @@
     "paymentFailed": "Payment Failed",
     "paymentPending": "Payment Pending"
   },
-
   "payments": {
     "pageHeader": {
       "title": "Financial Overview",

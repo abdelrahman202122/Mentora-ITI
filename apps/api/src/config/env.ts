@@ -30,6 +30,8 @@ const envSchema = z
     OPENAI_API_KEY: z.string().min(1).optional(),
     ABSTRACT_API_KEY: z.string().min(1).optional(),
     OPENAI_MODEL: z.string().min(1).default('gpt-4.1-mini'),
+    GEMINI_API_KEY: z.string().min(1).optional(),
+    GEMINI_MODEL: z.string().min(1).default('gemini-2.0-flash'),
     PAYMOB_API_KEY: z.string().min(1, 'PAYMOB_API_KEY is required'),
     PAYMOB_PUBLIC_KEY: z.string().min(1, 'PAYMOB_PUBLIC_KEY is required'),
     PAYMOB_SECRET_KEY: z.string().min(1, 'PAYMOB_SECRET_KEY is required'),

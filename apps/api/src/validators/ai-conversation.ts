@@ -20,3 +20,11 @@ export const sendAIConversationMessageSchema = z.object({
 export type SendAIConversationMessageInput = z.infer<
   typeof sendAIConversationMessageSchema
 >;
+
+export const aiChatSchema = z.object({
+  message: z.string().trim().min(1).max(4000),
+  conversationId: objectIdSchema.optional(),
+  locale: z.string().trim().min(2).max(20).optional(),
+});
+
+export type AIChatInput = z.infer<typeof aiChatSchema>;

@@ -18,7 +18,8 @@
     },
     "actions": {
       "send": "إرسال الرسالة",
-      "findTutor": "ابحث عن معلمين"
+      "findTutor": "ابحث عن معلمين",
+      "viewProfile": "عرض الملف الشخصي"
     },
     "empty": {
       "title": "ابدأ بما تريد تعلمه",
@@ -667,7 +668,6 @@
       "backToTop": "العودة للأعلى"
     }
   },
-
   "Booking": {
     "backToTeacherProfile": "الرجوع إلى صفحة المدرّس",
     "backToTutorResults": "الرجوع إلى نتائج المدرّسين",
@@ -717,12 +717,10 @@
       "hour": "ساعة",
       "mins": "دقيقة",
       "sessionCost": "تكلفة الجلسة",
-
       "totalPrice": "السعر الإجمالي",
       "termsAgree": "بتأكيدك، فإنك توافق على <terms>شروط الخدمة</terms> و<refund>سياسة الاسترجاع</refund> الخاصة بمنتورا."
     }
   },
-
   "Dashboard": {
     "welcomeBack": "أهلاً بعودتك، {name}",
     "subtitle": "أنت بتحقق تقدم رائع.هل أنت مستعد للتحدي القادم؟",
@@ -812,7 +810,6 @@
       "pending": "قيد الانتظار"
     }
   },
-
   "PaymentDetails": {
     "backToPayments": "الرجوع إلى المدفوعات",
     "loading": "جاري تحميل تفاصيل الدفع...",
@@ -972,7 +969,6 @@
     "saveChanges": "حفظ التغييرات",
     "saving": "جاري الحفظ..."
   },
-
   "BookingDetails": {
     "backToBookings": "العودة إلى حجوزاتي",
     "loading": "جاري تحميل تفاصيل الحجز...",
@@ -1031,7 +1027,6 @@
       "canceled": "ملغي"
     }
   },
-
   "TutorProfile": {
     "backToTutors": "العودة إلى المعلمين",
     "loading": "جاري التحميل...",
@@ -1052,7 +1047,6 @@
     "noSubjects": "لم يضف هذا المعلم مواد قابلة للحجز بعد.",
     "noBookableSubject": "لا توجد مادة متاحة للحجز"
   },
-
   "tutorDashboard": {
     "welcomeBack": "أهلاً بعودتك",
     "stats": {
@@ -1091,7 +1085,6 @@
       "expired": "منتهي الصلاحية"
     }
   },
-
   "bookingCard": {
     "sessionTitle": "جلسة — {subject}",
     "today": "اليوم، {time}",
