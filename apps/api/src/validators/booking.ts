@@ -11,6 +11,7 @@ import {
 
 const bookingStatusSchema = z.nativeEnum(BookingStatus);
 const paymentStatusSchema = z.nativeEnum(PaymentStatus);
+const bookingListModeSchema = z.enum(['learner', 'tutor', 'admin']);
 
 const noteSchema = z.string().trim().max(500);
 const durationMinutesSchema = z
@@ -82,6 +83,7 @@ export type BookingIdParam = z.infer<typeof bookingIdSchema>;
  */
 export const listBookingsSchema = paginationSchema.extend({
   bookingStatus: bookingStatusSchema.optional(),
+  mode: bookingListModeSchema.optional(),
   paymentStatus: paymentStatusSchema.optional(),
   tutorProfileId: objectIdSchema.optional(),
   subjectId: objectIdSchema.optional(),
