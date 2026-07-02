@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Plus, Download, Loader2, AlertCircle } from "lucide-react";
 import { AddUserModal } from "@/components/admin/users/components/AddUserModal";
 import type { AddUserFormState } from "@/components/admin/users/components/AddUserModal";
@@ -15,10 +16,13 @@ import type { User, Status, Role } from "@/types/admin";
 import { PageHeader, TablePagination } from "@/components/admin/shared";
 import { useAdminUsers } from "@/hooks/admin/use-admin-users";
 import { getUserDetail, exportUsersCsv } from "@/lib/api/admin-users";
+import { Button } from "@/components/ui/button";
 
 const PER_PAGE = 10;
 
 export default function UsersPage() {
+  const locale = useLocale();
+  const t = useTranslations("admin.users");
   const {
     users, loading, error, mutating,
     page, totalPages, totalItems, setPage,
@@ -137,35 +141,38 @@ export default function UsersPage() {
 
   const start = totalItems === 0 ? 0 : (page - 1) * PER_PAGE + 1;
   const end = Math.min(page * PER_PAGE, totalItems);
-  const showingText = `Showing ${start}-${end} of ${totalItems.toLocaleString()} users`;
+  const showingText = t("showing", {
+    start,
+    end,
+    total: totalItems.toLocaleString(locale === "ar" ? "ar-EG" : "en-US"),
+  });
 
   return (
     <div className="flex flex-col bg-gray-50 min-h-full">
   
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
-          title="User Management"
-          description="Monitor, manage, and audit all platform participants."
+          title={t("title")}
+          description={t("description")}
           actions={
             <>
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={handleExportCsv}
                 disabled={exporting || loading}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 sm:px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                <span className="hidden sm:inline">Export CSV</span>
-              </button>
-              <button
+                <span className="hidden sm:inline">{t("exportCsv")}</span>
+              </Button>
+              <Button
                 type="button"
                 onClick={() => setAddUserOpen(true)}
                 disabled={mutating}
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-indigo-600 px-3 sm:px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Add User</span>
-              </button>
+                <span className="hidden sm:inline">{t("addUser")}</span>
+              </Button>
             </>
           }
         />
@@ -176,9 +183,9 @@ export default function UsersPage() {
               <AlertCircle className="h-4 w-4" />
               <span>{error}</span>
             </div>
-            <button type="button" onClick={refetch} className="text-sm font-medium text-red-700 underline hover:text-red-800">
-              Retry
-            </button>
+            <Button type="button" variant="ghost" onClick={refetch}>
+              {t("retry")}
+            </Button>
           </div>
         )}
 

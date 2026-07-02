@@ -66,13 +66,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main
-      className="min-h-screen bg-[#f5f7fb] px-4 py-8 text-start text-slate-950 sm:px-6"
-      dir={isRtl ? 'rtl' : 'ltr'}
-    >
+    <main className="min-h-screen bg-background px-4 py-6 text-start text-slate-950 sm:px-6 sm:py-8">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center">
         <Card className="w-full rounded-lg border-slate-200 bg-white/90 p-0 shadow-sm ring-slate-200">
-          <CardHeader className="gap-2 px-7 pt-7">
+          <CardHeader className="gap-2 px-5 pt-6 sm:px-7 sm:pt-7">
             <div className="flex items-center gap-2 text-indigo-600">
               <div className="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                 <GraduationCap className="size-5" />
@@ -90,16 +87,26 @@ export default function LoginPage() {
             </div>
           </CardHeader>
 
-          <CardContent className="px-7 pb-7">
+          <CardContent className="px-5 pb-6 sm:px-7 sm:pb-7">
             <form className="space-y-6" onSubmit={form.handleSubmit(handleLogin)}>
               {loginMutation.error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-                  {getLocalizedAuthError(loginMutation.error.message, tErrors)}
+                <div
+                  className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+                  role="alert"
+                >
+                    {getLocalizedAuthError(
+                      loginMutation.error.message,
+                      tErrors,
+                      loginMutation.error.status,
+                    )}
                 </div>
               )}
 
               <div className="space-y-4">
-                <FieldError message={form.formState.errors.email?.message}>
+                <FieldError
+                  id="email-error"
+                  message={form.formState.errors.email?.message}
+                >
                   <label
                     className="text-xs font-semibold text-slate-700"
                     htmlFor="email"
@@ -108,18 +115,25 @@ export default function LoginPage() {
                   </label>
                   <Input
                     className={cn(
-                      'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm',
-                      isRtl && 'text-right',
+                      'mt-2 h-12 rounded-lg border-slate-300 bg-white px-4 text-sm text-left',
                     )}
                     id="email"
+                    aria-describedby={
+                      form.formState.errors.email ? 'email-error' : undefined
+                    }
+                    aria-invalid={Boolean(form.formState.errors.email)}
                     autoComplete="email"
+                    dir="ltr"
                     placeholder={t('login.emailPlaceholder')}
                     type="email"
                     {...form.register('email')}
                   />
                 </FieldError>
 
-                <FieldError message={form.formState.errors.password?.message}>
+                <FieldError
+                  id="password-error"
+                  message={form.formState.errors.password?.message}
+                >
                   <label
                     className="text-xs font-semibold text-slate-700"
                     htmlFor="password"
@@ -132,6 +146,12 @@ export default function LoginPage() {
                       isRtl && 'text-right',
                     )}
                     id="password"
+                    aria-describedby={
+                      form.formState.errors.password
+                        ? 'password-error'
+                        : undefined
+                    }
+                    aria-invalid={Boolean(form.formState.errors.password)}
                     autoComplete="current-password"
                     placeholder={t('login.passwordPlaceholder')}
                     type="password"
@@ -175,7 +195,7 @@ export default function LoginPage() {
               </p>
 
               <div className="border-t border-slate-200 pt-7">
-                <div className="flex items-center justify-center gap-5 text-xs font-medium text-slate-700">
+                <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center text-xs font-medium text-slate-700">
                   <Link href={getLocalePath(locale, '/privacy')}>{t('login.privacyPolicy')}</Link>
                   <Link href={getLocalePath(locale, '/terms')}>{t('login.termsOfService')}</Link>
                   <Link href={getLocalePath(locale, '/help')}>{t('login.helpCenter')}</Link>
@@ -191,16 +211,20 @@ export default function LoginPage() {
 
 function FieldError({
   children,
+  id,
   message,
 }: {
   children: React.ReactNode;
+  id: string;
   message?: string;
 }) {
   return (
     <div>
       {children}
       {message && (
-        <p className="mt-2 text-xs font-medium text-red-600">{message}</p>
+        <p className="mt-2 text-xs font-medium text-red-600" id={id}>
+          {message}
+        </p>
       )}
     </div>
   );

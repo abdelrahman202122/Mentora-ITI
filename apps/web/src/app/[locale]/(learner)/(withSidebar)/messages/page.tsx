@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import { ChatList } from "@/components/chat/ChatList"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { getLocalePath } from "@/utils/i18n/locale-path"
 
 export default function MessagesPage() {
   const locale = useLocale()
+  const t = useTranslations("Chat.learner")
   const [status, setStatus] = useState<ChatStatus>("active")
   const isArchived = status === "archived"
 
@@ -21,22 +22,22 @@ export default function MessagesPage() {
           type="button"
           variant={status === "active" ? "default" : "outline"}
         >
-          Active
+          {t("active")}
         </Button>
         <Button
           onClick={() => setStatus("archived")}
           type="button"
           variant={isArchived ? "default" : "outline"}
         >
-          Archived
+          {t("archived")}
         </Button>
       </div>
 
       <ChatList
         description={
           isArchived
-            ? "Restore conversations you want to continue."
-            : "Continue your tutor conversations."
+            ? t("archivedDescription")
+            : t("description")
         }
         getChatHref={(chat) =>
           getLocalePath(
@@ -47,7 +48,7 @@ export default function MessagesPage() {
           )
         }
         status={status}
-        title={isArchived ? "Archived messages" : "Messages"}
+        title={isArchived ? t("archivedTitle") : t("title")}
       />
     </div>
   )

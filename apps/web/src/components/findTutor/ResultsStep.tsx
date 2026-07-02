@@ -182,6 +182,7 @@ export default function ResultsStep({
 }: ResultsStepProps) {
   const locale = useLocale();
   const t = useTranslations("findTutor");
+  const isRtl = locale === "ar";
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCurriculum, setSelectedCurriculum] = useState(
     curriculum || ALL_VALUE,
@@ -310,9 +311,15 @@ export default function ResultsStep({
         <CardContent className="space-y-4">
           <div className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(4,minmax(150px,auto))]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <Search
+                className={`absolute top-1/2 size-4 -translate-y-1/2 text-slate-400 ${
+                  isRtl ? "right-3" : "left-3"
+                }`}
+              />
               <Input
-                className="h-9 bg-white pl-9"
+                className={`h-9 bg-white ${
+                  isRtl ? "pr-9 text-right" : "pl-9 text-left"
+                }`}
                 onChange={(event) => {
                   setPage(1);
                   setSearchQuery(event.target.value);
@@ -626,7 +633,7 @@ function TutorResultCard({
               </p>
             </div>
 
-            <div className="text-left sm:text-right">
+            <div className="text-start sm:text-end">
               <p className="text-lg font-semibold text-slate-950">
                 {tutor.profile.hourlyRate} EGP
               </p>

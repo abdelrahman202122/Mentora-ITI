@@ -56,9 +56,9 @@ function StepperSidebar({
   selectedSubject,
 }: StepperSidebarProps) {
   const locale = useLocale();
+  const isRtl = locale === 'ar';
   const t = useTranslations('findTutor.steps');
   const tFindTutor = useTranslations('findTutor');
-  const isRtl = locale === 'ar';
   const getSelectedValueLabel = (value: string) => {
     const normalizedValue = normalizeSelectedValue(value);
     const key = selectedValueTranslationKeys[normalizedValue];
@@ -74,15 +74,17 @@ function StepperSidebar({
   ];
 
   return (
-    <Card className="w-full">
+    <Card className={`w-full `}>
       <CardHeader>
-        <CardTitle className="text-sm">{t('title')}</CardTitle>
+        <CardTitle className={`text-sm ${isRtl ? 'text-right' : 'text-left'}`}>
+          {t('title')}
+        </CardTitle>
       </CardHeader>
 
       <CardContent>
         <div
           className={`grid grid-cols-4 gap-2 lg:relative lg:block lg:space-y-5 lg:before:absolute lg:before:bottom-2 lg:before:top-2 lg:before:w-px lg:before:bg-border ${
-            isRtl ? 'lg:before:right-[15px]' : 'lg:before:left-[15px]'
+            isRtl ? 'lg:before:right-3.75 ' : 'lg:before:left-3.75'
           }`}
         >
           {steps.map((step) => {
@@ -99,8 +101,10 @@ function StepperSidebar({
                 onClick={() => isClickable && onStepClick(step.number)}
                 disabled={!isClickable}
                 type="button"
-                className={`group flex min-w-0 flex-col items-center gap-2 rounded-lg p-2 text-center transition-colors lg:flex-row lg:items-center lg:gap-4 lg:p-0 ${
-                  isRtl ? 'lg:text-right' : 'lg:text-left'
+                className={`group flex min-w-0 flex-col items-center gap-2 rounded-lg p-2 text-center transition-colors  lg:items-center lg:gap-4 lg:p-0 lg:w-full ${
+                  isRtl
+                    ? 'lg:text-right lg:flex-row-reverse '
+                    : 'lg:text-left lg:flex-row'
                 } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
               >
                 <div
@@ -113,7 +117,7 @@ function StepperSidebar({
                   }`}
                 >
                   {isCompleted ? (
-                    <Check className="size-4 stroke-[3]" />
+                    <Check className="size-4 stroke-3" />
                   ) : (
                     step.number
                   )}
@@ -188,6 +192,9 @@ export default function FindTutor({
   const [selectedSubject, setSelectedSubject] = useState<string | null>(
     initialFilters?.subject ?? null,
   );
+
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
 
   // Checks if the user is allowed to proceed to the next step
   const isStepComplete = () => {
@@ -283,7 +290,9 @@ export default function FindTutor({
   };
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 py-4 lg:flex-row lg:gap-6">
+    <div
+      className={`mx-auto flex max-w-7xl flex-col items-start gap-4 py-4 lg:flex-row lg:gap-6 ${isRtl ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
+    >
       {/* Sidebar - Visual Stepper Indicator */}
       <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-72">
         <StepperSidebar

@@ -1,88 +1,48 @@
-// import ReviewSummary from "@/components/TutorReviews/ReviewSummary";
-// import ReviewCard from "@/components/TutorReviews/ReviewCard";
-
-// export default function ReviewsPage() {
-//         const data = [
-//   {
-//     name: "Julian Barnes",
-//     rating: 5,
-//     date: "Oct 24, 2024",
-//     comment: "Great explanation of calculus...",
-//   },
-//   {
-//     name: "Sarah Jenkins",
-//     rating: 4,
-//     date: "Oct 22, 2024",
-//     comment: "Good but needs visuals.",
-//   },
-// ];
-
-//   return (
-    
-//     <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
-//       <div>
-//         <h1 className="text-3xl font-bold">My Reviews</h1>
-//         <p className="text-muted-foreground">
-//           Monitor student feedback and reputation
-//         </p>
-//       </div>
-
-//       <ReviewSummary reviews= {128} />
-//     <div className="space-y-4 mt-6">
-//       {data.map((r, i) => (
-//         <ReviewCard key={i} {...r} />
-//       ))}
-//     </div>
-//     </div>
-//   );
-// }
 "use client";
 
 import { useState } from "react";
-import ReviewSummary from "@/components/TutorReviews/ReviewSummary";
+import { useTranslations } from "next-intl";
+
 import ReviewCard from "@/components/TutorReviews/ReviewCard";
+import ReviewSummary from "@/components/TutorReviews/ReviewSummary";
+import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/auth/use-auth";
 import { useMyReviews } from "@/hooks/reviews/reviews";
 import { useTutorProfile } from "@/hooks/tutor/useTutorProfile";
-import { useCurrentUser } from "@/hooks/auth/use-auth"; 
+
 const PAGE_LIMIT = 5;
 
 export default function ReviewsPage() {
+  const t = useTranslations("tutorReviews");
   const { data: currentUser } = useCurrentUser();
-  const tutorId = currentUser?.id?? ""; 
-
+  const tutorId = currentUser?.id ?? "";
   const [page, setPage] = useState(1);
 
+  const { data: tutorProfile, isLoading: isLoadingProfile } =
+    useTutorProfile(tutorId);
   const {
-  data: tutorProfile,
-  isLoading: isLoadingProfile,
-} = useTutorProfile(tutorId);
-
-const {
-  data: reviewsData,
-  isLoading: isLoadingReviews,
-  isError: isReviewsError,
-} = useMyReviews(
-  tutorProfile?._id ?? "" ,
-  { page, limit: PAGE_LIMIT },
-   !!tutorProfile, 
-  
-);
+    data: reviewsData,
+    isError: isReviewsError,
+    isLoading: isLoadingReviews,
+  } = useMyReviews(
+    tutorProfile?._id ?? "",
+    { page, limit: PAGE_LIMIT },
+    !!tutorProfile,
+  );
 
   const reviews = reviewsData?.reviews ?? [];
   const pagination = reviewsData?.pagination;
 
   return (
     <div className="max-w-6xl mx-auto px-0 sm:px-6 py-8 space-y-10">
-      <div>
-        <h1 className="text-3xl font-bold">My Reviews</h1>
-        <p className="text-muted-foreground">
-          Monitor student feedback and reputation
-        </p>
-      </div>
+      <header>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
+      </header>
 
       {isLoadingProfile ? (
         <div className="text-muted-foreground text-sm py-6 text-center">
-          Loading rating summary…
+          {t("loadingSummary")}
         </div>
       ) : (
         <ReviewSummary
@@ -94,19 +54,19 @@ const {
       <div className="space-y-4 mt-6">
         {isLoadingReviews && (
           <div className="text-muted-foreground text-sm py-6 text-center">
-            Loading reviews…
+            {t("loadingReviews")}
           </div>
         )}
 
         {isReviewsError && (
-          <div className="text-red-500 text-sm py-6 text-center">
-            Failed to load reviews. Please try again.
+          <div className="text-red-600 text-sm py-6 text-center">
+            {t("error")}
           </div>
         )}
 
         {!isLoadingReviews && !isReviewsError && reviews.length === 0 && (
           <div className="text-muted-foreground text-sm py-6 text-center">
-            No reviews yet.
+            {t("empty")}
           </div>
         )}
 
@@ -116,26 +76,33 @@ const {
       </div>
 
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-4">
-          <button
-            className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted transition disabled:opacity-40"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+        <div className="flex flex-wrap justify-center items-center gap-3 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
             disabled={page <= 1}
           >
-            Previous
-          </button>
+            {t("previous")}
+          </Button>
 
           <span className="text-sm text-muted-foreground">
-            Page {pagination.page} of {pagination.totalPages}
+            {t("pageOf", {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+            })}
           </span>
 
-          <button
-            className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted transition disabled:opacity-40"
-            onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              setPage((current) => Math.min(pagination.totalPages, current + 1))
+            }
             disabled={page >= pagination.totalPages}
           >
-            Next
-          </button>
+            {t("next")}
+          </Button>
         </div>
       )}
     </div>

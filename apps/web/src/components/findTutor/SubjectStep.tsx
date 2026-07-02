@@ -1,9 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Calculator, FlaskConical, Languages, Binary, Book, Loader2, Search } from "lucide-react";
+import {
+  Binary,
+  Book,
+  Calculator,
+  FlaskConical,
+  Languages,
+  Loader2,
+  Search,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+
+import { Input } from "@/components/ui/input";
 import { useSubjectCategories } from "@/hooks/metadata/useSubjectCategories";
+
 import SelectorCard from "./SelectorCard";
 
 interface SubjectStepProps {
@@ -25,10 +36,33 @@ export default function SubjectStep({
 
   const getIcon = (value: string) => {
     const val = value.toLowerCase();
-    if (val.includes("math")) return <Calculator className="size-6 text-on-primary-container" />;
-    if (val.includes("science") || val.includes("phys") || val.includes("chem") || val.includes("bio")) return <FlaskConical className="size-6 text-on-secondary-container" />;
-    if (val.includes("lang") || val.includes("english") || val.includes("arab") || val.includes("french")) return <Languages className="size-6 text-on-tertiary-container" />;
-    if (val.includes("tech") || val.includes("comp") || val.includes("code") || val.includes("prog")) return <Binary className="size-6 text-on-surface" />;
+    if (val.includes("math")) {
+      return <Calculator className="size-6 text-on-primary-container" />;
+    }
+    if (
+      val.includes("science") ||
+      val.includes("phys") ||
+      val.includes("chem") ||
+      val.includes("bio")
+    ) {
+      return <FlaskConical className="size-6 text-on-secondary-container" />;
+    }
+    if (
+      val.includes("lang") ||
+      val.includes("english") ||
+      val.includes("arab") ||
+      val.includes("french")
+    ) {
+      return <Languages className="size-6 text-on-tertiary-container" />;
+    }
+    if (
+      val.includes("tech") ||
+      val.includes("comp") ||
+      val.includes("code") ||
+      val.includes("prog")
+    ) {
+      return <Binary className="size-6 text-on-surface" />;
+    }
     return <Book className="size-6 text-on-surface-variant" />;
   };
 
@@ -76,19 +110,18 @@ export default function SubjectStep({
         </p>
       </div>
 
-      {/* Search Input */}
       <div className="relative group">
         <Search
           className={`absolute top-1/2 -translate-y-1/2 size-5 text-outline ${
             isRtl ? "right-4" : "left-4"
           }`}
         />
-        <input
+        <Input
           type="text"
           placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={`w-full py-4 bg-surface-container-low border border-outline-variant rounded-xl font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm ${
+          className={`h-12 bg-surface-container-low shadow-sm ${
             isRtl ? "pr-12 pl-4 text-right" : "pl-12 pr-4 text-left"
           }`}
         />

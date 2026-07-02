@@ -15,12 +15,13 @@ import {
 import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { getPaymentById, type PaymentDetails } from "@/services/payment/PaymentDetailsService"
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "—"
-  return new Date(iso).toLocaleDateString("en-GB", {
+function formatDate(iso: string | null, locale: string): string {
+  if (!iso) return "-"
+  return new Date(iso).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -59,9 +60,9 @@ function StatusBadge({
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b last:border-0 gap-1">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b last:border-0 gap-1 sm:gap-4">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
+      <span className="text-sm font-medium text-foreground sm:text-end">{value}</span>
     </div>
   )
 }
@@ -71,6 +72,7 @@ export default function PaymentDetailsPage() {
   const paymentId = params.paymentId as string
   const locale = (params.locale as string) ?? "en"
   const t = useTranslations("PaymentDetails")
+  const isRtl = locale === "ar"
 
   const [payment, setPayment] = useState<PaymentDetails | null>(null)
   const [loading, setLoading] = useState(() => Boolean(paymentId))
@@ -78,6 +80,8 @@ export default function PaymentDetailsPage() {
 
 useEffect(() => {
     if (!paymentId) {
+      setError(t("notFoundError"))
+      setLoading(false)
       return
     }
 
@@ -87,13 +91,14 @@ useEffect(() => {
       .finally(() => setLoading(false))
   }, [paymentId, t])
   return (
-    <div className="min-h-screen bg-white p-6 md:p-12 font-sans">
+    <div className="min-h-screen bg-white p-4 sm:p-6 md:p-12 font-sans">
       <div className="max-w-2xl mx-auto">
 
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="gap-2 text-sidebar-primary hover:underline px-0">
             <Link href={`/${locale}/paymentHistory`}>
-              <ArrowLeft size={16} /> {t("backToPayments")}
+              <ArrowLeft size={16} className={cn(isRtl && "rotate-180")} aria-hidden />
+              {t("backToPayments")}
             </Link>
           </Button>
         </div>
@@ -138,12 +143,12 @@ useEffect(() => {
               <Row label={t("fields.createdAt")} value={
                 <span className="flex items-center gap-2">
                   <Calendar size={14} className="text-muted-foreground" />
-                  {formatDate(payment.createdAt)}
+                  {formatDate(payment.createdAt, locale)}
                 </span>
               } />
-              {payment.paidAt && <Row label={t("fields.paidAt")} value={formatDate(payment.paidAt)} />}
-              {payment.failedAt && <Row label={t("fields.failedAt")} value={formatDate(payment.failedAt)} />}
-              {payment.refundedAt && <Row label={t("fields.refundedAt")} value={formatDate(payment.refundedAt)} />}
+              {payment.paidAt && <Row label={t("fields.paidAt")} value={formatDate(payment.paidAt, locale)} />}
+              {payment.failedAt && <Row label={t("fields.failedAt")} value={formatDate(payment.failedAt, locale)} />}
+              {payment.refundedAt && <Row label={t("fields.refundedAt")} value={formatDate(payment.refundedAt, locale)} />}
               {payment.failureReason && (
                 <Row label={t("fields.failureReason")} value={
                   <span className="text-red-600">{payment.failureReason}</span>

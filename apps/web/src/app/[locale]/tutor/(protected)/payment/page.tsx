@@ -1,102 +1,80 @@
-
-// "use client";
-
-// import { Wallet, CreditCard, Clock } from "lucide-react";
-// import PageHeader from "@/components/payment/BaymentHeader";
-// import StatCard from "@/components/payment/StatesCard";
-// import PendingPayoutCard from "@/components/payment/PendingPayoutCard";
-// import TransactionsTable from "@/components/payment/FinancialOverview";
-// import { useEarningsSummary } from "@/hooks/earning/useGetEarningSummery";
-
-// function formatAmount(amount: number) {
-//   return `$${amount.toFixed(2)}`;
-// }
-
-// export default function PaymentsPage() {
-// const { data, isLoading, isError } = useEarningsSummary();
-
-// const hasSummary = !isLoading && !isError && !!data;
-
-
-//   return (
-//     <div className="min-h-screen bg-background">
-//       <div className="mx-auto max-w-7xl space-y-8 px-6 py-8">
-
-//         <PageHeader />
-
-//         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-//           <StatCard
-//             title="Available Balance"
-//             icon={Wallet}
-//             value={isLoading ? "—" : hasSummary ? formatAmount(data.available.totalAmount) : "Unavailable"}
-//             description={hasSummary ? `${data.available.count} sessions` : "—"}
-//           />
-
-//           <StatCard
-//             title="Paid Out"
-//             icon={CreditCard}
-//             value={isLoading ? "—" : hasSummary ? formatAmount(data.paid_out.totalAmount) : "Unavailable"}
-//             description={hasSummary ? `${data.paid_out.count} sessions` : "—"}
-//           />
-
-//           <PendingPayoutCard
-//             amount={isLoading ? "—" : hasSummary ? formatAmount(data.pending.totalAmount) : "Unavailable"}
-//             count={hasSummary ? data.pending.count : 0}
-//           />
-
-//         </section>
-
-//         <TransactionsTable />
-//       </div>
-//     </div>
-//   );
-// }
 "use client";
 
-import { Wallet, CreditCard, Clock } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { CreditCard, Wallet } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+
 import PageHeader from "@/components/payment/BaymentHeader";
-import StatCard from "@/components/payment/StatesCard";
-import PendingPayoutCard from "@/components/payment/PendingPayoutCard";
 import TransactionsTable from "@/components/payment/FinancialOverview";
+import PendingPayoutCard from "@/components/payment/PendingPayoutCard";
+import StatCard from "@/components/payment/StatesCard";
 import { useEarningsSummary } from "@/hooks/earning/useGetEarningSummery";
 
-function formatAmount(amount: number) {
-  return `$${amount.toFixed(2)}`;
+function formatAmount(amount: number, locale: string) {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-US", {
+    currency: "EGP",
+    maximumFractionDigits: 0,
+    style: "currency",
+  }).format(amount);
 }
 
 export default function PaymentsPage() {
+  const locale = useLocale();
   const t = useTranslations("payments.statCards");
   const { data, isLoading, isError } = useEarningsSummary();
 
   const hasSummary = !isLoading && !isError && !!data;
+  const emptyValue = "-";
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl space-y-8 px-6 py-8">
-
+      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 py-8">
         <PageHeader />
 
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <StatCard
             title={t("availableBalance")}
             icon={Wallet}
-            value={isLoading ? "—" : hasSummary ? formatAmount(data.available.totalAmount) : t("unavailable")}
-            description={hasSummary ? t("sessionsCount", { count: data.available.count }) : "—"}
+            value={
+              isLoading
+                ? emptyValue
+                : hasSummary
+                  ? formatAmount(data.available.totalAmount, locale)
+                  : t("unavailable")
+            }
+            description={
+              hasSummary
+                ? t("sessionsCount", { count: data.available.count })
+                : emptyValue
+            }
           />
 
           <StatCard
             title={t("paidOut")}
             icon={CreditCard}
-            value={isLoading ? "—" : hasSummary ? formatAmount(data.paid_out.totalAmount) : t("unavailable")}
-            description={hasSummary ? t("sessionsCount", { count: data.paid_out.count }) : "—"}
+            value={
+              isLoading
+                ? emptyValue
+                : hasSummary
+                  ? formatAmount(data.paid_out.totalAmount, locale)
+                  : t("unavailable")
+            }
+            description={
+              hasSummary
+                ? t("sessionsCount", { count: data.paid_out.count })
+                : emptyValue
+            }
           />
 
           <PendingPayoutCard
-            amount={isLoading ? "—" : hasSummary ? formatAmount(data.pending.totalAmount) : t("unavailable")}
+            amount={
+              isLoading
+                ? emptyValue
+                : hasSummary
+                  ? formatAmount(data.pending.totalAmount, locale)
+                  : t("unavailable")
+            }
             count={hasSummary ? data.pending.count : 0}
           />
-
         </section>
 
         <TransactionsTable />

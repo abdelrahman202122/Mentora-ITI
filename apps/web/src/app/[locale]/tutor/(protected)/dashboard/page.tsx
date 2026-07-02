@@ -1,7 +1,7 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   AlertCircle,
   CheckCircle2,
@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useCurrentUser } from '@/hooks/auth/use-auth';
 import { useAcceptBooking } from '@/hooks/booking/approveBooking';
-import { useMyBookings } from '@/hooks/booking/booking';
+import { useTutorBookings } from '@/hooks/booking/booking';
 import { useCancelBooking } from '@/hooks/booking/cancelBooking';
 import { useRejectBooking } from '@/hooks/booking/rejectBooking';
 import { useConfirmBookingCode } from '@/hooks/booking/useConfirmBookingCode';
@@ -34,13 +34,14 @@ import type { Booking } from '@/types/booking/booking-data';
 function formatCurrency(
   amount: number | undefined,
   currency: string = 'USD',
+  locale: string,
 ): string {
   if (typeof amount === 'undefined') {
     return 'Failed to load';
   }
 
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
       style: 'currency',
       currency,
       maximumFractionDigits: 0,
@@ -50,8 +51,8 @@ function formatCurrency(
   }
 }
 
-function formatSessionDateTime(isoString: string): string {
-  return new Intl.DateTimeFormat('en-US', {
+function formatSessionDateTime(isoString: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
@@ -87,8 +88,10 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function InstructorDashboard() {
+  const locale = useLocale();
   const t = useTranslations('tutorDashboard');
   const tStatus = useTranslations('tutorDashboard.bookingStatus');
+
   const statusFilters: { label: string; value: BookingStatus | 'all' }[] = [
     { label: tStatus('all'), value: 'all' },
     { label: tStatus('pending'), value: 'pending' },
@@ -106,15 +109,14 @@ export default function InstructorDashboard() {
   const [sessionCode, setSessionCode] = useState('');
   const [sessionSuccess, setSessionSuccess] = useState<string | null>(null);
 
-  const { data, isLoading, isError } = useMyBookings(
+  const { data, isLoading, isError } = useTutorBookings(
     activeFilter !== 'all'
       ? {
           bookingStatus: activeFilter,
           page: currentPage,
           limit: 10,
-          mode: 'tutor',
         }
-      : { page: currentPage, limit: 10, mode: 'tutor' },
+      : { page: currentPage, limit: 10 },
   );
   const { data: currentUser } = useCurrentUser();
   const { data: stats, isLoading: isStatsLoading } = useTutorStats();
@@ -190,7 +192,7 @@ export default function InstructorDashboard() {
             value={
               isStatsLoading
                 ? '...'
-                : formatCurrency(stats?.totalEarnings, 'EGP')
+                : formatCurrency(stats?.totalEarnings, 'EGP', locale)
             }
           />
           <StatCard
@@ -235,23 +237,22 @@ export default function InstructorDashboard() {
                   Session - {activeSession.subjectId}
                 </p>
                 <p className="mt-1 text-sm text-primary-foreground/75">
-                  {formatSessionDateTime(activeSession.startAt)} to{' '}
-                  {formatSessionDateTime(activeSession.endAt)}
+                  {formatSessionDateTime(activeSession.startAt, locale)} -{' '}
+                  {formatSessionDateTime(activeSession.endAt, locale)}
                 </p>
               </div>
             ) : (
               <div className="rounded-xl border border-white/15 bg-white/10 p-4 text-sm text-primary-foreground/85">
                 {nextPaidSession ? (
                   <>
-                    Your next paid session starts on{' '}
+                    {t('startSession.nextStarts')}{' '}
                     <span className="font-semibold text-primary-foreground">
-                      {formatSessionDateTime(nextPaidSession.startAt)}
+                      {formatSessionDateTime(nextPaidSession.startAt, locale)}
                     </span>
-                    . The verification field will become available during the
-                    session time.
+                    {t('startSession.fieldAvailable')}
                   </>
                 ) : (
-                  'No paid session is live right now.'
+                  t('startSession.noLiveSession')
                 )}
               </div>
             )}
@@ -280,7 +281,7 @@ export default function InstructorDashboard() {
                 className="h-11 bg-white px-5 font-semibold text-primary hover:bg-white/90"
               >
                 {confirmBookingCode.isPending
-                  ? 'Verifying...'
+                  ? t('startSession.verifying')
                   : t('startSession.verifyButton')}
               </Button>
             </form>
@@ -295,7 +296,7 @@ export default function InstructorDashboard() {
             {sessionSuccess ? (
               <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
                 <CheckCircle2 className="size-4" />
-                {sessionSuccess}
+                {t('startSession.verified')}
               </div>
             ) : null}
           </CardContent>
@@ -308,18 +309,15 @@ export default function InstructorDashboard() {
 
           <div className="flex flex-wrap gap-2">
             {statusFilters.map(({ label, value }) => (
-              <button
+              <Button
+                variant={activeFilter === value ? 'default' : 'outline'}
+                size="sm"
                 key={value}
                 onClick={() => handleFilterChange(value)}
-                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                  activeFilter === value
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-background text-muted-foreground hover:border-primary hover:text-primary'
-                }`}
                 type="button"
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -363,44 +361,42 @@ export default function InstructorDashboard() {
 
           {totalPages > 1 ? (
             <div className="flex items-center justify-center gap-2 pt-4">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 disabled={currentPage === 1}
-                className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary disabled:opacity-40"
                 type="button"
               >
                 {t('bookings.previous')}
-              </button>
+              </Button>
 
               <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`h-9 w-9 rounded-lg border text-sm font-medium transition-colors ${
-                        page === currentPage
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'hover:border-primary hover:text-primary'
-                      }`}
-                      type="button"
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1,
+                ).map((page) => (
+                  <Button
+                    variant={page === currentPage ? 'default' : 'outline'}
+                    size="icon"
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    type="button"
+                  >
+                    {page}
+                  </Button>
+                ))}
               </div>
 
-              <button
+              <Button
+                variant="outline"
                 onClick={() =>
                   setCurrentPage((page) => Math.min(totalPages, page + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary disabled:opacity-40"
                 type="button"
               >
                 {t('bookings.next')}
-              </button>
+              </Button>
             </div>
           ) : null}
         </section>

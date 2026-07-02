@@ -8,12 +8,27 @@
 export function getLocalizedAuthError(
   errorMessage: string | undefined,
   t: (key: string) => string,
+  status?: number,
 ): string {
+  if (status === 429) {
+    return t("rateLimited");
+  }
+
   if (!errorMessage) {
     return t("generic");
   }
 
   const lower = errorMessage.toLowerCase();
+
+  if (
+    lower.includes("too many requests") ||
+    lower.includes("too many login attempts") ||
+    lower.includes("rate limit") ||
+    lower.includes("rate-limit") ||
+    lower.includes("try again later")
+  ) {
+    return t("rateLimited");
+  }
 
   if (
     lower.includes("invalid credentials") ||
