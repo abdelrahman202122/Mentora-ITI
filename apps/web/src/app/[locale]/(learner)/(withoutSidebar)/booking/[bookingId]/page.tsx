@@ -31,6 +31,10 @@ function formatTime(iso: string, locale: string) {
   })
 }
 
+function formatMoney(amount: number) {
+  return `EGP ${amount.toFixed(2)}`
+}
+
 function StatusBadge({ status }: { status: BookingDetails["bookingStatus"] }) {
   const t = useTranslations("BookingDetails")
   const map: Record<string, { label: string; className: string }> = {
@@ -204,7 +208,7 @@ export default function BookingDetailsPage() {
                 } />
 
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("payment")}</p>
-                <Row label={t("price")} value={`${booking.price} ${booking.currency}`} />
+                <Row label={t("price")} value={formatMoney(booking.price)} />
                 <Row label={t("paymentStatus")} value={
                   <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                     booking.paymentStatus === "paid"
@@ -235,7 +239,6 @@ export default function BookingDetailsPage() {
                 )}
 
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("info")}</p>
-                <Row label={t("bookingId")} value={<span className="font-mono text-xs">{booking._id}</span>} />
                 <Row label={t("createdAt")} value={formatDate(booking.createdAt, locale)} />
 
               </CardContent>

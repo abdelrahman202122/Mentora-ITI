@@ -27,9 +27,9 @@ export default function GradeLevels() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.06, duration: 0.3 }}
-              className="flex flex-col items-center gap-4 group"
+              className="flex flex-col items-center gap-4"
             >
-              <div className="p-5 bg-white rounded-xl border border-slate-200 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition-colors duration-200">
+              <div className="p-5 bg-white rounded-xl border border-slate-200">
                 <grade.icon className="w-8 h-8 text-indigo-600" />
               </div>
               <span className="font-semibold text-slate-700 text-center">{t(grade.key)}</span>

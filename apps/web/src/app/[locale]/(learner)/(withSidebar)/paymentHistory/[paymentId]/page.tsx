@@ -132,7 +132,7 @@ useEffect(() => {
               <Row label={t("fields.total")} value={
                 <span className="flex items-center gap-2">
                   <CreditCard size={14} className="text-muted-foreground" />
-                  {payment.currency} {payment.amount.toFixed(2)}
+                  EGP {payment.amount.toFixed(2)}
                 </span>
               } />
               <Row label={t("fields.provider")} value={payment.provider} />

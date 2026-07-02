@@ -90,6 +90,10 @@ async function promoteBookingEarningToAvailable(
   }
 }
 
+async function expirePastUnpaidBookings(): Promise<void> {
+  await bookingRepository.expirePastPendingBookings();
+}
+
 type CreateBookingPayload = Omit<
   CreateBookingInput,
   'tutorId' | 'price' | 'currency'
@@ -385,6 +389,8 @@ export async function acceptBooking(
   bookingId: Types.ObjectId,
   tutorId: string | Types.ObjectId,
 ): Promise<BookingResponse> {
+  await expirePastUnpaidBookings();
+
   // Find booking
   const booking = await bookingRepository.findBookingById(bookingId);
 
@@ -439,6 +445,8 @@ export async function rejectBooking(
   bookingId: Types.ObjectId,
   tutorId: string | Types.ObjectId,
 ): Promise<BookingResponse> {
+  await expirePastUnpaidBookings();
+
   // Find booking
   const booking = await bookingRepository.findBookingById(bookingId);
 
@@ -655,6 +663,8 @@ export async function listLearnerBookings(
   page: number;
   totalPages: number;
 }> {
+  await expirePastUnpaidBookings();
+
   // Build MongoDB filter query from provided filters
   const mongoFilters: Record<string, unknown> = {};
 
@@ -720,6 +730,8 @@ export async function listTutorBookings(
   page: number;
   totalPages: number;
 }> {
+  await expirePastUnpaidBookings();
+
   const mongoFilters: Record<string, unknown> = {};
 
   if (filters?.bookingStatus) {
@@ -779,6 +791,8 @@ export async function listAdminBookings(
   page: number;
   totalPages: number;
 }> {
+  await expirePastUnpaidBookings();
+
   const mongoFilters: Record<string, unknown> = {};
 
   if (filters?.bookingStatus) {
@@ -834,6 +848,8 @@ export async function getBookingByIdWithAuth(
   userId: Types.ObjectId | string,
   userRoles: string[],
 ): Promise<BookingResponse> {
+  await expirePastUnpaidBookings();
+
   const booking = await bookingRepository.findBookingById(bookingId);
 
   if (!booking) {

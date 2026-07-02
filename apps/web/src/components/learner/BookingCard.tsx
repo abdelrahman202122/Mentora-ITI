@@ -21,7 +21,7 @@ export default function BookingCard({
   paymentPending,
   hourlyRate = 45,
   duration = 60,
-  currency = "$",
+  currency = "EGP",
 }: BookingCardProps) {
   const router = useRouter()
   const params = useParams()

@@ -1,7 +1,10 @@
-
 import { z } from 'zod';
 import { UserRole } from './user.interface.js';
 import { normalizePhoneNumber } from '../../utils/normalizePhoneNumber.js';
+
+// Strong password: uppercase, lowercase, number, special char, min 8 chars
+const strongPasswordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*\-_=+]).{8,}$/;
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -14,15 +17,12 @@ const emailSchema = z
   .toLowerCase()
   .email('Email must be a valid email address');
 
-  export const phoneNumberSchema = z
+export const phoneNumberSchema = z
   .string({
-    required_error: "Phone number is required",
+    required_error: 'Phone number is required',
   })
   .trim()
-  .regex(
-    /^(010|011|012|015)\d{8}$/,
-    "Invalid Egyptian phone number",
-  );
+  .regex(/^(010|011|012|015)\d{8}$/, 'Invalid Egyptian phone number');
 
 export const registerSchema = z.object({
   name: z
@@ -37,7 +37,10 @@ export const registerSchema = z.object({
     .string({
       required_error: 'Password is required',
     })
-    .min(6, 'Password must be at least 6 characters'),
+    .regex(
+      strongPasswordRegex,
+      'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (!@#$%^&*-_=+)',
+    ),
 });
 
 export const loginSchema = z.object({
@@ -60,7 +63,7 @@ export const updateUserByAdminSchema = z
     role: z.nativeEnum(UserRole).optional(),
     isActive: z.boolean().optional(),
     isEmailVerified: z.boolean().optional(),
-  
+
     adminStatus: z.enum(['Active', 'Pending', 'Suspended']).optional(),
     roleLabel: z.string().trim().max(100).optional(),
   })
@@ -75,7 +78,10 @@ export const changePasswordSchema = z
       .min(1),
     newPassword: z
       .string({ required_error: 'New password is required' })
-      .min(6, 'Password must be at least 6 characters'),
+      .regex(
+        strongPasswordRegex,
+        'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (!@#$%^&*-_=+)',
+      ),
   })
   .strict()
   .refine((data) => data.currentPassword !== data.newPassword, {
@@ -92,10 +98,7 @@ export const updateProfileSchema = z
       .max(100)
       .optional(),
     avatar: z.string().url('Avatar must be a valid URL').max(500).optional(),
-    phoneNumber: z
-    .string()
-    .transform(normalizePhoneNumber)
-    .optional(),
+    phoneNumber: z.string().transform(normalizePhoneNumber).optional(),
   })
   .strict();
 
@@ -116,8 +119,12 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, 'Token is required'),
-
-    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    newPassword: z
+      .string()
+      .regex(
+        strongPasswordRegex,
+        'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (!@#$%^&*-_=+)',
+      ),
   })
   .strict();
 
@@ -134,4 +141,3 @@ export const changeUserStatusSchema = z
   .strict();
 
 export type ChangeUserStatusInput = z.infer<typeof changeUserStatusSchema>;
-

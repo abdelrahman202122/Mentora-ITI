@@ -214,7 +214,7 @@ export default function PaymentsPage() {
       subject: subjectTitles[payment._id] ?? t("session"),
       duration: durations[payment._id] ?? 0,
       amount: payment.amount,
-      currency: payment.currency,
+      currency: "EGP",
       status: statusLabelMap[payment.status] ?? payment.status,
     }
   }

@@ -19,10 +19,13 @@ export default async function LocaleLayout({
   const locale = isSupportedLocale(rawLocale)
     ? rawLocale
     : routing.defaultLocale;
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
     <NextIntlClientProvider locale={locale}>
-      {children}
+      <div lang={locale} dir={dir} className="min-h-screen">
+        {children}
+      </div>
       {/* <Footer /> */}
     </NextIntlClientProvider>
   );

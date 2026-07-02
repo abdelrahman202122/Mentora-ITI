@@ -101,10 +101,8 @@ function StepperSidebar({
                 onClick={() => isClickable && onStepClick(step.number)}
                 disabled={!isClickable}
                 type="button"
-                className={`group flex min-w-0 flex-col items-center gap-2 rounded-lg p-2 text-center transition-colors  lg:items-center lg:gap-4 lg:p-0 lg:w-full ${
-                  isRtl
-                    ? 'lg:text-right lg:flex-row-reverse '
-                    : 'lg:text-left lg:flex-row'
+                className={`group flex min-w-0 flex-col items-center gap-2 rounded-lg p-2 text-center transition-colors lg:flex-row lg:items-center lg:gap-4 lg:p-0 lg:w-full ${
+                  isRtl ? 'lg:text-right' : 'lg:text-left'
                 } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
               >
                 <div

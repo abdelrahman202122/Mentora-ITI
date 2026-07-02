@@ -33,7 +33,7 @@ import type { Booking } from '@/types/booking/booking-data';
 
 function formatCurrency(
   amount: number | undefined,
-  currency: string = 'USD',
+  currency: string = 'EGP',
   locale: string,
 ): string {
   if (typeof amount === 'undefined') {

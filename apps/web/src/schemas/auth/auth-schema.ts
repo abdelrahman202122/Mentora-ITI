@@ -1,7 +1,11 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const userRoles = ["student", "teacher"] as const;
+export const userRoles = ['student', 'teacher'] as const;
 const egyptianPhoneRegex = /^(010|011|012|015)\d{8}$/;
+
+// Strong password: uppercase, lowercase, number, special char, min 8 chars
+const strongPasswordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*\-_=+]).{8,}$/;
 
 /**
  * Translator function type that mirrors the signature of next-intl's
@@ -12,14 +16,11 @@ export type AuthValidationTranslator = (key: string) => string;
 
 export function createRegisterSchema(t: AuthValidationTranslator) {
   return z.object({
-    email: z.string().email(t("emailInvalid")),
-    password: z.string().min(6, t("passwordMin")),
-    name: z.string().min(2, t("nameMin")),
-    phoneNumber: z
-      .string()
-      .trim()
-      .regex(egyptianPhoneRegex, t("phoneInvalid")),
-    role: z.enum(userRoles, t("roleInvalid")),
+    email: z.string().email(t('emailInvalid')),
+    password: z.string().regex(strongPasswordRegex, t('passwordStrong')),
+    name: z.string().trim().min(2, t('nameMin')),
+    phoneNumber: z.string().trim().regex(egyptianPhoneRegex, t('phoneInvalid')),
+    role: z.enum(userRoles, t('roleInvalid')),
   });
 }
 
@@ -29,26 +30,26 @@ export function createBackendRegisterSchema(t: AuthValidationTranslator) {
 
 export function createLoginSchema(t: AuthValidationTranslator) {
   return z.object({
-    email: z.string().email(t("emailInvalid")),
-    password: z.string().min(1, t("passwordRequired")),
+    email: z.string().email(t('emailInvalid')),
+    password: z.string().min(1, t('passwordRequired')),
   });
 }
 
 export function createForgotPasswordSchema(t: AuthValidationTranslator) {
   return z.object({
-    email: z.string().email(t("emailInvalid")),
+    email: z.string().email(t('emailInvalid')),
   });
 }
 
 export function createResetPasswordSchema(t: AuthValidationTranslator) {
   return z
     .object({
-      newPassword: z.string().min(6, t("passwordMin")),
-      confirmPassword: z.string().min(1, t("confirmPasswordRequired")),
+      newPassword: z.string().regex(strongPasswordRegex, t('passwordStrong')),
+      confirmPassword: z.string().min(1, t('confirmPasswordRequired')),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
-      message: t("passwordsMustMatch"),
-      path: ["confirmPassword"],
+      message: t('passwordsMustMatch'),
+      path: ['confirmPassword'],
     });
 }
 

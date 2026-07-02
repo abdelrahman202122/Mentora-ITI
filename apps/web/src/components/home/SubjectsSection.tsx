@@ -78,11 +78,8 @@ export default function ProfessionalSubjectsSection() {
                   key={subject.key}
                   className="basis-1/2 md:basis-1/4 lg:basis-1/6"
                 >
-                  <motion.div
-                    whileHover={{ y: -3 }}
-                    className="flex flex-col items-center gap-4"
-                  >
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 transition-colors duration-200 hover:border-indigo-200 hover:bg-indigo-50">
+                  <motion.div className="flex flex-col items-center gap-4">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
                       <subject.icon className="size-8 text-indigo-600" />
                     </div>
                     <span className="text-center font-semibold text-slate-700">

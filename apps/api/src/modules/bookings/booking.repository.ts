@@ -80,6 +80,33 @@ export async function findBookingById(
 }
 
 /**
+ * Mark pending bookings as expired once their start time has passed.
+ */
+export async function expirePastPendingBookings(
+  now: Date = new Date(),
+): Promise<number> {
+  const result = await Booking.updateMany(
+    {
+      $or: [
+        { bookingStatus: BookingStatus.PENDING },
+        {
+          bookingStatus: BookingStatus.CONFIRMED,
+          paymentStatus: { $ne: 'paid' },
+        },
+      ],
+      startAt: { $lte: now },
+    },
+    {
+      $set: {
+        bookingStatus: BookingStatus.EXPIRED,
+      },
+    },
+  ).exec();
+
+  return result.modifiedCount;
+}
+
+/**
  * Find bookings by learner ID with pagination and optional filters
  */
 export async function findBookingsByLearner(
